@@ -8,7 +8,7 @@
 
 class QIODevice;
 
-namespace Core
+namespace Banana
 {
 	class Directory;
 	class AbstractDirectory;
@@ -142,4 +142,4 @@ namespace Core
 	}
 }
 
-Q_DECLARE_METATYPE(Core::AbstractFile *)
+Q_DECLARE_METATYPE(Banana::AbstractFile *)

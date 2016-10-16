@@ -4,7 +4,7 @@
 
 struct QMetaObject;
 
-namespace Core
+namespace Banana
 {
 
 	class MetaObjectChildFilter : public IChildFilter

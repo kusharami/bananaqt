@@ -12,7 +12,7 @@ namespace Scripting
 	extern const char *pScriptExtension;
 }
 
-namespace Core
+namespace Banana
 {
 	class ProjectGroup;
 
@@ -21,7 +21,7 @@ namespace Core
 		Q_OBJECT
 
 	public:
-		ScriptRunner(Core::ProjectGroup *projectGroup);
+		ScriptRunner(Banana::ProjectGroup *projectGroup);
 
 		void setParentWidget(QWidget *parentWidget);
 		bool execute(const QString &filePath, const QString &prepareScript);
@@ -45,7 +45,7 @@ namespace Core
 	private:
 		bool executeScript(QScriptEngine *engine, const QString &script, const QString &filePath);
 
-		Core::ProjectGroup *projectGroup;
+		Banana::ProjectGroup *projectGroup;
 		QString savedErrorMessage;
 		QWidget *parentWidget;
 	};

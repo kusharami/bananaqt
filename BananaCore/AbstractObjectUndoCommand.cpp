@@ -1,6 +1,6 @@
 #include "AbstractObjectUndoCommand.h"
 
-namespace Core
+namespace Banana
 {
 
 	AbstractObjectUndoCommand::AbstractObjectUndoCommand(QObject *object)

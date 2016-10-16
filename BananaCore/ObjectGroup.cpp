@@ -5,7 +5,7 @@
 
 #include <QChildEvent>
 
-namespace Core
+namespace Banana
 {
 
 	ObjectGroup::ObjectGroup()

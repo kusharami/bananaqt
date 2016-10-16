@@ -2,7 +2,7 @@
 
 #include "AbstractProjectDirectory.h"
 
-namespace Core
+namespace Banana
 {
 
 	SearchPaths::SearchPaths(AbstractProjectDirectory *project_dir, QObject *parent)

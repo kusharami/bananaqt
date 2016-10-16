@@ -3,7 +3,7 @@
 class QFont;
 class QString;
 
-namespace Core
+namespace Banana
 {
 	extern const char pX[];
 	extern const char pY[];

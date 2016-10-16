@@ -2,6 +2,164 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru_RU">
 <context>
+    <name>Banana::AbstractProjectFile</name>
+    <message>
+        <location filename="../AbstractProjectFile.cpp" line="51"/>
+        <source>mHideIgnoredFiles</source>
+        <translation>Прятать игнорируемые файлы</translation>
+    </message>
+    <message>
+        <location filename="../AbstractProjectFile.cpp" line="52"/>
+        <source>mIgnoredFilesPattern</source>
+        <translation>Игнорируемые файлы</translation>
+    </message>
+    <message>
+        <location filename="../AbstractProjectFile.cpp" line="53"/>
+        <source>mSearchPaths</source>
+        <translation>Пути поиска</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::ChangeValueCommand</name>
+    <message>
+        <location filename="../ChangeValueCommand.cpp" line="265"/>
+        <source>Reset value of &lt;%2&gt; [%1]</source>
+        <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChangeValueCommand.cpp" line="270"/>
+        <source>Change value of &lt;%2&gt; [%1]</source>
+        <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChangeValueCommand.cpp" line="275"/>
+        <source>Multiple objects</source>
+        <translation>Несколько объектов</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::ChildActionCommand</name>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="71"/>
+        <source>Add object [%1]</source>
+        <translation>Новый объект [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="76"/>
+        <source>Add multiple objects</source>
+        <translation>Добавление нескольких объектов</translation>
+    </message>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="82"/>
+        <source>Delete object [%1]</source>
+        <translation>Удаление объекта [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="87"/>
+        <source>Delete multiple objects</source>
+        <translation>Удаление нескольких объектов</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::Directory</name>
+    <message>
+        <location filename="../AbstractProjectDirectory.cpp" line="572"/>
+        <source>Some files were unable to be saved!</source>
+        <translation>Некоторые файлы сохранить не удалось!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="403"/>
+        <source>All supported file types</source>
+        <translation>Все поддерживаемые типы файлов</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="437"/>
+        <source>All supported formats</source>
+        <translation>Все поддерживаемые форматы</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="449"/>
+        <source>File &apos;%1&apos; is not found!</source>
+        <translation>Файл &quot;%1&quot; не найден!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="452"/>
+        <source>Directory &apos;%1&apos; is not found!</source>
+        <translation>Директория &quot;%1&quot; не найдена!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="455"/>
+        <source>&apos;%1&apos; is invalid file path!</source>
+        <translation>&quot;%1&quot; - некорректный путь к файлу!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="458"/>
+        <source>Cannot replace directory &apos;%1&apos; with a file!</source>
+        <translation>Нельзя заменить директорию &quot;%1&quot; файлом!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="461"/>
+        <source>Unable to write %1 &apos;%2&apos;!</source>
+        <translation>%1 &quot;%2&quot;: Ошибка записи!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="464"/>
+        <source>Unable to create directory &apos;%1&apos;!</source>
+        <translation>Не могу создать директорию &quot;%1&quot;!</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="467"/>
+        <source>%1 cannot be saved in %2 format.</source>
+        <translation>%1 не может быть сохранён как %2.</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="470"/>
+        <source>&apos;%1&apos; cannot be used as %2 name. Try to use &apos;%3&apos;.</source>
+        <translation>%2 нельзя назвать как &quot;%1&quot;. Попробуйте &quot;%3&quot;.</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="473"/>
+        <source>File &apos;%1&apos; cannot be replaced because it is open.</source>
+        <translation>Нельзя заменить файл &quot;%1&quot;, так как он открыт.</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::ScriptRunner</name>
+    <message>
+        <location filename="../ScriptRunner.cpp" line="225"/>
+        <source>Unable to load script file &apos;%1&apos;.</source>
+        <translation>Ошибка загрузки файла &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location filename="../ScriptTemplates.cpp" line="77"/>
+        <source>Bad number of arguments.</source>
+        <translation>Некорректное число аргументов.</translation>
+    </message>
+    <message>
+        <location filename="../ScriptTemplates.cpp" line="118"/>
+        <source>Type of argument #%1 is incompatible.</source>
+        <translation>Тип аргумента №%1 несовместим.</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::UndoStack</name>
+    <message>
+        <location filename="../UndoStack.cpp" line="54"/>
+        <source>Drag &amp;&amp; Drop: Copy</source>
+        <translation>Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+    </message>
+    <message>
+        <location filename="../UndoStack.cpp" line="57"/>
+        <source>Drag &amp;&amp; Drop: Move</source>
+        <translation>Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+    </message>
+    <message>
+        <location filename="../UndoStack.cpp" line="60"/>
+        <source>Drag &amp;&amp; Drop: Link</source>
+        <translation>Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+    </message>
+</context>
+<context>
     <name>Boolean</name>
     <message>
         <location filename="../Const.cpp" line="15"/>
@@ -21,7 +179,7 @@
         <translation type="vanished">Экран</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="23"/>
+        <location filename="../Config.cpp" line="25"/>
         <source>QObject</source>
         <translation>Объект</translation>
     </message>
@@ -54,72 +212,66 @@
         <translation type="vanished">Фрейм</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="50"/>
         <source>Core::AbstractProjectFile</source>
-        <translation>Проект</translation>
+        <translation type="vanished">Проект</translation>
     </message>
     <message>
         <source>GUI::ProjectFile</source>
         <translation type="vanished">Проект</translation>
     </message>
+    <message>
+        <location filename="../AbstractProjectFile.cpp" line="50"/>
+        <source>Banana::AbstractProjectFile</source>
+        <translation>Проект</translation>
+    </message>
 </context>
 <context>
     <name>Core::AbstractProjectFile</name>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="51"/>
         <source>mHideIgnoredFiles</source>
-        <translation>Прятать игнорируемые файлы</translation>
+        <translation type="vanished">Прятать игнорируемые файлы</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="52"/>
         <source>mIgnoredFilesPattern</source>
-        <translation>Игнорируемые файлы</translation>
+        <translation type="vanished">Игнорируемые файлы</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="53"/>
         <source>mSearchPaths</source>
-        <translation>Пути поиска</translation>
+        <translation type="vanished">Пути поиска</translation>
     </message>
 </context>
 <context>
     <name>Core::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="263"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
-        <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
+        <translation type="vanished">Сброс значения в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="268"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
-        <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
+        <translation type="vanished">Новое значение в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="273"/>
         <source>Multiple objects</source>
-        <translation>Несколько объектов</translation>
+        <translation type="vanished">Несколько объектов</translation>
     </message>
 </context>
 <context>
     <name>Core::ChildActionCommand</name>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="71"/>
         <source>Add object [%1]</source>
-        <translation>Новый объект [%1]</translation>
+        <translation type="vanished">Новый объект [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="76"/>
         <source>Add multiple objects</source>
-        <translation>Добавление нескольких объектов</translation>
+        <translation type="vanished">Добавление нескольких объектов</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="82"/>
         <source>Delete object [%1]</source>
-        <translation>Удаление объекта [%1]</translation>
+        <translation type="vanished">Удаление объекта [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="87"/>
         <source>Delete multiple objects</source>
-        <translation>Удаление нескольких объектов</translation>
+        <translation type="vanished">Удаление нескольких объектов</translation>
     </message>
 </context>
 <context>
@@ -136,68 +288,56 @@
 <context>
     <name>Core::Directory</name>
     <message>
-        <location filename="../Directory.cpp" line="467"/>
         <source>%1 cannot be saved in %2 format.</source>
-        <translation>%1 не может быть сохранён как %2.</translation>
+        <translation type="vanished">%1 не может быть сохранён как %2.</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="470"/>
         <source>&apos;%1&apos; cannot be used as %2 name. Try to use &apos;%3&apos;.</source>
-        <translation>%2 нельзя назвать как &quot;%1&quot;. Попробуйте &quot;%3&quot;.</translation>
+        <translation type="vanished">%2 нельзя назвать как &quot;%1&quot;. Попробуйте &quot;%3&quot;.</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="449"/>
         <source>File &apos;%1&apos; is not found!</source>
-        <translation>Файл &quot;%1&quot; не найден!</translation>
+        <translation type="vanished">Файл &quot;%1&quot; не найден!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="403"/>
         <source>All supported file types</source>
-        <translation>Все поддерживаемые типы файлов</translation>
+        <translation type="vanished">Все поддерживаемые типы файлов</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="437"/>
         <source>All supported formats</source>
-        <translation>Все поддерживаемые форматы</translation>
+        <translation type="vanished">Все поддерживаемые форматы</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="452"/>
         <source>Directory &apos;%1&apos; is not found!</source>
-        <translation>Директория &quot;%1&quot; не найдена!</translation>
+        <translation type="vanished">Директория &quot;%1&quot; не найдена!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="455"/>
         <source>&apos;%1&apos; is invalid file path!</source>
-        <translation>&quot;%1&quot; - некорректный путь к файлу!</translation>
+        <translation type="vanished">&quot;%1&quot; - некорректный путь к файлу!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="458"/>
         <source>Cannot replace directory &apos;%1&apos; with a file!</source>
-        <translation>Нельзя заменить директорию &quot;%1&quot; файлом!</translation>
+        <translation type="vanished">Нельзя заменить директорию &quot;%1&quot; файлом!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="461"/>
         <source>Unable to write %1 &apos;%2&apos;!</source>
-        <translation>%1 &quot;%2&quot;: Ошибка записи!</translation>
+        <translation type="vanished">%1 &quot;%2&quot;: Ошибка записи!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="464"/>
         <source>Unable to create directory &apos;%1&apos;!</source>
-        <translation>Не могу создать директорию &quot;%1&quot;!</translation>
+        <translation type="vanished">Не могу создать директорию &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="473"/>
         <source>File &apos;%1&apos; cannot be replaced because it is open.</source>
-        <translation>Нельзя заменить файл &quot;%1&quot;, так как он открыт.</translation>
+        <translation type="vanished">Нельзя заменить файл &quot;%1&quot;, так как он открыт.</translation>
     </message>
     <message>
         <source>File &apos;%1&apos; cannot be replaced because it is used in a project.</source>
         <translation type="vanished">Нельзя заменить файл &quot;%1&quot;, так как он используется в проекте.</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="572"/>
         <source>Some files were unable to be saved!</source>
-        <translation>Некоторые файлы сохранить не удалось!</translation>
+        <translation type="vanished">Некоторые файлы сохранить не удалось!</translation>
     </message>
 </context>
 <context>
@@ -259,37 +399,31 @@
 <context>
     <name>Core::ScriptRunner</name>
     <message>
-        <location filename="../ScriptRunner.cpp" line="225"/>
         <source>Unable to load script file &apos;%1&apos;.</source>
-        <translation>Ошибка загрузки файла &quot;%1&quot;.</translation>
+        <translation type="vanished">Ошибка загрузки файла &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../ScriptTemplates.cpp" line="77"/>
         <source>Bad number of arguments.</source>
-        <translation>Некорректное число аргументов.</translation>
+        <translation type="vanished">Некорректное число аргументов.</translation>
     </message>
     <message>
-        <location filename="../ScriptTemplates.cpp" line="118"/>
         <source>Type of argument #%1 is incompatible.</source>
-        <translation>Тип аргумента №%1 несовместим.</translation>
+        <translation type="vanished">Тип аргумента №%1 несовместим.</translation>
     </message>
 </context>
 <context>
     <name>Core::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="38"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
-        <translation>Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+        <translation type="vanished">Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="41"/>
         <source>Drag &amp;&amp; Drop: Move</source>
-        <translation>Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+        <translation type="vanished">Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="44"/>
         <source>Drag &amp;&amp; Drop: Link</source>
-        <translation>Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+        <translation type="vanished">Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
 </context>
 <context>
@@ -639,13 +773,17 @@
         <translation type="vanished">Графический файл</translation>
     </message>
     <message>
-        <location filename="../BinaryFile.cpp" line="14"/>
         <source>Core::BinaryFile</source>
-        <translation>Двоичный файл</translation>
+        <translation type="vanished">Двоичный файл</translation>
     </message>
     <message>
         <source>GUI::FontFile</source>
         <translation type="vanished">Файл шрифтов</translation>
+    </message>
+    <message>
+        <location filename="../BinaryFile.cpp" line="14"/>
+        <source>Banana::BinaryFile</source>
+        <translation>Двоичный файл</translation>
     </message>
 </context>
 <context>
@@ -687,13 +825,17 @@
         <translation type="vanished">Графические файлы</translation>
     </message>
     <message>
-        <location filename="../BinaryFile.cpp" line="13"/>
         <source>Core::BinaryFile</source>
-        <translation>Двоичные файлы</translation>
+        <translation type="vanished">Двоичные файлы</translation>
     </message>
     <message>
         <source>GUI::FontFile</source>
         <translation type="vanished">Файлы шрифтов</translation>
+    </message>
+    <message>
+        <location filename="../BinaryFile.cpp" line="13"/>
+        <source>Banana::BinaryFile</source>
+        <translation>Двоичный файл</translation>
     </message>
 </context>
 <context>
@@ -1222,7 +1364,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../Config.cpp" line="24"/>
+        <location filename="../Config.cpp" line="26"/>
         <source>objectName</source>
         <translation>Название</translation>
     </message>

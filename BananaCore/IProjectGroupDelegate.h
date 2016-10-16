@@ -3,7 +3,7 @@
 class QString;
 
 
-namespace Core
+namespace Banana
 {
 	class ProjectDirectoryModel;
 
@@ -21,7 +21,7 @@ namespace Core
 	{
 		virtual ~IProjectGroupDelegate() {}
 
-		virtual Core::ProjectDirectoryModel *getProjectTreeModel() const = 0;
+		virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
 
 		virtual Answer shouldReplaceFile(const QString &filepath, Answer *remember_answer) = 0;
 		virtual void errorMessage(const QString &message) = 0;

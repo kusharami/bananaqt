@@ -23,7 +23,7 @@ namespace Scripting
 
 using namespace Scripting;
 
-namespace Core
+namespace Banana
 {
 	static QString Format(QScriptContext *context)
 	{
@@ -238,8 +238,8 @@ namespace Core
 	void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	{
 		qScriptRegisterMetaType(engine,
-								QObjectToScriptValue<Core::AbstractFile>,
-								QObjectFromScriptValue<Core::AbstractFile>);
+								QObjectToScriptValue<Banana::AbstractFile>,
+								QObjectFromScriptValue<Banana::AbstractFile>);
 
 		qScriptRegisterMetaType(engine,
 								DescendantToScriptValue<Point, QPoint>,

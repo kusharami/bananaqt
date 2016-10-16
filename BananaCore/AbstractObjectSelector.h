@@ -3,7 +3,7 @@
 #include <QObject>
 #include <set>
 
-namespace Core
+namespace Banana
 {
 
 	class AbstractObjectSelector

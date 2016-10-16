@@ -2,7 +2,7 @@
 
 #include <map>
 
-namespace Core
+namespace Banana
 {
 
 	QVariant ConvertToUserVariant(int user_type, const QVariant &from)

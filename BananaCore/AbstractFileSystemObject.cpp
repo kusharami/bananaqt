@@ -8,7 +8,7 @@
 #include <QObject>
 #include <QDebug>
 
-namespace Core
+namespace Banana
 {
 	AbstractFileSystemObject::AbstractFileSystemObject(QObject *thiz)
 		: thiz(thiz)

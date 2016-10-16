@@ -9,13 +9,16 @@
 #include <QDebug>
 #	define LOG_WARNING(text) \
 		qDebug() << __FILE__ << ":" << __LINE__; \
-		qWarning() << text;
+		qWarning() << text
 #else
 #	define LOG_WARNING(text)
 #endif
 
 class QIODevice;
 class QDir;
+
+namespace Banana
+{
 
 namespace Utils
 {
@@ -64,4 +67,6 @@ namespace Utils
 	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName);
 
 	const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
+}
+
 }

@@ -2,7 +2,7 @@
 
 #include "IChildFilter.h"
 
-namespace Core
+namespace Banana
 {
 	QObjectList AbstractObjectGroup::filterChildren(const IChildFilter *filter, bool sort)
 	{

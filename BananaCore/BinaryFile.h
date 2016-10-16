@@ -5,14 +5,14 @@
 
 #include <QByteArray>
 
-namespace Core
+namespace Banana
 {
 	class BinaryData : public Object, public QByteArray
 	{
 		Q_OBJECT
 	};
 
-	class BinaryFile : public Core::BaseFileRegistrator<Core::AbstractFile>
+	class BinaryFile : public Banana::BaseFileRegistrator<Banana::AbstractFile>
 	{
 		Q_OBJECT
 

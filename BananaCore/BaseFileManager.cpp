@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-namespace Core
+namespace Banana
 {
 	BaseFileManager::BaseFileManager()
 		: action(Qt::IgnoreAction)

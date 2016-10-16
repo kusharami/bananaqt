@@ -2,7 +2,7 @@
 
 #include "NamingPolicy.h"
 
-namespace Core
+namespace Banana
 {
 
 	UniqueNameScope::UniqueNameScope(const QMetaObject *meta_object,

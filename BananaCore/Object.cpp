@@ -13,7 +13,7 @@
 #include <QMimeData>
 #include <QDebug>
 
-namespace Core
+namespace Banana
 {
 	const char szOBJECT_NAME_KEY[] = PROP(objectName);
 	const char szCLASS_NAME_KEY[] = "__CLASS_NAME";
@@ -281,7 +281,7 @@ namespace Core
 						{
 							if (property.type() == QVariant::UserType)
 							{
-								property.write(destination, Core::ConvertToUserVariant(property.userType(), it.value()));
+								property.write(destination, Banana::ConvertToUserVariant(property.userType(), it.value()));
 								setDefault = false;
 							} else
 							{
@@ -302,7 +302,7 @@ namespace Core
 								property.reset(destination);
 							else
 							if (property.type() == QVariant::UserType)
-								property.write(destination, Core::ConvertToUserVariant(property.userType(), QVariant()));
+								property.write(destination, Banana::ConvertToUserVariant(property.userType(), QVariant()));
 							else
 								property.write(destination, QVariant(property.type()));
 						}
@@ -335,10 +335,10 @@ namespace Core
 				&&	property.isWritable()
 				&&	!property.isConstant())
 				{
-					auto value = Core::ConvertFromUserVariant(property.read(source));
+					auto value = Banana::ConvertFromUserVariant(property.read(source));
 					if (nullptr != prototype && 0 != strcmp(property.name(), szOBJECT_NAME_KEY))
 					{
-						if (value == Core::ConvertFromUserVariant(property.read(prototype)))
+						if (value == Banana::ConvertFromUserVariant(property.read(prototype)))
 							continue;
 					}
 					destination.insert(property.name(), value);

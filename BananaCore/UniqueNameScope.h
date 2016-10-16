@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-namespace Core
+namespace Banana
 {
 
 	class UniqueNameScope : public QObject

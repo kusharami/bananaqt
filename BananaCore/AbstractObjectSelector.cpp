@@ -1,6 +1,6 @@
 #include "AbstractObjectSelector.h"
 
-namespace Core
+namespace Banana
 {
 
 	AbstractObjectSelector::~AbstractObjectSelector()

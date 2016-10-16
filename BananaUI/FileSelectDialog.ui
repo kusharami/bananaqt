@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FileSelectDialog</class>
+ <widget class="QDialog" name="FileSelectDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>409</width>
+    <height>487</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>6</number>
+   </property>
+   <property name="leftMargin">
+    <number>6</number>
+   </property>
+   <property name="topMargin">
+    <number>6</number>
+   </property>
+   <property name="rightMargin">
+    <number>6</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <item>
+    <widget class="ProjectTreeWidget" name="treeWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::NoButton</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionEditDelete">
+   <property name="icon">
+    <iconset resource="ApplicationUI.qrc">
+     <normaloff>:/Icons/Delete.png</normaloff>:/Icons/Delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete...</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Del</string>
+   </property>
+  </action>
+  <action name="actionEditCut">
+   <property name="icon">
+    <iconset resource="ApplicationUI.qrc">
+     <normaloff>:/Icons/EditCut.png</normaloff>:/Icons/EditCut.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionEditCopy">
+   <property name="icon">
+    <iconset resource="ApplicationUI.qrc">
+     <normaloff>:/Icons/EditCopy.png</normaloff>:/Icons/EditCopy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionEditPaste">
+   <property name="icon">
+    <iconset resource="ApplicationUI.qrc">
+     <normaloff>:/Icons/EditPaste.png</normaloff>:/Icons/EditPaste.png</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionCopyDirPath">
+   <property name="text">
+    <string>Copy Directory Path</string>
+   </property>
+  </action>
+  <action name="actionCopyFilePath">
+   <property name="text">
+    <string>Copy File Path</string>
+   </property>
+  </action>
+  <action name="actionCopyFileName">
+   <property name="text">
+    <string>Copy FIle Name</string>
+   </property>
+  </action>
+  <action name="actionCopyDirName">
+   <property name="text">
+    <string>Copy Directory Name</string>
+   </property>
+  </action>
+  <action name="actionShowInGraphicalShell">
+   <property name="text">
+    <string notr="true">Show in Graphical Shell</string>
+   </property>
+   <property name="iconText">
+    <string notr="true">Show in Graphical Shell</string>
+   </property>
+   <property name="toolTip">
+    <string notr="true">Show in Graphical Shell</string>
+   </property>
+  </action>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>Open File</string>
+   </property>
+  </action>
+  <action name="actionLocateFile">
+   <property name="text">
+    <string>Locate in a Project Tree</string>
+   </property>
+   <property name="statusTip">
+    <string>Locates a selected file in a Project Tree</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ProjectTreeWidget</class>
+   <extends>QWidget</extends>
+   <header>ProjectTreeWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="ApplicationUI.qrc"/>
+ </resources>
+ <connections/>
+</ui>

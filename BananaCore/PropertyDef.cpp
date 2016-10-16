@@ -2,7 +2,7 @@
 
 #include <QMetaProperty>
 
-namespace Core
+namespace Banana
 {
 
 	quint64 findPropertyFlags(const QMetaProperty &metaProperty, const PropertyFlagsMap &in)

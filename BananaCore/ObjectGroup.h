@@ -7,7 +7,7 @@
 #include <map>
 #include <memory>
 
-namespace Core
+namespace Banana
 {
 	struct IChildFilter;
 	enum class ConnectionState;

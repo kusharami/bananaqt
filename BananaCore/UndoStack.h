@@ -2,7 +2,7 @@
 
 #include <QUndoStack>
 
-namespace Core
+namespace Banana
 {
 
 	class UndoStack : public QUndoStack

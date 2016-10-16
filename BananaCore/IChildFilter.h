@@ -2,7 +2,7 @@
 
 class QObject;
 
-namespace Core
+namespace Banana
 {
 
 	struct IChildFilter

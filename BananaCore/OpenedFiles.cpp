@@ -7,7 +7,7 @@
 #include <QDir>
 #include <QChildEvent>
 
-namespace Core
+namespace Banana
 {
 
 	OpenedFiles::OpenedFiles(ProjectGroup *owner)

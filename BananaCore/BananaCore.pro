@@ -1,4 +1,8 @@
-include(../BananaCore.pri)
+TRANSLATIONS = \
+    Translations/en.ts \
+    Translations/ru.ts
+
+include(../Banana.pri)
 
 QT += core gui widgets script
 
@@ -86,12 +90,6 @@ HEADERS += \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
     UndoStack.h
-
-TRANSLATIONS = \
-    Translations/en.ts \
-    Translations/ru.ts
-
-for(tr, TRANSLATIONS):system($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_PWD_/$${tr})
 
 RESOURCES = BananaCore.qrc
 

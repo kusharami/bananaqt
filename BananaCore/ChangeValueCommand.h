@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-namespace Core
+namespace Banana
 {
 	class Object;
 

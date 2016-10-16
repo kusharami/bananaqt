@@ -12,7 +12,7 @@
 class QObject;
 class QUndoGroup;
 
-namespace Core
+namespace Banana
 {
 	class AbstractFile;
 

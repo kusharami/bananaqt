@@ -12,7 +12,7 @@
 #include <QFileInfo>
 #include <QCoreApplication>
 
-namespace Core
+namespace Banana
 {
 
 	static const QString sFilterSeparator =

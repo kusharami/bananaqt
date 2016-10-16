@@ -7,7 +7,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-namespace Core
+namespace Banana
 {
 
 	AbstractNamingPolicy::~AbstractNamingPolicy()

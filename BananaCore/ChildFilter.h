@@ -7,7 +7,7 @@
 #include <memory>
 #include <map>
 
-namespace Core
+namespace Banana
 {
 	typedef QList<IChildFilter *> ChildFilters;
 

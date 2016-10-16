@@ -19,3 +19,5 @@ win32 {
 }
 
 LIBS += -L$$BIN_DIR
+
+for(tr, TRANSLATIONS):system($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_PWD_/$${tr})

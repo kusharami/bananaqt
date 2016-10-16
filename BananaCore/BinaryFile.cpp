@@ -4,14 +4,14 @@
 
 #include <QIODevice>
 
-namespace Core
+namespace Banana
 {
 
 	BinaryFile::BinaryFile()
 		: Inherited("")
 	{
-		(void) QT_TRANSLATE_NOOP("FileTypeTitlePlural", "Core::BinaryFile");
-		(void) QT_TRANSLATE_NOOP("FileTypeTitle", "Core::BinaryFile");
+		(void) QT_TRANSLATE_NOOP("FileTypeTitlePlural", "Banana::BinaryFile");
+		(void) QT_TRANSLATE_NOOP("FileTypeTitle", "Banana::BinaryFile");
 		(void) QT_TRANSLATE_NOOP("FileFormatNamePlural", " ");
 		(void) QT_TRANSLATE_NOOP("FileFormatName", " ");
 	}

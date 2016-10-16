@@ -2,7 +2,7 @@
 
 #include "AbstractFileSystemObject.h"
 
-namespace Core
+namespace Banana
 {
 
 	UniqueFileNameScope::UniqueFileNameScope(const QMetaObject *meta_object,

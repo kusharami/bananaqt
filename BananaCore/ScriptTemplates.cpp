@@ -2,7 +2,7 @@
 
 #include "ScriptRunner.h"
 
-using namespace Core;
+using namespace Banana;
 
 namespace Scripting
 {
@@ -109,7 +109,7 @@ namespace Scripting
 		if (nullptr != font)
 			out = *font;
 		else
-			out = Core::getDefaultFont();
+			out = Banana::getDefaultFont();
 	}
 
 	QScriptValue IncompatibleArgumentType(QScriptContext *context, int idx)

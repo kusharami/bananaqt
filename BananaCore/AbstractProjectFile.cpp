@@ -9,7 +9,7 @@
 
 #include <QFileInfo>
 
-namespace Core
+namespace Banana
 {
 	const QString AbstractProjectFile::SEARCH_PATHS_KEY = "SearchPaths";
 	const QString AbstractProjectFile::IGNORED_FILES_KEY = "IgnoredFiles";
@@ -44,13 +44,13 @@ namespace Core
 		, openedFiles(nullptr)
 		, searchPaths(nullptr)
 	{
-		setUndoStack(new Core::UndoStack, true);
+		setUndoStack(new Banana::UndoStack, true);
 		setObjectName(name);
 
-		(void) QT_TRANSLATE_NOOP("ClassName", "Core::AbstractProjectFile");
-		(void) QT_TRANSLATE_NOOP("Core::AbstractProjectFile", "mHideIgnoredFiles");
-		(void) QT_TRANSLATE_NOOP("Core::AbstractProjectFile", "mIgnoredFilesPattern");
-		(void) QT_TRANSLATE_NOOP("Core::AbstractProjectFile", "mSearchPaths");
+		(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractProjectFile");
+		(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mHideIgnoredFiles");
+		(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mIgnoredFilesPattern");
+		(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mSearchPaths");
 	}
 
 	AbstractProjectFile::~AbstractProjectFile()

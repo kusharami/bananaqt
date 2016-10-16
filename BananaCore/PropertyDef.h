@@ -97,14 +97,14 @@ protected: \
 	GET_SET
 
 #define PUSH_UNDO_COMMAND(Name, oldValue) \
-	Core::Object::pushUndoCommand(MPROP(Name), oldValue)
+	Banana::Object::pushUndoCommand(MPROP(Name), oldValue)
 
 #define NEW_PROPERTY_VALUE(Class, Name, oldValue) \
 { \
 	PUSH_UNDO_COMMAND(Name, oldValue); \
 	auto prototype = dynamic_cast<Class *>(this->getPrototype()); \
 	if (nullptr == prototype || m##Name != prototype->get##Name()) \
-		Core::Object::setPropertyModified(New##Name, true); \
+		Banana::Object::setPropertyModified(New##Name, true); \
 }
 
 #define DO_SET_PROPERTY_VALUE_IMPL(Class, Type, Name) \
@@ -140,13 +140,13 @@ protected: \
 			this->set##Name(prototype->m##Name); \
 			if (EQUAL(this->m##Name, prototype->m##Name)) \
 			{ \
-				if (Core::Object::setPropertyModified(Class::New##Name, false)) \
+				if (Banana::Object::setPropertyModified(Class::New##Name, false)) \
 					emit this->changed##Name(); \
 			} \
 		} else \
 		{ \
 			DEFAULT_RESET; \
-			if (Core::Object::setPropertyModified(Class::New##Name, false)) \
+			if (Banana::Object::setPropertyModified(Class::New##Name, false)) \
 				emit this->changed##Name(); \
 		} \
 	}
@@ -159,7 +159,7 @@ protected: \
 	{ \
 		this->set##Prop(source->m##Prop); \
 		if (source == this->prototype) \
-			Core::Object::setPropertyModified(New##Prop, false); \
+			Banana::Object::setPropertyModified(New##Prop, false); \
 	} \
 	EXTRA(Prop) \
 }
@@ -170,7 +170,7 @@ protected: \
 	{ \
 		ASSIGN_PROP_NO_RESET(Prop, source, EXTRA); \
 	} else \
-	if (this->isLoading() || !Core::Object::isPropertyModified(New##Prop)) \
+	if (this->isLoading() || !Banana::Object::isPropertyModified(New##Prop)) \
 		this->reset##Prop(); \
 }
 
@@ -191,7 +191,7 @@ protected: \
 #define PROTO_PROP_CHANGED_IMPL(Class, Prop) \
 void Class::onPrototype##Prop##Changed() \
 { \
-	if (!Core::Object::isPropertyModified(New##Prop)) \
+	if (!Banana::Object::isPropertyModified(New##Prop)) \
 	{ \
 		this->reset##Prop(); \
 	} \
@@ -219,9 +219,9 @@ void Class::doDisconnectPrototype() \
 }
 
 #define EXPANDED_PROPERTIES_BEGIN() \
-	static Core::ExpandedSet initExpandedProperties() \
+	static Banana::ExpandedSet initExpandedProperties() \
 	{ \
-		Core::ExpandedSet result
+		Banana::ExpandedSet result
 
 #define INIT_EXPANDED_PROPERTY(Name) \
 	result.insert(PROPERTY_INDEX(Name))
@@ -229,12 +229,12 @@ void Class::doDisconnectPrototype() \
 #define EXPANDED_PROPERTIES_END() \
 	return result; \
 }	 \
-static const Core::ExpandedSet sExpandedProperties = initExpandedProperties()
+static const Banana::ExpandedSet sExpandedProperties = initExpandedProperties()
 
 #define MAP_PROP_FLAGS_BEGIN() \
-	static Core::PropertyFlagsMap initPropertyFlagsMap() \
+	static Banana::PropertyFlagsMap initPropertyFlagsMap() \
 	{ \
-		Core::PropertyFlagsMap result
+		Banana::PropertyFlagsMap result
 
 #define MAP_PROP_FLAGS_CUSTOM(Name, flags) \
 	result[PROPERTY_INDEX(Name)] = flags
@@ -245,7 +245,7 @@ static const Core::ExpandedSet sExpandedProperties = initExpandedProperties()
 #define MAP_PROP_FLAGS_END() \
 	return result; \
 } \
-static const Core::PropertyFlagsMap sPropertyFlagsMap = initPropertyFlagsMap()
+static const Banana::PropertyFlagsMap sPropertyFlagsMap = initPropertyFlagsMap()
 
 #define PROPERTY_INDEX(Name) \
 	s##Name##Index
@@ -295,10 +295,10 @@ const Type Class::DEFAULT_VALUE(Name)(__VA_ARGS__)
 #define IMPL_CHECK_MODIFIED_FLAGS(metaProperty) \
 if (metaProperty.isResettable()) \
 { \
-	auto flags = Core::findPropertyFlags(metaProperty, sPropertyFlagsMap); \
+	auto flags = Banana::findPropertyFlags(metaProperty, sPropertyFlagsMap); \
 	if (0 != flags) \
 	{ \
-		if (0 != (Core::Object::getPropertyModifiedBits() & flags)) \
+		if (0 != (Banana::Object::getPropertyModifiedBits() & flags)) \
 			result |= QtnPropertyStateModifiedValue; \
 	} \
 } \
@@ -312,7 +312,7 @@ do {} while (false)
 
 class QMetaProperty;
 
-namespace Core
+namespace Banana
 {
 
 	typedef std::set<int> ExpandedSet;

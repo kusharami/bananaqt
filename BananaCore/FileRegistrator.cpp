@@ -9,7 +9,7 @@
 #include <QDir>
 #include <QUndoGroup>
 
-namespace Core
+namespace Banana
 {
 
 	AbstractFileRegistrator::AbstractFileRegistrator(AbstractFile *thiz)

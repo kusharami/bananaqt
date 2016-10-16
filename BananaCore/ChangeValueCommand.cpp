@@ -7,7 +7,7 @@
 
 #include <QCoreApplication>
 
-namespace Core
+namespace Banana
 {
 	ChangeValueCommand::ChangeValueCommand(Object *object,
 										   const QMetaProperty &metaProperty,

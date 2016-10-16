@@ -8,7 +8,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-namespace Core
+namespace Banana
 {
 
 	AbstractFile::AbstractFile(const QString &extension)

@@ -4,7 +4,7 @@
 
 #include <QVariantMap>
 
-namespace Core
+namespace Banana
 {
 
 	class VariantMapFile : public AbstractFile

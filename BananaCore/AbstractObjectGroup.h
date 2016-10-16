@@ -2,7 +2,7 @@
 
 #include <QObjectList>
 
-namespace Core
+namespace Banana
 {
 	struct IChildFilter;
 	class AbstractObjectGroup

@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace Core
+namespace Banana
 {
 	enum class DescendantState
 	{

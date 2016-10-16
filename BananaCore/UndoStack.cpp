@@ -1,6 +1,6 @@
 #include "UndoStack.h"
 
-namespace Core
+namespace Banana
 {
 
 	UndoStack::UndoStack(QObject *parent)

@@ -4,7 +4,7 @@
 #include <QFont>
 #include <QCoreApplication>
 
-namespace Core
+namespace Banana
 {
 	const char pX[] = "x";
 	const char pY[] = "y";

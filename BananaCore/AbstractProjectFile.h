@@ -7,7 +7,7 @@
 
 #include <set>
 
-namespace Core
+namespace Banana
 {
 	class SearchPaths;
 	class Directory;
@@ -16,7 +16,7 @@ namespace Core
 	{
 		Q_OBJECT
 
-		Q_PROPERTY(Core::SearchPaths *mSearchPaths
+		Q_PROPERTY(Banana::SearchPaths *mSearchPaths
 				   READ getSearchPaths
 				   RESET resetSearchPaths
 				   DESIGNABLE true
@@ -86,4 +86,4 @@ namespace Core
 
 }
 
-Q_DECLARE_METATYPE(Core::AbstractProjectFile *)
+Q_DECLARE_METATYPE(Banana::AbstractProjectFile *)

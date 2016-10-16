@@ -7,12 +7,12 @@
 class CocosGLWidget;
 class QUndoGroup;
 
-namespace Core
+namespace Banana
 {
 	class OpenedFiles;
 
 	struct IProjectGroupDelegate;
-	class ProjectGroup : public Core::ObjectGroup
+	class ProjectGroup : public Banana::ObjectGroup
 	{
 		Q_OBJECT
 
@@ -44,7 +44,7 @@ namespace Core
 		IProjectGroupDelegate *getDelegate() const;
 		void setDelegate(IProjectGroupDelegate *delegate);
 
-		Core::OpenedFiles *getOpenedFiles() const;
+		Banana::OpenedFiles *getOpenedFiles() const;
 		CocosGLWidget *getCocosWidget() const;
 
 		bool isSilent() const;
@@ -74,7 +74,7 @@ namespace Core
 		static void closeUnboundFiles(Directory *dir);
 
 		CocosGLWidget *cocos;
-		Core::OpenedFiles *openedFiles;
+		Banana::OpenedFiles *openedFiles;
 		AbstractProjectDirectory *activeProjectDir;
 		IProjectGroupDelegate *delegate;
 		QUndoGroup *undoGroup;

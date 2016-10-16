@@ -26,10 +26,13 @@
 #include <QMetaEnum>
 #include <QProcess>
 
-#ifdef _WINDOWS
+#ifdef Q_OS_WIN
 #define NOMINMAX
 #include <windows.h>
 #endif
+
+namespace Banana
+{
 
 namespace Utils
 {
@@ -664,7 +667,7 @@ namespace Utils
 
 	bool CreateSymLink(const QString &target, const QString &linkpath)
 	{
-#ifdef _WINDOWS
+#ifdef Q_OS_WIN
 		DWORD dwFlags = QFileInfo(target).isDir() ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0;
 	#ifdef UNICODE
 		wchar_t wcTarget[1024];
@@ -814,5 +817,7 @@ namespace Utils
 
 		return result;
 	}
+
+}
 
 }

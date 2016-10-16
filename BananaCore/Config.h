@@ -10,10 +10,13 @@
 
 class QLocale;
 
-namespace Core
+namespace Banana
 {
-	void Register();
-	void InstallTranslations(const QLocale &locale);
+	namespace Core
+	{
+		void Register();
+		void InstallTranslations(const QLocale &locale);
+	}
 
 	enum OS
 	{

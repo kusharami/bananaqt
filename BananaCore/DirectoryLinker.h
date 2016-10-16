@@ -10,7 +10,7 @@
 #include <vector>
 #include <functional>
 
-namespace Core
+namespace Banana
 {
 	class AbstractProjectDirectory;
 	class ProjectGroup;

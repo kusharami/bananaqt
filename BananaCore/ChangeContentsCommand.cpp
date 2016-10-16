@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "Const.h"
 
-namespace Core
+namespace Banana
 {
 
 	ChangeContentsCommand::ChangeContentsCommand(Object *object, const QVariantMap &oldContents)

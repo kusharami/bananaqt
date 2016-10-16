@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-namespace Core
+namespace Banana
 {
 
 	MetaObjectChildFilter::MetaObjectChildFilter(const QMetaObject *meta_object)

@@ -14,7 +14,7 @@
 #include <QRegExp>
 #include <QUndoGroup>
 
-namespace Core
+namespace Banana
 {
 
 	AbstractProjectDirectory::AbstractProjectDirectory(const QString &path)

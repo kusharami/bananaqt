@@ -1,6 +1,6 @@
 #include "ChildFilter.h"
 
-namespace Core
+namespace Banana
 {
 
 	bool ChildFilter::filterMatch(QObject *object) const

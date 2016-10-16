@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include "Object.h"
 
-namespace Core
+namespace Banana
 {
 
 	VariantMapFile::VariantMapFile(const QString &extension)

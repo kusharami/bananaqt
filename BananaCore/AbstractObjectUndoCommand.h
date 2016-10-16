@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QUndoCommand>
 
-namespace Core
+namespace Banana
 {
 	class AbstractObjectUndoCommand : public QObject, public QUndoCommand
 	{

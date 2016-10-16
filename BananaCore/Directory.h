@@ -9,7 +9,7 @@
 #include <memory>
 #include <set>
 
-namespace Core
+namespace Banana
 {
 	class AbstractFile;
 	class Directory : public ObjectGroup, public AbstractDirectory, public FileNamingPolicy

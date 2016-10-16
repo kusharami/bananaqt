@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QUndoGroup>
 
-namespace Core
+namespace Banana
 {
 	ProjectGroup::ProjectGroup(CocosGLWidget *cocos, const QMetaObject *projectDirType)
 		: cocos(cocos)

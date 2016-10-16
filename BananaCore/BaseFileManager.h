@@ -12,7 +12,7 @@
 class QFileInfo;
 class QDir;
 
-namespace Core
+namespace Banana
 {
 	class AbstractProjectDirectory;
 

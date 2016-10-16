@@ -5,7 +5,7 @@
 class QDir;
 class QFileInfo;
 
-namespace Core
+namespace Banana
 {
 
 	struct AbstractNamingPolicy

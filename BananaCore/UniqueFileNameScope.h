@@ -2,7 +2,7 @@
 
 #include  "UniqueNameScope.h"
 
-namespace Core
+namespace Banana
 {
 
 	class UniqueFileNameScope : public UniqueNameScope

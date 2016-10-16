@@ -1,0 +1,3 @@
+[submodule "QtnProperty"]
+	path = QtnProperty
+	url = git@github.com:kusharami/QtnProperty.git

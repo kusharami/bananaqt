@@ -1,0 +1,480 @@
+#include "AbstractObjectTreeModel.h"
+
+#include "BananaCore/AbstractObjectGroup.h"
+#include "BananaCore/Object.h"
+#include "BananaCore/Core.h"
+
+#include <QItemSelection>
+#include <QItemSelectionModel>
+
+namespace Banana
+{
+
+	AbstractObjectTreeModel::AbstractObjectTreeModel(QObject *parent)
+		: QAbstractItemModel(parent)
+		, noReset(0)
+		, resetCount(0)
+		, rootGroup(nullptr)
+	{
+	}
+
+	QObject *AbstractObjectTreeModel::getRootGroup() const
+	{
+		return rootGroup;
+	}
+
+	void AbstractObjectTreeModel::setRootGroup(QObject *group)
+	{
+		if (rootGroup != group)
+		{
+			beginResetModel();
+
+			disconnectObject(rootGroup);
+			rootGroup = group;
+			connectObject(rootGroup);
+
+			endResetModel();
+		}
+	}
+
+	QVariant AbstractObjectTreeModel::data(const QModelIndex &index, int role) const
+	{
+		if (index.isValid())
+		{
+			auto item = getItemAt(index);
+			if (nullptr != item)
+			{
+				switch (role)
+				{
+					case Qt::DisplayRole:
+					case Qt::EditRole:
+						return getTextForItem(item, role);
+
+					case Qt::DecorationRole:
+						return getIconForItem(item);
+
+					case Qt::FontRole:
+					{
+						QFont font(getFontForItem(item));
+
+						font.setStrikeOut(!getIsValidForItem(item));
+
+						return font;
+					}
+
+					case Qt::TextColorRole:
+					{
+						if (!getIsValidForItem(item))
+							return QColor(Qt::red);
+
+					}	break;
+
+					case Qt::ToolTipRole:
+						return getToolTipForItem(item);
+
+					default:
+						break;
+				}
+			}
+		}
+		return QVariant();
+	}
+
+	Qt::ItemFlags AbstractObjectTreeModel::flags(const QModelIndex &index) const
+	{
+		if (false == index.isValid())
+			return Qt::ItemIsEnabled;
+
+		Qt::ItemFlags result = QAbstractItemModel::flags(index);
+
+		auto item = getItemAt(index);
+		if (nullptr != item)
+			result |= getItemFlagsForItem(item);
+
+		return result;
+	}
+
+	QModelIndex AbstractObjectTreeModel::index(int row, int column, const QModelIndex &parent) const
+	{
+		if (hasIndex(row, column, parent))
+		{
+			auto parent_group = dynamic_cast<AbstractObjectGroup *>(getItemAt(parent));
+
+			if (nullptr != parent_group)
+			{
+				auto siblings = getGroupChildren(parent_group);
+				auto sibling = siblings.at(row);
+				auto index = createIndex(row, column, siblings.at(row));
+
+				(*const_cast<IndexMap *>(&indexMap))[sibling] = index;
+
+				return index;
+			}
+		}
+
+		return QModelIndex();
+	}
+
+	QModelIndex AbstractObjectTreeModel::parent(const QModelIndex &index) const
+	{
+		auto item = getItemAt(index);
+
+		if (nullptr != item)
+		{
+			auto item_parent = item->parent();
+			auto parent_group = dynamic_cast<AbstractObjectGroup *>(item_parent);
+			if (nullptr != parent_group)
+			{
+				auto parent_parent = dynamic_cast<AbstractObjectGroup *>(item_parent->parent());
+				if (nullptr != parent_parent)
+				{
+					auto index = createIndex(getChildIndex(parent_parent, item_parent), 0, item_parent);
+
+					(*const_cast<IndexMap *>(&indexMap))[item_parent] = index;
+
+					return index;
+				}
+			}
+		}
+
+		return QModelIndex();
+	}
+
+	int AbstractObjectTreeModel::rowCount(const QModelIndex &parent) const
+	{
+		auto parent_group = dynamic_cast<AbstractObjectGroup *>(getItemAt(parent));
+
+		if (nullptr != parent_group)
+		{
+			return getGroupChildren(parent_group).count();
+		}
+
+		return 0;
+	}
+
+	int AbstractObjectTreeModel::columnCount(const QModelIndex &) const
+	{
+		return 1;
+	}
+
+	bool AbstractObjectTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
+	{
+		if (Qt::EditRole == role)
+		{
+			auto item = getItemAt(index);
+			if (nullptr != item)
+			{
+				setTextForItem(item, value.toString());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool AbstractObjectTreeModel::insertColumns(int, int, const QModelIndex &)
+	{
+		return false;
+	}
+
+	bool AbstractObjectTreeModel::removeColumns(int, int, const QModelIndex &)
+	{
+		return false;
+	}
+
+	bool AbstractObjectTreeModel::insertRows(int position, int rows, const QModelIndex &parent)
+	{
+		// TODO
+		return false;
+	}
+
+	bool AbstractObjectTreeModel::removeRows(int position, int rows, const QModelIndex &parent)
+	{
+		// TODO
+		return false;
+	}
+
+	Qt::DropActions AbstractObjectTreeModel::supportedDropActions() const
+	{
+		return Qt::MoveAction;
+	}
+
+	Qt::DropActions AbstractObjectTreeModel::supportedDragActions() const
+	{
+		return Qt::MoveAction;
+	}
+
+	bool AbstractObjectTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+	{
+		// TODO
+
+		return false;
+	}
+
+	QMimeData *AbstractObjectTreeModel::mimeData(const QModelIndexList &indexes) const
+	{
+		// TODO
+
+		return nullptr;
+	}
+
+	QStringList AbstractObjectTreeModel::mimeTypes() const
+	{
+		// TODO
+
+		return QStringList();
+	}
+
+	bool AbstractObjectTreeModel::canDeleteItems(const QModelIndexList &indexes) const
+	{
+		for (auto &index : indexes)
+		{
+			if (!canDeleteItem(getItemAt(index)))
+				return false;
+		}
+
+		return true;
+	}
+
+	QModelIndex AbstractObjectTreeModel::findModelIndex(QObject *item) const
+	{
+		if (nullptr != item)
+		{
+			auto it = indexMap.find(item);
+			if (indexMap.end() != it)
+				return it->second;
+
+			auto item_parent = item->parent();
+			if (nullptr != item_parent
+			&&	item != rootGroup)
+			{
+				auto parent_group = dynamic_cast<AbstractObjectGroup *>(item_parent);
+				if (nullptr != parent_group)
+					return index(getChildIndex(parent_group, item), 0,
+								 findModelIndex(item_parent));
+			}
+		}
+
+		return QModelIndex();
+	}
+
+	void AbstractObjectTreeModel::doConnectObject(QObject *object)
+	{
+		auto obj = dynamic_cast<Object *>(object);
+		if (nullptr != obj)
+		{
+			QObject::connect(obj, &Object::beforeDestroy,
+							 this, &AbstractObjectTreeModel::onBeforeObjectDestroy);
+		} else
+		{
+			QObject::connect(object, &QObject::destroyed,
+							 this, &AbstractObjectTreeModel::onObjectDestroyed);
+		}
+
+		QObject::connect(object, &QObject::objectNameChanged,
+						 this, &AbstractObjectTreeModel::onObjectNameChanged);
+
+		if (nullptr != obj)
+		{
+			QObject::connect(obj, &Object::childAdded,
+							 this, &AbstractObjectTreeModel::onChildAdded);
+			QObject::connect(obj, &Object::childRemoved,
+							 this, &AbstractObjectTreeModel::onChildRemoved);
+		}
+
+		for (auto child : object->children())
+		{
+			connectObject(child);
+		}
+	}
+
+	void AbstractObjectTreeModel::doDisconnectObject(QObject *object)
+	{
+		auto obj = dynamic_cast<Object *>(object);
+		if (nullptr != obj)
+		{
+			QObject::disconnect(obj, &Object::beforeDestroy,
+							 this, &AbstractObjectTreeModel::onBeforeObjectDestroy);
+		} else
+		{
+			QObject::disconnect(object, &QObject::destroyed,
+							 this, &AbstractObjectTreeModel::onObjectDestroyed);
+		}
+
+		QObject::disconnect(object, &QObject::objectNameChanged,
+							this, &AbstractObjectTreeModel::onObjectNameChanged);
+
+		if (nullptr != obj)
+		{
+			QObject::disconnect(obj, &Object::childAdded,
+								this, &AbstractObjectTreeModel::onChildAdded);
+			QObject::disconnect(obj, &Object::childRemoved,
+								this, &AbstractObjectTreeModel::onChildRemoved);
+		}
+
+		indexMap[object] = QModelIndex();
+
+		for (auto child : object->children())
+		{
+			disconnectObject(child, true);
+		}
+	}
+
+	void AbstractObjectTreeModel::selectItems(const std::set<QObject *> &items)
+	{
+		QItemSelection selection;
+		for (auto item : items)
+		{
+			auto index = findModelIndex(item);
+			if (index.isValid())
+			{
+				selection.select(index, index);
+			}
+		}
+
+		emit shouldSelect(selection);
+	}
+
+	void AbstractObjectTreeModel::onBeforeObjectDestroy(QObject *object)
+	{
+		beginResetModel();
+
+		auto parent = dynamic_cast<AbstractObjectGroup *>(object->parent());
+		if (nullptr != parent)
+			parent->resetChildren();
+
+		doDisconnectObject(object);
+
+		endResetModel();
+
+		if (object == rootGroup)
+		{
+			rootGroup = nullptr;
+		}
+	}
+
+	void AbstractObjectTreeModel::onObjectDestroyed(QObject *object)
+	{
+		if (object == rootGroup)
+		{
+			rootGroup = nullptr;
+		}
+
+		beginResetModel();
+		endResetModel();
+	}
+
+	void AbstractObjectTreeModel::onChildAdded(QObject *object)
+	{
+		connectObject(object);
+	}
+
+	void AbstractObjectTreeModel::onChildRemoved(QObject *object)
+	{
+		disconnectObject(object);
+	}
+
+	void AbstractObjectTreeModel::onObjectNameChanged()
+	{
+		beginResetModel();
+		endResetModel();
+	}
+
+	void AbstractObjectTreeModel::connectObject(QObject *object)
+	{
+		if (isSupportedItem(object))
+		{
+			beginResetModel();
+
+			doConnectObject(object);
+
+			endResetModel();
+		}
+	}
+
+	void AbstractObjectTreeModel::disconnectObject(QObject *object, bool parent_disconnect)
+	{
+		if (isSupportedItem(object))
+		{
+			if (!parent_disconnect)
+			{
+				beginResetModel();
+			}
+
+			doDisconnectObject(object);
+
+			if (!parent_disconnect)
+			{
+				endResetModel();
+			}
+		}
+	}
+
+	int AbstractObjectTreeModel::getChildIndex(AbstractObjectGroup *group, QObject *child) const
+	{
+		if (0 == getFiltersCount())
+			return group->getChildIndex(child);
+
+		auto children = getGroupChildren(group);
+
+		auto it = std::find(children.begin(), children.end(), child);
+
+		if (children.end() != it)
+			return it - children.begin();
+
+		return -1;
+	}
+
+	QObjectList AbstractObjectTreeModel::getGroupChildren(AbstractObjectGroup *group) const
+	{
+		auto no_const = const_cast<AbstractObjectTreeModel *>(this);
+		no_const->noReset++;
+		auto result = group->filterChildren(0 == getFiltersCount() ? nullptr : this);
+		no_const->noReset--;
+		return result;
+	}
+
+	void AbstractObjectTreeModel::beforeChangeFilters()
+	{
+		beginResetModel();
+	}
+
+	void AbstractObjectTreeModel::afterChangeFilters()
+	{
+		endResetModel();
+	}
+
+	QObject *AbstractObjectTreeModel::getItemAt(const QModelIndex &index) const
+	{
+		if (index.isValid())
+			return static_cast<QObject *>(index.internalPointer());
+
+		return rootGroup;
+	}
+
+	void AbstractObjectTreeModel::beginResetModel()
+	{
+		if (noReset == 0)
+		{
+			indexMap.clear();
+			resetCount++;
+
+			QAbstractItemModel::beginResetModel();
+		}
+	}
+
+	void AbstractObjectTreeModel::endResetModel()
+	{
+		if (noReset == 0)
+		{
+			QAbstractItemModel::endResetModel();
+
+			Q_ASSERT(resetCount > 0);
+			resetCount--;
+
+			if (resetCount == 0)
+				emit afterModelReset();
+		}
+	}
+
+}

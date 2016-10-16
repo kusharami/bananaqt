@@ -4,7 +4,7 @@
 
 #include <QString>
 
-namespace Core
+namespace Banana
 {
 
 	class NameChildFilter : public IChildFilter

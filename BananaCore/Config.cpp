@@ -12,33 +12,36 @@
 
 static void InitResources()
 {
-	Q_INIT_RESOURCE(CoreFramework);
+	Q_INIT_RESOURCE(BananaCore);
 }
 
-namespace Core
+namespace Banana
 {
 
-	void Register()
+	namespace Core
 	{
-		(void) QT_TRANSLATE_NOOP("ClassName", "QObject");
-		(void) QT_TRANSLATE_NOOP("QObject", "objectName");
-
-		InitResources();
-
-		qRegisterMetaType<QVariantMap>();
-		qRegisterMetaType<SearchPaths *>();
-
-		Directory::registerFileType(pNoExtension,
-									&BinaryFile::staticMetaObject,
-									&BinaryData::staticMetaObject);
-	}
-
-	void InstallTranslations(const QLocale &locale)
-	{
-		static QTranslator translator;
-		if (translator.load(locale, "Core.qm", "", ":/Translations"))
+		void Register()
 		{
-			QCoreApplication::installTranslator(&translator);
+			(void) QT_TRANSLATE_NOOP("ClassName", "QObject");
+			(void) QT_TRANSLATE_NOOP("QObject", "objectName");
+	
+			InitResources();
+	
+			qRegisterMetaType<QVariantMap>();
+			qRegisterMetaType<SearchPaths *>();
+	
+			Directory::registerFileType(pNoExtension,
+										&BinaryFile::staticMetaObject,
+										&BinaryData::staticMetaObject);
+		}
+	
+		void InstallTranslations(const QLocale &locale)
+		{
+			static QTranslator translator;
+			if (translator.load(locale, "BananaCore.qm", "", ":/Translations"))
+			{
+				QCoreApplication::installTranslator(&translator);
+			}
 		}
 	}
 

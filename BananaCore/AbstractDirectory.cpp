@@ -5,7 +5,7 @@
 
 #include <QDir>
 
-namespace Core
+namespace Banana
 {
 
 	AbstractDirectory::AbstractDirectory(QObject *thiz)

@@ -1,4 +1,4 @@
-include(../BananaCore.pri)
+include(../Banana.pri)
 
 QT       += testlib script gui widgets
 

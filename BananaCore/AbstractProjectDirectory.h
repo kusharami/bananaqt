@@ -6,7 +6,7 @@
 #include <vector>
 #include <functional>
 
-namespace Core
+namespace Banana
 {
 	enum class Answer;
 	class ProjectGroup;
@@ -33,33 +33,33 @@ namespace Core
 
 		AbstractProjectFile *getProjectFile() const;
 
-		Q_INVOKABLE Core::AbstractFile *newFile(const QString &path, bool first = true, bool multiple = false);
+		Q_INVOKABLE Banana::AbstractFile *newFile(const QString &path, bool first = true, bool multiple = false);
 
-		Q_INVOKABLE Core::AbstractFile *addFile(const QString &path,
+		Q_INVOKABLE Banana::AbstractFile *addFile(const QString &path,
 												bool mustExist,
 												bool verbose = true);
-		Q_INVOKABLE Core::AbstractFile *linkFile(const QString &target,
+		Q_INVOKABLE Banana::AbstractFile *linkFile(const QString &target,
 												 const QString &link,
 												 bool mustExist,
 												 bool verbose = true);
 
-		Q_INVOKABLE Core::Directory *addSearchPath(const QString &path, int order, bool verbose = true);
-		Q_INVOKABLE Core::Directory *addDirectory(const QString &path,
+		Q_INVOKABLE Banana::Directory *addSearchPath(const QString &path, int order, bool verbose = true);
+		Q_INVOKABLE Banana::Directory *addDirectory(const QString &path,
 												bool mustExist,
 												bool verbose = true);
-		Q_INVOKABLE Core::Directory *linkDirectory(const QString &target,
+		Q_INVOKABLE Banana::Directory *linkDirectory(const QString &target,
 												 const QString &link,
 												 bool mustExist,
 												 bool verbose = true);
 
-		Q_INVOKABLE Core::AbstractFile *addExistingFile(const QString &path, bool verbose = true);
-		Q_INVOKABLE Core::AbstractFile *linkExistingFile(const QString &target,
+		Q_INVOKABLE Banana::AbstractFile *addExistingFile(const QString &path, bool verbose = true);
+		Q_INVOKABLE Banana::AbstractFile *linkExistingFile(const QString &target,
 														 const QString &link, bool verbose = true);
-		Q_INVOKABLE Core::AbstractFile *findFile(const QString &path);
-		Q_INVOKABLE Core::Directory *findDirectory(const QString &path);
+		Q_INVOKABLE Banana::AbstractFile *findFile(const QString &path);
+		Q_INVOKABLE Banana::Directory *findDirectory(const QString &path);
 
-		Q_INVOKABLE bool saveFile(Core::AbstractFile *file);
-		Q_INVOKABLE bool saveFileAs(Core::AbstractFile *file, const QString &filePath,
+		Q_INVOKABLE bool saveFile(Banana::AbstractFile *file);
+		Q_INVOKABLE bool saveFileAs(Banana::AbstractFile *file, const QString &filePath,
 									const QString &selectedFilter,
 									bool verbose = true,
 									bool first = true,
@@ -106,13 +106,13 @@ namespace Core
 		bool isFileReplaceAllowed(const QString &absolutePath, Answer *rememberAnswer, const QMetaObject **outFileType);
 		static void internalFindFiles(Directory *directory, const QRegExp &regExp, QObjectList &dest);
 
-		bool validateFileSaveAsPath(Core::AbstractFile *file,
+		bool validateFileSaveAsPath(Banana::AbstractFile *file,
 									QString &newFilePath,
 									const QString &selectedFilter) const;
 		void saveAllFiles(Directory *directory, QList<AbstractFile *> &notSaved);
 		void filePathError(Error error, const QString &filePath);
 		void errorMessage(const QString &message) const;
-		void fillSearchDirListFrom(const Core::Directory *dir, QObjectList &list) const;
+		void fillSearchDirListFrom(const Banana::Directory *dir, QObjectList &list) const;
 		void clearSearchPaths(Directory *dir);
 
 		static QString stripExtension(const QString &fileName, const QString &extension);
@@ -123,4 +123,4 @@ namespace Core
 
 }
 
-Q_DECLARE_METATYPE(Core::AbstractProjectDirectory *)
+Q_DECLARE_METATYPE(Banana::AbstractProjectDirectory *)

@@ -5,7 +5,7 @@
 
 class QObject;
 
-namespace Core
+namespace Banana
 {
 	class AbstractDirectory;
 	class AbstractFileSystemObject

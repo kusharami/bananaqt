@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "Const.h"
 
-namespace Core
+namespace Banana
 {
 
 	ChildActionCommand::ChildActionCommand(Object *object, Action action)

@@ -8,7 +8,7 @@
 #include <set>
 #include <map>
 
-namespace Core
+namespace Banana
 {
 	class AbstractFile;
 	class ProjectGroup;
@@ -33,7 +33,7 @@ namespace Core
 		virtual const QObjectList &getChildren() override;
 		virtual void resetChildren() override;
 
-		bool isFileWatched(const Core::AbstractFile *file) const;
+		bool isFileWatched(const Banana::AbstractFile *file) const;
 		bool isFileWatched(const QString &filePath) const;
 
 		void watchFile(AbstractFile *file, bool yes);

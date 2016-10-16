@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-namespace Core
+namespace Banana
 {
 	class AbstractProjectDirectory;
 	class Directory;
@@ -11,7 +11,7 @@ namespace Core
 		Q_OBJECT
 
 	public:
-		explicit SearchPaths(Core::AbstractProjectDirectory *project_dir, QObject *parent = nullptr);
+		explicit SearchPaths(Banana::AbstractProjectDirectory *project_dir, QObject *parent = nullptr);
 
 		Directory *registerPath(const QString &path, int order) const;
 		void unregisterPath(const QString &path) const;
@@ -22,18 +22,18 @@ namespace Core
 
 		DirectoryList getDirectoryList() const;
 
-		inline Core::AbstractProjectDirectory *getProjectDirectory() const;
+		inline Banana::AbstractProjectDirectory *getProjectDirectory() const;
 
 	private:
-		void unregisterDirsIn(Core::Directory *dir) const;
+		void unregisterDirsIn(Banana::Directory *dir) const;
 
-		Core::AbstractProjectDirectory *project_dir;
+		Banana::AbstractProjectDirectory *project_dir;
 	};
 
-	Core::AbstractProjectDirectory *SearchPaths::getProjectDirectory() const
+	Banana::AbstractProjectDirectory *SearchPaths::getProjectDirectory() const
 	{
 		return project_dir;
 	}
 }
 
-Q_DECLARE_METATYPE(Core::SearchPaths *)
+Q_DECLARE_METATYPE(Banana::SearchPaths *)

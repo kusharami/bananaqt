@@ -8,7 +8,7 @@
 
 class QMimeData;
 
-namespace Core
+namespace Banana
 {
 	class UndoStack;
 

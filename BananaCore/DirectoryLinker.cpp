@@ -9,7 +9,7 @@
 
 using namespace std::placeholders;
 
-namespace Core
+namespace Banana
 {
 
 	BaseDirectoryLinker::BaseDirectoryLinker()
