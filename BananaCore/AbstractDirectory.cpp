@@ -1,0 +1,125 @@
+#include "AbstractDirectory.h"
+
+#include "Utils.h"
+#include "AbstractFile.h"
+
+#include <QDir>
+
+namespace Core
+{
+
+	AbstractDirectory::AbstractDirectory(QObject *thiz)
+		: AbstractFileSystemObject(thiz)
+	{
+
+	}
+
+	QString AbstractDirectory::getAbsoluteFilePathFor(const QString &path) const
+	{
+		if (QDir::isAbsolutePath(path))
+			return QDir::cleanPath(path);
+
+		return QDir::cleanPath(QDir(getFilePath()).absoluteFilePath(path));
+	}
+
+	QString AbstractDirectory::getRelativeFilePathFor(const QString &path) const
+	{
+		if (QDir::isRelativePath(path))
+			return path;
+
+		return QDir(getFilePath()).relativeFilePath(path);
+	}
+
+	const QString &AbstractDirectory::getFileExtension() const
+	{
+		static const QString dummy;
+		return dummy;
+	}
+
+	QString AbstractDirectory::getFileName() const
+	{
+		return thiz->objectName();
+	}
+
+	AbstractFileSystemObject *AbstractDirectory::findFileSystemObject(const QString &path, bool linked)
+	{
+		AbstractFileSystemObject *result = nullptr;
+		if (!path.isEmpty())
+		{
+			auto top_dir = getTopDirectory();
+			if (nullptr != top_dir)
+			{
+				auto absolute_path = getAbsoluteFilePathFor(path);
+				result = top_dir->internalFind(absolute_path, false);
+
+				if (nullptr == result && linked)
+				{
+					QFileInfo info(absolute_path);
+					if (info.exists())
+						result = top_dir->internalFind(info.canonicalFilePath(), true);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	void AbstractDirectory::descendantChanged(QObject *descendant, DescendantState state)
+	{
+		auto parent = getParentDirectory();
+		if (nullptr != parent)
+			parent->descendantChanged(descendant, state);
+	}
+
+	AbstractFileSystemObject *AbstractDirectory::internalFind(const QString &path, bool canonical)
+	{
+		if (canonical)
+		{
+			if (0 == path.compare(getCanonicalFilePath(), Qt::CaseInsensitive))
+			{
+				return this;
+			}
+		} else
+		{
+			if (0 == path.compare(getFilePath(), Qt::CaseInsensitive))
+			{
+				return this;
+			}
+		}
+
+		for (auto child : thiz->children())
+		{
+			auto file = dynamic_cast<AbstractFile *>(child);
+			if (nullptr != file)
+			{
+				if (canonical)
+				{
+					if (0 == path.compare(file->getCanonicalFilePath(), Qt::CaseInsensitive))
+					{
+						return file;
+					}
+				} else
+				{
+					if (0 == path.compare(file->saved_path, Qt::CaseInsensitive))
+					{
+						return file;
+					}
+				}
+			}
+		}
+
+		for (auto child : thiz->children())
+		{
+			auto dir = dynamic_cast<AbstractDirectory *>(child);
+			if (nullptr != dir)
+			{
+				auto result = dir->internalFind(path, canonical);
+				if (nullptr != result)
+					return result;
+			}
+		}
+
+		return nullptr;
+	}
+
+}
