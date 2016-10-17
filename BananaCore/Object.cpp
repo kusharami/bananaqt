@@ -174,7 +174,7 @@ namespace Banana
 		return result;
 	}
 
-	QObject *Object::loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data)
+	const QObject *Object::loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data)
 	{
 		Q_ASSERT(nullptr != metaObject);
 		Q_ASSERT(nullptr != data);

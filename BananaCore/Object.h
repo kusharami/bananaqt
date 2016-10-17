@@ -121,11 +121,11 @@ namespace Banana
 		QStringList getNamesChain(const QObject *topAncestor = nullptr) const;
 		static QStringList getNamesChain(const QObject *topAncestor, const QObject *bottomDescendant);
 
-		static QObject *loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data);
+		static const QObject *loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data);
 		static void saveQObjectPointer(const QObject *object, QMimeData *data);
 
 		template <typename T>
-		static inline T *loadObjectPointer(const QMimeData *data);
+		static inline const T *loadObjectPointer(const QMimeData *data);
 
 		inline bool isPropertyModified(int propertyId) const;
 		bool setPropertyModified(int propertyId, bool modified);
@@ -273,9 +273,9 @@ namespace Banana
 	}
 
 	template <typename T>
-	T *Object::loadObjectPointer(const QMimeData *data)
+	const T *Object::loadObjectPointer(const QMimeData *data)
 	{
-		return static_cast<T *>(loadQObjectPointer(&T::staticMetaObject, data));
+		return static_cast<const T *>(loadQObjectPointer(&T::staticMetaObject, data));
 	}
 
 	template <typename T, typename... ARG_T>
