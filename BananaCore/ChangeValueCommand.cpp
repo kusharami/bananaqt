@@ -147,6 +147,7 @@ namespace Banana
 
 		object->beginUndoStackUpdate();
 		object->beginLoad();
+		object->beginReload();
 
 		if (redo)
 		{
@@ -163,6 +164,7 @@ namespace Banana
 			}
 		}
 
+		object->endReload();
 		object->endLoad();
 		object->endUndoStackUpdate();
 	}

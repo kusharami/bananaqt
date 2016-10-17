@@ -51,11 +51,10 @@ namespace Banana
 		void connectObject();
 		void disconnectObject();
 
-		QObject *objectParent;
 		QObject *object;
 		QStringList objectPath;
-		QString objectName;
 
+		int fetchIndex;
 		bool skipRedoOnPush;
 	};
 
