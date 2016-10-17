@@ -93,5 +93,4 @@ HEADERS += \
 
 RESOURCES = BananaCore.qrc
 
-DISTFILES += \
-    ScriptTest.js
+DISTFILES +=
