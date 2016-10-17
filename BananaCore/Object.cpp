@@ -585,8 +585,24 @@ namespace Banana
 	{
 		if (source != this)
 		{
+			QVariantMap oldContents;
+			bool canPushUndoCommand = this->canPushUndoCommand();
+			if (canPushUndoCommand)
+			{
+				saveContents(oldContents, SaveStandalone);
+			}
+
+			beginReload();
+
 			removeAllChildren();
 			internalAssign(source, true, true);
+
+			endReload();
+
+			if (canPushUndoCommand)
+			{
+				undoStack->push(new ChangeContentsCommand(this, oldContents));
+			}
 		}
 	}
 
