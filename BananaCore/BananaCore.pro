@@ -89,7 +89,8 @@ HEADERS += \
     ChangeValueCommand.h \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
-    UndoStack.h
+    UndoStack.h \
+    ContainerTypes.h
 
 RESOURCES = BananaCore.qrc
 

@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "BananaCore/ContainerTypes.h"
 #include "BananaCore/ChildFilter.h"
 
 #include <QAbstractItemModel>
@@ -103,7 +104,7 @@ namespace Banana
 		virtual void doConnectObject(QObject *object);
 		virtual void doDisconnectObject(QObject *object);
 
-		void selectItems(const std::set<QObject *> &items);
+		void selectItems(const QObjectSet &items);
 
 	signals:
 		void dropSuccess();

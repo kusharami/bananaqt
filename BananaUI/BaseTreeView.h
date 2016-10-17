@@ -24,9 +24,9 @@
 
 #pragma once
 
-#include <QTreeView>
+#include "BananaCore/ContainerTypes.h"
 
-#include <set>
+#include <QTreeView>
 
 namespace Banana
 {
@@ -71,10 +71,9 @@ private slots:
 	void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 protected:
-	Banana::AbstractObjectTreeModel *treeModel;
-	typedef std::set<QObject *> ItemSet;
-	ItemSet expandedItems;
-	ItemSet selectedItems;
+	AbstractObjectTreeModel *treeModel;
+	QObjectSet expandedItems;
+	QObjectSet selectedItems;
 
 	unsigned preventReselectCounter;
 };

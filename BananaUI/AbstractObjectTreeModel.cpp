@@ -344,7 +344,7 @@ namespace Banana
 		}
 	}
 
-	void AbstractObjectTreeModel::selectItems(const std::set<QObject *> &items)
+	void AbstractObjectTreeModel::selectItems(const QObjectSet &items)
 	{
 		QItemSelection selection;
 		for (auto item : items)

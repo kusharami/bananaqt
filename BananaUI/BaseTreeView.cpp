@@ -139,7 +139,7 @@ void BaseTreeView::onAfterModelReset()
 {
 	preventReselectCounter++;
 
-	ItemSet items;
+	QObjectSet items;
 	items.swap(expandedItems);
 
 	for (auto &item : items)
