@@ -106,6 +106,7 @@ namespace Banana
 		void selectItems(const std::set<QObject *> &items);
 
 	signals:
+		void dropSuccess();
 		void shouldClearSelection();
 		void shouldSelect(const QItemSelection &selection);
 		void afterModelReset();

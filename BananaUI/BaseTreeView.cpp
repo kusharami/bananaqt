@@ -32,7 +32,7 @@
 namespace Banana
 {
 
-BaseTreeView::BaseTreeView(Banana::AbstractObjectTreeModel *model, QWidget *parent)
+BaseTreeView::BaseTreeView(AbstractObjectTreeModel *model, QWidget *parent)
 	: QTreeView(parent)
 	, treeModel(model)
 	, preventReselectCounter(0)
@@ -49,6 +49,8 @@ BaseTreeView::BaseTreeView(Banana::AbstractObjectTreeModel *model, QWidget *pare
 					 this, &BaseTreeView::onShouldSelect);
 	QObject::connect(treeModel, &AbstractObjectTreeModel::shouldClearSelection,
 					 this, &BaseTreeView::clearSelection);
+	QObject::connect(treeModel, &AbstractObjectTreeModel::dropSuccess,
+					 this, &BaseTreeView::onDropSuccess);
 
 	setModel(treeModel);
 
@@ -170,6 +172,11 @@ void BaseTreeView::onAfterModelReset()
 	selectionModel()->select(selection, QItemSelectionModel::Select);
 
 	preventReselectCounter--;
+}
+
+void BaseTreeView::onDropSuccess()
+{
+	setFocus();
 }
 
 void BaseTreeView::onShouldSelect(const QItemSelection &selection)

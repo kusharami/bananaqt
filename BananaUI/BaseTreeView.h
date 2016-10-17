@@ -38,7 +38,7 @@ class BaseTreeView : public QTreeView
 	Q_OBJECT
 
 public:
-	explicit BaseTreeView(Banana::AbstractObjectTreeModel *model,
+	explicit BaseTreeView(AbstractObjectTreeModel *model,
 						  QWidget *parent = nullptr);
 
 	void select(QObject *item, bool expand = false);
@@ -62,6 +62,7 @@ protected slots:
 	virtual void onAfterModelReset();
 
 private slots:
+	void onDropSuccess();
 	void onShouldSelect(const QItemSelection &selection);
 	void onExpanded(const QModelIndex &index);
 	void onExpandedItemDestroyed(QObject *item);
