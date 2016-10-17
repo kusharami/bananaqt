@@ -33,7 +33,7 @@ class QScriptEngine;
 
 namespace Scripting
 {
-	extern const char *pScriptExtension;
+	extern const char szScriptExtension[];
 }
 
 namespace Banana

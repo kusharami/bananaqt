@@ -40,14 +40,14 @@ namespace Banana
 {
 
 	static const QString sFilterSeparator =
-		#ifdef QT_WIN32
+		#ifdef Q_OS_WIN
 			"; "
 		#else
 			" "
 		#endif
 			;
 
-	static const char *pFilterFmt = QT_TRANSLATE_NOOP("FileTypeFilter", "%1 (%2)");
+	static const char szFilterFmt[] = QT_TRANSLATE_NOOP("FileTypeFilter", "%1 (%2)");
 
 	QString Directory::getAbsoluteFilePathFor(const QString &path, bool search) const
 	{
@@ -335,7 +335,7 @@ namespace Banana
 		else
 			wildcard = QString("*") + wildcard;
 
-		return QCoreApplication::translate("FileTypeFilter", pFilterFmt)
+		return QCoreApplication::translate("FileTypeFilter", szFilterFmt)
 				.arg(getFileFormatName(extension, true), wildcard);
 	}
 
@@ -370,7 +370,7 @@ namespace Banana
 		if (extensions.isEmpty())
 			return getFilterForExtension(pNoExtension);
 
-		return QCoreApplication::translate("FileTypeFilter", pFilterFmt)
+		return QCoreApplication::translate("FileTypeFilter", szFilterFmt)
 				.arg(getFileTypeTitle(metaObject, true),
 					 extensions.join(sFilterSeparator));
 	}
@@ -423,7 +423,7 @@ namespace Banana
 			Utils::SortStringList(result);
 
 			result.prepend(
-				QCoreApplication::translate("FileTypeFilter", pFilterFmt)
+				QCoreApplication::translate("FileTypeFilter", szFilterFmt)
 							.arg(tr("All supported file types"),
 								 extensions.join(sFilterSeparator)));
 		}
@@ -457,7 +457,7 @@ namespace Banana
 			Utils::SortStringList(result);
 
 			result.prepend(
-				QCoreApplication::translate("FileTypeFilter", pFilterFmt)
+				QCoreApplication::translate("FileTypeFilter", szFilterFmt)
 							.arg(tr("All supported formats"),
 								 extensions.join(sFilterSeparator)));
 		}

@@ -4,17 +4,17 @@
 <context>
     <name>Banana::AbstractProjectFile</name>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="51"/>
+        <location filename="../AbstractProjectFile.cpp" line="75"/>
         <source>mHideIgnoredFiles</source>
         <translation>Hide ignored files</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="52"/>
+        <location filename="../AbstractProjectFile.cpp" line="76"/>
         <source>mIgnoredFilesPattern</source>
         <translation>Ignored files pattern</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="53"/>
+        <location filename="../AbstractProjectFile.cpp" line="77"/>
         <source>mSearchPaths</source>
         <translation>Search paths</translation>
     </message>
@@ -22,17 +22,17 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="265"/>
+        <location filename="../ChangeValueCommand.cpp" line="291"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
         <translation>Reset value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="270"/>
+        <location filename="../ChangeValueCommand.cpp" line="296"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
         <translation>Change value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="275"/>
+        <location filename="../ChangeValueCommand.cpp" line="301"/>
         <source>Multiple objects</source>
         <translation>Multiple objects</translation>
     </message>
@@ -40,22 +40,22 @@
 <context>
     <name>Banana::ChildActionCommand</name>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="71"/>
+        <location filename="../ChildActionCommand.cpp" line="95"/>
         <source>Add object [%1]</source>
         <translation>Add object [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="76"/>
+        <location filename="../ChildActionCommand.cpp" line="100"/>
         <source>Add multiple objects</source>
         <translation>Add multiple objects</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="82"/>
+        <location filename="../ChildActionCommand.cpp" line="106"/>
         <source>Delete object [%1]</source>
         <translation>Delete object [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="87"/>
+        <location filename="../ChildActionCommand.cpp" line="111"/>
         <source>Delete multiple objects</source>
         <translation>Delete multiple objects</translation>
     </message>
@@ -63,62 +63,62 @@
 <context>
     <name>Banana::Directory</name>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="572"/>
+        <location filename="../AbstractProjectDirectory.cpp" line="596"/>
         <source>Some files were unable to be saved!</source>
         <translation>Some files were unable to be saved!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="403"/>
+        <location filename="../Directory.cpp" line="427"/>
         <source>All supported file types</source>
         <translation>All supported file types</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="437"/>
+        <location filename="../Directory.cpp" line="461"/>
         <source>All supported formats</source>
         <translation>All supported formats</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="449"/>
+        <location filename="../Directory.cpp" line="473"/>
         <source>File &apos;%1&apos; is not found!</source>
         <translation>File &quot;%1&quot; is not found!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="452"/>
+        <location filename="../Directory.cpp" line="476"/>
         <source>Directory &apos;%1&apos; is not found!</source>
         <translation>Directory &quot;%1&quot; is not found!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="455"/>
+        <location filename="../Directory.cpp" line="479"/>
         <source>&apos;%1&apos; is invalid file path!</source>
         <translation>&quot;%1&quot; is invalid file path!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="458"/>
+        <location filename="../Directory.cpp" line="482"/>
         <source>Cannot replace directory &apos;%1&apos; with a file!</source>
         <translation>Cannot replace directory &quot;%1&quot; with a file!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="461"/>
+        <location filename="../Directory.cpp" line="485"/>
         <source>Unable to write %1 &apos;%2&apos;!</source>
         <translation>Unable to write %1 &quot;%2&quot;!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="464"/>
+        <location filename="../Directory.cpp" line="488"/>
         <source>Unable to create directory &apos;%1&apos;!</source>
         <translation>Unable to create directory &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="467"/>
+        <location filename="../Directory.cpp" line="491"/>
         <source>%1 cannot be saved in %2 format.</source>
         <translation>%1 cannot be saved in %2 format.</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="470"/>
+        <location filename="../Directory.cpp" line="494"/>
         <source>&apos;%1&apos; cannot be used as %2 name. Try to use &apos;%3&apos;.</source>
         <translation>&quot;%1&quot; cannot be used as %2 name. Try to use &quot;%3&quot;.</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="473"/>
+        <location filename="../Directory.cpp" line="497"/>
         <source>File &apos;%1&apos; cannot be replaced because it is open.</source>
         <translation>File &quot;%1&quot; cannot be replaced because it is open.</translation>
     </message>
@@ -126,17 +126,17 @@
 <context>
     <name>Banana::ScriptRunner</name>
     <message>
-        <location filename="../ScriptRunner.cpp" line="225"/>
+        <location filename="../ScriptRunner.cpp" line="249"/>
         <source>Unable to load script file &apos;%1&apos;.</source>
         <translation>Unable to load script file &apos;%1&apos;.</translation>
     </message>
     <message>
-        <location filename="../ScriptTemplates.cpp" line="77"/>
+        <location filename="../ScriptTemplates.cpp" line="101"/>
         <source>Bad number of arguments.</source>
         <translation>Bad number of arguments.</translation>
     </message>
     <message>
-        <location filename="../ScriptTemplates.cpp" line="118"/>
+        <location filename="../ScriptTemplates.cpp" line="142"/>
         <source>Type of argument #%1 is incompatible.</source>
         <translation>Type of argument #%1 is incompatible.</translation>
     </message>
@@ -144,17 +144,17 @@
 <context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="54"/>
+        <location filename="../UndoStack.cpp" line="78"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Drag &amp;&amp; Drop: Copy</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="57"/>
+        <location filename="../UndoStack.cpp" line="81"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Drag &amp;&amp; Drop: Move</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="60"/>
+        <location filename="../UndoStack.cpp" line="84"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Drag &amp;&amp; Drop: Link</translation>
     </message>
@@ -162,12 +162,12 @@
 <context>
     <name>Boolean</name>
     <message>
-        <location filename="../Const.cpp" line="15"/>
+        <location filename="../Const.cpp" line="39"/>
         <source>False</source>
         <translation>False</translation>
     </message>
     <message>
-        <location filename="../Const.cpp" line="16"/>
+        <location filename="../Const.cpp" line="40"/>
         <source>True</source>
         <translation>True</translation>
     </message>
@@ -179,7 +179,7 @@
         <translation type="vanished">Design Screen</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="25"/>
+        <location filename="../Config.cpp" line="49"/>
         <source>QObject</source>
         <translation>Object</translation>
     </message>
@@ -220,7 +220,7 @@
         <translation type="vanished">Project</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="50"/>
+        <location filename="../AbstractProjectFile.cpp" line="74"/>
         <source>Banana::AbstractProjectFile</source>
         <translation>Project</translation>
     </message>
@@ -529,12 +529,12 @@
         <translation type="vanished">Project File</translation>
     </message>
     <message>
-        <location filename="../ScriptRunner.cpp" line="21"/>
+        <location filename="../ScriptRunner.cpp" line="45"/>
         <source>.js</source>
         <translation>JavaScript File</translation>
     </message>
     <message>
-        <location filename="../BinaryFile.cpp" line="16"/>
+        <location filename="../BinaryFile.cpp" line="40"/>
         <source> </source>
         <translation>Binary File</translation>
     </message>
@@ -646,12 +646,12 @@
         <translation type="vanished">Project Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunner.cpp" line="19"/>
+        <location filename="../ScriptRunner.cpp" line="43"/>
         <source>.js</source>
         <translation>JavaScript Files</translation>
     </message>
     <message>
-        <location filename="../BinaryFile.cpp" line="15"/>
+        <location filename="../BinaryFile.cpp" line="39"/>
         <source> </source>
         <translation>Any Files</translation>
     </message>
@@ -663,7 +663,7 @@
 <context>
     <name>FileNamingPolicy</name>
     <message>
-        <location filename="../Const.cpp" line="14"/>
+        <location filename="../Const.cpp" line="38"/>
         <source>Untitled</source>
         <translation>Untitled</translation>
     </message>
@@ -675,7 +675,7 @@
         <translation type="vanished">%1 (*%2)</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="26"/>
+        <location filename="../Directory.cpp" line="50"/>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
@@ -781,7 +781,7 @@
         <translation type="vanished">Font File</translation>
     </message>
     <message>
-        <location filename="../BinaryFile.cpp" line="14"/>
+        <location filename="../BinaryFile.cpp" line="38"/>
         <source>Banana::BinaryFile</source>
         <translation>Binary File</translation>
     </message>
@@ -833,7 +833,7 @@
         <translation type="vanished">Font Files</translation>
     </message>
     <message>
-        <location filename="../BinaryFile.cpp" line="13"/>
+        <location filename="../BinaryFile.cpp" line="37"/>
         <source>Banana::BinaryFile</source>
         <translation>Binary File</translation>
     </message>
@@ -1364,7 +1364,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../Config.cpp" line="26"/>
+        <location filename="../Config.cpp" line="50"/>
         <source>objectName</source>
         <translation>Name</translation>
     </message>
