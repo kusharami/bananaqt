@@ -764,7 +764,7 @@ namespace Banana
 
 	bool Object::canPushUndoCommand() const
 	{
-		return (!isLoading() && 0 == reloadCounter && macroIsRecording());
+		return (0 == reloadCounter && macroIsRecording());
 	}
 
 	void Object::addChildCommand(QObject *child)
