@@ -30,3 +30,4 @@
 .hg/
 build/
 *.qm
+*.user
