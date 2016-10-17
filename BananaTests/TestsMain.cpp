@@ -45,6 +45,7 @@ static int executeTests(int argc, char **argv)
 	{
 		auto testObject = create();
 		status |= QTest::qExec(testObject, argc, argv);
+		delete testObject;
 	}
 	return status;
 }
