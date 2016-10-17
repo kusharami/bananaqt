@@ -1,5 +1,5 @@
 /*
- * MIT License
+ * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
  *
