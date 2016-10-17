@@ -77,8 +77,8 @@ namespace Banana
 
 		inline UndoStack *getUndoStack() const;
 		void setUndoStack(UndoStack *undoStack, bool own = false);
-		Q_INVOKABLE void beginMacro(const QString &text);
-		Q_INVOKABLE void endMacro();
+		void beginMacro(const QString &text);
+		void endMacro();
 		Q_INVOKABLE bool macroIsRecording() const;
 		Q_INVOKABLE bool undoStackIsUpdating() const;
 		template <typename T>
@@ -98,8 +98,8 @@ namespace Banana
 
 		Q_INVOKABLE inline bool isLoading() const;
 
-		Q_INVOKABLE void beginLoad();
-		Q_INVOKABLE void endLoad();
+		void beginLoad();
+		void endLoad();
 
 		Q_INVOKABLE inline bool isInheritedChild() const;
 		Q_INVOKABLE inline bool isPrototypedRoot() const;
