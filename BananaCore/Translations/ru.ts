@@ -22,17 +22,17 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="291"/>
+        <location filename="../ChangeValueCommand.cpp" line="290"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
         <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="296"/>
+        <location filename="../ChangeValueCommand.cpp" line="295"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
         <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="301"/>
+        <location filename="../ChangeValueCommand.cpp" line="300"/>
         <source>Multiple objects</source>
         <translation>Несколько объектов</translation>
     </message>
