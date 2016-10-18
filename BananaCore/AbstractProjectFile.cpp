@@ -29,7 +29,6 @@
 #include "OpenedFiles.h"
 #include "Directory.h"
 #include "SearchPaths.h"
-#include "UndoStack.h"
 
 #include <QFileInfo>
 
@@ -68,7 +67,6 @@ namespace Banana
 		, openedFiles(nullptr)
 		, searchPaths(nullptr)
 	{
-		setUndoStack(new UndoStack, true);
 		setObjectName(name);
 
 		(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractProjectFile");
