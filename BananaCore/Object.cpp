@@ -47,6 +47,7 @@ namespace Banana
 		: prototype(nullptr)
 		, childPrototype(nullptr)
 		, reloadCounter(0)
+		, protoReloadCounter(0)
 		, loadCounter(0)
 		, macroCounter(0)
 		, undoStackUpdate(0)
@@ -526,7 +527,11 @@ namespace Banana
 			saveContents(oldContents, SaveStandalone);
 		}
 
+		beginReload();
+
 		loadContents(source, true);
+
+		endReload();
 
 		if (canPushUndoCommand)
 		{
@@ -749,10 +754,17 @@ namespace Banana
 				beforePrototypeReloadStarted();
 			}
 		}
+
+		protoReloadCounter++;
 	}
 
 	void Object::onPrototypeReloadFinished()
 	{
+		if (protoReloadCounter == 0)
+			return;
+
+		protoReloadCounter--;
+
 		if (sender() != childPrototype || prototype == childPrototype)
 		{
 			if (reloadCounter == 1)

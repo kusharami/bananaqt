@@ -120,7 +120,6 @@ namespace Banana
 		return a->index < b->index;
 	}
 
-
 	void ChangeValueCommand::prepareOrderedEntries(OrderedEntries &orderedEntries) const
 	{
 		if (!entries.empty() && orderedEntries.empty())

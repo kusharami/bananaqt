@@ -159,6 +159,7 @@ namespace Banana
 
 		object->beginUndoStackUpdate();
 		object->beginReload();
+
 		newChild->beginLoad();
 
 		newChild->loadContents(*savedContents, true);
@@ -166,6 +167,7 @@ namespace Banana
 		newChild->setParent(getObject());
 
 		newChild->endLoad();
+
 		object->endReload();
 		object->endUndoStackUpdate();
 

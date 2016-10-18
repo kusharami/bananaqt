@@ -28,10 +28,8 @@
 #include "AbstractFile.h"
 #include "AbstractDirectory.h"
 #include "PropertyDef.h"
-#include "UndoStack.h"
 
 #include <QDir>
-#include <QUndoGroup>
 
 namespace Banana
 {
@@ -40,7 +38,6 @@ namespace Banana
 		: thiz(thiz)
 		, data(nullptr)
 		, openedFiles(nullptr)
-		, undoGroup(nullptr)
 		, namingPolicy(nullptr)
 	{
 	}
@@ -70,17 +67,6 @@ namespace Banana
 		openedFiles->registerFile(thiz->canonical_path, data);
 
 		data->setObjectName(QFileInfo(thiz->canonical_path).baseName());
-
-		if (nullptr != undoGroup)
-		{
-			auto dataObject = dynamic_cast<Object *>(data);
-			if (nullptr != dataObject)
-			{
-				auto undoStack = dataObject->getUndoStack();
-				if (nullptr != undoStack)
-					undoGroup->addStack(undoStack);
-			}
-		}
 
 		connectFileData();
 	}
@@ -196,14 +182,6 @@ namespace Banana
 				openedFiles = nullptr;
 			});
 		}
-
-		if (nullptr != undoGroup)
-		{
-			undoGroupConnection = QObject::connect(undoGroup, &QObject::destroyed, [this]()
-			{
-				undoGroup = nullptr;
-			});
-		}
 	}
 
 	void AbstractFileRegistrator::disconnectContext()
@@ -212,12 +190,6 @@ namespace Banana
 		{
 			QObject::disconnect(openedFilesConnection);
 			openedFiles = nullptr;
-		}
-
-		if (nullptr != undoGroup)
-		{
-			QObject::disconnect(undoGroupConnection);
-			undoGroup = nullptr;
 		}
 	}
 
@@ -234,7 +206,6 @@ namespace Banana
 			if (nullptr != group)
 			{
 				openedFiles = group->getOpenedFiles();
-				undoGroup = group->getUndoGroup();
 				connectContext();
 				break;
 			}

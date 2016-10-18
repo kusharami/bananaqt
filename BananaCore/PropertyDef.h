@@ -27,6 +27,9 @@
 #define PROP(name) #name
 #define MPROP(Name) "m" #Name
 
+#define PUSH_UNDO_COMMAND(Name, oldValue) \
+	Banana::Object::pushUndoCommand(MPROP(Name), oldValue)
+
 #define PDEF_NONE
 #define PDEF_DESIGNABLE(bool) DESIGNABLE bool
 
@@ -35,7 +38,16 @@
 #define PDEF_GET_IMPL(name) { return m##name; }
 #define PDEF_SET_IMPL(name) { if (isLoading() || m##name != value) { doSet##name(value); } }
 #define PDEF_SIMPLE_SET_IMPL(name) { if (m##name != value) { doSet##name(value); } }
-#define PDEF_DO_SET_IMPL(name) { m##name = value; emit changed##name(); setModified(true); }
+#define PDEF_DO_SET_PUSH_IMPL(name) { \
+	auto oldValue = m##name; \
+	m##name = value; \
+	PUSH_UNDO_COMMAND(name, oldValue); \
+	emit changed##name(); \
+	setModified(true); }
+#define PDEF_DO_SET_IMPL(name) { \
+	m##name = value; \
+	emit changed##name(); \
+	setModified(true); }
 
 #define PDEF_GET(FULL_TYPE, name, GET_IMPL) \
 	FULL_TYPE get##name() const GET_IMPL
@@ -55,7 +67,7 @@ public: \
 
 #define PDEF_DEFAULT_GETSET(FULL_TYPE, name) \
 protected: \
-	PDEF_DO_SET(FULL_TYPE, name, PDEF_DO_SET_IMPL(name)) \
+	PDEF_DO_SET(FULL_TYPE, name, PDEF_DO_SET_PUSH_IMPL(name)) \
 public: \
 	PDEF_GET(inline FULL_TYPE, name, PDEF_GET_IMPL(name)) \
 	PDEF_SET(FULL_TYPE, name, PDEF_SET_IMPL(name))
@@ -119,9 +131,6 @@ public: \
 protected: \
 	Type m##name; \
 	GET_SET
-
-#define PUSH_UNDO_COMMAND(Name, oldValue) \
-	Banana::Object::pushUndoCommand(MPROP(Name), oldValue)
 
 #define NEW_PROPERTY_VALUE(Class, Name, oldValue) \
 { \

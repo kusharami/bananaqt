@@ -201,6 +201,7 @@ namespace Banana
 		Object *prototype;
 		Object *childPrototype;
 		unsigned reloadCounter;
+		unsigned protoReloadCounter;
 		unsigned loadCounter;
 		unsigned macroCounter;
 		unsigned undoStackUpdate;

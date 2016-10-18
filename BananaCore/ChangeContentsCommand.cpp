@@ -59,7 +59,9 @@ namespace Banana
 
 		object->beginUndoStackUpdate();
 		object->beginLoad();
+		object->beginReload();
 		object->loadContents(contents, true);
+		object->endReload();
 		object->endLoad();
 		object->endUndoStackUpdate();
 	}

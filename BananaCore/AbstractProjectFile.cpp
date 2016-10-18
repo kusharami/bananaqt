@@ -68,7 +68,7 @@ namespace Banana
 		, openedFiles(nullptr)
 		, searchPaths(nullptr)
 	{
-		setUndoStack(new Banana::UndoStack, true);
+		setUndoStack(new UndoStack, true);
 		setObjectName(name);
 
 		(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractProjectFile");

@@ -34,7 +34,6 @@
 #include <vector>
 
 class QObject;
-class QUndoGroup;
 
 namespace Banana
 {
@@ -70,12 +69,10 @@ namespace Banana
 		AbstractFile *thiz;
 		QObject *data;
 		OpenedFiles *openedFiles;
-		QUndoGroup *undoGroup;
 		AbstractNamingPolicy *namingPolicy;
 
 		QMetaObject::Connection thisDestroyConnection;
 		QMetaObject::Connection openedFilesConnection;
-		QMetaObject::Connection undoGroupConnection;
 		std::vector<QMetaObject::Connection> connections;
 	};
 
