@@ -18,6 +18,7 @@ namespace Banana
 		void endMacro();
 
 		void clear(bool force = false);
+		void setClean();
 
 		inline bool isUpdating() const;
 		inline bool macroIsRecording() const;

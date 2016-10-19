@@ -140,9 +140,6 @@ namespace Banana
 					if (nullptr != data)
 						data->setModified(false);
 					setModified(false);
-
-					if (ownUndoStack && nullptr != undoStack)
-						undoStack->setClean();
 				}
 
 				watchFile();

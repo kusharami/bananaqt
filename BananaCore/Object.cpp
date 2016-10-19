@@ -651,6 +651,10 @@ namespace Banana
 		if (modified != value)
 		{
 			modified = value;
+
+			if (!modified && ownUndoStack && nullptr != undoStack)
+				undoStack->setClean();
+
 			doFlagsChanged();
 
 			auto parent = dynamic_cast<Object *>(this->parent());

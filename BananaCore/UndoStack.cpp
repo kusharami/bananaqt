@@ -91,6 +91,15 @@ namespace Banana
 		}
 	}
 
+	void UndoStack::setClean()
+	{
+		if (!isClean())
+		{
+			firstClean = (index() == 0);
+			QUndoStack::setClean();
+		}
+	}
+
 	QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
 	{
 		switch (action)
