@@ -52,7 +52,9 @@ HEADERS += \
     SearchPathsDialog.h \
     Utils.h \
     ProjectTreeWidget.h \
-    NewFileDialog.h
+    NewFileDialog.h \
+    SelectTreeItemsCommand.h \
+    Const.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -76,4 +78,5 @@ SOURCES += \
     SearchPathsDialog.cpp \
     Utils.cpp \
     ProjectTreeWidget.cpp \
-    NewFileDialog.cpp
+    NewFileDialog.cpp \
+    SelectTreeItemsCommand.cpp

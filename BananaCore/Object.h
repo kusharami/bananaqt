@@ -118,6 +118,8 @@ namespace Banana
 		void endUndoStackUpdate();
 
 		static QObject *getTopAncestor(QObject *object);
+		static QObject *getDescendant(const QObject *topAncestor, const QStringList &path);
+		QObject *getDescendant(const QStringList &path) const;
 		QStringList getNamesChain(const QObject *topAncestor = nullptr) const;
 		static QStringList getNamesChain(const QObject *topAncestor, const QObject *bottomDescendant);
 

@@ -24,31 +24,53 @@
 
 #pragma once
 
-class QFont;
-class QString;
+#include "BananaCore/ContainerTypes.h"
+
+#include <QUndoCommand>
+#include <QStringList>
+#include <vector>
 
 namespace Banana
 {
-	extern const char pX[];
-	extern const char pY[];
-	extern const char pWidth[];
-	extern const char pHeight[];
-	extern const char pNoExtension[];
-	extern const char pUntitledFileName[];
-	extern const char pFalse[];
-	extern const char pTrue[];
+	class BaseTreeView;
 
-	QFont getDefaultFont();
-	QString getBoolString(bool value);
-
-	enum
+	class SelectTreeItemsCommand : public QUndoCommand
 	{
-		CHANGE_VALUE_COMMAND,
-		CHANGE_CONTENTS_COMMAND,
-		CHILD_ACTION_COMMAND,
+	public:
+		SelectTreeItemsCommand(BaseTreeView *tree);
+		SelectTreeItemsCommand(BaseTreeView *tree, const QObjectSet &oldSelected, const QObjectSet &newSelected);
 
-		RESERVED,
+		void setOldSelected(const QObjectSet &set);
+		void setNewSelected(const QObjectSet &set);
 
-		USER_COMMAND = 1024
+		virtual void undo() override;
+		virtual void redo() override;
+
+		virtual int id() const override;
+		virtual bool mergeWith(const QUndoCommand *other) override;
+
+	private:
+		struct Path
+		{
+			QObject *topAncestor;
+			QStringList path;
+
+			bool operator==(const Path &other) const;
+		};
+
+		typedef std::vector<Path> Paths;
+
+		static void toPaths(const QObjectSet &source, Paths &output);
+		static int findPath(const Path &toFind, const Paths &paths);
+
+		void select(const Paths &toSelect);
+
+		BaseTreeView *tree;
+
+		Paths newSelected;
+		Paths oldSelected;
+
+		bool skipRedoOnPush;
 	};
+
 }

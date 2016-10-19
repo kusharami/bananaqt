@@ -41,6 +41,7 @@ class QItemSelection;
 
 namespace Banana
 {
+	class UndoStack;
 	class AbstractObjectGroup;
 
 	class AbstractObjectTreeModel : public QAbstractItemModel, public ChildFilter
@@ -88,6 +89,8 @@ namespace Banana
 		virtual void beginResetModel();
 		virtual void endResetModel();
 
+		virtual UndoStack *getUndoStack() const;
+
 	protected:
 		virtual void beforeChangeFilters() override;
 		virtual void afterChangeFilters() override;
@@ -110,6 +113,7 @@ namespace Banana
 		void dropSuccess();
 		void shouldClearSelection();
 		void shouldSelect(const QItemSelection &selection);
+		void beforeModelReset();
 		void afterModelReset();
 
 	private slots:

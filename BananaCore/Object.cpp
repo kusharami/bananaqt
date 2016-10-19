@@ -155,6 +155,28 @@ namespace Banana
 		return nullptr;
 	}
 
+	QObject *Object::getDescendant(const QObject *topAncestor, const QStringList &path)
+	{
+		auto result = const_cast<QObject *>(topAncestor);
+		if (nullptr == result)
+			return nullptr;
+
+		int count = path.count();
+		for (int i = 0; i < count; i++)
+		{
+			result = result->findChild<QObject *>(path.at(i), Qt::FindDirectChildrenOnly);
+			if (nullptr == result)
+				break;
+		}
+
+		return result;
+	}
+
+	QObject *Object::getDescendant(const QStringList &path) const
+	{
+		return getDescendant(this, path);
+	}
+
 	QStringList Object::getNamesChain(const QObject *topAncestor) const
 	{
 		return getNamesChain(topAncestor, this);

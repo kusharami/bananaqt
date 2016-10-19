@@ -481,6 +481,8 @@ namespace Banana
 		if (noReset == 0)
 		{
 			indexMap.clear();
+			if (resetCount == 0)
+				emit beforeModelReset();
 			resetCount++;
 
 			QAbstractItemModel::beginResetModel();
@@ -499,6 +501,11 @@ namespace Banana
 			if (resetCount == 0)
 				emit afterModelReset();
 		}
+	}
+
+	UndoStack *AbstractObjectTreeModel::getUndoStack() const
+	{
+		return nullptr;
 	}
 
 }
