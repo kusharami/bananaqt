@@ -184,7 +184,10 @@ namespace Banana
 		{
 			auto index = treeModel->findModelIndex(item);
 			if (index.isValid())
+			{
 				expand(index);
+				expandedItems.insert(item);
+			}
 		}
 
 		items.clear();
@@ -202,6 +205,7 @@ namespace Banana
 				if (!firstIndex.isValid())
 					firstIndex = index;
 				selection.select(index, index);
+				selectedItems.insert(item);
 			}
 		}
 
