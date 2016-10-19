@@ -63,7 +63,10 @@ namespace Banana
 	void UndoStack::beginMacro(const QString &text)
 	{
 		if (0 == macroCounter++)
+		{
 			QUndoStack::beginMacro(text);
+			emit macroStarted();
+		}
 	}
 
 	void UndoStack::endMacro()
@@ -71,7 +74,10 @@ namespace Banana
 		Q_ASSERT(macroCounter > 0);
 
 		if (0 == --macroCounter)
+		{
+			emit macroFinished();
 			QUndoStack::endMacro();
+		}
 	}
 
 	void UndoStack::clear(bool force)

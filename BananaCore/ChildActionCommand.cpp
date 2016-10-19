@@ -164,7 +164,7 @@ namespace Banana
 
 		newChild->loadContents(*savedContents, true);
 		newChild->setObjectName(childObjectName);
-		newChild->setParent(getObject());
+		newChild->setParent(object);
 
 		newChild->endLoad();
 

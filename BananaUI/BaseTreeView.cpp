@@ -38,6 +38,7 @@ namespace Banana
 	BaseTreeView::BaseTreeView(AbstractObjectTreeModel *model, QWidget *parent)
 		: QTreeView(parent)
 		, treeModel(model)
+		, undoStack(nullptr)
 		, preventReselectCounter(0)
 	{
 		model->setParent(this);
@@ -303,9 +304,60 @@ namespace Banana
 		if (canPushCommand)
 		{
 			undoStack->push(new SelectTreeItemsCommand(this, oldSelected, selectedItems));
+		} else if (nullptr != undoStack)
+		{
+			if (undoStack != this->undoStack)
+			{
+				std::swap(this->oldSelected, oldSelected);
+				disconnectUndoStack();
+				this->undoStack = undoStack;
+				connectUndoStack();
+			}
 		}
 
 		preventReselectCounter--;
+	}
+
+	void BaseTreeView::onUndoStackMacroStarted()
+	{
+		if (undoStack == treeModel->getUndoStack())
+		{
+			Q_ASSERT(nullptr != undoStack);
+
+			auto reselectCommand = new SelectTreeItemsCommand(this,
+															  oldSelected.empty() ? selectedItems : oldSelected,
+															  selectedItems);
+			undoStack->push(reselectCommand);
+			disconnectUndoStack();
+			undoStack = nullptr;
+		}
+	}
+
+	void BaseTreeView::onUndoStackDestroyed()
+	{
+		undoStack = nullptr;
+	}
+
+	void BaseTreeView::connectUndoStack()
+	{
+		if (nullptr != undoStack)
+		{
+			QObject::connect(undoStack, &QObject::destroyed,
+							 this, &BaseTreeView::onUndoStackDestroyed);
+			QObject::connect(undoStack, &UndoStack::macroStarted,
+							 this, &BaseTreeView::onUndoStackMacroStarted);
+		}
+	}
+
+	void BaseTreeView::disconnectUndoStack()
+	{
+		if (nullptr != undoStack)
+		{
+			QObject::disconnect(undoStack, &QObject::destroyed,
+								this, &BaseTreeView::onUndoStackDestroyed);
+			QObject::disconnect(undoStack, &UndoStack::macroStarted,
+								this, &BaseTreeView::onUndoStackMacroStarted);
+		}
 	}
 
 }

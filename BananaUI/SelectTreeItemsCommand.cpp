@@ -86,11 +86,7 @@ namespace Banana
 		auto otherCommand = dynamic_cast<const SelectTreeItemsCommand *>(other);
 		if (nullptr != otherCommand && tree == otherCommand->tree)
 		{
-			for (auto &path : otherCommand->newSelected)
-			{
-				if (findPath(path, newSelected) < 0)
-					newSelected.push_back(path);
-			}
+			newSelected = otherCommand->newSelected;
 
 			return true;
 		}
@@ -111,19 +107,6 @@ namespace Banana
 		}
 	}
 
-	int SelectTreeItemsCommand::findPath(const Path &toFind, const Paths &paths)
-	{
-		int i = 0;
-		for (auto &path : paths)
-		{
-			if (path == toFind)
-				return i;
-			i++;
-		}
-
-		return -1;
-	}
-
 	void SelectTreeItemsCommand::select(const Paths &toSelect)
 	{
 		QObjectSet toSelectSet;
@@ -135,11 +118,6 @@ namespace Banana
 		}
 
 		tree->select(toSelectSet);
-	}
-
-	bool SelectTreeItemsCommand::Path::operator==(const Path &other) const
-	{
-		return (topAncestor == other.topAncestor &&	path == other.path);
 	}
 
 }

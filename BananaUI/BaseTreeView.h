@@ -31,6 +31,7 @@
 namespace Banana
 {
 	class AbstractObjectTreeModel;
+	class UndoStack;
 
 	class BaseTreeView : public QTreeView
 	{
@@ -72,9 +73,18 @@ namespace Banana
 		void onSelectedItemDestroyed(QObject *item);
 		void onCollapsed(const QModelIndex &index);
 		void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+		void onUndoStackMacroStarted();
+		void onUndoStackDestroyed();
+
+	private:
+		void connectUndoStack();
+		void disconnectUndoStack();
 
 	protected:
 		AbstractObjectTreeModel *treeModel;
+
+		UndoStack *undoStack;
+		QObjectSet oldSelected;
 		QObjectSet expandedItems;
 		QObjectSet selectedItems;
 

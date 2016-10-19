@@ -482,10 +482,11 @@ namespace Banana
 		{
 			indexMap.clear();
 			if (resetCount == 0)
+			{
 				emit beforeModelReset();
+				QAbstractItemModel::beginResetModel();
+			}
 			resetCount++;
-
-			QAbstractItemModel::beginResetModel();
 		}
 	}
 
@@ -493,13 +494,12 @@ namespace Banana
 	{
 		if (noReset == 0)
 		{
-			QAbstractItemModel::endResetModel();
-
 			Q_ASSERT(resetCount > 0);
-			resetCount--;
-
-			if (resetCount == 0)
+			if (--resetCount == 0)
+			{
+				QAbstractItemModel::endResetModel();
 				emit afterModelReset();
+			}
 		}
 	}
 

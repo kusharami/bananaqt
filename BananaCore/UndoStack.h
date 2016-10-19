@@ -24,6 +24,10 @@ namespace Banana
 
 		static QString getDragAndDropCommandText(Qt::DropAction action);
 
+	signals:
+		void macroStarted();
+		void macroFinished();
+
 	protected:
 		virtual void customEvent(QEvent *event) override;
 

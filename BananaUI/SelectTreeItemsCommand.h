@@ -54,14 +54,11 @@ namespace Banana
 		{
 			QObject *topAncestor;
 			QStringList path;
-
-			bool operator==(const Path &other) const;
 		};
 
 		typedef std::vector<Path> Paths;
 
 		static void toPaths(const QObjectSet &source, Paths &output);
-		static int findPath(const Path &toFind, const Paths &paths);
 
 		void select(const Paths &toSelect);
 
