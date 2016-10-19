@@ -150,13 +150,6 @@ namespace Banana
 		}
 	}
 
-	void AbstractFileRegistrator::onSave()
-	{
-		auto data = dynamic_cast<Object *>(this->data);
-		if (nullptr != data)
-			data->setModified(false);
-	}
-
 	void AbstractFileRegistrator::updateData(QObject *data)
 	{
 		if (data != this->data)

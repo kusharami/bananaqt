@@ -73,7 +73,11 @@ namespace Banana
 
 	UndoStack *FileTabBar::getCurrentUndoStack() const
 	{
-		auto file = getCurrentFile();
+		return getFileUndoStack(getCurrentFile());
+	}
+
+	UndoStack *FileTabBar::getFileUndoStack(AbstractFile *file)
+	{
 		if (nullptr != file)
 		{
 			auto dataObject = dynamic_cast<Object *>(file->getData(false));

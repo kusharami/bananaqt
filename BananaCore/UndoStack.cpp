@@ -24,15 +24,29 @@
 
 #include "UndoStack.h"
 
+#include <QApplication>
+#include <QEvent>
+
 namespace Banana
 {
+	class CleanCancelEvent : public QEvent
+	{
+	public:
+		CleanCancelEvent()
+			: QEvent(User)
+		{
+
+		}
+	};
 
 	UndoStack::UndoStack(QObject *parent)
 		: QUndoStack(parent)
 		, macroCounter(0)
 		, updateCounter(0)
+		, firstClean(true)
 	{
-
+		QObject::connect(this, &QUndoStack::cleanChanged,
+						 this, &UndoStack::onCleanChanged);
 	}
 
 	void UndoStack::beginUpdate()
@@ -66,6 +80,7 @@ namespace Banana
 		{
 			updateCounter = 0;
 			macroCounter = 0;
+			firstClean = isClean();
 			QUndoStack::clear();
 		}
 	}
@@ -89,6 +104,23 @@ namespace Banana
 		}
 
 		return QString();
+	}
+
+	void UndoStack::customEvent(QEvent *event)
+	{
+		auto cleanCancelEvent = dynamic_cast<CleanCancelEvent *>(event);
+		if (nullptr != cleanCancelEvent)
+		{
+			emit cleanChanged(false);
+		}
+	}
+
+	void UndoStack::onCleanChanged(bool clean)
+	{
+		if (clean && !firstClean && cleanIndex() == 0 && index() == 0)
+		{
+			QApplication::postEvent(this, new CleanCancelEvent);
+		}
 	}
 
 }

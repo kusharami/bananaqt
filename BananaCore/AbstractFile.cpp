@@ -26,8 +26,10 @@
 
 #include "Directory.h"
 #include "Utils.h"
-
 #include "ProjectGroup.h"
+
+#include "BananaCore/UndoStack.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -134,7 +136,13 @@ namespace Banana
 						doUpdateFilePath(false);
 					}
 
-					onSave();
+					auto data = dynamic_cast<Object *>(doGetData());
+					if (nullptr != data)
+						data->setModified(false);
+					setModified(false);
+
+					if (ownUndoStack && nullptr != undoStack)
+						undoStack->setClean();
 				}
 
 				watchFile();
@@ -446,15 +454,6 @@ namespace Banana
 	void AbstractFile::destroyData()
 	{
 		disconnectData();
-	}
-
-	void AbstractFile::onSave()
-	{
-		auto data = dynamic_cast<Object *>(doGetData());
-		if (nullptr != data)
-			data->setModified(false);
-		else
-			setModified(false);
 	}
 
 	void AbstractFile::doFlagsChanged()

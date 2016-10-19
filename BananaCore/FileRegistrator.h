@@ -57,7 +57,6 @@ namespace Banana
 		bool updateFilePath(const QString &old_path, const QString &new_path);
 		void createFileData(bool *reused);
 		void closeFileData();
-		void onSave();
 		void updateData(QObject *data);
 		void connectContext();
 		void disconnectContext();
@@ -93,7 +92,6 @@ namespace Banana
 		virtual void watchFile() override;
 
 	protected:
-		virtual void onSave() override;
 		virtual void createData(bool *reused) override;
 		virtual void destroyData() override;
 		virtual QObject *doGetData() override { return data; }
@@ -156,13 +154,6 @@ namespace Banana
 	void BaseFileRegistrator<FILE_CLASS>::watchFile()
 	{
 		watch(true);
-	}
-
-	template <typename FILE_CLASS>
-	void BaseFileRegistrator<FILE_CLASS>::onSave()
-	{
-		AbstractFileRegistrator::onSave();
-		FILE_CLASS::onSave();
 	}
 
 	template <typename FILE_CLASS>

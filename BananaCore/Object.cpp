@@ -51,10 +51,10 @@ namespace Banana
 		, loadCounter(0)
 		, macroCounter(0)
 		, undoStackUpdate(0)
-		, modified(false)
-		, deleted(false)
 		, undoStack(nullptr)
 		, ownUndoStack(false)
+		, modified(false)
+		, deleted(false)
 	{
 		QObject::connect(this, &QObject::objectNameChanged,
 						 this, &Object::onObjectNameChanged);
@@ -64,6 +64,7 @@ namespace Banana
 	{
 		if (nullptr != undoStack)
 		{
+			disconnectUndoStack();
 			Q_ASSERT(undoStackUpdate == 0);
 			Q_ASSERT(macroCounter == 0);
 
@@ -543,14 +544,26 @@ namespace Banana
 	{
 		if (this->undoStack != undoStack)
 		{
+			disconnectUndoStack();
+
 			Q_ASSERT(undoStackUpdate == 0);
 			Q_ASSERT(macroCounter == 0);
 
 			if (ownUndoStack)
 				delete this->undoStack;
 			this->undoStack = undoStack;
+
+			ownUndoStack = own;
+
+			connectUndoStack();
+		} if (ownUndoStack != own)
+		{
+			disconnectUndoStack();
+
+			ownUndoStack = own;
+
+			connectUndoStack();
 		}
-		ownUndoStack = own;
 		for (auto child : children())
 		{
 			auto object = dynamic_cast<Object *>(child);
@@ -788,6 +801,11 @@ namespace Banana
 		pushUndoCommand(PROP(objectName), oldName);
 		oldName = newName;
 		setModified(true);
+	}
+
+	void Object::onUndoStackCleanChanged(bool clean)
+	{
+		setModified(!clean);
 	}
 
 	bool Object::canPushUndoCommand() const
@@ -1235,6 +1253,24 @@ namespace Banana
 	void Object::doRemoveChild(QObject *object)
 	{
 		emit childRemoved(object);
+	}
+
+	void Object::connectUndoStack()
+	{
+		if (nullptr != undoStack && ownUndoStack)
+		{
+			QObject::connect(undoStack, &QUndoStack::cleanChanged,
+							 this, &Object::onUndoStackCleanChanged);
+		}
+	}
+
+	void Object::disconnectUndoStack()
+	{
+		if (nullptr != undoStack && ownUndoStack)
+		{
+			QObject::disconnect(undoStack, &QUndoStack::cleanChanged,
+								this, &Object::onUndoStackCleanChanged);
+		}
 	}
 
 }

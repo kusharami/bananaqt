@@ -24,9 +24,16 @@ namespace Banana
 
 		static QString getDragAndDropCommandText(Qt::DropAction action);
 
+	protected:
+		virtual void customEvent(QEvent *event) override;
+
+	private slots:
+		void onCleanChanged(bool clean);
+
 	private:
 		unsigned macroCounter;
 		unsigned updateCounter;
+		bool firstClean;
 	};
 
 	bool UndoStack::isUpdating() const

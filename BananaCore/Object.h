@@ -155,6 +155,7 @@ namespace Banana
 		void onPrototypeReloadFinished();
 		void onLinkedObjectNameChanged(const QString &name);
 		void onObjectNameChanged(const QString &newName);
+		void onUndoStackCleanChanged(bool clean);
 
 	private:
 		void pushUndoCommandInternal(const char *propertyName, const QVariant &oldValue);
@@ -197,6 +198,9 @@ namespace Banana
 		virtual void doAddChild(QObject *object);
 		virtual void doRemoveChild(QObject *object);
 
+		void connectUndoStack();
+		void disconnectUndoStack();
+
 		QString oldName;
 		Object *prototype;
 		Object *childPrototype;
@@ -205,13 +209,12 @@ namespace Banana
 		unsigned loadCounter;
 		unsigned macroCounter;
 		unsigned undoStackUpdate;
+		UndoStack *undoStack;
+		bool ownUndoStack;
 		bool modified;
 		bool deleted;
 
 	private:
-		UndoStack *undoStack;
-		bool ownUndoStack;
-
 		typedef std::bitset<64> ModifiedSet;
 		ModifiedSet modifiedSet;
 	};

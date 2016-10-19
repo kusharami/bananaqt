@@ -73,6 +73,7 @@ namespace Banana
 
 	private:
 		static QString getFileIsModifiedFmt();
+		static UndoStack *getFileUndoStack(AbstractFile *file);
 
 		void closeTab(int index, bool multiple);
 		void doFileClose(AbstractFile *file);

@@ -137,7 +137,6 @@ namespace Banana
 		virtual void destroyData();
 		virtual bool doSave(QIODevice *device) = 0;
 		virtual bool doLoad(QIODevice *device) = 0;
-		virtual void onSave();
 		virtual void doFlagsChanged() override;
 		virtual void opened();
 
