@@ -40,19 +40,19 @@ namespace Banana
 	AbstractFile::AbstractFile(const QString &extension)
 		: AbstractFileSystemObject(this)
 		, extension(extension)
-		, bind_count(0)
-		, load_error(false)
-		, symlink(false)
-		, is_open(false)
-		, signals_connected(false)
-		, old_parent(nullptr)
-		, connected_data(nullptr)
+		, bindCount(0)
+		, loadError(false)
+		, symLink(false)
+		, opened(false)
+		, signalsConnected(false)
+		, oldParent(nullptr)
+		, connectedData(nullptr)
 	{
 	}
 
 	AbstractFile::~AbstractFile()
 	{
-		disconnectData(connected_data);
+		disconnectData(connectedData);
 	}
 
 	const QString &AbstractFile::getFileExtension() const
@@ -72,7 +72,7 @@ namespace Banana
 
 	bool AbstractFile::isOpen() const
 	{
-		return is_open;
+		return opened;
 	}
 
 	bool AbstractFile::canClose()
@@ -82,20 +82,20 @@ namespace Banana
 
 	void AbstractFile::bind()
 	{
-		bind_count++;
+		bindCount++;
 	}
 
-	void AbstractFile::unbind(bool stay_open)
+	void AbstractFile::unbind(bool stayOpen)
 	{
-		Q_ASSERT(bind_count > 0);
-		bind_count--;
-		if (!stay_open && bind_count == 0)
+		Q_ASSERT(bindCount > 0);
+		bindCount--;
+		if (!stayOpen && bindCount == 0)
 			close();
 	}
 
 	bool AbstractFile::isBound() const
 	{
-		return (bind_count > 0);
+		return (bindCount > 0);
 	}
 
 	QObject *AbstractFile::getData(bool open)
@@ -111,17 +111,17 @@ namespace Banana
 		bool ok = false;
 		if (isOpen())
 		{
-			QFileInfo info(saved_path);
+			QFileInfo info(savedPath);
 			if (QDir().mkpath(info.path()))
 			{
 				unwatchFile();
 
-				if (symlink)
+				if (symLink)
 				{
 					if (info.isSymLink() || !info.isDir())
 					{
-						QFile::remove(saved_path);
-						Utils::CreateSymLink(symlink_target, saved_path);
+						QFile::remove(savedPath);
+						Utils::CreateSymLink(symLinkTarget, savedPath);
 					}
 				}
 
@@ -131,7 +131,7 @@ namespace Banana
 				{
 					info.refresh();
 					if (info.exists()
-					&&	0 != QString::compare(info.canonicalFilePath(), canonical_path, Qt::CaseInsensitive))
+					&&	0 != QString::compare(info.canonicalFilePath(), canonicalPath, Qt::CaseInsensitive))
 					{
 						doUpdateFilePath(false);
 					}
@@ -153,7 +153,7 @@ namespace Banana
 	{
 		if (!isOpen())
 		{
-			changeFilePath(saved_path);
+			changeFilePath(savedPath);
 
 			bool reused = false;
 			createData(&reused);
@@ -166,8 +166,8 @@ namespace Banana
 					object->assign(nullptr);
 			}
 
-			load_error = false;
-			is_open = true;
+			loadError = false;
+			opened = true;
 
 			bool result = save();
 
@@ -175,13 +175,13 @@ namespace Banana
 			{
 				destroyData();
 
-				is_open = false;
+				opened = false;
 			}
 
 			doFlagsChanged();
-			if (is_open)
+			if (opened)
 			{
-				opened();
+				onOpen();
 			}
 
 			return result;
@@ -195,26 +195,26 @@ namespace Banana
 		if (!isOpen())
 		{
 			bind();
-			changeFilePath(saved_path);
+			changeFilePath(savedPath);
 
 			bool reused = false;
 			createData(&reused);
 
-			load_error = false;
+			loadError = false;
 			modified = false;
 
 			bool error;
 			if (!reused)
 			{
 				error = true;
-				QFile file(saved_path);
+				QFile file(savedPath);
 				if (file.open(QIODevice::ReadOnly))
 				{
 					error = !doLoad(&file);
 					file.close();
 				}
 
-				load_error = error;
+				loadError = error;
 				modified = false;
 			} else
 			{
@@ -228,15 +228,15 @@ namespace Banana
 
 			if (!error)
 			{
-				is_open = true;
-				opened();
+				opened = true;
+				onOpen();
 			} else
 				destroyData();
 
 			unbind(true);
 		}
 
-		return is_open;
+		return opened;
 	}
 
 	bool AbstractFile::reload()
@@ -245,32 +245,32 @@ namespace Banana
 		{
 			bind();
 			bool error = true;
-			load_error = false;
+			loadError = false;
 
-			if (symlink)
+			if (symLink)
 			{
-				QFileInfo info(saved_path);
+				QFileInfo info(savedPath);
 				if (info.isSymLink() || !info.isDir())
 				{
 					unwatchFile();
 
-					QFile::remove(saved_path);
+					QFile::remove(savedPath);
 
 					if (QDir().mkpath(info.path()))
-						Utils::CreateSymLink(symlink_target, saved_path);
+						Utils::CreateSymLink(symLinkTarget, savedPath);
 
 					watchFile();
 				}
 			}
 
-			QFile file(saved_path);
+			QFile file(savedPath);
 			if (file.open(QIODevice::ReadOnly))
 			{
 				error = !doLoad(&file);
 				file.close();
 			}
 
-			load_error = error;
+			loadError = error;
 
 			if (error && !isBound())
 			{
@@ -303,7 +303,7 @@ namespace Banana
 
 	void AbstractFile::setLoadError(bool value)
 	{
-		load_error = value;
+		loadError = value;
 	}
 
 	QString AbstractFile::getFilePathShort(Directory *topDirectory) const
@@ -329,12 +329,12 @@ namespace Banana
 		return topDirectory;
 	}
 
-	bool AbstractFile::rename(const QString &new_name)
+	bool AbstractFile::rename(const QString &newName)
 	{
 		if (open())
-			return AbstractFileSystemObject::rename(new_name);
+			return AbstractFileSystemObject::rename(newName);
 
-		updateFileNameError(new_name);
+		updateFileNameError(newName);
 		return false;
 	}
 
@@ -371,11 +371,11 @@ namespace Banana
 		if (create)
 			createData();
 
-		load_error = !doLoad(device);
+		loadError = !doLoad(device);
 
-		if (!load_error)
+		if (!loadError)
 		{
-			is_open = true;
+			opened = true;
 			modified = true;
 		} else
 		{
@@ -383,36 +383,36 @@ namespace Banana
 				destroyData();
 		}
 
-		return !load_error;
+		return !loadError;
 	}
 
 	QString AbstractFile::getCanonicalFilePath() const
 	{
-		if (is_open)
-			return canonical_path;
+		if (opened)
+			return canonicalPath;
 
-		QFileInfo info(saved_path);
+		QFileInfo info(savedPath);
 		if (info.exists())
 			return info.canonicalFilePath();
 
-		return saved_path;
+		return savedPath;
 	}
 
 	bool AbstractFile::isSymLink() const
 	{
-		if (is_open)
-			return symlink;
+		if (opened)
+			return symLink;
 
-		QFileInfo info(saved_path.isEmpty() ? getFilePath() : saved_path);
+		QFileInfo info(savedPath.isEmpty() ? getFilePath() : savedPath);
 		return info.isSymLink();
 	}
 
 	QString AbstractFile::getSymLinkTarget() const
 	{
-		if (is_open && symlink)
-			return symlink_target;
+		if (opened && symLink)
+			return symLinkTarget;
 
-		QFileInfo info(saved_path);
+		QFileInfo info(savedPath);
 		return info.symLinkTarget();
 	}
 
@@ -428,8 +428,8 @@ namespace Banana
 
 	void AbstractFile::onDataDestroyed()
 	{
-		connected_data = nullptr;
-		is_open = false;
+		connectedData = nullptr;
+		opened = false;
 		modified = false;
 		emit modifiedFlagChanged(false);
 		emit flagsChanged();
@@ -437,7 +437,7 @@ namespace Banana
 
 	QObject *AbstractFile::doGetData()
 	{
-		if (!load_error)
+		if (!loadError)
 			return this;
 
 		return nullptr;
@@ -467,7 +467,7 @@ namespace Banana
 	bool AbstractFile::saveInternal()
 	{
 		bool ok = false;
-		QFile file(saved_path);
+		QFile file(savedPath);
 		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
 		{
 			if (doSave(&file))
@@ -479,7 +479,7 @@ namespace Banana
 		return ok;
 	}
 
-	void AbstractFile::opened()
+	void AbstractFile::onOpen()
 	{
 		watchFile();
 		emit fileOpened();
@@ -491,26 +491,26 @@ namespace Banana
 			QObject::disconnect(data, &QObject::destroyed, this, &AbstractFile::onDataDestroyed);
 	}
 
-	void AbstractFile::doUpdateFilePath(bool check_oldpath)
+	void AbstractFile::doUpdateFilePath(bool checkOldPath)
 	{
-		QString new_path(getFilePath());
-		if (!saved_path.isEmpty() && QDir::isAbsolutePath(new_path))
+		QString newPath(getFilePath());
+		if (!savedPath.isEmpty() && QDir::isAbsolutePath(newPath))
 		{
-			if (check_oldpath && saved_path == new_path)
+			if (checkOldPath && savedPath == newPath)
 				return;
 
-			if (!tryChangeFilePath(new_path))
+			if (!tryChangeFilePath(newPath))
 			{
-				QFileInfo old_info(saved_path);
+				QFileInfo oldInfo(savedPath);
 
-				setFileName(old_info.fileName());
+				setFileName(oldInfo.fileName());
 
-				emit updateFilePathError(saved_path, new_path);
+				emit updateFilePathError(savedPath, newPath);
 				return;
 			}
 		}
 
-		changeFilePath(new_path);
+		changeFilePath(newPath);
 	}
 
 	void AbstractFile::connectData()
@@ -518,7 +518,7 @@ namespace Banana
 		auto data = doGetData();
 		if (nullptr != data && data != this)
 		{
-			connected_data = data;
+			connectedData = data;
 			QObject::connect(data, &QObject::destroyed, this, &AbstractFile::onDataDestroyed);
 		}
 	}
@@ -526,45 +526,45 @@ namespace Banana
 	void AbstractFile::disconnectData()
 	{
 		disconnectData(doGetData());
-		connected_data = nullptr;
+		connectedData = nullptr;
 	}
 
-	void AbstractFile::updateFilePath(bool check_oldpath)
+	void AbstractFile::updateFilePath(bool checkOldPath)
 	{
 		unwatchFile();
-		doUpdateFilePath(check_oldpath);
+		doUpdateFilePath(checkOldPath);
 		watchFile();
 	}
 
-	void AbstractFile::changeFilePath(const QString &new_path)
+	void AbstractFile::changeFilePath(const QString &newPath)
 	{
-		saved_path = new_path;
+		savedPath = newPath;
 
-		QFileInfo info(new_path);
+		QFileInfo info(newPath);
 		if (info.exists())
-			canonical_path = info.canonicalFilePath();
+			canonicalPath = info.canonicalFilePath();
 		else
-			canonical_path = new_path;
+			canonicalPath = newPath;
 
-		symlink = info.isSymLink();
-		if (symlink)
+		symLink = info.isSymLink();
+		if (symLink)
 		{
-			symlink_target = info.symLinkTarget();
+			symLinkTarget = info.symLinkTarget();
 		}
 
 		emit pathChanged();
 	}
 
-	bool AbstractFile::tryChangeFilePath(const QString &new_path)
+	bool AbstractFile::tryChangeFilePath(const QString &newPath)
 	{
-		if (load_error)
+		if (loadError)
 			return true;
 
-		if (!QFile::exists(saved_path))
+		if (!QFile::exists(savedPath))
 			return true;
 
-		if (QDir().mkpath(QFileInfo(new_path).path())
-		&&	QFile::rename(saved_path, new_path))
+		if (QDir().mkpath(QFileInfo(newPath).path())
+		&&	QFile::rename(savedPath, newPath))
 		{
 			return true;
 		}
@@ -572,30 +572,30 @@ namespace Banana
 		return false;
 	}
 
-	void AbstractFile::executeUpdateFilePathError(const QString &path, const QString &failed_path)
+	void AbstractFile::executeUpdateFilePathError(const QString &path, const QString &failedPath)
 	{
-		emit updateFilePathError(path, failed_path);
+		emit updateFilePathError(path, failedPath);
 	}
 
-	bool AbstractFile::updateFileExtension(const QString &filename, QString *out_ext)
+	bool AbstractFile::updateFileExtension(const QString &fileName, QString *outExtension)
 	{
 		QString extension;
-		if (AbstractFileSystemObject::updateFileExtension(filename, &extension))
+		if (AbstractFileSystemObject::updateFileExtension(fileName, &extension))
 		{
 			if (extension.isEmpty())
 			{
 				auto directory = dynamic_cast<Directory *>(getParentDirectory());
 
 				if (nullptr != directory
-				&&	metaObject() != Directory::getFileTypeByExtension(filename))
+				&&	metaObject() != Directory::getFileTypeByExtension(fileName))
 				{
 					return false;
 				}
 			}
 
 			this->extension = extension;
-			if (nullptr != out_ext)
-				*out_ext = extension;
+			if (nullptr != outExtension)
+				*outExtension = extension;
 			return true;
 		}
 
@@ -606,35 +606,35 @@ namespace Banana
 	{
 		Object::doParentChange();
 
-		auto new_parent = parent();
+		auto newParent = parent();
 
-		if (old_parent != new_parent)
+		if (oldParent != newParent)
 		{
-			if (signals_connected)
+			if (signalsConnected)
 			{
-				if (nullptr == new_parent)
+				if (nullptr == newParent)
 				{
 					QObject::disconnect(this, &QObject::objectNameChanged, this, &AbstractFile::onNameChanged);
-					signals_connected = false;
+					signalsConnected = false;
 				}
 			} else
 			{
-				if (nullptr != new_parent)
+				if (nullptr != newParent)
 				{
 					QObject::connect(this, &QObject::objectNameChanged, this, &AbstractFile::onNameChanged);
-					signals_connected = true;
+					signalsConnected = true;
 				}
 			}
 		}
 
-		old_parent = new_parent;
+		oldParent = newParent;
 
 		updateFilePath();
 	}
 
 	void AbstractFile::internalClose()
 	{
-		is_open = false;
+		opened = false;
 		destroyData();
 		onDataDestroyed();
 		emit fileClosed();

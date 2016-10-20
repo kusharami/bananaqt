@@ -54,7 +54,7 @@ namespace Banana
 	protected:
 		bool isWatchedInternal() const;
 		void watch(bool yes);
-		bool updateFilePath(const QString &old_path, const QString &new_path);
+		bool updateFilePath(const QString &oldPath, const QString &newPath);
 		void createFileData(bool *reused);
 		void closeFileData();
 		void updateData(QObject *data);
@@ -175,10 +175,10 @@ namespace Banana
 	{
 		if (nullptr != data)
 		{
-			QString oldCanonicalPath(FILE_CLASS::canonical_path);
+			QString oldCanonicalPath(FILE_CLASS::canonicalPath);
 			FILE_CLASS::changeFilePath(new_path);
-			AbstractFileRegistrator::updateFilePath(oldCanonicalPath, FILE_CLASS::canonical_path);
-			data->setObjectName(QFileInfo(FILE_CLASS::canonical_path).baseName());
+			AbstractFileRegistrator::updateFilePath(oldCanonicalPath, FILE_CLASS::canonicalPath);
+			data->setObjectName(QFileInfo(FILE_CLASS::canonicalPath).baseName());
 		} else
 		{
 			FILE_CLASS::changeFilePath(new_path);

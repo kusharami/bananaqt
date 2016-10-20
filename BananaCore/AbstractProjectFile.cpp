@@ -396,7 +396,7 @@ namespace Banana
 	{
 		if (nullptr != openedFiles)
 		{
-			if (!canonical_path.isEmpty())
+			if (!canonicalPath.isEmpty())
 				openedFiles->watchFile(this, yes);
 		}
 	}

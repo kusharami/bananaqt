@@ -54,7 +54,7 @@ namespace Banana
 		initCreateFileData();
 		Q_ASSERT(nullptr != openedFiles);
 
-		data = openedFiles->getRegisteredFileData(thiz->canonical_path);
+		data = openedFiles->getRegisteredFileData(thiz->canonicalPath);
 
 		if (nullptr != reused)
 			*reused = (nullptr != data);
@@ -64,9 +64,9 @@ namespace Banana
 
 		Q_ASSERT(nullptr != data);
 
-		openedFiles->registerFile(thiz->canonical_path, data);
+		openedFiles->registerFile(thiz->canonicalPath, data);
 
-		data->setObjectName(QFileInfo(thiz->canonical_path).baseName());
+		data->setObjectName(QFileInfo(thiz->canonicalPath).fileName());
 
 		connectFileData();
 	}
@@ -88,7 +88,7 @@ namespace Banana
 		if (nullptr != data)
 		{
 			if (nullptr != openedFiles)
-				return openedFiles->canChangeFilePath(thiz->canonical_path, newFilePath);
+				return openedFiles->canChangeFilePath(thiz->canonicalPath, newFilePath);
 		}
 
 		return true;
@@ -100,19 +100,19 @@ namespace Banana
 		data = nullptr;
 		if (nullptr != openedFiles && nullptr != toDelete)
 		{
-			auto deleteResult = openedFiles->deleteFileData(thiz->canonical_path);
+			auto deleteResult = openedFiles->deleteFileData(thiz->canonicalPath);
 			Q_ASSERT(deleteResult == toDelete);
 			Q_UNUSED(deleteResult);
 		}
 	}
 
-	bool AbstractFileRegistrator::updateFilePath(const QString &old_path, const QString &new_path)
+	bool AbstractFileRegistrator::updateFilePath(const QString &oldPath, const QString &newPath)
 	{
 		if (nullptr != data)
 		{
 			if (nullptr != openedFiles)
 			{
-				auto new_data = openedFiles->updateFilePath(old_path, new_path);
+				auto new_data = openedFiles->updateFilePath(oldPath, newPath);
 
 				if (nullptr == new_data)
 					return false;

@@ -597,9 +597,9 @@ namespace Banana
 
 				for (auto file : files)
 				{
-					file->load_error = true;
+					file->loadError = true;
 					file->updateFilePath();
-					file->load_error = false;
+					file->loadError = false;
 				}
 
 				ok = true;

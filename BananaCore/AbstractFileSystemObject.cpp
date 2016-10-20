@@ -140,31 +140,31 @@ namespace Banana
 	bool AbstractFileSystemObject::setFileName(const QString &value)
 	{
 		bool result = false;
-		QString new_filename(Utils::ConvertToFileName(value));
-		if (new_filename == value)
+		QString newFileName(Utils::ConvertToFileName(value));
+		if (newFileName == value)
 		{
 			auto file = dynamic_cast<Object *>(thiz);
 			Q_ASSERT(nullptr != file);
 			bool modified = file->isModified();
-			QString old_filename(getFileName());
-			if (old_filename != new_filename)
+			QString oldFileName(getFileName());
+			if (oldFileName != newFileName)
 			{
-				QString old_extension(getFileExtension());
-				QString new_extension;
-				if (updateFileExtension(new_filename, &new_extension))
+				QString oldExtension(getFileExtension());
+				QString newExtension;
+				if (updateFileExtension(newFileName, &newExtension))
 				{
-					if (!new_extension.isEmpty())
-						new_filename.setUnicode(new_filename.data(),
-												new_filename.length() - new_extension.length());
+					if (!newExtension.isEmpty())
+						newFileName.setUnicode(newFileName.data(),
+												newFileName.length() - newExtension.length());
 
-					bool symlink = isSymLink();
+					bool symLink = isSymLink();
 					thiz->blockSignals(true);
 					thiz->setObjectName(QString());
 					thiz->blockSignals(false);
-					thiz->setObjectName(new_filename);
+					thiz->setObjectName(newFileName);
 
 					file->setModified(modified
-						|| (!symlink && 0 != old_extension.compare(new_extension,
+						|| (!symLink && 0 != oldExtension.compare(newExtension,
 													  Qt::CaseInsensitive)));
 
 					auto dir = getParentDirectory();
