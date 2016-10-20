@@ -81,9 +81,8 @@ namespace Banana
 		if (nullptr != file)
 		{
 			auto dataObject = dynamic_cast<Object *>(file->getData(false));
-			Q_ASSERT(nullptr != dataObject);
-
-			return dataObject->getUndoStack();
+			if (nullptr != dataObject)
+				return dataObject->getUndoStack();
 		}
 
 		return nullptr;
