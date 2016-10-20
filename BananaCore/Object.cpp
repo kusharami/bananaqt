@@ -50,6 +50,7 @@ namespace Banana
 		, protoReloadCounter(0)
 		, loadCounter(0)
 		, macroCounter(0)
+		, blockCounter(0)
 		, undoStackUpdate(0)
 		, undoStack(nullptr)
 		, ownUndoStack(false)
@@ -67,6 +68,7 @@ namespace Banana
 			disconnectUndoStack();
 			Q_ASSERT(undoStackUpdate == 0);
 			Q_ASSERT(macroCounter == 0);
+			Q_ASSERT(blockCounter == 0);
 
 			if (ownUndoStack)
 				delete undoStack;
@@ -288,11 +290,13 @@ namespace Banana
 				saveContents(oldContents, SaveStandalone);
 			}
 
+			blockMacro();
 			beforePrototypeChange();
 
 			internalSetPrototype(prototype, false, false);
 
 			afterPrototypeChange();
+			unblockMacro();
 
 			if (canPushUndoCommand)
 			{
@@ -550,11 +554,13 @@ namespace Banana
 			saveContents(oldContents, SaveStandalone);
 		}
 
+		blockMacro();
 		beginReload();
 
 		loadContents(source, true);
 
 		endReload();
+		unblockMacro();
 
 		if (canPushUndoCommand)
 		{
@@ -570,6 +576,7 @@ namespace Banana
 
 			Q_ASSERT(undoStackUpdate == 0);
 			Q_ASSERT(macroCounter == 0);
+			Q_ASSERT(blockCounter == 0);
 
 			if (ownUndoStack)
 				delete this->undoStack;
@@ -611,9 +618,21 @@ namespace Banana
 			undoStack->endMacro();
 	}
 
-	bool Object::macroIsRecording() const
+	void Object::blockMacro()
 	{
-		return (nullptr != undoStack && undoStack->macroIsRecording());
+		if (nullptr != undoStack)
+			undoStack->blockMacro();
+
+		blockCounter++;
+	}
+
+	void Object::unblockMacro()
+	{
+		Q_ASSERT(blockCounter > 0);
+		blockCounter--;
+
+		if (nullptr != undoStack)
+			undoStack->unblockMacro();
 	}
 
 	bool Object::undoStackIsUpdating() const
@@ -632,12 +651,14 @@ namespace Banana
 				saveContents(oldContents, SaveStandalone);
 			}
 
+			blockMacro();
 			beginReload();
 
 			removeAllChildren();
 			internalAssign(source, true, true);
 
 			endReload();
+			unblockMacro();
 
 			if (canPushUndoCommand)
 			{
@@ -838,7 +859,7 @@ namespace Banana
 
 	bool Object::canPushUndoCommand() const
 	{
-		return (0 == reloadCounter && macroIsRecording());
+		return (0 == reloadCounter && nullptr != undoStack && undoStack->canPushForMacro());
 	}
 
 	void Object::addChildCommand(QObject *child)
@@ -874,8 +895,6 @@ namespace Banana
 	void Object::pushUndoCommandInternal(const char *propertyName,
 										 const QVariant &oldValue)
 	{
-		Q_ASSERT(macroIsRecording());
-
 		undoStack->push(new ChangeValueCommand(this,
 												Utils::GetMetaPropertyByName(metaObject(), propertyName),
 												oldValue));

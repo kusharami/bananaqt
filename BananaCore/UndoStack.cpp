@@ -41,6 +41,7 @@ namespace Banana
 
 	UndoStack::UndoStack(QObject *parent)
 		: QUndoStack(parent)
+		, blockCounter(0)
 		, macroCounter(0)
 		, updateCounter(0)
 		, firstClean(true)
@@ -80,6 +81,17 @@ namespace Banana
 		}
 	}
 
+	void UndoStack::blockMacro()
+	{
+		blockCounter++;
+	}
+
+	void UndoStack::unblockMacro()
+	{
+		Q_ASSERT(blockCounter > 0);
+		blockCounter--;
+	}
+
 	void UndoStack::clear(bool force)
 	{
 		if (force || (updateCounter == 0 && macroCounter == 0))
@@ -98,6 +110,11 @@ namespace Banana
 			firstClean = (index() == 0);
 			QUndoStack::setClean();
 		}
+	}
+
+	bool UndoStack::canPushForMacro() const
+	{
+		return macroCounter > 0 && blockCounter == 0;
 	}
 
 	QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)

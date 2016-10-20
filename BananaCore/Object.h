@@ -79,11 +79,12 @@ namespace Banana
 		void setUndoStack(UndoStack *undoStack, bool own = false);
 		void beginMacro(const QString &text);
 		void endMacro();
-		Q_INVOKABLE bool macroIsRecording() const;
+		void blockMacro();
+		void unblockMacro();
 		Q_INVOKABLE bool undoStackIsUpdating() const;
 		template <typename T>
 		inline void pushUndoCommand(const char *propertyName, const T &oldValue);
-		bool canPushUndoCommand() const;
+		Q_INVOKABLE bool canPushUndoCommand() const;
 
 		Q_INVOKABLE void addChildCommand(QObject *child);
 		Q_INVOKABLE void moveChildCommand(QObject *child, QObject *oldParent);
@@ -210,6 +211,7 @@ namespace Banana
 		unsigned protoReloadCounter;
 		unsigned loadCounter;
 		unsigned macroCounter;
+		unsigned blockCounter;
 		unsigned undoStackUpdate;
 		UndoStack *undoStack;
 		bool ownUndoStack;
