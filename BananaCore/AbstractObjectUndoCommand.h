@@ -47,7 +47,7 @@ namespace Banana
 	private slots:
 		void onObjectDestroyed();
 
-	private:
+	protected:
 		void connectObject();
 		void disconnectObject();
 

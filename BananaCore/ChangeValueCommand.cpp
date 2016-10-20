@@ -34,6 +34,21 @@
 namespace Banana
 {
 	ChangeValueCommand::ChangeValueCommand(Object *object,
+										   const QString &oldName,
+										   const QString &newName)
+		: AbstractObjectUndoCommand(object)
+	{
+		objectPath[0] = oldName;
+
+		newStateBits = object->getPropertyModifiedBits();
+		oldStateBits = newStateBits;
+
+		auto metaProperty = Utils::GetMetaPropertyByName(this, "objectName");
+
+		pushEntry({ metaProperty, oldName, newName });
+	}
+
+	ChangeValueCommand::ChangeValueCommand(Object *object,
 										   const QMetaProperty &metaProperty,
 										   const QVariant &oldValue)
 		: AbstractObjectUndoCommand(object)
@@ -145,6 +160,7 @@ namespace Banana
 		prepareOrderedEntries();
 
 		object->beginUndoStackUpdate();
+		object->blockMacro();
 		object->beginLoad();
 		object->beginReload();
 
@@ -165,6 +181,7 @@ namespace Banana
 
 		object->endReload();
 		object->endLoad();
+		object->unblockMacro();
 		object->endUndoStackUpdate();
 	}
 

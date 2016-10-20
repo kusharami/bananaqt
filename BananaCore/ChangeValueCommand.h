@@ -60,6 +60,7 @@ namespace Banana
 		static QString multipleObjectsStr();
 
 	public:
+		ChangeValueCommand(Object *object, const QString &oldName, const QString &newName);
 		ChangeValueCommand(Object *object,
 						   const QMetaProperty &metaProperty,
 						   const QVariant &oldValue);

@@ -824,7 +824,9 @@ namespace Banana
 
 	void Object::onObjectNameChanged(const QString &newName)
 	{
-		pushUndoCommand(PROP(objectName), oldName);
+		if (canPushUndoCommand())
+			undoStack->push(new ChangeValueCommand(this, oldName, newName));
+
 		oldName = newName;
 		setModified(true);
 	}
