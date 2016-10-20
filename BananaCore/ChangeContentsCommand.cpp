@@ -58,11 +58,15 @@ namespace Banana
 		Q_ASSERT(nullptr != object);
 
 		object->beginUndoStackUpdate();
+		object->blockMacro();
 		object->beginLoad();
 		object->beginReload();
+
 		object->loadContents(contents, true);
+
 		object->endReload();
 		object->endLoad();
+		object->unblockMacro();
 		object->endUndoStackUpdate();
 	}
 

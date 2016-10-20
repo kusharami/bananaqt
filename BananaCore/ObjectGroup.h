@@ -49,7 +49,6 @@ namespace Banana
 		bool isSupportedChildType(const QMetaObject *meta_object) const;
 
 		virtual const QObjectList &getChildren() override;
-
 		virtual void resetChildren() override;
 
 	signals:

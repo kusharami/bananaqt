@@ -165,7 +165,7 @@ namespace Banana
 	void BaseTreeView::onBeforeModelReset()
 	{
 		auto undoStack = treeModel->getUndoStack();
-		if (nullptr != undoStack && undoStack->macroIsRecording())
+		if (nullptr != undoStack && undoStack->canPushForMacro())
 		{
 			auto reselectCommand = new SelectTreeItemsCommand(this);
 			reselectCommand->setOldSelected(selectedItems);
@@ -214,7 +214,7 @@ namespace Banana
 		selectionModel()->select(selection, QItemSelectionModel::Select);
 
 		auto undoStack = treeModel->getUndoStack();
-		if (nullptr != undoStack && undoStack->macroIsRecording())
+		if (nullptr != undoStack && undoStack->canPushForMacro())
 		{
 			auto reselectCommand = new SelectTreeItemsCommand(this);
 			reselectCommand->setNewSelected(selectedItems);
@@ -278,7 +278,7 @@ namespace Banana
 	{
 		Q_ASSERT(nullptr != treeModel);
 		auto undoStack = treeModel->getUndoStack();
-		bool canPushCommand = (nullptr != undoStack && undoStack->macroIsRecording());
+		bool canPushCommand = (nullptr != undoStack && undoStack->canPushForMacro());
 		QObjectSet oldSelected;
 		if (canPushCommand)
 			oldSelected = selectedItems;

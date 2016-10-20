@@ -35,6 +35,9 @@ namespace Banana
 		virtual ~AbstractObjectGroup() {}
 
 		virtual const QObjectList &getChildren();
+		virtual AbstractObjectGroup *getRealGroup();
+
+		bool equals(QObject *groupObject);
 
 		QObjectList filterChildren(const IChildFilter *filter, bool sort = true);
 		int getChildIndex(const QObject *object);

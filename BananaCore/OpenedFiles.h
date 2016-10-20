@@ -83,10 +83,7 @@ namespace Banana
 		void filesChanged(const QString &path);
 
 	private slots:
-		void onFileDataDestroyed();
-
-	protected:
-		virtual void childEvent(QChildEvent *event) override;
+		void onFileDataParentChanged();
 
 	private:
 		struct Info
@@ -105,6 +102,8 @@ namespace Banana
 		QObjectList m_children;
 		QFileSystemWatcher *watcher;
 		ProjectGroup *owner;
+
+		friend class OpenedFilesPathGroup;
 	};
 
 	ProjectGroup *OpenedFiles::getOwner() const
