@@ -31,3 +31,4 @@
 build/
 *.qm
 *.user
+*.orig
