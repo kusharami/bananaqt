@@ -238,8 +238,8 @@ namespace Banana
 				for (auto pathChild : pathObject->children())
 				{
 					auto fileObject = dynamic_cast<Object *>(pathChild);
-					if (nullptr != fileObject && !fileObject->isDeleted())
-						m_children.push_back(fileObject);
+					if (nullptr == fileObject || !fileObject->isDeleted())
+						m_children.push_back(pathChild);
 				}
 			}
 		}
