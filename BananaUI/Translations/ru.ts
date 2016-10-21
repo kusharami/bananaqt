@@ -175,7 +175,7 @@
 <context>
     <name>Banana::FileTabBar</name>
     <message>
-        <location filename="../FileTabBar.cpp" line="218"/>
+        <location filename="../FileTabBar.cpp" line="221"/>
         <source>%1[*]</source>
         <comment>File is modified</comment>
         <translation>%1[*]</translation>

@@ -4,17 +4,17 @@
 <context>
     <name>Banana::AbstractProjectFile</name>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="75"/>
+        <location filename="../AbstractProjectFile.cpp" line="73"/>
         <source>mHideIgnoredFiles</source>
         <translation>Hide ignored files</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="76"/>
+        <location filename="../AbstractProjectFile.cpp" line="74"/>
         <source>mIgnoredFilesPattern</source>
         <translation>Ignored files pattern</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="77"/>
+        <location filename="../AbstractProjectFile.cpp" line="75"/>
         <source>mSearchPaths</source>
         <translation>Search paths</translation>
     </message>
@@ -22,17 +22,17 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="290"/>
+        <location filename="../ChangeValueCommand.cpp" line="307"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
         <translation>Reset value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="295"/>
+        <location filename="../ChangeValueCommand.cpp" line="312"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
         <translation>Change value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="300"/>
+        <location filename="../ChangeValueCommand.cpp" line="317"/>
         <source>Multiple objects</source>
         <translation>Multiple objects</translation>
     </message>
@@ -63,7 +63,7 @@
 <context>
     <name>Banana::Directory</name>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="596"/>
+        <location filename="../AbstractProjectDirectory.cpp" line="590"/>
         <source>Some files were unable to be saved!</source>
         <translation>Some files were unable to be saved!</translation>
     </message>
@@ -144,17 +144,17 @@
 <context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="78"/>
+        <location filename="../UndoStack.cpp" line="125"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Drag &amp;&amp; Drop: Copy</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="81"/>
+        <location filename="../UndoStack.cpp" line="128"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Drag &amp;&amp; Drop: Move</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="84"/>
+        <location filename="../UndoStack.cpp" line="131"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Drag &amp;&amp; Drop: Link</translation>
     </message>
@@ -220,7 +220,7 @@
         <translation type="vanished">Project</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="74"/>
+        <location filename="../AbstractProjectFile.cpp" line="72"/>
         <source>Banana::AbstractProjectFile</source>
         <translation>Project</translation>
     </message>
