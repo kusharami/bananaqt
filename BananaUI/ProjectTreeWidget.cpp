@@ -119,6 +119,11 @@ ProjectTreeView *ProjectTreeWidget::getTreeView() const
 	return ui->projectTreeView;
 }
 
+QLineEdit *ProjectTreeWidget::getFilterEdit() const
+{
+	return ui->filterEdit;
+}
+
 void ProjectTreeWidget::showFilter(bool show)
 {
 	if (!show)

@@ -32,6 +32,7 @@ namespace Ui
 }
 
 class QMenu;
+class QLineEdit;
 
 namespace Banana
 {
@@ -46,6 +47,7 @@ public:
 	virtual ~ProjectTreeWidget();
 
 	ProjectTreeView *getTreeView() const;
+	QLineEdit *getFilterEdit() const;
 
 	void showFilter(bool show);
 	QMenu *getButtonOptionsMenu() const;
