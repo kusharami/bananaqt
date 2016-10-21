@@ -187,7 +187,8 @@ namespace Banana
 	{
 		if (nullptr != activeProjectDir)
 		{
-
+			QObject::connect(activeProjectDir, &QObject::destroyed,
+							 this, &ProjectGroup::onActiveProjectDirectoryDestroyed);
 		}
 	}
 

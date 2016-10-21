@@ -132,12 +132,17 @@ protected: \
 	Type m##name; \
 	GET_SET
 
-#define NEW_PROPERTY_VALUE(Class, Name, oldValue) \
+#define NEW_PROPERTY_VALUE_NO_COMMAND(Class, Name) \
 { \
-	PUSH_UNDO_COMMAND(Name, oldValue); \
 	auto prototype = dynamic_cast<Class *>(this->getPrototype()); \
 	if (nullptr == prototype || m##Name != prototype->get##Name()) \
 		Banana::Object::setPropertyModified(New##Name, true); \
+}
+
+#define NEW_PROPERTY_VALUE(Class, Name, oldValue) \
+{ \
+	PUSH_UNDO_COMMAND(Name, oldValue); \
+	NEW_PROPERTY_VALUE_NO_COMMAND(Class, Name); \
 }
 
 #define DO_SET_PROPERTY_VALUE_IMPL(Class, Type, Name) \
