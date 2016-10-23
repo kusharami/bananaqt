@@ -75,9 +75,13 @@ namespace Utils
 
 	QString ConvertToFileName(const QString &source, int max_size = 255 - 11);
 
+	bool FileNameIsValid(const QString &fileName);
+
 	QStringList SplitPath(const QString &path);
 
 	QString QuoteString(const QString &value);
+
+	bool IsDigitString(const QString &str);
 
 	bool CheckFilePath(const QString &path);
 

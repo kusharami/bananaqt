@@ -842,6 +842,20 @@ namespace Utils
 		return result;
 	}
 
+	bool IsDigitString(const QString &str)
+	{
+		for (auto &c : str)
+			if (!c.isDigit())
+				return false;
+
+		return true;
+	}
+
+	bool FileNameIsValid(const QString &fileName)
+	{
+		return (ConvertToFileName(fileName) == fileName);
+	}
+
 }
 
 }
