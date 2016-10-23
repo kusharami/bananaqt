@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,36 +22,43 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "tst_FileNameCollection.h"
 
-#include <QString>
-#include <QtTest>
-#include <QMetaObject>
+#include "BananaCore/FileNameCollection.h"
 
-#include <functional>
+#include "TestsMain.h"
 
-#define UTF16(c) QString::fromWCharArray(L##c)
-#define UTF8(c) QString::fromUtf8(c)
+REGISTER_TEST(FileNameCollection);
 
-#if defined(_UNICODE) && defined(_MSC_VER)
- #define _T(c) UTF16(c)
-#else
- #define _T(c) UTF8(c)
-#endif
+using FNC = Banana::FileNameCollection;
 
-#define QADD_COLUMN(Type, Name) QTest::addColumn<Type>(#Name)
-
-typedef std::function<QObject *()> TestCreator;
-size_t registerTestCreator(const TestCreator &create);
-
-template <typename T>
-size_t registerTest()
+FileNameCollection::FileNameCollection()
+	: fnc(nullptr)
 {
-	return registerTestCreator([]() -> QObject * { return new T; });
+
 }
 
-#define CAT2(a,b) a##b
-#define CAT(a,b) CAT2(a,b)
+void FileNameCollection::init()
+{
+	fnc = new FNC(QDir(SRCDIR), ".cpp");
+	IS_VALID(fnc);
+}
 
-#define REGISTER_TEST(Class) \
-static auto CAT(test, __COUNTER__) = registerTest<Class>()
+void FileNameCollection::testContainsName_data()
+{
+	QADD_COLUMN(QString, fileName);
+	QTest::newRow("1") << "tst_FileNameCollection";
+	QTest::newRow("2") << "TestsMain";
+}
+
+void FileNameCollection::testContainsName()
+{
+	QFETCH(QString, fileName);
+
+	QVERIFY(fnc->containsName(fileName));
+}
+
+void FileNameCollection::cleanup()
+{
+	delete fnc;
+}

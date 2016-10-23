@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -24,34 +24,35 @@
 
 #pragma once
 
+#include "Core.h"
+#include "INameCollection.h"
+
 #include <QString>
-#include <QtTest>
-#include <QMetaObject>
 
-#include <functional>
-
-#define UTF16(c) QString::fromWCharArray(L##c)
-#define UTF8(c) QString::fromUtf8(c)
-
-#if defined(_UNICODE) && defined(_MSC_VER)
- #define _T(c) UTF16(c)
-#else
- #define _T(c) UTF8(c)
-#endif
-
-#define QADD_COLUMN(Type, Name) QTest::addColumn<Type>(#Name)
-
-typedef std::function<QObject *()> TestCreator;
-size_t registerTestCreator(const TestCreator &create);
-
-template <typename T>
-size_t registerTest()
+namespace Banana
 {
-	return registerTestCreator([]() -> QObject * { return new T; });
+
+	class AbstractNameUnifier : public BaseObject
+	{
+	public:
+		inline const INameCollectionPtr &nameCollection() const;
+		inline void setNameCollection(const INameCollectionPtr &ptr);
+
+		virtual QString uniqueNameFor(const QString &name) const = 0;
+		virtual bool isValid() const override;
+
+	protected:
+		INameCollectionPtr mNameCollection;
+	};
+
+	const INameCollectionPtr &AbstractNameUnifier::nameCollection() const
+	{
+		return mNameCollection;
+	}
+
+	void AbstractNameUnifier::setNameCollection(const INameCollectionPtr &ptr)
+	{
+		mNameCollection = ptr;
+	}
+
 }
-
-#define CAT2(a,b) a##b
-#define CAT(a,b) CAT2(a,b)
-
-#define REGISTER_TEST(Class) \
-static auto CAT(test, __COUNTER__) = registerTest<Class>()

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,36 +22,50 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "tst_AbstractNameUnifier.h"
 
-#include <QString>
-#include <QtTest>
-#include <QMetaObject>
+#include "TestsMain.h"
 
-#include <functional>
+#include "BananaCore/AbstractNameUnifier.h"
 
-#define UTF16(c) QString::fromWCharArray(L##c)
-#define UTF8(c) QString::fromUtf8(c)
+REGISTER_TEST(AbstractNameUnifier);
 
-#if defined(_UNICODE) && defined(_MSC_VER)
- #define _T(c) UTF16(c)
-#else
- #define _T(c) UTF8(c)
-#endif
-
-#define QADD_COLUMN(Type, Name) QTest::addColumn<Type>(#Name)
-
-typedef std::function<QObject *()> TestCreator;
-size_t registerTestCreator(const TestCreator &create);
-
-template <typename T>
-size_t registerTest()
+namespace InternalANU
 {
-	return registerTestCreator([]() -> QObject * { return new T; });
+
+	class Unifier : public Banana::AbstractNameUnifier
+	{
+	public:
+		virtual QString uniqueNameFor(const QString &) const override { return QString(); }
+	};
+
+	class Collection : public Banana::INameCollection
+	{
+	public:
+		virtual bool containsName(const QString &) const override { return false; }
+};
+
 }
 
-#define CAT2(a,b) a##b
-#define CAT(a,b) CAT2(a,b)
+AbstractNameUnifier::AbstractNameUnifier()
+	: unifier(nullptr)
+{
+}
 
-#define REGISTER_TEST(Class) \
-static auto CAT(test, __COUNTER__) = registerTest<Class>()
+void AbstractNameUnifier::init()
+{
+	unifier = new InternalANU::Unifier;
+	collection.reset(new InternalANU::Collection);
+}
+
+void AbstractNameUnifier::cleanup()
+{
+	delete unifier;
+	collection.reset();
+}
+
+void AbstractNameUnifier::testNameCollectionProperty()
+{
+	unifier->setNameCollection(collection);
+	QVERIFY(unifier->nameCollection() == collection);
+}

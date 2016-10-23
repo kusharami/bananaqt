@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -24,34 +24,41 @@
 
 #pragma once
 
-#include <QString>
-#include <QtTest>
-#include <QMetaObject>
+#include "BananaCore/INameCollection.h"
 
-#include <functional>
+#include <QObject>
 
-#define UTF16(c) QString::fromWCharArray(L##c)
-#define UTF8(c) QString::fromUtf8(c)
-
-#if defined(_UNICODE) && defined(_MSC_VER)
- #define _T(c) UTF16(c)
-#else
- #define _T(c) UTF8(c)
-#endif
-
-#define QADD_COLUMN(Type, Name) QTest::addColumn<Type>(#Name)
-
-typedef std::function<QObject *()> TestCreator;
-size_t registerTestCreator(const TestCreator &create);
-
-template <typename T>
-size_t registerTest()
+namespace Banana
 {
-	return registerTestCreator([]() -> QObject * { return new T; });
+	class NameEnumerator;
 }
 
-#define CAT2(a,b) a##b
-#define CAT(a,b) CAT2(a,b)
+namespace InternalNE
+{
+	class Collection;
+}
 
-#define REGISTER_TEST(Class) \
-static auto CAT(test, __COUNTER__) = registerTest<Class>()
+class NameEnumerator : public QObject
+{
+	Q_OBJECT
+
+public:
+	NameEnumerator();
+
+private slots:
+	void init();
+
+	void testSeparateNameAndNumber_data();
+	void testSeparateNameAndNumber();
+
+	void testUniqueNameFor_data();
+	void testUniqueNameFor();
+
+	void cleanup();
+
+private:
+	InternalNE::Collection *internalCollection;
+	Banana::INameCollectionPtr collection;
+	Banana::NameEnumerator *enumerator;
+};
+

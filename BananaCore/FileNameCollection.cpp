@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,36 +22,39 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "FileNameCollection.h"
 
-#include <QString>
-#include <QtTest>
-#include <QMetaObject>
+#include "Utils.h"
 
-#include <functional>
+#include <QFileInfo>
 
-#define UTF16(c) QString::fromWCharArray(L##c)
-#define UTF8(c) QString::fromUtf8(c)
-
-#if defined(_UNICODE) && defined(_MSC_VER)
- #define _T(c) UTF16(c)
-#else
- #define _T(c) UTF8(c)
-#endif
-
-#define QADD_COLUMN(Type, Name) QTest::addColumn<Type>(#Name)
-
-typedef std::function<QObject *()> TestCreator;
-size_t registerTestCreator(const TestCreator &create);
-
-template <typename T>
-size_t registerTest()
+namespace Banana
 {
-	return registerTestCreator([]() -> QObject * { return new T; });
+
+	FileNameCollection::FileNameCollection()
+	{
+
+	}
+
+	FileNameCollection::FileNameCollection(const QDir &dir,
+										   const QString &fileExtension)
+		: mDir(dir)
+		, mFileExtension(fileExtension)
+	{
+
+	}
+
+	bool FileNameCollection::containsName(const QString &name) const
+	{
+		IS_VALID(this);
+		ENSURE(Utils::FileNameIsValid(name));
+
+		QFileInfo fileInfo(mDir.absoluteFilePath(name + mFileExtension));
+		return (fileInfo.exists() || fileInfo.isSymLink());
+	}
+
+	bool FileNameCollection::isValid() const
+	{
+		return mDir.exists() && Utils::FileNameIsValid(mFileExtension);
+	}
 }
-
-#define CAT2(a,b) a##b
-#define CAT(a,b) CAT2(a,b)
-
-#define REGISTER_TEST(Class) \
-static auto CAT(test, __COUNTER__) = registerTest<Class>()

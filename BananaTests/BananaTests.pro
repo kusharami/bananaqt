@@ -14,8 +14,14 @@ INCLUDEPATH += $$_PRO_FILE_PWD_/..
 DEPENDPATH += $$_PRO_FILE_PWD_/../BananaCore
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
-SOURCES += \    
-    TestsMain.cpp
+SOURCES += \
+    TestsMain.cpp \
+    tst_AbstractNameUnifier.cpp \
+    tst_FileNameCollection.cpp \
+    tst_NameEnumerator.cpp
 
 HEADERS += \
-    TestsMain.h
+    TestsMain.h \
+    tst_AbstractNameUnifier.h \
+    tst_FileNameCollection.h \
+    tst_NameEnumerator.h

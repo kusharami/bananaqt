@@ -48,7 +48,10 @@ SOURCES += \
     ChangeContentsCommand.cpp \
     PropertyDef.cpp \
     ChildActionCommand.cpp \
-    UndoStack.cpp
+    UndoStack.cpp \
+    AbstractNameUnifier.cpp \
+    FileNameCollection.cpp \
+    NameEnumerator.cpp
 
 HEADERS += \
     Const.h \
@@ -90,7 +93,11 @@ HEADERS += \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
     UndoStack.h \
-    ContainerTypes.h
+    ContainerTypes.h \
+    AbstractNameUnifier.h \
+    FileNameCollection.h \
+    INameCollection.h \
+    NameEnumerator.h
 
 RESOURCES = BananaCore.qrc
 
