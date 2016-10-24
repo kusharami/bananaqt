@@ -178,3 +178,5 @@ namespace Banana
 		virtual QString getFixedName(const QString &source) const override;
 	};
 }
+
+Q_DECLARE_METATYPE(Banana::Directory *)
