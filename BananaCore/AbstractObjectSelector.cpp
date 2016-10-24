@@ -70,11 +70,6 @@ namespace Banana
 		doChangeObjectSelection(nullptr, false);
 	}
 
-	const std::set<QObject *> &AbstractObjectSelector::getSelectedObjects() const
-	{
-		return selected;
-	}
-
 	void AbstractObjectSelector::onSelectedObjectDestroyed(QObject *object)
 	{
 		selected.erase(object);

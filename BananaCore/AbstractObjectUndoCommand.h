@@ -47,15 +47,14 @@ namespace Banana
 	private slots:
 		void onObjectDestroyed();
 
-	private:
+	protected:
 		void connectObject();
 		void disconnectObject();
 
-		QObject *objectParent;
 		QObject *object;
 		QStringList objectPath;
-		QString objectName;
 
+		int fetchIndex;
 		bool skipRedoOnPush;
 	};
 

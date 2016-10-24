@@ -122,11 +122,11 @@ namespace Banana
 	{
 		if (hasIndex(row, column, parent))
 		{
-			auto parent_group = dynamic_cast<AbstractObjectGroup *>(getItemAt(parent));
+			auto parentGroup = dynamic_cast<AbstractObjectGroup *>(getItemAt(parent));
 
-			if (nullptr != parent_group)
+			if (nullptr != parentGroup)
 			{
-				auto siblings = getGroupChildren(parent_group);
+				auto siblings = getGroupChildren(parentGroup);
 				auto sibling = siblings.at(row);
 				auto index = createIndex(row, column, siblings.at(row));
 
@@ -145,16 +145,20 @@ namespace Banana
 
 		if (nullptr != item)
 		{
-			auto item_parent = item->parent();
-			auto parent_group = dynamic_cast<AbstractObjectGroup *>(item_parent);
-			if (nullptr != parent_group)
+			auto itemParent = item->parent();
+			auto parentGroup = dynamic_cast<AbstractObjectGroup *>(itemParent);
+			if (nullptr != parentGroup)
 			{
-				auto parent_parent = dynamic_cast<AbstractObjectGroup *>(item_parent->parent());
-				if (nullptr != parent_parent)
+				parentGroup = parentGroup->getRealGroup();
+				Q_ASSERT(nullptr != parentGroup);
+				itemParent = dynamic_cast<QObject *>(parentGroup);
+				Q_ASSERT(nullptr != itemParent);
+				auto parentParent = dynamic_cast<AbstractObjectGroup *>(itemParent->parent());
+				if (nullptr != parentParent)
 				{
-					auto index = createIndex(getChildIndex(parent_parent, item_parent), 0, item_parent);
+					auto index = createIndex(getChildIndex(parentParent, itemParent), 0, itemParent);
 
-					(*const_cast<IndexMap *>(&indexMap))[item_parent] = index;
+					(*const_cast<IndexMap *>(&indexMap))[itemParent] = index;
 
 					return index;
 				}
@@ -268,14 +272,20 @@ namespace Banana
 			if (indexMap.end() != it)
 				return it->second;
 
-			auto item_parent = item->parent();
-			if (nullptr != item_parent
+			auto itemParent = item->parent();
+			if (nullptr != itemParent
 			&&	item != rootGroup)
 			{
-				auto parent_group = dynamic_cast<AbstractObjectGroup *>(item_parent);
-				if (nullptr != parent_group)
-					return index(getChildIndex(parent_group, item), 0,
-								 findModelIndex(item_parent));
+				auto parentGroup = dynamic_cast<AbstractObjectGroup *>(itemParent);
+				if (nullptr != parentGroup)
+				{
+					parentGroup = parentGroup->getRealGroup();
+					Q_ASSERT(nullptr != parentGroup);
+					itemParent = dynamic_cast<QObject *>(parentGroup);
+					Q_ASSERT(nullptr != itemParent);
+					return index(getChildIndex(parentGroup, item), 0,
+								 findModelIndex(itemParent));
+				}
 			}
 		}
 
@@ -344,7 +354,7 @@ namespace Banana
 		}
 	}
 
-	void AbstractObjectTreeModel::selectItems(const std::set<QObject *> &items)
+	void AbstractObjectTreeModel::selectItems(const QObjectSet &items)
 	{
 		QItemSelection selection;
 		for (auto item : items)
@@ -363,9 +373,9 @@ namespace Banana
 	{
 		beginResetModel();
 
-		auto parent = dynamic_cast<AbstractObjectGroup *>(object->parent());
-		if (nullptr != parent)
-			parent->resetChildren();
+		auto parentGroup = dynamic_cast<AbstractObjectGroup *>(object->parent());
+		if (nullptr != parentGroup)
+			parentGroup->resetChildren();
 
 		doDisconnectObject(object);
 
@@ -481,9 +491,12 @@ namespace Banana
 		if (noReset == 0)
 		{
 			indexMap.clear();
+			if (resetCount == 0)
+			{
+				emit beforeModelReset();
+				QAbstractItemModel::beginResetModel();
+			}
 			resetCount++;
-
-			QAbstractItemModel::beginResetModel();
 		}
 	}
 
@@ -491,14 +504,18 @@ namespace Banana
 	{
 		if (noReset == 0)
 		{
-			QAbstractItemModel::endResetModel();
-
 			Q_ASSERT(resetCount > 0);
-			resetCount--;
-
-			if (resetCount == 0)
+			if (--resetCount == 0)
+			{
+				QAbstractItemModel::endResetModel();
 				emit afterModelReset();
+			}
 		}
+	}
+
+	UndoStack *AbstractObjectTreeModel::getUndoStack() const
+	{
+		return nullptr;
 	}
 
 }

@@ -90,7 +90,7 @@ void ScriptRunnerDialog::onLogPrint(const QString &text)
 
 void ScriptRunnerDialog::on_buttonBrowse_clicked()
 {
-	QString filter(Directory::getFilterForExtension(Scripting::pScriptExtension));
+	QString filter(Directory::getFilterForExtension(Scripting::szScriptExtension));
 
 	auto filepath = QFileDialog::getOpenFileName(this, tr("Select Script File"), ui->editScriptFile->text(),
 								 filter, &filter, FILE_DIALOG_FLAGS);

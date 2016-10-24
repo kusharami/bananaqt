@@ -72,14 +72,14 @@ namespace Banana
 		Q_INVOKABLE bool isOpen() const;
 		Q_INVOKABLE bool canClose();
 		Q_INVOKABLE void bind();
-		Q_INVOKABLE void unbind(bool stay_open);
+		Q_INVOKABLE void unbind(bool stayOpen);
 		Q_INVOKABLE bool isBound() const;
 		Q_INVOKABLE bool save();
 		Q_INVOKABLE bool create(bool open = false);
 		Q_INVOKABLE bool open();
 		Q_INVOKABLE bool reload();
 		Q_INVOKABLE void close();
-		Q_INVOKABLE virtual bool rename(const QString &new_name) override;
+		Q_INVOKABLE virtual bool rename(const QString &newName) override;
 
 		Q_INVOKABLE bool isWritable() const;
 
@@ -98,7 +98,7 @@ namespace Banana
 		virtual void watchFile() = 0;
 		virtual void unwatchFile() = 0;
 
-		void updateFilePath(bool check_oldpath = true);
+		void updateFilePath(bool checkOldPath = true);
 
 		void setLoadError(bool value);
 
@@ -112,7 +112,7 @@ namespace Banana
 		void fileClosed();
 		void fileReloaded();
 		void pathChanged();
-		void updateFilePathError(const QString &path, const QString &failed_path);
+		void updateFilePathError(const QString &path, const QString &failedPath);
 
 	private slots:
 		void onNameChanged();
@@ -126,43 +126,42 @@ namespace Banana
 		void connectData();
 		void disconnectData();
 
-		virtual void changeFilePath(const QString &new_path);
-		virtual bool tryChangeFilePath(const QString &new_path);
-		virtual void executeUpdateFilePathError(const QString &path, const QString &failed_path) override;
-		virtual bool updateFileExtension(const QString &filename, QString *out_ext) override;
-		virtual void doUpdateFilePath(bool check_oldpath);
+		virtual void changeFilePath(const QString &newPath);
+		virtual bool tryChangeFilePath(const QString &newPath);
+		virtual void executeUpdateFilePathError(const QString &path, const QString &failedPath) override;
+		virtual bool updateFileExtension(const QString &fileName, QString *outExtension) override;
+		virtual void doUpdateFilePath(bool checkOldPath);
 		virtual void doParentChange() override;
 		virtual QObject *doGetData();
 		virtual void createData(bool *reused = nullptr);
 		virtual void destroyData();
 		virtual bool doSave(QIODevice *device) = 0;
 		virtual bool doLoad(QIODevice *device) = 0;
-		virtual void onSave();
 		virtual void doFlagsChanged() override;
-		virtual void opened();
+		virtual void onOpen();
 
 		QString extension;
-		QString canonical_path;
-		QString symlink_target;
-		unsigned bind_count;
-		bool load_error;
-		bool symlink;
+		QString canonicalPath;
+		QString symLinkTarget;
+		unsigned bindCount;
+		bool loadError;
+		bool symLink;
 
 	private:
 		bool saveInternal();
 		void disconnectData(QObject *data);
 		void internalClose();
-		bool is_open;
-		bool signals_connected;
+		bool opened;
+		bool signalsConnected;
 
-		QObject *old_parent;
-		QString saved_path;
-		QObject *connected_data;
+		QObject *oldParent;
+		QString savedPath;
+		QObject *connectedData;
 	};
 
 	unsigned AbstractFile::getBindCount() const
 	{
-		return bind_count;
+		return bindCount;
 	}
 }
 

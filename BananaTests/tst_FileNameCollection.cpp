@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,43 @@
  * SOFTWARE.
  */
 
+#include "tst_FileNameCollection.h"
+
+#include "BananaCore/FileNameCollection.h"
+
 #include "TestsMain.h"
 
-#include <QCoreApplication>
-#include <QDebug>
+REGISTER_TEST(FileNameCollection);
 
-#include <vector>
+using FNC = Banana::FileNameCollection;
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+FileNameCollection::FileNameCollection()
+	: fnc(nullptr)
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
+
 }
 
-static int executeTests(int argc, char **argv)
+void FileNameCollection::init()
 {
-	int status = 0;
-	for (auto &create : testCreators)
-	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
-	}
-	return status;
+	fnc = new FNC(QDir(SRCDIR), ".cpp");
+	IS_VALID(fnc);
 }
 
-int main(int argc, char *argv[])
+void FileNameCollection::testContainsName_data()
 {
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
+	QADD_COLUMN(QString, fileName);
+	QTest::newRow("1") << "tst_FileNameCollection";
+	QTest::newRow("2") << "TestsMain";
 }
 
+void FileNameCollection::testContainsName()
+{
+	QFETCH(QString, fileName);
+
+	QVERIFY(fnc->containsName(fileName));
+}
+
+void FileNameCollection::cleanup()
+{
+	delete fnc;
+}

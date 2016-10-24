@@ -77,13 +77,14 @@ namespace Banana
 
 		inline UndoStack *getUndoStack() const;
 		void setUndoStack(UndoStack *undoStack, bool own = false);
-		Q_INVOKABLE void beginMacro(const QString &text);
-		Q_INVOKABLE void endMacro();
-		Q_INVOKABLE bool macroIsRecording() const;
+		void beginMacro(const QString &text);
+		void endMacro();
+		void blockMacro();
+		void unblockMacro();
 		Q_INVOKABLE bool undoStackIsUpdating() const;
 		template <typename T>
 		inline void pushUndoCommand(const char *propertyName, const T &oldValue);
-		bool canPushUndoCommand() const;
+		Q_INVOKABLE bool canPushUndoCommand() const;
 
 		Q_INVOKABLE void addChildCommand(QObject *child);
 		Q_INVOKABLE void moveChildCommand(QObject *child, QObject *oldParent);
@@ -98,8 +99,8 @@ namespace Banana
 
 		Q_INVOKABLE inline bool isLoading() const;
 
-		Q_INVOKABLE void beginLoad();
-		Q_INVOKABLE void endLoad();
+		void beginLoad();
+		void endLoad();
 
 		Q_INVOKABLE inline bool isInheritedChild() const;
 		Q_INVOKABLE inline bool isPrototypedRoot() const;
@@ -118,14 +119,16 @@ namespace Banana
 		void endUndoStackUpdate();
 
 		static QObject *getTopAncestor(QObject *object);
+		static QObject *getDescendant(const QObject *topAncestor, const QStringList &path);
+		QObject *getDescendant(const QStringList &path) const;
 		QStringList getNamesChain(const QObject *topAncestor = nullptr) const;
 		static QStringList getNamesChain(const QObject *topAncestor, const QObject *bottomDescendant);
 
-		static QObject *loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data);
+		static const QObject *loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data);
 		static void saveQObjectPointer(const QObject *object, QMimeData *data);
 
 		template <typename T>
-		static inline T *loadObjectPointer(const QMimeData *data);
+		static inline const T *loadObjectPointer(const QMimeData *data);
 
 		inline bool isPropertyModified(int propertyId) const;
 		bool setPropertyModified(int propertyId, bool modified);
@@ -155,6 +158,7 @@ namespace Banana
 		void onPrototypeReloadFinished();
 		void onLinkedObjectNameChanged(const QString &name);
 		void onObjectNameChanged(const QString &newName);
+		void onUndoStackCleanChanged(bool clean);
 
 	private:
 		void pushUndoCommandInternal(const char *propertyName, const QVariant &oldValue);
@@ -197,20 +201,24 @@ namespace Banana
 		virtual void doAddChild(QObject *object);
 		virtual void doRemoveChild(QObject *object);
 
+		void connectUndoStack();
+		void disconnectUndoStack();
+
 		QString oldName;
 		Object *prototype;
 		Object *childPrototype;
 		unsigned reloadCounter;
+		unsigned protoReloadCounter;
 		unsigned loadCounter;
 		unsigned macroCounter;
+		unsigned blockCounter;
 		unsigned undoStackUpdate;
+		UndoStack *undoStack;
+		bool ownUndoStack;
 		bool modified;
 		bool deleted;
 
 	private:
-		UndoStack *undoStack;
-		bool ownUndoStack;
-
 		typedef std::bitset<64> ModifiedSet;
 		ModifiedSet modifiedSet;
 	};
@@ -273,9 +281,9 @@ namespace Banana
 	}
 
 	template <typename T>
-	T *Object::loadObjectPointer(const QMimeData *data)
+	const T *Object::loadObjectPointer(const QMimeData *data)
 	{
-		return static_cast<T *>(loadQObjectPointer(&T::staticMetaObject, data));
+		return static_cast<const T *>(loadQObjectPointer(&T::staticMetaObject, data));
 	}
 
 	template <typename T, typename... ARG_T>

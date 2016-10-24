@@ -30,10 +30,13 @@
 
 #include <functional>
 
+#define UTF16(c) QString::fromWCharArray(L##c)
+#define UTF8(c) QString::fromUtf8(c)
+
 #if defined(_UNICODE) && defined(_MSC_VER)
- #define _T(c) QString::fromWCharArray(L##c)
+ #define _T(c) UTF16(c)
 #else
- #define _T(c) QString::fromUtf8(c)
+ #define _T(c) UTF8(c)
 #endif
 
 #define QADD_COLUMN(Type, Name) QTest::addColumn<Type>(#Name)

@@ -24,8 +24,9 @@
 
 #pragma once
 
+#include "BananaCore/ContainerTypes.h"
+
 #include <QObject>
-#include <set>
 
 namespace Banana
 {
@@ -41,7 +42,7 @@ namespace Banana
 		bool selectionIsEmpty() const;
 
 		virtual void clearSelection();
-		const std::set<QObject *> &getSelectedObjects() const;
+		inline const QObjectSet &getSelectedObjects() const;
 
 	protected:
 		virtual void doConnectSelected(QObject *object) = 0;
@@ -49,7 +50,12 @@ namespace Banana
 		virtual void doChangeObjectSelection(QObject *object, bool destroyed) = 0;
 		void onSelectedObjectDestroyed(QObject *object);
 
-		std::set<QObject *> selected;
+		QObjectSet selected;
 	};
+
+	const QObjectSet &AbstractObjectSelector::getSelectedObjects() const
+	{
+		return selected;
+	}
 
 }

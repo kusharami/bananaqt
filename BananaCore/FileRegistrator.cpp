@@ -28,10 +28,8 @@
 #include "AbstractFile.h"
 #include "AbstractDirectory.h"
 #include "PropertyDef.h"
-#include "UndoStack.h"
 
 #include <QDir>
-#include <QUndoGroup>
 
 namespace Banana
 {
@@ -40,7 +38,6 @@ namespace Banana
 		: thiz(thiz)
 		, data(nullptr)
 		, openedFiles(nullptr)
-		, undoGroup(nullptr)
 		, namingPolicy(nullptr)
 	{
 	}
@@ -57,7 +54,7 @@ namespace Banana
 		initCreateFileData();
 		Q_ASSERT(nullptr != openedFiles);
 
-		data = openedFiles->getRegisteredFileData(thiz->canonical_path);
+		data = openedFiles->getRegisteredFileData(thiz->canonicalPath);
 
 		if (nullptr != reused)
 			*reused = (nullptr != data);
@@ -67,20 +64,9 @@ namespace Banana
 
 		Q_ASSERT(nullptr != data);
 
-		openedFiles->registerFile(thiz->canonical_path, data);
+		openedFiles->registerFile(thiz->canonicalPath, data);
 
-		data->setObjectName(QFileInfo(thiz->canonical_path).baseName());
-
-		if (nullptr != undoGroup)
-		{
-			auto dataObject = dynamic_cast<Object *>(data);
-			if (nullptr != dataObject)
-			{
-				auto undoStack = dataObject->getUndoStack();
-				if (nullptr != undoStack)
-					undoGroup->addStack(undoStack);
-			}
-		}
+		data->setObjectName(QFileInfo(thiz->canonicalPath).fileName());
 
 		connectFileData();
 	}
@@ -102,7 +88,7 @@ namespace Banana
 		if (nullptr != data)
 		{
 			if (nullptr != openedFiles)
-				return openedFiles->canChangeFilePath(thiz->canonical_path, newFilePath);
+				return openedFiles->canChangeFilePath(thiz->canonicalPath, newFilePath);
 		}
 
 		return true;
@@ -114,19 +100,19 @@ namespace Banana
 		data = nullptr;
 		if (nullptr != openedFiles && nullptr != toDelete)
 		{
-			auto deleteResult = openedFiles->deleteFileData(thiz->canonical_path);
+			auto deleteResult = openedFiles->deleteFileData(thiz->canonicalPath);
 			Q_ASSERT(deleteResult == toDelete);
 			Q_UNUSED(deleteResult);
 		}
 	}
 
-	bool AbstractFileRegistrator::updateFilePath(const QString &old_path, const QString &new_path)
+	bool AbstractFileRegistrator::updateFilePath(const QString &oldPath, const QString &newPath)
 	{
 		if (nullptr != data)
 		{
 			if (nullptr != openedFiles)
 			{
-				auto new_data = openedFiles->updateFilePath(old_path, new_path);
+				auto new_data = openedFiles->updateFilePath(oldPath, newPath);
 
 				if (nullptr == new_data)
 					return false;
@@ -164,13 +150,6 @@ namespace Banana
 		}
 	}
 
-	void AbstractFileRegistrator::onSave()
-	{
-		auto data = dynamic_cast<Object *>(this->data);
-		if (nullptr != data)
-			data->setModified(false);
-	}
-
 	void AbstractFileRegistrator::updateData(QObject *data)
 	{
 		if (data != this->data)
@@ -196,14 +175,6 @@ namespace Banana
 				openedFiles = nullptr;
 			});
 		}
-
-		if (nullptr != undoGroup)
-		{
-			undoGroupConnection = QObject::connect(undoGroup, &QObject::destroyed, [this]()
-			{
-				undoGroup = nullptr;
-			});
-		}
 	}
 
 	void AbstractFileRegistrator::disconnectContext()
@@ -212,12 +183,6 @@ namespace Banana
 		{
 			QObject::disconnect(openedFilesConnection);
 			openedFiles = nullptr;
-		}
-
-		if (nullptr != undoGroup)
-		{
-			QObject::disconnect(undoGroupConnection);
-			undoGroup = nullptr;
 		}
 	}
 
@@ -234,7 +199,6 @@ namespace Banana
 			if (nullptr != group)
 			{
 				openedFiles = group->getOpenedFiles();
-				undoGroup = group->getUndoGroup();
 				connectContext();
 				break;
 			}

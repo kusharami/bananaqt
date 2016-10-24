@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,43 @@
  * SOFTWARE.
  */
 
-#include "TestsMain.h"
+#pragma once
 
-#include <QCoreApplication>
-#include <QDebug>
+#include "BananaCore/INameCollection.h"
 
-#include <vector>
+#include <QObject>
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+namespace Banana
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
+	class NameEnumerator;
 }
 
-static int executeTests(int argc, char **argv)
+namespace InternalNE
 {
-	int status = 0;
-	for (auto &create : testCreators)
-	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
-	}
-	return status;
+	class Collection;
 }
 
-int main(int argc, char *argv[])
+class NameEnumerator : public QObject
 {
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
-}
+	Q_OBJECT
+
+public:
+	NameEnumerator();
+
+private slots:
+	void init();
+
+	void testSeparateNameAndNumber_data();
+	void testSeparateNameAndNumber();
+
+	void testUniqueNameFor_data();
+	void testUniqueNameFor();
+
+	void cleanup();
+
+private:
+	InternalNE::Collection *internalCollection;
+	Banana::INameCollectionPtr collection;
+	Banana::NameEnumerator *enumerator;
+};
 

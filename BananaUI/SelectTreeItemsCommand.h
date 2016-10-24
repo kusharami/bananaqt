@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,52 @@
  * SOFTWARE.
  */
 
-#include "TestsMain.h"
+#pragma once
 
-#include <QCoreApplication>
-#include <QDebug>
+#include "BananaCore/ContainerTypes.h"
 
+#include <QUndoCommand>
+#include <QStringList>
 #include <vector>
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+namespace Banana
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
-}
+	class BaseTreeView;
 
-static int executeTests(int argc, char **argv)
-{
-	int status = 0;
-	for (auto &create : testCreators)
+	class SelectTreeItemsCommand : public QUndoCommand
 	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
-	}
-	return status;
-}
+	public:
+		SelectTreeItemsCommand(BaseTreeView *tree);
+		SelectTreeItemsCommand(BaseTreeView *tree, const QObjectSet &oldSelected, const QObjectSet &newSelected);
 
-int main(int argc, char *argv[])
-{
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
-}
+		void setOldSelected(const QObjectSet &set);
+		void setNewSelected(const QObjectSet &set);
 
+		virtual void undo() override;
+		virtual void redo() override;
+
+		virtual int id() const override;
+		virtual bool mergeWith(const QUndoCommand *other) override;
+
+	private:
+		struct Path
+		{
+			QObject *topAncestor;
+			QStringList path;
+		};
+
+		typedef std::vector<Path> Paths;
+
+		static void toPaths(const QObjectSet &source, Paths &output);
+
+		void select(const Paths &toSelect);
+
+		BaseTreeView *tree;
+
+		Paths newSelected;
+		Paths oldSelected;
+
+		bool skipRedoOnPush;
+	};
+
+}

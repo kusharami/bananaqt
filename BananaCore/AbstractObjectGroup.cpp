@@ -115,6 +115,16 @@ namespace Banana
 		return object->children();
 	}
 
+	AbstractObjectGroup *AbstractObjectGroup::getRealGroup()
+	{
+		return this;
+	}
+
+	bool AbstractObjectGroup::equals(QObject *groupObject)
+	{
+		return (dynamic_cast<QObject *>(getRealGroup()) == groupObject);
+	}
+
 	void AbstractObjectGroup::sortChildren(QObjectList &children)
 	{
 		std::sort(children.begin(), children.end(),

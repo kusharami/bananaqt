@@ -42,7 +42,7 @@ namespace Scripting
 	{
 		(void) QT_TRANSLATE_NOOP("FileFormatNamePlural", ".js");
 	}
-	const char *pScriptExtension = QT_TRANSLATE_NOOP("FileFormatName", ".js");
+	const char szScriptExtension[] = QT_TRANSLATE_NOOP("FileFormatName", ".js");
 }
 
 using namespace Scripting;

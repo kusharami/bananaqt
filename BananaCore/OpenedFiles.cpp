@@ -33,6 +33,23 @@
 
 namespace Banana
 {
+	class OpenedFilesPathGroup : public QObject, public AbstractObjectGroup
+	{
+	public:
+		OpenedFilesPathGroup(OpenedFiles *parent);
+
+		virtual const QObjectList &getChildren() override;
+		virtual void resetChildren() override;
+		virtual AbstractObjectGroup *getRealGroup() override;
+
+	protected:
+		virtual void sortChildren(QObjectList &children) override;
+		virtual void deleteChild(QObject *child) override;
+
+	private:
+		OpenedFiles *openedFiles;
+	};
+
 
 	OpenedFiles::OpenedFiles(ProjectGroup *owner)
 		: watcher(nullptr)
@@ -74,7 +91,30 @@ namespace Banana
 		Q_ASSERT(it->second.data == data);
 
 		if (it->second.ref_count == 0)
-			data->setParent(this);
+		{
+			auto path = QFileInfo(filePath).path();
+			if (path.isEmpty())
+				path = ".";
+
+			auto pathGroup = findChild<OpenedFilesPathGroup *>(path, Qt::FindDirectChildrenOnly);
+			if (nullptr == pathGroup)
+			{
+				pathGroup = new OpenedFilesPathGroup(this);
+				pathGroup->setObjectName(path);
+			}
+			data->setParent(pathGroup);
+
+			QObject::connect(data, &QObject::destroyed,
+							 this, &OpenedFiles::resetChildren);
+
+			auto obj = dynamic_cast<Object *>(data);
+			if (nullptr != obj)
+			{
+				QObject::connect(obj, &Object::parentChanged,
+								 this, &OpenedFiles::onFileDataParentChanged);
+			}
+			resetChildren();
+		}
 
 		it->second.ref_count++;
 	}
@@ -193,11 +233,14 @@ namespace Banana
 	{
 		if (m_children.empty())
 		{
-			for (auto child : children())
+			for (auto pathObject : children())
 			{
-				auto object = dynamic_cast<Object *>(child);
-				if (nullptr == object || !object->isDeleted())
-					m_children.push_back(child);
+				for (auto pathChild : pathObject->children())
+				{
+					auto fileObject = dynamic_cast<Object *>(pathChild);
+					if (nullptr == fileObject || !fileObject->isDeleted())
+						m_children.push_back(pathChild);
+				}
 			}
 		}
 
@@ -268,28 +311,18 @@ namespace Banana
 		resetWatcher(false);
 	}
 
-	void OpenedFiles::onFileDataDestroyed()
+	void OpenedFiles::onFileDataParentChanged()
 	{
 		resetChildren();
-	}
 
-	void OpenedFiles::childEvent(QChildEvent *event)
-	{
-		Object::childEvent(event);
+		QObject::disconnect(sender(), &QObject::destroyed,
+							this, &OpenedFiles::resetChildren);
 
-		if (event->added() || event->removed())
+		auto obj = dynamic_cast<Object *>(sender());
+		if (nullptr != obj)
 		{
-			if (event->added())
-			{
-				QObject::connect(event->child(), &QObject::destroyed,
-								 this, &OpenedFiles::onFileDataDestroyed);
-			} else
-			if (event->removed())
-			{
-				QObject::disconnect(event->child(), &QObject::destroyed,
-								 this, &OpenedFiles::onFileDataDestroyed);
-			}
-			resetChildren();
+			QObject::disconnect(obj, &Object::parentChanged,
+								this, &OpenedFiles::onFileDataParentChanged);
 		}
 	}
 
@@ -354,6 +387,38 @@ namespace Banana
 			return it;
 
 		return file_map.end();
+	}
+
+	OpenedFilesPathGroup::OpenedFilesPathGroup(OpenedFiles *parent)
+		: QObject(parent)
+		, openedFiles(parent)
+	{
+		Q_ASSERT(nullptr != parent);
+	}
+
+	const QObjectList &OpenedFilesPathGroup::getChildren()
+	{
+		return openedFiles->getChildren();
+	}
+
+	void OpenedFilesPathGroup::resetChildren()
+	{
+		openedFiles->resetChildren();
+	}
+
+	AbstractObjectGroup *OpenedFilesPathGroup::getRealGroup()
+	{
+		return openedFiles;
+	}
+
+	void OpenedFilesPathGroup::sortChildren(QObjectList &children)
+	{
+		openedFiles->sortChildren(children);
+	}
+
+	void OpenedFilesPathGroup::deleteChild(QObject *child)
+	{
+		openedFiles->deleteChild(child);
 	}
 
 }

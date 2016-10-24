@@ -60,12 +60,6 @@ namespace Banana
 		{
 			projectFile = createProjectFile();
 			projectFile->bind();
-
-			auto undoGroup = projectGroup->getUndoGroup();
-			auto undoStack = projectFile->getUndoStack();
-
-			if (nullptr != undoGroup && nullptr != undoStack)
-				undoGroup->addStack(undoStack);
 		}
 	}
 

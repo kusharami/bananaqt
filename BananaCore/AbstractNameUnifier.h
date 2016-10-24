@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,37 @@
  * SOFTWARE.
  */
 
-#include "TestsMain.h"
+#pragma once
 
-#include <QCoreApplication>
-#include <QDebug>
+#include "Core.h"
+#include "INameCollection.h"
 
-#include <vector>
+#include <QString>
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+namespace Banana
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
-}
 
-static int executeTests(int argc, char **argv)
-{
-	int status = 0;
-	for (auto &create : testCreators)
+	class AbstractNameUnifier : public BaseObject
 	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
+	public:
+		inline const INameCollectionPtr &nameCollection() const;
+		inline void setNameCollection(const INameCollectionPtr &ptr);
+
+		virtual QString uniqueNameFor(const QString &name) const = 0;
+		virtual bool isValid() const override;
+
+	protected:
+		INameCollectionPtr mNameCollection;
+	};
+
+	const INameCollectionPtr &AbstractNameUnifier::nameCollection() const
+	{
+		return mNameCollection;
 	}
-	return status;
-}
 
-int main(int argc, char *argv[])
-{
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
-}
+	void AbstractNameUnifier::setNameCollection(const INameCollectionPtr &ptr)
+	{
+		mNameCollection = ptr;
+	}
 
+}

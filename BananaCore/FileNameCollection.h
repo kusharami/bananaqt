@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,54 @@
  * SOFTWARE.
  */
 
-#include "TestsMain.h"
+#pragma once
 
-#include <QCoreApplication>
-#include <QDebug>
+#include "Core.h"
+#include "INameCollection.h"
 
-#include <vector>
+#include <QDir>
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+namespace Banana
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
-}
 
-static int executeTests(int argc, char **argv)
-{
-	int status = 0;
-	for (auto &create : testCreators)
+	class FileNameCollection : public BaseObject, public INameCollection
 	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
+	public:
+		FileNameCollection();
+		FileNameCollection(const QDir &dir, const QString &fileExtension);
+
+		inline const QDir &dir();
+		inline void setDir(const QDir &value);
+
+		inline const QString &fileExtension();
+		inline void setFileExtension(const QString &value);
+
+		virtual bool containsName(const QString &name) const override;
+		virtual bool isValid() const override;
+
+	private:
+		QDir mDir;
+		QString mFileExtension;
+	};
+
+	const QDir &FileNameCollection::dir()
+	{
+		return mDir;
 	}
-	return status;
-}
 
-int main(int argc, char *argv[])
-{
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
-}
+	void FileNameCollection::setDir(const QDir &value)
+	{
+		mDir = value;
+	}
 
+	const QString &FileNameCollection::fileExtension()
+	{
+		return mFileExtension;
+	}
+
+	void FileNameCollection::setFileExtension(const QString &value)
+	{
+		mFileExtension = value;
+	}
+
+}

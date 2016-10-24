@@ -24,57 +24,80 @@
 
 #pragma once
 
-#include <QTreeView>
+#include "BananaCore/ContainerTypes.h"
 
-#include <set>
+#include <QTreeView>
 
 namespace Banana
 {
 	class AbstractObjectTreeModel;
+	class UndoStack;
 
+	class BaseTreeView : public QTreeView
+	{
+		Q_OBJECT
 
-class BaseTreeView : public QTreeView
-{
-	Q_OBJECT
+	public:
+		explicit BaseTreeView(AbstractObjectTreeModel *model,
+							  QWidget *parent = nullptr);
 
-public:
-	explicit BaseTreeView(Banana::AbstractObjectTreeModel *model,
-						  QWidget *parent = nullptr);
+		void select(QObject *item, bool expand = false);
+		void select(const QObjectSet &items);
+		void expandItem(QObject *item);
 
-	void select(QObject *item, bool expand = false);
-	void expandItem(QObject *item);
+		QObject *getCurrentItem() const;
+		inline const QObjectSet &getSelectedItems() const;
+		inline const QObjectSet &getExpandedItems() const;
 
-	QObject *getCurrentItem() const;
+		bool hasItems() const;
 
-	bool hasItems() const;
+		void cutToClipboard();
+		void copyToClipboard();
+		void pasteFromClipboard();
+		void deleteSelectedItems();
 
-	void cutToClipboard();
-	void copyToClipboard();
-	void pasteFromClipboard();
-	void deleteSelectedItems();
+		bool canDeleteItem(QObject *item) const;
+		bool canDeleteSelectedItems() const;
 
-	bool canDeleteItem(QObject *item) const;
-	bool canDeleteSelectedItems() const;
+		void preventReselect(bool prevent);
 
-	void preventReselect(bool prevent);
+	protected slots:
+		virtual void onBeforeModelReset();
+		virtual void onAfterModelReset();
 
-protected slots:
-	virtual void onAfterModelReset();
+	private slots:
+		void onDropSuccess();
+		void onShouldSelect(const QItemSelection &selection);
+		void onExpanded(const QModelIndex &index);
+		void onExpandedItemDestroyed(QObject *item);
+		void onSelectedItemDestroyed(QObject *item);
+		void onCollapsed(const QModelIndex &index);
+		void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+		void onUndoStackMacroStarted();
+		void onUndoStackDestroyed();
 
-private slots:
-	void onShouldSelect(const QItemSelection &selection);
-	void onExpanded(const QModelIndex &index);
-	void onExpandedItemDestroyed(QObject *item);
-	void onSelectedItemDestroyed(QObject *item);
-	void onCollapsed(const QModelIndex &index);
-	void onSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+	private:
+		void connectUndoStack();
+		void disconnectUndoStack();
 
-protected:
-	Banana::AbstractObjectTreeModel *treeModel;
-	typedef std::set<QObject *> ItemSet;
-	ItemSet expandedItems;
-	ItemSet selectedItems;
+	protected:
+		AbstractObjectTreeModel *treeModel;
 
-	unsigned preventReselectCounter;
-};
+		UndoStack *undoStack;
+		QObjectSet oldSelected;
+		QObjectSet expandedItems;
+		QObjectSet selectedItems;
+
+		unsigned preventReselectCounter;
+	};
+
+	const QObjectSet &BaseTreeView::getSelectedItems() const
+	{
+		return selectedItems;
+	}
+
+	const QObjectSet &BaseTreeView::getExpandedItems() const
+	{
+		return expandedItems;
+	}
 }

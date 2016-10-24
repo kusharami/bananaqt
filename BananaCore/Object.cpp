@@ -47,13 +47,15 @@ namespace Banana
 		: prototype(nullptr)
 		, childPrototype(nullptr)
 		, reloadCounter(0)
+		, protoReloadCounter(0)
 		, loadCounter(0)
 		, macroCounter(0)
+		, blockCounter(0)
 		, undoStackUpdate(0)
-		, modified(false)
-		, deleted(false)
 		, undoStack(nullptr)
 		, ownUndoStack(false)
+		, modified(false)
+		, deleted(false)
 	{
 		QObject::connect(this, &QObject::objectNameChanged,
 						 this, &Object::onObjectNameChanged);
@@ -63,8 +65,10 @@ namespace Banana
 	{
 		if (nullptr != undoStack)
 		{
+			disconnectUndoStack();
 			Q_ASSERT(undoStackUpdate == 0);
 			Q_ASSERT(macroCounter == 0);
+			Q_ASSERT(blockCounter == 0);
 
 			if (ownUndoStack)
 				delete undoStack;
@@ -153,6 +157,28 @@ namespace Banana
 		return nullptr;
 	}
 
+	QObject *Object::getDescendant(const QObject *topAncestor, const QStringList &path)
+	{
+		auto result = const_cast<QObject *>(topAncestor);
+		if (nullptr == result)
+			return nullptr;
+
+		int count = path.count();
+		for (int i = 0; i < count; i++)
+		{
+			result = result->findChild<QObject *>(path.at(i), Qt::FindDirectChildrenOnly);
+			if (nullptr == result)
+				break;
+		}
+
+		return result;
+	}
+
+	QObject *Object::getDescendant(const QStringList &path) const
+	{
+		return getDescendant(this, path);
+	}
+
 	QStringList Object::getNamesChain(const QObject *topAncestor) const
 	{
 		return getNamesChain(topAncestor, this);
@@ -174,7 +200,7 @@ namespace Banana
 		return result;
 	}
 
-	QObject *Object::loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data)
+	const QObject *Object::loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data)
 	{
 		Q_ASSERT(nullptr != metaObject);
 		Q_ASSERT(nullptr != data);
@@ -264,11 +290,13 @@ namespace Banana
 				saveContents(oldContents, SaveStandalone);
 			}
 
+			blockMacro();
 			beforePrototypeChange();
 
 			internalSetPrototype(prototype, false, false);
 
 			afterPrototypeChange();
+			unblockMacro();
 
 			if (canPushUndoCommand)
 			{
@@ -526,7 +554,13 @@ namespace Banana
 			saveContents(oldContents, SaveStandalone);
 		}
 
+		blockMacro();
+		beginReload();
+
 		loadContents(source, true);
+
+		endReload();
+		unblockMacro();
 
 		if (canPushUndoCommand)
 		{
@@ -538,14 +572,27 @@ namespace Banana
 	{
 		if (this->undoStack != undoStack)
 		{
+			disconnectUndoStack();
+
 			Q_ASSERT(undoStackUpdate == 0);
 			Q_ASSERT(macroCounter == 0);
+			Q_ASSERT(blockCounter == 0);
 
 			if (ownUndoStack)
 				delete this->undoStack;
 			this->undoStack = undoStack;
+
+			ownUndoStack = own;
+
+			connectUndoStack();
+		} if (ownUndoStack != own)
+		{
+			disconnectUndoStack();
+
+			ownUndoStack = own;
+
+			connectUndoStack();
 		}
-		ownUndoStack = own;
 		for (auto child : children())
 		{
 			auto object = dynamic_cast<Object *>(child);
@@ -571,9 +618,21 @@ namespace Banana
 			undoStack->endMacro();
 	}
 
-	bool Object::macroIsRecording() const
+	void Object::blockMacro()
 	{
-		return (nullptr != undoStack && undoStack->macroIsRecording());
+		if (nullptr != undoStack)
+			undoStack->blockMacro();
+
+		blockCounter++;
+	}
+
+	void Object::unblockMacro()
+	{
+		Q_ASSERT(blockCounter > 0);
+		blockCounter--;
+
+		if (nullptr != undoStack)
+			undoStack->unblockMacro();
 	}
 
 	bool Object::undoStackIsUpdating() const
@@ -585,8 +644,26 @@ namespace Banana
 	{
 		if (source != this)
 		{
+			QVariantMap oldContents;
+			bool canPushUndoCommand = this->canPushUndoCommand();
+			if (canPushUndoCommand)
+			{
+				saveContents(oldContents, SaveStandalone);
+			}
+
+			blockMacro();
+			beginReload();
+
 			removeAllChildren();
 			internalAssign(source, true, true);
+
+			endReload();
+			unblockMacro();
+
+			if (canPushUndoCommand)
+			{
+				undoStack->push(new ChangeContentsCommand(this, oldContents));
+			}
 		}
 	}
 
@@ -595,6 +672,10 @@ namespace Banana
 		if (modified != value)
 		{
 			modified = value;
+
+			if (!modified && ownUndoStack && nullptr != undoStack)
+				undoStack->setClean();
+
 			doFlagsChanged();
 
 			auto parent = dynamic_cast<Object *>(this->parent());
@@ -733,10 +814,17 @@ namespace Banana
 				beforePrototypeReloadStarted();
 			}
 		}
+
+		protoReloadCounter++;
 	}
 
 	void Object::onPrototypeReloadFinished()
 	{
+		if (protoReloadCounter == 0)
+			return;
+
+		protoReloadCounter--;
+
 		if (sender() != childPrototype || prototype == childPrototype)
 		{
 			if (reloadCounter == 1)
@@ -757,14 +845,21 @@ namespace Banana
 
 	void Object::onObjectNameChanged(const QString &newName)
 	{
-		pushUndoCommand(PROP(objectName), oldName);
+		if (canPushUndoCommand())
+			undoStack->push(new ChangeValueCommand(this, oldName, newName));
+
 		oldName = newName;
 		setModified(true);
 	}
 
+	void Object::onUndoStackCleanChanged(bool clean)
+	{
+		setModified(!clean);
+	}
+
 	bool Object::canPushUndoCommand() const
 	{
-		return (!isLoading() && 0 == reloadCounter && macroIsRecording());
+		return (0 == reloadCounter && nullptr != undoStack && undoStack->canPushForMacro());
 	}
 
 	void Object::addChildCommand(QObject *child)
@@ -800,8 +895,6 @@ namespace Banana
 	void Object::pushUndoCommandInternal(const char *propertyName,
 										 const QVariant &oldValue)
 	{
-		Q_ASSERT(macroIsRecording());
-
 		undoStack->push(new ChangeValueCommand(this,
 												Utils::GetMetaPropertyByName(metaObject(), propertyName),
 												oldValue));
@@ -1207,6 +1300,24 @@ namespace Banana
 	void Object::doRemoveChild(QObject *object)
 	{
 		emit childRemoved(object);
+	}
+
+	void Object::connectUndoStack()
+	{
+		if (nullptr != undoStack && ownUndoStack)
+		{
+			QObject::connect(undoStack, &QUndoStack::cleanChanged,
+							 this, &Object::onUndoStackCleanChanged);
+		}
+	}
+
+	void Object::disconnectUndoStack()
+	{
+		if (nullptr != undoStack && ownUndoStack)
+		{
+			QObject::disconnect(undoStack, &QUndoStack::cleanChanged,
+								this, &Object::onUndoStackCleanChanged);
+		}
 	}
 
 }

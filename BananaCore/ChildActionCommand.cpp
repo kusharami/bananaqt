@@ -158,13 +158,17 @@ namespace Banana
 		Q_ASSERT(nullptr != object);
 
 		object->beginUndoStackUpdate();
+		object->beginReload();
+
 		newChild->beginLoad();
 
 		newChild->loadContents(*savedContents, true);
 		newChild->setObjectName(childObjectName);
-		newChild->setParent(getObject());
+		newChild->setParent(object);
 
 		newChild->endLoad();
+
+		object->endReload();
 		object->endUndoStackUpdate();
 
 		newChild->setPropertyModifiedBits(stateBits);
@@ -176,11 +180,13 @@ namespace Banana
 		Q_ASSERT(nullptr != object);
 
 		object->beginUndoStackUpdate();
+		object->beginReload();
 
 		auto toDelete = object->findChild<Object *>(childObjectName, Qt::FindDirectChildrenOnly);
 		Q_ASSERT(nullptr != toDelete);
 		delete toDelete;
 
+		object->endReload();
 		object->endUndoStackUpdate();
 	}
 

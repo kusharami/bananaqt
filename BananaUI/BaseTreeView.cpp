@@ -25,222 +25,343 @@
 #include "BaseTreeView.h"
 
 #include "AbstractObjectTreeModel.h"
+#include "SelectTreeItemsCommand.h"
+
 #include "BananaCore/AbstractObjectGroup.h"
+#include "BananaCore/UndoStack.h"
 
 #include <QFocusEvent>
 
 namespace Banana
 {
 
-BaseTreeView::BaseTreeView(Banana::AbstractObjectTreeModel *model, QWidget *parent)
-	: QTreeView(parent)
-	, treeModel(model)
-	, preventReselectCounter(0)
-{
-	model->setParent(this);
-
-	QObject::connect(this, &QTreeView::expanded,
-					 this, &BaseTreeView::onExpanded);
-	QObject::connect(this, &QTreeView::collapsed,
-					 this, &BaseTreeView::onCollapsed);
-	QObject::connect(treeModel, &AbstractObjectTreeModel::afterModelReset,
-					 this, &BaseTreeView::onAfterModelReset);
-	QObject::connect(treeModel, &AbstractObjectTreeModel::shouldSelect,
-					 this, &BaseTreeView::onShouldSelect);
-	QObject::connect(treeModel, &AbstractObjectTreeModel::shouldClearSelection,
-					 this, &BaseTreeView::clearSelection);
-
-	setModel(treeModel);
-
-	QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged,
-					 this, &BaseTreeView::onSelectionChanged);
-}
-
-void BaseTreeView::select(QObject *item, bool expand)
-{
-	auto index = treeModel->findModelIndex(item);
-	if (index.isValid())
+	BaseTreeView::BaseTreeView(AbstractObjectTreeModel *model, QWidget *parent)
+		: QTreeView(parent)
+		, treeModel(model)
+		, undoStack(nullptr)
+		, preventReselectCounter(0)
 	{
-		auto sel_model = selectionModel();
-		sel_model->clearSelection();
-		setCurrentIndex(index);
-		sel_model->select(index, QItemSelectionModel::Select);
-		if (expand)
-			this->expand(index);
+		model->setParent(this);
 
-		scrollTo(index);
-	}
-}
+		QObject::connect(this, &QTreeView::expanded,
+						 this, &BaseTreeView::onExpanded);
+		QObject::connect(this, &QTreeView::collapsed,
+						 this, &BaseTreeView::onCollapsed);
+		QObject::connect(treeModel, &AbstractObjectTreeModel::beforeModelReset,
+						 this, &BaseTreeView::onBeforeModelReset);
+		QObject::connect(treeModel, &AbstractObjectTreeModel::afterModelReset,
+						 this, &BaseTreeView::onAfterModelReset);
+		QObject::connect(treeModel, &AbstractObjectTreeModel::shouldSelect,
+						 this, &BaseTreeView::onShouldSelect);
+		QObject::connect(treeModel, &AbstractObjectTreeModel::shouldClearSelection,
+						 this, &BaseTreeView::clearSelection);
+		QObject::connect(treeModel, &AbstractObjectTreeModel::dropSuccess,
+						 this, &BaseTreeView::onDropSuccess);
 
-void BaseTreeView::expandItem(QObject *item)
-{
-	auto index = treeModel->findModelIndex(item);
-	if (index.isValid())
-		expand(index);
-}
+		setModel(treeModel);
 
-QObject *BaseTreeView::getCurrentItem() const
-{
-	auto index = currentIndex();
-	if (index.isValid())
-	{
-		return treeModel->getItemAt(index);
+		QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged,
+						 this, &BaseTreeView::onSelectionChanged);
 	}
 
-	return nullptr;
-}
+	void BaseTreeView::select(QObject *item, bool expand)
+	{
+		auto index = treeModel->findModelIndex(item);
+		if (index.isValid())
+		{
+			auto selModel = selectionModel();
+			clearSelection();
+			setCurrentIndex(index);
+			selModel->select(index, QItemSelectionModel::Select);
+			if (expand)
+				this->expand(index);
 
-bool BaseTreeView::hasItems() const
-{
-	return (nullptr != treeModel && treeModel->rowCount() > 0);
-}
+			scrollTo(index);
+		}
+	}
 
-void BaseTreeView::cutToClipboard()
-{
-	treeModel->copyToClipboard(selectionModel()->selectedIndexes(), true);
-}
+	void BaseTreeView::select(const QObjectSet &items)
+	{
+		auto selModel = selectionModel();
+		clearSelection();
+		bool first = true;
+		for (auto item : items)
+		{
+			auto index = treeModel->findModelIndex(item);
+			if (index.isValid())
+			{
+				if (first)
+				{
+					first = false;
+					setCurrentIndex(index);
+				}
 
-void BaseTreeView::copyToClipboard()
-{
-	treeModel->copyToClipboard(selectionModel()->selectedIndexes(), false);
-}
+				selModel->select(index, QItemSelectionModel::Select);
+			}
+		}
+	}
 
-void BaseTreeView::pasteFromClipboard()
-{
-	treeModel->pasteFromClipboard(selectionModel()->selectedIndexes());
-}
-
-void BaseTreeView::deleteSelectedItems()
-{
-	treeModel->deleteItems(selectionModel()->selectedIndexes());
-}
-
-bool BaseTreeView::canDeleteItem(QObject *item) const
-{
-	return treeModel->canDeleteItem(item);
-}
-
-bool BaseTreeView::canDeleteSelectedItems() const
-{
-	return treeModel->canDeleteItems(selectionModel()->selectedIndexes());
-}
-
-void BaseTreeView::preventReselect(bool prevent)
-{
-	if (prevent)
-		preventReselectCounter++;
-	else
-		preventReselectCounter--;
-}
-
-void BaseTreeView::onAfterModelReset()
-{
-	preventReselectCounter++;
-
-	ItemSet items;
-	items.swap(expandedItems);
-
-	for (auto &item : items)
+	void BaseTreeView::expandItem(QObject *item)
 	{
 		auto index = treeModel->findModelIndex(item);
 		if (index.isValid())
 			expand(index);
 	}
 
-	items.clear();
-	items.swap(selectedItems);
-
-	QItemSelection selection;
-
-	QModelIndex firstIndex;
-
-	for (auto &item : items)
+	QObject *BaseTreeView::getCurrentItem() const
 	{
-		auto index = treeModel->findModelIndex(item);
+		auto index = currentIndex();
 		if (index.isValid())
 		{
-			if (!firstIndex.isValid())
-				firstIndex = index;
-			selection.select(index, index);
+			return treeModel->getItemAt(index);
 		}
+
+		return nullptr;
 	}
 
-	if (firstIndex.isValid())
-		setCurrentIndex(firstIndex);
-	selectionModel()->select(selection, QItemSelectionModel::Select);
-
-	preventReselectCounter--;
-}
-
-void BaseTreeView::onShouldSelect(const QItemSelection &selection)
-{
-	if (!selection.isEmpty())
+	bool BaseTreeView::hasItems() const
 	{
-		auto indexes = selection.indexes();
+		return (nullptr != treeModel && treeModel->rowCount() > 0);
+	}
 
-		setCurrentIndex(indexes.at(0));
+	void BaseTreeView::cutToClipboard()
+	{
+		treeModel->copyToClipboard(selectionModel()->selectedIndexes(), true);
+	}
 
-		for (auto &index : indexes)
+	void BaseTreeView::copyToClipboard()
+	{
+		treeModel->copyToClipboard(selectionModel()->selectedIndexes(), false);
+	}
+
+	void BaseTreeView::pasteFromClipboard()
+	{
+		treeModel->pasteFromClipboard(selectionModel()->selectedIndexes());
+	}
+
+	void BaseTreeView::deleteSelectedItems()
+	{
+		treeModel->deleteItems(selectionModel()->selectedIndexes());
+	}
+
+	bool BaseTreeView::canDeleteItem(QObject *item) const
+	{
+		return treeModel->canDeleteItem(item);
+	}
+
+	bool BaseTreeView::canDeleteSelectedItems() const
+	{
+		return treeModel->canDeleteItems(selectionModel()->selectedIndexes());
+	}
+
+	void BaseTreeView::preventReselect(bool prevent)
+	{
+		if (prevent)
+			preventReselectCounter++;
+		else
+			preventReselectCounter--;
+	}
+
+	void BaseTreeView::onBeforeModelReset()
+	{
+		auto undoStack = treeModel->getUndoStack();
+		if (nullptr != undoStack && undoStack->canPushForMacro())
 		{
-			if (index.parent().isValid())
-				expand(index.parent());
+			auto reselectCommand = new SelectTreeItemsCommand(this);
+			reselectCommand->setOldSelected(selectedItems);
+			undoStack->push(reselectCommand);
+		}
+	}
+
+	void BaseTreeView::onAfterModelReset()
+	{
+		preventReselectCounter++;
+
+		QObjectSet items;
+		items.swap(expandedItems);
+
+		for (auto &item : items)
+		{
+			auto index = treeModel->findModelIndex(item);
+			if (index.isValid())
+			{
+				expand(index);
+				expandedItems.insert(item);
+			}
 		}
 
+		items.clear();
+		items.swap(selectedItems);
+
+		QItemSelection selection;
+
+		QModelIndex firstIndex;
+
+		for (auto &item : items)
+		{
+			auto index = treeModel->findModelIndex(item);
+			if (index.isValid())
+			{
+				if (!firstIndex.isValid())
+					firstIndex = index;
+				selection.select(index, index);
+				selectedItems.insert(item);
+			}
+		}
+
+		if (firstIndex.isValid())
+			setCurrentIndex(firstIndex);
 		selectionModel()->select(selection, QItemSelectionModel::Select);
+
+		auto undoStack = treeModel->getUndoStack();
+		if (nullptr != undoStack && undoStack->canPushForMacro())
+		{
+			auto reselectCommand = new SelectTreeItemsCommand(this);
+			reselectCommand->setNewSelected(selectedItems);
+			undoStack->push(reselectCommand);
+		}
+
+		preventReselectCounter--;
 	}
-}
 
-void BaseTreeView::onExpanded(const QModelIndex &index)
-{
-	auto item = treeModel->getItemAt(index);
-	expandedItems.insert(item);
-	QObject::connect(item, &QObject::destroyed,
-					 this, &BaseTreeView::onExpandedItemDestroyed);
-}
-
-void BaseTreeView::onExpandedItemDestroyed(QObject *item)
-{
-	expandedItems.erase(item);
-}
-
-void BaseTreeView::onSelectedItemDestroyed(QObject *item)
-{
-	selectedItems.erase(item);
-}
-
-void BaseTreeView::onCollapsed(const QModelIndex &index)
-{
-	auto item = treeModel->getItemAt(index);
-	expandedItems.erase(item);
-	QObject::disconnect(item, &QObject::destroyed,
-						this, &BaseTreeView::onExpandedItemDestroyed);
-}
-
-void BaseTreeView::onSelectionChanged(const QItemSelection &selected,
-									  const QItemSelection &deselected)
-{
-	preventReselectCounter++;
-
-	auto indexes = selected.indexes();
-
-	for (auto it = indexes.begin(); it != indexes.end(); ++it)
+	void BaseTreeView::onDropSuccess()
 	{
-		auto item = treeModel->getItemAt(*it);
-		selectedItems.insert(item);
+		setFocus();
+	}
+
+	void BaseTreeView::onShouldSelect(const QItemSelection &selection)
+	{
+		if (!selection.isEmpty())
+		{
+			auto indexes = selection.indexes();
+
+			setCurrentIndex(indexes.at(0));
+
+			for (auto &index : indexes)
+			{
+				if (index.parent().isValid())
+					expand(index.parent());
+			}
+
+			selectionModel()->select(selection, QItemSelectionModel::Select);
+		}
+	}
+
+	void BaseTreeView::onExpanded(const QModelIndex &index)
+	{
+		auto item = treeModel->getItemAt(index);
+		expandedItems.insert(item);
 		QObject::connect(item, &QObject::destroyed,
-						 this, &BaseTreeView::onSelectedItemDestroyed);
+						 this, &BaseTreeView::onExpandedItemDestroyed);
 	}
 
-	indexes = deselected.indexes();
-
-	for (auto it = indexes.begin(); it != indexes.end(); ++it)
+	void BaseTreeView::onExpandedItemDestroyed(QObject *item)
 	{
-		auto item = treeModel->getItemAt(*it);
-		selectedItems.erase(item);
-		QObject::disconnect(item, &QObject::destroyed,
-							this, &BaseTreeView::onSelectedItemDestroyed);
+		expandedItems.erase(item);
 	}
 
-	preventReselectCounter--;
-}
+	void BaseTreeView::onSelectedItemDestroyed(QObject *item)
+	{
+		selectedItems.erase(item);
+	}
+
+	void BaseTreeView::onCollapsed(const QModelIndex &index)
+	{
+		auto item = treeModel->getItemAt(index);
+		expandedItems.erase(item);
+		QObject::disconnect(item, &QObject::destroyed,
+							this, &BaseTreeView::onExpandedItemDestroyed);
+	}
+
+	void BaseTreeView::onSelectionChanged(const QItemSelection &selected,
+										  const QItemSelection &deselected)
+	{
+		Q_ASSERT(nullptr != treeModel);
+		auto undoStack = treeModel->getUndoStack();
+		bool canPushCommand = (nullptr != undoStack && undoStack->canPushForMacro());
+		QObjectSet oldSelected;
+		if (canPushCommand)
+			oldSelected = selectedItems;
+
+		preventReselectCounter++;
+
+		auto indexes = selected.indexes();
+
+		for (auto it = indexes.begin(); it != indexes.end(); ++it)
+		{
+			auto item = treeModel->getItemAt(*it);
+			selectedItems.insert(item);
+			QObject::connect(item, &QObject::destroyed,
+							 this, &BaseTreeView::onSelectedItemDestroyed);
+		}
+
+		indexes = deselected.indexes();
+
+		for (auto it = indexes.begin(); it != indexes.end(); ++it)
+		{
+			auto item = treeModel->getItemAt(*it);
+			selectedItems.erase(item);
+			QObject::disconnect(item, &QObject::destroyed,
+								this, &BaseTreeView::onSelectedItemDestroyed);
+		}
+
+		if (canPushCommand)
+		{
+			undoStack->push(new SelectTreeItemsCommand(this, oldSelected, selectedItems));
+		} else if (nullptr != undoStack)
+		{
+			if (undoStack != this->undoStack)
+			{
+				std::swap(this->oldSelected, oldSelected);
+				disconnectUndoStack();
+				this->undoStack = undoStack;
+				connectUndoStack();
+			}
+		}
+
+		preventReselectCounter--;
+	}
+
+	void BaseTreeView::onUndoStackMacroStarted()
+	{
+		if (undoStack == treeModel->getUndoStack())
+		{
+			Q_ASSERT(nullptr != undoStack);
+
+			auto reselectCommand = new SelectTreeItemsCommand(this,
+															  oldSelected.empty() ? selectedItems : oldSelected,
+															  selectedItems);
+			undoStack->push(reselectCommand);
+			disconnectUndoStack();
+			undoStack = nullptr;
+		}
+	}
+
+	void BaseTreeView::onUndoStackDestroyed()
+	{
+		undoStack = nullptr;
+	}
+
+	void BaseTreeView::connectUndoStack()
+	{
+		if (nullptr != undoStack)
+		{
+			QObject::connect(undoStack, &QObject::destroyed,
+							 this, &BaseTreeView::onUndoStackDestroyed);
+			QObject::connect(undoStack, &UndoStack::macroStarted,
+							 this, &BaseTreeView::onUndoStackMacroStarted);
+		}
+	}
+
+	void BaseTreeView::disconnectUndoStack()
+	{
+		if (nullptr != undoStack)
+		{
+			QObject::disconnect(undoStack, &QObject::destroyed,
+								this, &BaseTreeView::onUndoStackDestroyed);
+			QObject::disconnect(undoStack, &UndoStack::macroStarted,
+								this, &BaseTreeView::onUndoStackMacroStarted);
+		}
+	}
+
 }

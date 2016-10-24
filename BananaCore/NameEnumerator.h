@@ -24,31 +24,69 @@
 
 #pragma once
 
-class QFont;
-class QString;
+#include "Core.h"
+
+#include "AbstractNameUnifier.h"
+
+#include <QString>
 
 namespace Banana
 {
-	extern const char pX[];
-	extern const char pY[];
-	extern const char pWidth[];
-	extern const char pHeight[];
-	extern const char pNoExtension[];
-	extern const char pUntitledFileName[];
-	extern const char pFalse[];
-	extern const char pTrue[];
-
-	QFont getDefaultFont();
-	QString getBoolString(bool value);
-
-	enum
+	class NameEnumerator : public AbstractNameUnifier
 	{
-		CHANGE_VALUE_COMMAND,
-		CHANGE_CONTENTS_COMMAND,
-		CHILD_ACTION_COMMAND,
+		Q_GADGET
 
-		RESERVED,
+	public:
+		NameEnumerator();
+		NameEnumerator(const INameCollectionPtr &ptr);
 
-		USER_COMMAND = 1024
+		enum Type
+		{
+			StartsWithNumber,
+			EndsWithNumber
+		};
+		Q_ENUM(Type)
+
+		inline Type type() const;
+		inline void setType(Type value);
+
+		inline QString separator() const;
+		inline void setSeparator(const QString &value);
+
+		void separateNameAndNumber(const QString &fullName,
+								   QString *resultNamePtr = nullptr,
+								   QString *resultNumberPtr = nullptr) const;
+
+		virtual QString uniqueNameFor(const QString &name) const override;
+		virtual bool isValid() const override;
+
+	private:
+		QString attachNumber(const QString &name, quint64 number) const;
+
+		Type mType;
+		QString mSeparator;
 	};
+
+	NameEnumerator::Type NameEnumerator::type() const
+	{
+		return mType;
+	}
+
+	void NameEnumerator::setType(Type value)
+	{
+		mType = value;
+	}
+
+	QString NameEnumerator::separator() const
+	{
+		return mSeparator;
+	}
+
+	void NameEnumerator::setSeparator(const QString &value)
+	{
+		mSeparator = value;
+	}
+
 }
+
+Q_DECLARE_METATYPE(Banana::NameEnumerator::Type)

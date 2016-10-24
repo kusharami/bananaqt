@@ -34,7 +34,6 @@
 #include <vector>
 
 class QObject;
-class QUndoGroup;
 
 namespace Banana
 {
@@ -55,10 +54,9 @@ namespace Banana
 	protected:
 		bool isWatchedInternal() const;
 		void watch(bool yes);
-		bool updateFilePath(const QString &old_path, const QString &new_path);
+		bool updateFilePath(const QString &oldPath, const QString &newPath);
 		void createFileData(bool *reused);
 		void closeFileData();
-		void onSave();
 		void updateData(QObject *data);
 		void connectContext();
 		void disconnectContext();
@@ -70,12 +68,10 @@ namespace Banana
 		AbstractFile *thiz;
 		QObject *data;
 		OpenedFiles *openedFiles;
-		QUndoGroup *undoGroup;
 		AbstractNamingPolicy *namingPolicy;
 
 		QMetaObject::Connection thisDestroyConnection;
 		QMetaObject::Connection openedFilesConnection;
-		QMetaObject::Connection undoGroupConnection;
 		std::vector<QMetaObject::Connection> connections;
 	};
 
@@ -96,7 +92,6 @@ namespace Banana
 		virtual void watchFile() override;
 
 	protected:
-		virtual void onSave() override;
 		virtual void createData(bool *reused) override;
 		virtual void destroyData() override;
 		virtual QObject *doGetData() override { return data; }
@@ -162,13 +157,6 @@ namespace Banana
 	}
 
 	template <typename FILE_CLASS>
-	void BaseFileRegistrator<FILE_CLASS>::onSave()
-	{
-		AbstractFileRegistrator::onSave();
-		FILE_CLASS::onSave();
-	}
-
-	template <typename FILE_CLASS>
 	void BaseFileRegistrator<FILE_CLASS>::createData(bool *reused)
 	{
 		createFileData(reused);
@@ -187,10 +175,10 @@ namespace Banana
 	{
 		if (nullptr != data)
 		{
-			QString oldCanonicalPath(FILE_CLASS::canonical_path);
+			QString oldCanonicalPath(FILE_CLASS::canonicalPath);
 			FILE_CLASS::changeFilePath(new_path);
-			AbstractFileRegistrator::updateFilePath(oldCanonicalPath, FILE_CLASS::canonical_path);
-			data->setObjectName(QFileInfo(FILE_CLASS::canonical_path).baseName());
+			AbstractFileRegistrator::updateFilePath(oldCanonicalPath, FILE_CLASS::canonicalPath);
+			data->setObjectName(QFileInfo(FILE_CLASS::canonicalPath).baseName());
 		} else
 		{
 			FILE_CLASS::changeFilePath(new_path);

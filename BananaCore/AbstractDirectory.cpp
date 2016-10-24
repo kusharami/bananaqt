@@ -124,7 +124,7 @@ namespace Banana
 					}
 				} else
 				{
-					if (0 == path.compare(file->saved_path, Qt::CaseInsensitive))
+					if (0 == path.compare(file->savedPath, Qt::CaseInsensitive))
 					{
 						return file;
 					}

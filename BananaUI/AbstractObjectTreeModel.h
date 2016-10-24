@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "BananaCore/ContainerTypes.h"
 #include "BananaCore/ChildFilter.h"
 
 #include <QAbstractItemModel>
@@ -40,6 +41,7 @@ class QItemSelection;
 
 namespace Banana
 {
+	class UndoStack;
 	class AbstractObjectGroup;
 
 	class AbstractObjectTreeModel : public QAbstractItemModel, public ChildFilter
@@ -87,6 +89,8 @@ namespace Banana
 		virtual void beginResetModel();
 		virtual void endResetModel();
 
+		virtual UndoStack *getUndoStack() const;
+
 	protected:
 		virtual void beforeChangeFilters() override;
 		virtual void afterChangeFilters() override;
@@ -103,11 +107,13 @@ namespace Banana
 		virtual void doConnectObject(QObject *object);
 		virtual void doDisconnectObject(QObject *object);
 
-		void selectItems(const std::set<QObject *> &items);
+		void selectItems(const QObjectSet &items);
 
 	signals:
+		void dropSuccess();
 		void shouldClearSelection();
 		void shouldSelect(const QItemSelection &selection);
+		void beforeModelReset();
 		void afterModelReset();
 
 	private slots:

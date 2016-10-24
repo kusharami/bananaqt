@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,50 @@
  * SOFTWARE.
  */
 
+#include "tst_AbstractNameUnifier.h"
+
 #include "TestsMain.h"
 
-#include <QCoreApplication>
-#include <QDebug>
+#include "BananaCore/AbstractNameUnifier.h"
 
-#include <vector>
+REGISTER_TEST(AbstractNameUnifier);
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+namespace InternalANU
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
-}
 
-static int executeTests(int argc, char **argv)
-{
-	int status = 0;
-	for (auto &create : testCreators)
+	class Unifier : public Banana::AbstractNameUnifier
 	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
-	}
-	return status;
+	public:
+		virtual QString uniqueNameFor(const QString &) const override { return QString(); }
+	};
+
+	class Collection : public Banana::INameCollection
+	{
+	public:
+		virtual bool containsName(const QString &) const override { return false; }
+};
+
 }
 
-int main(int argc, char *argv[])
+AbstractNameUnifier::AbstractNameUnifier()
+	: unifier(nullptr)
 {
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
 }
 
+void AbstractNameUnifier::init()
+{
+	unifier = new InternalANU::Unifier;
+	collection.reset(new InternalANU::Collection);
+}
+
+void AbstractNameUnifier::cleanup()
+{
+	delete unifier;
+	collection.reset();
+}
+
+void AbstractNameUnifier::testNameCollectionProperty()
+{
+	unifier->setNameCollection(collection);
+	QVERIFY(unifier->nameCollection() == collection);
+}

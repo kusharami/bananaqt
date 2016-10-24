@@ -29,8 +29,37 @@
 #include <map>
 #include <set>
 
+#ifdef QT_DEBUG
+#	define IS_VALID(obj) Q_ASSERT(nullptr != (obj) && (obj)->isValid())
+#	define REQUIRE(expression) Q_ASSERT(expression)
+#	define ENSURE(expression) Q_ASSERT(expression)
+#else
+#	define IS_VALID(obj) qt_noop()
+#	define REQUIRE(expression) qt_noop()
+#	define ENSURE(expression) qt_noop()
+#endif
+
+class QObject;
+
 namespace Banana
 {
+
+	class BaseObject
+	{
+	public:
+		virtual ~BaseObject() {}
+
+		virtual bool isValid() const = 0;
+	};
+
+	template <typename T, typename... ARG_T>
+	static inline T *createObject(QObject *parent, ARG_T... args)
+	{
+		auto result = new T(args...);
+		result->setParent(parent);
+		return result;
+	}
+
 	QVariant ConvertToUserVariant(int user_type, const QVariant &from);
 	QVariant ConvertFromUserVariant(const QVariant &from);
 

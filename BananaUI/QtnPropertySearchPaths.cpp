@@ -124,12 +124,14 @@ namespace Banana
 			auto delegate = project_group->getDelegate();
 			Q_ASSERT(nullptr != delegate);
 
-			SearchPathsDialog dlg(delegate->getProjectTreeModel(),
-								  dynamic_cast<QWidget *>(editorBase()->parent()));
+			auto dialog = new SearchPathsDialog(delegate->getProjectTreeModel(), editorBase());
+			auto dialogContainer = connectDialog(dialog);
 
-			dlg.show();
-			dlg.raise();
-			dlg.exec();
+			dialog->show();
+			dialog->raise();
+			dialog->exec();
+
+			Q_UNUSED(dialogContainer);
 		}
 
 		QtnPropertySearchPaths& m_prop;

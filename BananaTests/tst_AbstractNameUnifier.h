@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Banana Qt Libraries
  *
  * Copyright (c) 2016 Alexandra Cherdantseva
@@ -22,40 +22,31 @@
  * SOFTWARE.
  */
 
-#include "TestsMain.h"
+#pragma once
 
-#include <QCoreApplication>
-#include <QDebug>
+#include <QObject>
 
-#include <vector>
+#include "BananaCore/INameCollection.h"
 
-static std::vector<TestCreator> testCreators;
-
-size_t registerTestCreator(const TestCreator &create)
+namespace Banana
 {
-	auto result = testCreators.size();
-	testCreators.push_back(create);
-	return result;
+	class AbstractNameUnifier;
 }
 
-static int executeTests(int argc, char **argv)
+class AbstractNameUnifier : public QObject
 {
-	int status = 0;
-	for (auto &create : testCreators)
-	{
-		auto testObject = create();
-		status |= QTest::qExec(testObject, argc, argv);
-		delete testObject;
-	}
-	return status;
-}
+	Q_OBJECT
 
-int main(int argc, char *argv[])
-{
-	qInfo() << "Starting tests...";
-	QCoreApplication app(argc, argv);
-	Q_UNUSED(app);
-	QTEST_SET_MAIN_SOURCE_PATH
-	return executeTests(argc, argv);
-}
+public:
+	AbstractNameUnifier();
+
+private slots:
+	void init();
+	void testNameCollectionProperty();
+	void cleanup();
+
+private:
+	Banana::INameCollectionPtr collection;
+	Banana::AbstractNameUnifier *unifier;
+};
 

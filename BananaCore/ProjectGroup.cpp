@@ -78,10 +78,10 @@ namespace Banana
 	{
 		QDir dir(path);
 		auto find_path = QDir::cleanPath(path);
-		QString canonical_path;
+		QString canonicalPath;
 
 		if (dir.exists())
-			canonical_path = dir.canonicalPath();
+			canonicalPath = dir.canonicalPath();
 
 		for (auto child : children())
 		{
@@ -95,14 +95,14 @@ namespace Banana
 					return project_dir;
 				}
 
-				if (!canonical_path.isEmpty())
+				if (!canonicalPath.isEmpty())
 				{
-					if (0 == canonical_path.compare(dir.path(), Qt::CaseInsensitive))
+					if (0 == canonicalPath.compare(dir.path(), Qt::CaseInsensitive))
 					{
 						return project_dir;
 					}
 
-					if (0 == canonical_path.compare(dir.canonicalPath(), Qt::CaseInsensitive))
+					if (0 == canonicalPath.compare(dir.canonicalPath(), Qt::CaseInsensitive))
 					{
 						return project_dir;
 					}
@@ -187,7 +187,8 @@ namespace Banana
 	{
 		if (nullptr != activeProjectDir)
 		{
-
+			QObject::connect(activeProjectDir, &QObject::destroyed,
+							 this, &ProjectGroup::onActiveProjectDirectoryDestroyed);
 		}
 	}
 

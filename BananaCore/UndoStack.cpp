@@ -24,15 +24,30 @@
 
 #include "UndoStack.h"
 
+#include <QApplication>
+#include <QEvent>
+
 namespace Banana
 {
+	class CleanCancelEvent : public QEvent
+	{
+	public:
+		CleanCancelEvent()
+			: QEvent(User)
+		{
+
+		}
+	};
 
 	UndoStack::UndoStack(QObject *parent)
 		: QUndoStack(parent)
+		, blockCounter(0)
 		, macroCounter(0)
 		, updateCounter(0)
+		, firstClean(true)
 	{
-
+		QObject::connect(this, &QUndoStack::cleanChanged,
+						 this, &UndoStack::onCleanChanged);
 	}
 
 	void UndoStack::beginUpdate()
@@ -49,7 +64,10 @@ namespace Banana
 	void UndoStack::beginMacro(const QString &text)
 	{
 		if (0 == macroCounter++)
+		{
 			QUndoStack::beginMacro(text);
+			emit macroStarted();
+		}
 	}
 
 	void UndoStack::endMacro()
@@ -57,7 +75,21 @@ namespace Banana
 		Q_ASSERT(macroCounter > 0);
 
 		if (0 == --macroCounter)
+		{
+			emit macroFinished();
 			QUndoStack::endMacro();
+		}
+	}
+
+	void UndoStack::blockMacro()
+	{
+		blockCounter++;
+	}
+
+	void UndoStack::unblockMacro()
+	{
+		Q_ASSERT(blockCounter > 0);
+		blockCounter--;
 	}
 
 	void UndoStack::clear(bool force)
@@ -66,8 +98,23 @@ namespace Banana
 		{
 			updateCounter = 0;
 			macroCounter = 0;
+			firstClean = isClean();
 			QUndoStack::clear();
 		}
+	}
+
+	void UndoStack::setClean()
+	{
+		if (!isClean())
+		{
+			firstClean = (index() == 0);
+			QUndoStack::setClean();
+		}
+	}
+
+	bool UndoStack::canPushForMacro() const
+	{
+		return macroCounter > 0 && blockCounter == 0;
 	}
 
 	QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
@@ -89,6 +136,23 @@ namespace Banana
 		}
 
 		return QString();
+	}
+
+	void UndoStack::customEvent(QEvent *event)
+	{
+		auto cleanCancelEvent = dynamic_cast<CleanCancelEvent *>(event);
+		if (nullptr != cleanCancelEvent)
+		{
+			emit cleanChanged(false);
+		}
+	}
+
+	void UndoStack::onCleanChanged(bool clean)
+	{
+		if (clean && !firstClean && cleanIndex() == 0 && index() == 0)
+		{
+			QApplication::postEvent(this, new CleanCancelEvent);
+		}
 	}
 
 }

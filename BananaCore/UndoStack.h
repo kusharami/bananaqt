@@ -16,17 +16,32 @@ namespace Banana
 		void endUpdate();
 		void beginMacro(const QString &text);
 		void endMacro();
+		void blockMacro();
+		void unblockMacro();
 
 		void clear(bool force = false);
+		void setClean();
 
 		inline bool isUpdating() const;
-		inline bool macroIsRecording() const;
+		bool canPushForMacro() const;
 
 		static QString getDragAndDropCommandText(Qt::DropAction action);
 
+	signals:
+		void macroStarted();
+		void macroFinished();
+
+	protected:
+		virtual void customEvent(QEvent *event) override;
+
+	private slots:
+		void onCleanChanged(bool clean);
+
 	private:
+		unsigned blockCounter;
 		unsigned macroCounter;
 		unsigned updateCounter;
+		bool firstClean;
 	};
 
 	bool UndoStack::isUpdating() const
@@ -34,9 +49,6 @@ namespace Banana
 		return updateCounter > 0;
 	}
 
-	bool UndoStack::macroIsRecording() const
-	{
-		return macroCounter > 0;
-	}
+
 
 }
