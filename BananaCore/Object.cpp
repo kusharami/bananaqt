@@ -1262,7 +1262,21 @@ namespace Banana
 			if (nullptr != object)
 			{
 				object->beginLoad();
+				QObjectList descendants;
+				getDescendants(object, descendants);
+				for (auto desc : descendants)
+				{
+					auto obj = dynamic_cast<Object *>(desc);
+					if (nullptr != obj)
+						obj->beginLoad();
+				}
 				object->doParentChange();
+				for (auto desc : descendants)
+				{
+					auto obj = dynamic_cast<Object *>(desc);
+					if (nullptr != obj)
+						obj->endLoad();
+				}
 				object->endLoad();
 			}
 
@@ -1317,6 +1331,16 @@ namespace Banana
 		{
 			QObject::disconnect(undoStack, &QUndoStack::cleanChanged,
 								this, &Object::onUndoStackCleanChanged);
+		}
+	}
+
+	void Object::getDescendants(QObject *obj, QObjectList &out)
+	{
+		Q_ASSERT(nullptr != obj);
+		for (auto child : obj->children())
+		{
+			out.push_back(child);
+			getDescendants(child, out);
 		}
 	}
 

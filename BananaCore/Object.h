@@ -203,6 +203,7 @@ namespace Banana
 
 		void connectUndoStack();
 		void disconnectUndoStack();
+		static void getDescendants(QObject *obj, QObjectList &out);
 
 		QString oldName;
 		Object *prototype;
