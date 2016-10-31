@@ -709,7 +709,7 @@ namespace Banana
 
 	void Object::onPrototypeChildAdded(QObject *protoChild)
 	{
-		newChildFrom(protoChild);
+		newChildFrom(protoChild, true);
 	}
 
 	void Object::onPrototypeChildRemoved(QObject *protoChild)
@@ -1182,7 +1182,7 @@ namespace Banana
 					for (auto sourceChild : source->children())
 					{
 						if (!assignChild(sourceChild))
-							newChildFrom(sourceChild);
+							newChildFrom(sourceChild, true);
 					}
 				}
 
@@ -1191,7 +1191,7 @@ namespace Banana
 				{
 					auto child = findChild<Object *>(protoChild->objectName(), Qt::FindDirectChildrenOnly);
 					if (nullptr == child)
-						newChildFrom(protoChild);
+						newChildFrom(protoChild, true);
 				}
 
 				if (source != prototype)
@@ -1200,14 +1200,14 @@ namespace Banana
 					for (auto sourceChild : source->children())
 					{
 						if (!assignChild(sourceChild, false))
-							newChildFrom(sourceChild);
+							newChildFrom(sourceChild, false);
 					}
 				}
 			} else
 			{
 				for (auto sourceChild : source->children())
 				{
-					newChildFrom(sourceChild);
+					newChildFrom(sourceChild, false);
 				}
 			}
 		}
@@ -1218,7 +1218,7 @@ namespace Banana
 
 	}
 
-	void Object::newChildFrom(QObject *source)
+	void Object::newChildFrom(QObject *source, bool childProto)
 	{
 		auto newChild = source->metaObject()->newInstance();
 		if (nullptr != newChild)
@@ -1226,7 +1226,7 @@ namespace Banana
 			Q_ASSERT(nullptr != dynamic_cast<Object *>(newChild));
 			auto newChildObject = static_cast<Object *>(newChild);
 
-			if (nullptr == prototype)
+			if (nullptr == prototype || !childProto)
 			{
 				newChildObject->setObjectName(source->objectName());
 				newChildObject->internalAssign(source, true, false);
