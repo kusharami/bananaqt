@@ -192,7 +192,7 @@ namespace Banana
 		virtual void assignEnd(QObject *source, bool top);
 		virtual void assignChildren(QObject *source);
 		virtual void assignProperties(QObject *source);
-		void newChildFrom(QObject *source);
+		void newChildFrom(QObject *source, bool childProto);
 		virtual const QMetaObject *getStorableChildType(const QString &className) const;
 		virtual bool isStorableChildType(const QMetaObject *type) const;
 		virtual void childEvent(QChildEvent *event) override;
@@ -203,6 +203,7 @@ namespace Banana
 
 		void connectUndoStack();
 		void disconnectUndoStack();
+		static void getDescendants(QObject *obj, QObjectList &out);
 
 		QString oldName;
 		Object *prototype;

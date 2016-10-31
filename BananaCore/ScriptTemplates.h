@@ -162,8 +162,8 @@ namespace Scripting
 		Q_INVOKABLE inline bool rename(const QString &oldName, const QString &newName);
 
 		Q_INVOKABLE QScriptValue entryList(const QScriptValue &nameFilters,
-												 Filters filters = NoFilter,
-												 SortFlags sort = NoSort) const;
+										   QDir::Filters filters = NoFilter,
+										   QDir::SortFlags sort = NoSort) const;
 
 		Q_INVOKABLE inline void refresh();
 
@@ -678,7 +678,7 @@ namespace Scripting
 	template <typename FLAGS_T>
 	static QScriptValue FlagsToScriptValue(QScriptEngine *engine, const FLAGS_T &in)
 	{
-		return engine->newVariant(static_cast<qint32>(in.to_ulong()));
+		return QScriptValue(engine, static_cast<qint32>(in.to_ulong()));
 	}
 
 	template <typename FLAGS_T>
@@ -690,7 +690,7 @@ namespace Scripting
 	template <typename STRING_T>
 	static QScriptValue StringToScriptValue(QScriptEngine *engine, const STRING_T &in)
 	{
-		return engine->newVariant(QString(in));
+		return QScriptValue(engine, QString(in));
 	}
 
 	template <typename STRING_T>
@@ -702,7 +702,7 @@ namespace Scripting
 	template <typename ENUM_T>
 	static QScriptValue EnumToScriptValue(QScriptEngine *engine, const ENUM_T &in)
 	{
-		return engine->newVariant(int(in));
+		return QScriptValue(engine, qint32(in));
 	}
 
 	template <typename ENUM_T>

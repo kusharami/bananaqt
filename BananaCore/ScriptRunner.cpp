@@ -266,6 +266,10 @@ namespace Banana
 								QObjectFromScriptValue<Banana::AbstractFile>);
 
 		qScriptRegisterMetaType(engine,
+								QObjectToScriptValue<Banana::Directory>,
+								QObjectFromScriptValue<Banana::Directory>);
+
+		qScriptRegisterMetaType(engine,
 								DescendantToScriptValue<Point, QPoint>,
 								DescendantFromScriptValue<Point, QPoint>);
 
@@ -318,6 +322,8 @@ namespace Banana
 								EnumFromScriptValue<QDir::SortFlags>);
 
 		QMetaType::registerConverter<QFont::Style, qint32>();
+		QMetaType::registerConverter<QDir::Filters, qint32>();
+		QMetaType::registerConverter<QDir::SortFlags, qint32>();
 
 		auto globalObject = engine->globalObject();
 

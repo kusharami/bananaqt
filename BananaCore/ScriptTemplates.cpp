@@ -506,7 +506,6 @@ namespace Scripting
 			list.push_back(nameFilters.property(i).toString());
 		}
 
-
 		list = QDir::entryList(list, filters, sort);
 
 		result = nameFilters.engine()->newArray(list.count());

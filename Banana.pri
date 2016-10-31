@@ -15,7 +15,7 @@ unix|win32-g++ {
 }
 
 win32 {
-    DEFINES += UNICODE _UNICODE WIN32 _WINDOWS
+    DEFINES += _UNICODE _WINDOWS
 }
 
 LIBS += -L$$BIN_DIR
