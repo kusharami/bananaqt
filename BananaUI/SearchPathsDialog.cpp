@@ -476,7 +476,7 @@ bool SearchPathsTableModel::removeRows(int row, int count, const QModelIndex &pa
 		for (size_t i = 0, count = dirs.size(); i < count; i++)
 		{
 			auto dir = dirs[i];
-			dir->setSearchOrder(i);
+			dir->setSearchOrder(static_cast<int>(i));
 		}
 
 		endRemoveRows();
@@ -519,7 +519,7 @@ void SearchPathsTableModel::clear()
 void SearchPathsTableModel::connectDirs()
 {
 	for (size_t i = 0, count = dirs.size(); i < count; i++)
-		connectDirectory(dirs.at(i), i);
+		connectDirectory(dirs.at(i), static_cast<int>(i));
 }
 
 void SearchPathsTableModel::connectDirectory(Directory *dir, int order)
