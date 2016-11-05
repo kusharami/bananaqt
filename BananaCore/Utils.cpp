@@ -869,7 +869,7 @@ namespace Utils
 			{
 				foreach (QObject *child, ancestor->children())
 				{
-					if (isDescendantOf(child, object))
+					if (IsDescendantOf(child, object))
 						return true;
 				}
 			}
