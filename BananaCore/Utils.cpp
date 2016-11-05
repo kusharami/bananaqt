@@ -858,6 +858,46 @@ namespace Utils
 		return (ConvertToFileName(fileName) == fileName);
 	}
 
+	bool IsDescendantOf(const QObject *ancestor, const QObject *object)
+	{
+		if (nullptr != object)
+		{
+			if (object->parent() == ancestor)
+				return true;
+
+			if (nullptr != ancestor)
+			{
+				foreach (QObject *child, ancestor->children())
+				{
+					if (isDescendantOf(child, object))
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	bool IsAncestorOf(const QObject *descendant, const QObject *object)
+	{
+		if (nullptr != object)
+		{
+			forever
+			{
+				object = object->parent();
+
+				if (nullptr == object)
+					break;
+
+				if (object == descendant)
+					return true;
+
+			}
+		}
+
+		return false;
+	}
+
 }
 
 }

@@ -95,6 +95,10 @@ namespace Utils
 	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName);
 
 	const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
+
+	bool IsDescendantOf(const QObject *ancestor, const QObject *object);
+	bool IsAncestorOf(const QObject *descendant, const QObject *object);
+
 }
 
 }
