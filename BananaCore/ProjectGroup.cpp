@@ -77,7 +77,7 @@ namespace Banana
 	AbstractProjectDirectory *ProjectGroup::findProject(const QString &path) const
 	{
 		QDir dir(path);
-		auto find_path = QDir::cleanPath(path);
+		auto findPath = QDir::cleanPath(path);
 		QString canonicalPath;
 
 		if (dir.exists())
@@ -90,7 +90,7 @@ namespace Banana
 			if (nullptr != project_dir)
 			{
 				QDir dir(project_dir->getFilePath());
-				if (0 == find_path.compare(dir.path(), Qt::CaseInsensitive))
+				if (0 == findPath.compare(dir.path(), Qt::CaseInsensitive))
 				{
 					return project_dir;
 				}
