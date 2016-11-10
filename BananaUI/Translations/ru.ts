@@ -182,6 +182,23 @@
     </message>
 </context>
 <context>
+    <name>Banana::MainWindow</name>
+    <message>
+        <location filename="../MainWindow.cpp" line="320"/>
+        <source>Error in setting Registry values.
+Registration database update failed for key &apos;%1&apos;.</source>
+        <translation>Ошибка записи данных в реестр.
+Не удалось записать данные по ключу &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="334"/>
+        <source>Error in setting Registry values.
+%1</source>
+        <translation>Ошибка записи данных в реестр.
+%1</translation>
+    </message>
+</context>
+<context>
     <name>Banana::NewFileDialog</name>
     <message>
         <location filename="../NewFileDialog.cpp" line="145"/>

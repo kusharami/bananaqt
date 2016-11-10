@@ -317,8 +317,8 @@ namespace Banana
 			if (::RegCloseKey(hKey) == ERROR_SUCCESS && lResult == ERROR_SUCCESS)
 				return true;
 			QMessageBox::warning(QApplication::activeWindow(), QApplication::applicationName(),
-								 MainWindow::tr("Error in setting Registry values:\n"
-									"registration database update failed for key '%s'.").arg(key));
+								 MainWindow::tr("Error in setting Registry values.\n"
+									"Registration database update failed for key '%1'.").arg(key));
 		}
 		else
 		{
@@ -331,7 +331,7 @@ namespace Banana
 #endif
 			QMessageBox::warning(QApplication::activeWindow(),
 								 QApplication::applicationName(),
-								 MainWindow::tr("Error in setting Registry values:\n%1"),
+								 MainWindow::tr("Error in setting Registry values.\n%1"),
 								 errorMessage);
 		}
 		return false;
