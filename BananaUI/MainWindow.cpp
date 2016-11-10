@@ -24,8 +24,10 @@
 
 #include "MainWindow.h"
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN)
 #include <windows.h>
+#elif defined(Q_OS_MAC)
+#include <QFileOpenEvent>
 #endif
 
 #include <QDebug>
@@ -38,6 +40,8 @@ namespace Banana
 {
 	struct MainWindowPrivate
 	{
+		MainWindow *parent;
+
 #ifdef Q_OS_WIN
 		// implementation of the WM_DDE_INITIATE windows message
 		bool ddeInitiate(MSG *message, long *result);
@@ -57,8 +61,6 @@ namespace Banana
 
 		void enableOpenOutside();
 		void executeOutsideCommand(const QString& command, const QString& params);
-
-		MainWindow *parent;
 
 		MainWindowPrivate(MainWindow *parent);
 		~MainWindowPrivate();
@@ -117,6 +119,11 @@ namespace Banana
 			p->SetHkcrUserRegKey(QString("%1\\ShellNew").arg(fileExtension),
 								 QString(), "NullFile");
 		}
+#else
+		Q_UNUSED(documentId);
+		Q_UNUSED(fileTypeName);
+		Q_UNUSED(fileExtension);
+		Q_UNUSED(appIconIndex);
 #endif
 	}
 
@@ -153,6 +160,11 @@ namespace Banana
 									  .arg(command), p->systemTopicAtomName))
 				return;
 		}
+#else
+		Q_UNUSED(command);
+		Q_UNUSED(documentId);
+		Q_UNUSED(cmdLineArg);
+		Q_UNUSED(ddeCommand);
 #endif
 	}
 
@@ -181,6 +193,21 @@ namespace Banana
 #endif
 
 		return QMainWindow::nativeEvent(eventType, message, result);
+	}
+
+	bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+	{
+#ifdef Q_OS_MAC
+		if (watched == QApplication::instance())
+		{
+			if (event->type() == QEvent::FileOpen)
+			{
+				auto fileOpenEvent = static_cast<QFileOpenEvent *>(event);
+				openFileOutside(fileOpenEvent->file());
+			}
+		}
+#endif
+		return QMainWindow::eventFilter(watched, event);
 	}
 
 	void MainWindow::openFileOutside(const QString &)
@@ -309,9 +336,11 @@ namespace Banana
 		}
 		return false;
 	}
+#endif
 
 	void MainWindowPrivate::enableOpenOutside()
 	{
+#if defined(Q_OS_WIN)
 		if (0 != appAtom || 0 != systemTopicAtom)
 			return;
 
@@ -331,9 +360,10 @@ namespace Banana
 		name = sName.constData();
 #endif
 		systemTopicAtom = ::GlobalAddAtom(name);
-	}
-
+#elif defined(Q_OS_MAC)
+		QApplication::instance()->installEventFilter(parent);
 #endif
+	}
 
 	void MainWindowPrivate::executeOutsideCommand(const QString &command, const QString &params)
 	{
@@ -350,16 +380,19 @@ namespace Banana
 	}
 
 	MainWindowPrivate::MainWindowPrivate(MainWindow *parent)
-		: appAtomName(QFileInfo(QApplication::applicationFilePath()).baseName())
+		: parent(parent)
+#ifdef Q_OS_WIN
+		, appAtomName(QFileInfo(QApplication::applicationFilePath()).baseName())
 		, systemTopicAtomName("system")
 		, appAtom(0)
 		, systemTopicAtom(0)
-		, parent(parent)
+#endif
 	{
 	}
 
 	MainWindowPrivate::~MainWindowPrivate()
 	{
+#ifdef Q_OS_WIN
 		if (0 != appAtom)
 		{
 			::GlobalDeleteAtom(appAtom);
@@ -368,5 +401,6 @@ namespace Banana
 		{
 			::GlobalDeleteAtom(systemTopicAtom);
 		}
+#endif
 	}
 }

@@ -50,7 +50,8 @@ namespace Banana
 							 const QString cmdLineArg = QString::null,
 							 const QString ddeCommand = QString::null);
 		void enableOpenOutside();
-		virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;				
+		virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+		virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 		friend struct MainWindowPrivate;
 	private:
