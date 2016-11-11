@@ -56,7 +56,8 @@ HEADERS += \
     NewFileDialog.h \
     SelectTreeItemsCommand.h \
     Const.h \
-    DetailedMessageDialog.h
+    DetailedMessageDialog.h \
+    MainWindow.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -82,4 +83,5 @@ SOURCES += \
     ProjectTreeWidget.cpp \
     NewFileDialog.cpp \
     SelectTreeItemsCommand.cpp \
-    DetailedMessageDialog.cpp
+    DetailedMessageDialog.cpp \
+    MainWindow.cpp
