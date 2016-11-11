@@ -40,6 +40,7 @@
 
 class QIODevice;
 class QDir;
+class QFileInfo;
 
 namespace Banana
 {
@@ -67,6 +68,9 @@ namespace Utils
 
 	bool VariantsEqual(const QVariant &a, const QVariant &b);
 	bool VariantIsEmpty(const QVariant &value);
+
+	bool DeleteFileOrLink(const QString &filePath);
+	bool DeleteFileOrLink(const QFileInfo &fileInfo);
 
 	QJsonValue ConvertVariantToJsonValue(const QVariant &variant);
 	QVariant ConvertJsonValueToVariant(const QJsonValue &value);

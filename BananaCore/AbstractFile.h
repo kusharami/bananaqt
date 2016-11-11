@@ -148,6 +148,7 @@ namespace Banana
 		bool symLink;
 
 	private:
+		void recreateSymLinkIfNeeded(bool unwatched);
 		bool saveInternal();
 		void disconnectData(QObject *data);
 		void internalClose();

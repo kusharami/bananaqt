@@ -898,6 +898,24 @@ namespace Utils
 		return false;
 	}
 
+	bool DeleteFileOrLink(const QString &filePath)
+	{
+		return DeleteFileOrLink(QFileInfo(filePath));
+	}
+
+	bool DeleteFileOrLink(const QFileInfo &fileInfo)
+	{
+		bool isLink = fileInfo.isSymLink();
+		if (!isLink && !fileInfo.exists())
+			return true;
+
+#ifdef Q_OS_WIN
+		if (isLink && fileInfo.isDir())
+			return QDir().rmdir(fileInfo.filePath());
+#endif
+		return QFile::remove(fileInfo.filePath());
+	}
+
 }
 
 }

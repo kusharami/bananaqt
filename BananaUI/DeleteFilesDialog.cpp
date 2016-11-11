@@ -27,6 +27,7 @@
 #include "ProjectDirectoryModel.h"
 #include "BananaCore/AbstractProjectDirectory.h"
 #include "BananaCore/AbstractFile.h"
+#include "BananaCore/Utils.h"
 
 #include <QDir>
 #include <QMessageBox>
@@ -215,10 +216,10 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 {
 	beginResetModel();
 
-	int deleted_count = 0;
-	int checked_count = 0;
+	int deletedCount = 0;
+	int checkedCount = 0;
 
-	auto project_dir = source_model->getProjectDirectory();
+	auto projectDir = source_model->getProjectDirectory();
 
 	QString path;
 
@@ -228,32 +229,24 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 
 		if (it->checked)
 		{
-			auto &file_info = it->file_info;
-			if (!file_info.isDir() || file_info.isSymLink())
+			auto &fileInfo = it->file_info;
+			if (!fileInfo.isDir() || fileInfo.isSymLink())
 			{
-				checked_count++;
-				path = file_info.filePath();
+				checkedCount++;
+				path = fileInfo.filePath();
 
-				tryDeleteFileSysObjectFrom(project_dir, path);
+				tryDeleteFileSysObjectFrom(projectDir, path);
 
 				auto index = source_model->index(path);
 				if (index.isValid())
 				{
-					if (!file_info.isSymLink() && source_model->remove(index))
+					if (!fileInfo.isSymLink() && source_model->remove(index))
 						deleted = true;
 				}
 
 				if (!deleted)
 				{
-#ifdef Q_OS_WIN
-					if (file_info.isDir())
-						QDir().rmdir(path);
-					else
-#endif
-					QFile::remove(path);
-
-					file_info.refresh();
-					deleted = !file_info.exists();
+					deleted = Utils::DeleteFileOrLink(fileInfo);
 				}
 			}
 		}
@@ -261,7 +254,7 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 		if (deleted)
 		{
 			it = to_delete.erase(it);
-			deleted_count++;
+			deletedCount++;
 		} else
 			++it;
 	}
@@ -275,10 +268,10 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 			auto &file_info = it->file_info;
 			if (file_info.isDir() && !file_info.isSymLink())
 			{
-				checked_count++;
+				checkedCount++;
 				path = file_info.filePath();
 
-				tryDeleteFileSysObjectFrom(project_dir, path);
+				tryDeleteFileSysObjectFrom(projectDir, path);
 
 				auto index = source_model->index(path);
 				if (index.isValid())
@@ -298,14 +291,14 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 		if (deleted)
 		{
 			it = std::vector<EntryToDelete>::reverse_iterator(to_delete.erase(it.base() - 1));
-			deleted_count++;
+			deletedCount++;
 		} else
 			++it;
 	}
 
 	endResetModel();
 
-	if (0 == checked_count)
+	if (0 == checkedCount)
 	{
 		QMessageBox::warning(nullptr, QCoreApplication::applicationName(), tr("Nothing checked!"));
 		return false;

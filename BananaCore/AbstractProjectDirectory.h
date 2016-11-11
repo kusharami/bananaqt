@@ -60,21 +60,21 @@ namespace Banana
 		Q_INVOKABLE Banana::AbstractFile *newFile(const QString &path, bool first = true, bool multiple = false);
 
 		Q_INVOKABLE Banana::AbstractFile *addFile(const QString &path,
-												bool mustExist,
-												bool verbose = true);
-		Q_INVOKABLE Banana::AbstractFile *linkFile(const QString &target,
-												 const QString &link,
-												 bool mustExist,
-												 bool verbose = true);
+												  bool mustExist,
+												  bool verbose = true);
+		Q_INVOKABLE Banana::AbstractFile *linkFile(QString targetFilePath,
+												   QString linkFilePath,
+												   bool mustExist,
+												   bool verbose = true);
 
 		Q_INVOKABLE Banana::Directory *addSearchPath(const QString &path, int order, bool verbose = true);
 		Q_INVOKABLE Banana::Directory *addDirectory(const QString &path,
-												bool mustExist,
-												bool verbose = true);
-		Q_INVOKABLE Banana::Directory *linkDirectory(const QString &target,
-												 const QString &link,
-												 bool mustExist,
-												 bool verbose = true);
+													bool mustExist,
+													bool verbose = true);
+		Q_INVOKABLE Banana::Directory *linkDirectory(QString targetPath,
+													 QString linkPath,
+													 bool mustExist,
+													 bool verbose = true);
 
 		Q_INVOKABLE Banana::AbstractFile *addExistingFile(const QString &path, bool verbose = true);
 		Q_INVOKABLE Banana::AbstractFile *linkExistingFile(const QString &target,
@@ -83,7 +83,8 @@ namespace Banana
 		Q_INVOKABLE Banana::Directory *findDirectory(const QString &path);
 
 		Q_INVOKABLE bool saveFile(Banana::AbstractFile *file);
-		Q_INVOKABLE bool saveFileAs(Banana::AbstractFile *file, const QString &filePath,
+		Q_INVOKABLE bool saveFileAs(Banana::AbstractFile *file,
+									const QString &filePath,
 									const QString &selectedFilter,
 									bool verbose = true,
 									bool first = true,

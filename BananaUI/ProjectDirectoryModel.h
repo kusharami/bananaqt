@@ -45,7 +45,7 @@ namespace Banana
 
 	class ProjectDirectoryModel
 		: public QFileSystemModel
-			, public QFileIconProvider
+		, public QFileIconProvider
 	{
 		Q_OBJECT
 
