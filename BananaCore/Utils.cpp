@@ -911,7 +911,8 @@ namespace Utils
 
 #ifdef Q_OS_WIN
 		if (isLink && fileInfo.isDir())
-			return QDir().rmdir(fileInfo.filePath());
+			if (QDir().rmdir(fileInfo.filePath()))
+				return true;
 #endif
 		return QFile::remove(fileInfo.filePath());
 	}
