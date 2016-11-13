@@ -115,6 +115,10 @@ namespace Banana
 	void DetailedMessageDialog::onButtonClicked(QAbstractButton *button)
 	{
 		mLastClickedButton = button;
+		if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
+			accept();
+		else
+			reject();
 	}
 
 }
