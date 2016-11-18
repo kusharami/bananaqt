@@ -182,8 +182,6 @@ namespace Banana
 		void afterPrototypeChange();
 
 	protected:
-		virtual int internalPropertyCount() const;
-
 		bool shouldSwapModifiedFieldsFor(QObject *source) const;
 		virtual bool canAssignPropertyFrom(QObject *source, int propertyId) const;
 		virtual void doConnectPrototype();

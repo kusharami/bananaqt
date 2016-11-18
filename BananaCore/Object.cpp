@@ -95,11 +95,6 @@ namespace Banana
 			endReload();
 	}
 
-	int Object::internalPropertyCount() const
-	{
-		return 0;
-	}
-
 	bool Object::shouldSwapModifiedFieldsFor(QObject *source) const
 	{
 		return (nullptr != prototype && source != prototype && isLoading());
