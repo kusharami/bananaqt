@@ -51,34 +51,34 @@
 <context>
     <name>Banana::DeleteFilesListModel</name>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="310"/>
+        <location filename="../DeleteFilesDialog.cpp" line="303"/>
         <source>Nothing checked!</source>
         <translation>Nothing checked!</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="346"/>
+        <location filename="../DeleteFilesDialog.cpp" line="339"/>
         <source>Unable to delete %1 &apos;%2&apos;!</source>
         <translation>Unable to delete %1 &quot;%2&quot;!</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="347"/>
+        <location filename="../DeleteFilesDialog.cpp" line="340"/>
         <source>Unable to delete %1 &apos;%2&apos; and some other files and/or directories!</source>
         <translation>Unable to delete %1 &quot;%2&quot; and some other files and/or directories!</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="352"/>
+        <location filename="../DeleteFilesDialog.cpp" line="345"/>
         <source>file</source>
         <comment>Unable to delete</comment>
         <translation>file</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="361"/>
+        <location filename="../DeleteFilesDialog.cpp" line="354"/>
         <source>link</source>
         <comment>Unable to delete</comment>
         <translation>link</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="370"/>
+        <location filename="../DeleteFilesDialog.cpp" line="363"/>
         <source>directory</source>
         <comment>Unable to delete</comment>
         <translation>directory</translation>
@@ -585,6 +585,14 @@ Delete the Widget File via the Project Tree instead.</translation>
 Delete the child from the prototype Widget File itself instead.</source>
         <translation type="vanished">You cannot delete prototype-inherited child widget.
 Delete the child from the prototype Widget File itself instead.</translation>
+    </message>
+</context>
+<context>
+    <name>DetailedMessageDialog</name>
+    <message>
+        <location filename="../DetailedMessageDialog.ui" line="106"/>
+        <source>Details:</source>
+        <translation>Details:</translation>
     </message>
 </context>
 <context>

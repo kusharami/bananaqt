@@ -38,7 +38,7 @@ namespace Banana
 		: QFileSystemModel(parent)
 		, projectDir(nullptr)
 		, fileManager(nullptr)
-		, pictureMetaObject(nullptr)
+		, graphicsFileMetaObject(nullptr)
 	{
 		setOptions(DontUseCustomDirectoryIcons);
 		setIconProvider(this);
@@ -84,7 +84,7 @@ namespace Banana
 		if (info.isFile())
 		{
 			QString filename(info.fileName());
-			for (auto &data : file_types_info)
+			for (auto &data : fileTypesInfo)
 			{
 				if (filename.endsWith(data.first, Qt::CaseInsensitive))
 					return data.second.icon;
@@ -230,12 +230,12 @@ namespace Banana
 
 	void ProjectDirectoryModel::setFileTypeInfo(const QString &extension, const FileTypeInfo &info)
 	{
-		file_types_info[extension] = info;
+		fileTypesInfo[extension] = info;
 	}
 
-	void ProjectDirectoryModel::setPictureMetaObject(const QMetaObject *metaObject)
+	void ProjectDirectoryModel::setGraphicsFileMetaObject(const QMetaObject *metaObject)
 	{
-		pictureMetaObject = metaObject;
+		graphicsFileMetaObject = metaObject;
 	}
 
 	bool ProjectDirectoryModel::canOpenFiles(const QStringList &filePaths) const

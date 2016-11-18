@@ -80,7 +80,7 @@ namespace Banana
 												 Qt::DropAction action) const;
 
 		void setFileTypeInfo(const QString &extension, const FileTypeInfo &info);
-		void setPictureMetaObject(const QMetaObject *metaObject);
+		void setGraphicsFileMetaObject(const QMetaObject *metaObject);
 
 		bool canOpenFiles(const QStringList &filePaths) const;
 		bool canOpenFile(AbstractFile *file) const;
@@ -105,11 +105,11 @@ namespace Banana
 		void connectProjectDirectory();
 		void disconnectProjectDirectory();
 
-		std::map<QString, FileTypeInfo> file_types_info;
+		std::map<QString, FileTypeInfo> fileTypesInfo;
 
 		AbstractProjectDirectory *projectDir;
 		BaseFileManager *fileManager;
-		const QMetaObject *pictureMetaObject;
+		const QMetaObject *graphicsFileMetaObject;
 	};
 
 	AbstractProjectDirectory *ProjectDirectoryModel::getProjectDirectory() const
