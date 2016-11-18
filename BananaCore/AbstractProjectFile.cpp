@@ -187,7 +187,7 @@ namespace Banana
 	bool AbstractProjectFile::loadData(const QVariantMap &input)
 	{
 		bool ok = false;
-		loadCounter++;
+		beginLoad();
 		auto projectDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
 		auto rootDir = dynamic_cast<Directory *>(parent());
 
@@ -376,7 +376,7 @@ namespace Banana
 			}
 		}
 
-		loadCounter--;
+		endLoad();
 		return ok;
 	}
 

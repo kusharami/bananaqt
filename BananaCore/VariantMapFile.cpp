@@ -68,7 +68,7 @@ namespace Banana
 
 	bool VariantMapFile::loadData(const QVariantMap &input)
 	{
-		loadCounter++;
+		beginLoad();
 		bool ok = false;
 		auto data = doGetData();
 		if (nullptr != data)
@@ -80,7 +80,7 @@ namespace Banana
 				ok = Object::loadContents(input, data, true);
 		}
 
-		loadCounter--;
+		endLoad();
 		return ok;
 	}
 
