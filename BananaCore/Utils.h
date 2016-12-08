@@ -54,7 +54,9 @@ namespace Utils
 	bool CreateSymLink(const QString &target, const QString& linkpath);
 	void SortStringList(QStringList &stringList);
 
-	bool LoadTextFromFile(QString &text, const QString &filepath);
+	bool LoadTextFromFile(QString &text, const QString &filePath);
+	bool SaveTextToFile(const QString &text, const QString &filePath);
+
 	bool LoadVariantMapFromFile(QVariantMap &vmap, const QString &filepath);
 	bool SaveVariantMapToFile(const QVariantMap &vmap, const QString &filepath);
 

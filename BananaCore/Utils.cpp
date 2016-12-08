@@ -501,10 +501,10 @@ namespace Utils
 		return value.toVariant();
 	}
 
-	bool LoadTextFromFile(QString &text, const QString &filepath)
+	bool LoadTextFromFile(QString &text, const QString &filePath)
 	{
 		bool ok = false;
-		QFile file(filepath);
+		QFile file(filePath);
 
 		if (file.open(QIODevice::ReadOnly))
 		{
@@ -512,6 +512,23 @@ namespace Utils
 			text = stream.readAll();
 
 			ok = (QTextStream::Ok == stream.status());
+
+			file.close();
+		}
+
+		return ok;
+	}
+
+	bool SaveTextToFile(const QString &text, const QString &filePath)
+	{
+		bool ok = false;
+
+		QFile file(filePath);
+
+		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+		{
+			auto utf8 = text.toUtf8();
+			ok  = (utf8.size() == file.write(utf8));
 
 			file.close();
 		}

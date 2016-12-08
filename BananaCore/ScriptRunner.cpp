@@ -118,6 +118,32 @@ namespace Banana
 		return QScriptValue();
 	}
 
+	static QScriptValue LoadTextFromFile(QScriptContext *context, QScriptEngine *engine)
+	{
+		if (context->argumentCount() == 1)
+		{
+			QString text;
+			bool ok = Utils::LoadTextFromFile(text, context->argument(0).toString());
+			if (ok)
+				return QScriptValue(engine, text);
+		}
+
+		return QScriptValue();
+	}
+
+	static QScriptValue SaveTextToFile(QScriptContext *context, QScriptEngine *engine)
+	{
+		if (context->argumentCount() == 2)
+		{
+			bool ok = Utils::SaveTextToFile(context->argument(0).toString(),
+											context->argument(1).toString());
+
+			return QScriptValue(engine, ok);
+		}
+
+		return QScriptValue();
+	}
+
 	static QScriptValue LoadFileTree(QScriptContext *context, QScriptEngine *engine)
 	{
 		if (context->argumentCount() == 2)
@@ -377,6 +403,8 @@ namespace Banana
 		globalObject.setProperty("system", systemOobject, STATIC_SCRIPT_VALUE);
 		globalObject.setProperty("print", engine->newFunction(Print, systemOobject));
 
+		systemOobject.setProperty("loadTextFromFile", engine->newFunction(LoadTextFromFile, systemOobject));
+		systemOobject.setProperty("saveTextToFile", engine->newFunction(SaveTextToFile, systemOobject));
 		systemOobject.setProperty("loadFromJson", engine->newFunction(LoadFromJson, systemOobject));
 		systemOobject.setProperty("saveToJson", engine->newFunction(SaveToJson, systemOobject));
 		systemOobject.setProperty("loadFileTree", engine->newFunction(LoadFileTree, systemOobject));
