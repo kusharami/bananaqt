@@ -28,7 +28,8 @@ FORMS += \
     ScriptRunnerDialog.ui \
     SearchPathsDialog.ui \
     ProjectTreeWidget.ui \
-    NewFileDialog.ui
+    NewFileDialog.ui \
+    DetailedMessageDialog.ui
 
 HEADERS += \
     AbstractObjectTreeModel.h \
@@ -54,7 +55,9 @@ HEADERS += \
     ProjectTreeWidget.h \
     NewFileDialog.h \
     SelectTreeItemsCommand.h \
-    Const.h
+    Const.h \
+    DetailedMessageDialog.h \
+    MainWindow.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -79,4 +82,6 @@ SOURCES += \
     Utils.cpp \
     ProjectTreeWidget.cpp \
     NewFileDialog.cpp \
-    SelectTreeItemsCommand.cpp
+    SelectTreeItemsCommand.cpp \
+    DetailedMessageDialog.cpp \
+    MainWindow.cpp

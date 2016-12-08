@@ -95,11 +95,6 @@ namespace Banana
 			endReload();
 	}
 
-	int Object::internalPropertyCount() const
-	{
-		return 0;
-	}
-
 	bool Object::shouldSwapModifiedFieldsFor(QObject *source) const
 	{
 		return (nullptr != prototype && source != prototype && isLoading());
@@ -747,21 +742,7 @@ namespace Banana
 		return false;
 	}
 
-	bool Object::isDescendantOf(const QObject *object) const
-	{
-		return isDescendantOf(object, this);
-	}
 
-	void Object::beginLoad()
-	{
-		loadCounter++;
-	}
-
-	void Object::endLoad()
-	{
-		Q_ASSERT(loadCounter > 0);
-		loadCounter--;
-	}
 
 	bool Object::canBeUsedAsPrototype(Object *object) const
 	{

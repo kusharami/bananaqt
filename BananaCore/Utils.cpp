@@ -501,10 +501,10 @@ namespace Utils
 		return value.toVariant();
 	}
 
-	bool LoadTextFromFile(QString &text, const QString &filepath)
+	bool LoadTextFromFile(QString &text, const QString &filePath)
 	{
 		bool ok = false;
-		QFile file(filepath);
+		QFile file(filePath);
 
 		if (file.open(QIODevice::ReadOnly))
 		{
@@ -512,6 +512,23 @@ namespace Utils
 			text = stream.readAll();
 
 			ok = (QTextStream::Ok == stream.status());
+
+			file.close();
+		}
+
+		return ok;
+	}
+
+	bool SaveTextToFile(const QString &text, const QString &filePath)
+	{
+		bool ok = false;
+
+		QFile file(filePath);
+
+		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+		{
+			auto utf8 = text.toUtf8();
+			ok  = (utf8.size() == file.write(utf8));
 
 			file.close();
 		}
@@ -856,6 +873,65 @@ namespace Utils
 	bool FileNameIsValid(const QString &fileName)
 	{
 		return (ConvertToFileName(fileName) == fileName);
+	}
+
+	bool IsDescendantOf(const QObject *ancestor, const QObject *object)
+	{
+		if (nullptr != object)
+		{
+			if (object->parent() == ancestor)
+				return true;
+
+			if (nullptr != ancestor)
+			{
+				foreach (QObject *child, ancestor->children())
+				{
+					if (IsDescendantOf(child, object))
+						return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	bool IsAncestorOf(const QObject *descendant, const QObject *object)
+	{
+		if (nullptr != object)
+		{
+			forever
+			{
+				object = object->parent();
+
+				if (nullptr == object)
+					break;
+
+				if (object == descendant)
+					return true;
+
+			}
+		}
+
+		return false;
+	}
+
+	bool DeleteFileOrLink(const QString &filePath)
+	{
+		return DeleteFileOrLink(QFileInfo(filePath));
+	}
+
+	bool DeleteFileOrLink(const QFileInfo &fileInfo)
+	{
+		bool isLink = fileInfo.isSymLink();
+		if (!isLink && !fileInfo.exists())
+			return true;
+
+#ifdef Q_OS_WIN
+		if (isLink && fileInfo.isDir())
+			if (QDir().rmdir(fileInfo.filePath()))
+				return true;
+#endif
+		return QFile::remove(fileInfo.filePath());
 	}
 
 }

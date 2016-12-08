@@ -63,7 +63,7 @@
 <context>
     <name>Banana::Directory</name>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="590"/>
+        <location filename="../AbstractProjectDirectory.cpp" line="602"/>
         <source>Some files were unable to be saved!</source>
         <translation>Некоторые файлы сохранить не удалось!</translation>
     </message>

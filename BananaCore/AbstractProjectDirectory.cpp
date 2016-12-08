@@ -212,38 +212,47 @@ namespace Banana
 		return resultFile;
 	}
 
-	AbstractFile *AbstractProjectDirectory::linkFile(const QString &target,
-													 const QString &link,
+	AbstractFile *AbstractProjectDirectory::linkFile(QString targetFilePath,
+													 QString linkFilePath,
 													 bool mustExist,
 													 bool verbose)
 	{
-		QFileInfo targetInfo(getAbsoluteFilePathFor(target));
-		QFileInfo linkInfo(getAbsoluteFilePathFor(link));
+		QFileInfo target(getAbsoluteFilePathFor(targetFilePath));
+		QFileInfo link(getAbsoluteFilePathFor(linkFilePath));
 
-		if (mustExist && !targetInfo.exists())
+		if (mustExist && !target.isFile())
 			return nullptr;
 
-		QString targetFilePath(targetInfo.filePath());
-		QString linkFilePath(linkInfo.filePath());
+		targetFilePath = target.filePath();
+		linkFilePath = link.filePath();
 
 		if (0 == QString::compare(targetFilePath, linkFilePath, Qt::CaseInsensitive))
 			return addFile(linkFilePath, mustExist, verbose);
 
-		if (linkInfo.exists())
+		if (link.isFile())
 		{
-			if (targetInfo.exists())
+			if (target.exists())
 			{
-				if (0 == QString::compare(targetInfo.canonicalFilePath(),
-										  linkInfo.canonicalFilePath(),
+				if (0 == QString::compare(target.canonicalFilePath(),
+										  link.canonicalFilePath(),
 										  Qt::CaseInsensitive))
 				{
 					return addExistingFile(linkFilePath, verbose);
 				}
 			}
 		} else
-		if (QDir().mkpath(linkInfo.path()) && Utils::CreateSymLink(targetFilePath, linkFilePath))
 		{
-			return addExistingFile(linkFilePath, verbose);
+			bool prepared = false;
+			if (link.isSymLink())
+			{
+				prepared = Utils::DeleteFileOrLink(link);
+			} else
+				prepared = QDir().mkpath(link.path());
+
+			if (prepared && Utils::CreateSymLink(targetFilePath, linkFilePath))
+			{
+				return addExistingFile(linkFilePath, verbose);
+			}
 		}
 
 		if (!mustExist)
@@ -294,39 +303,47 @@ namespace Banana
 		return dir;
 	}
 
-	Directory *AbstractProjectDirectory::linkDirectory(const QString &target,
-														  const QString &link,
-														  bool mustExist,
-														  bool verbose)
+	Directory *AbstractProjectDirectory::linkDirectory(QString targetPath,
+													   QString linkPath,
+													   bool mustExist,
+													   bool verbose)
 	{
-		QFileInfo targetDir(getAbsoluteFilePathFor(target));
-		QFileInfo linkDir(getAbsoluteFilePathFor(link));
+		QFileInfo target(getAbsoluteFilePathFor(targetPath));
+		QFileInfo link(getAbsoluteFilePathFor(linkPath));
 
-		if (mustExist && !targetDir.exists())
+		if (mustExist && !target.isDir())
 			return nullptr;
 
-		QString targetPath(targetDir.filePath());
-		QString linkPath(linkDir.filePath());
+		targetPath = target.filePath();
+		linkPath = link.filePath();
 
 		if (0 == QString::compare(targetPath, linkPath, Qt::CaseInsensitive))
 			return addDirectory(linkPath, mustExist, verbose);
 
-		if (linkDir.exists())
+		if (link.isDir())
 		{
-			if (targetDir.exists())
+			if (target.exists())
 			{
-				if (0 == QString::compare(targetDir.canonicalFilePath(),
-										  linkDir.canonicalFilePath(),
+				if (0 == QString::compare(target.canonicalFilePath(),
+										  link.canonicalFilePath(),
 										  Qt::CaseInsensitive))
 				{
 					return addDirectory(linkPath, true, verbose);
 				}
 			}
 		} else
-		if (QDir().mkpath(linkDir.path())
-		&&	Utils::CreateSymLink(targetPath, linkPath))
 		{
-			return addDirectory(linkPath, true, verbose);
+			bool prepared = false;
+			if (link.isSymLink())
+			{
+				prepared = Utils::DeleteFileOrLink(link);
+			} else
+				prepared = QDir().mkpath(link.path());
+
+			if (prepared && Utils::CreateSymLink(targetPath, linkPath))
+			{
+				return addDirectory(linkPath, true, verbose);
+			}
 		}
 
 		if (!mustExist)
@@ -463,12 +480,7 @@ namespace Banana
 			if ((file->isOpen() || QFile::exists(oldFilePath))
 			&&	(info.exists() || info.isSymLink()))
 			{
-				QFile::remove(newFilePath);
-				info.refresh();
-				if (info.exists() || info.isSymLink())
-				{
-					ok = false;
-				}
+				ok = Utils::DeleteFileOrLink(info);
 			}
 
 			if (ok)

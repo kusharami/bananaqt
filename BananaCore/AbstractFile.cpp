@@ -111,27 +111,20 @@ namespace Banana
 		bool ok = false;
 		if (isOpen())
 		{
-			QFileInfo info(savedPath);
-			if (QDir().mkpath(info.path()))
+			QFileInfo fileInfo(savedPath);
+			if (QDir().mkpath(fileInfo.path()))
 			{
 				unwatchFile();
 
-				if (symLink)
-				{
-					if (info.isSymLink() || !info.isDir())
-					{
-						QFile::remove(savedPath);
-						Utils::CreateSymLink(symLinkTarget, savedPath);
-					}
-				}
+				recreateSymLinkIfNeeded(false);
 
 				ok = saveInternal();
 
 				if (ok)
 				{
-					info.refresh();
-					if (info.exists()
-					&&	0 != QString::compare(info.canonicalFilePath(), canonicalPath, Qt::CaseInsensitive))
+					fileInfo.refresh();
+					if (fileInfo.exists()
+					&&	0 != QString::compare(fileInfo.canonicalFilePath(), canonicalPath, Qt::CaseInsensitive))
 					{
 						doUpdateFilePath(false);
 					}
@@ -247,21 +240,7 @@ namespace Banana
 			bool error = true;
 			loadError = false;
 
-			if (symLink)
-			{
-				QFileInfo info(savedPath);
-				if (info.isSymLink() || !info.isDir())
-				{
-					unwatchFile();
-
-					QFile::remove(savedPath);
-
-					if (QDir().mkpath(info.path()))
-						Utils::CreateSymLink(symLinkTarget, savedPath);
-
-					watchFile();
-				}
-			}
+			recreateSymLinkIfNeeded(true);
 
 			QFile file(savedPath);
 			if (file.open(QIODevice::ReadOnly))
@@ -483,6 +462,26 @@ namespace Banana
 	{
 		watchFile();
 		emit fileOpened();
+	}
+
+	void AbstractFile::recreateSymLinkIfNeeded(bool unwatched)
+	{
+		if (symLink)
+		{
+			QFileInfo fileInfo(savedPath);
+			if (fileInfo.isSymLink() || fileInfo.isFile())
+			{
+				if (unwatched)
+					unwatchFile();
+
+				if (Utils::DeleteFileOrLink(fileInfo)
+				&&	QDir().mkpath(fileInfo.path()))
+					Utils::CreateSymLink(symLinkTarget, savedPath);
+
+				if (unwatched)
+					watchFile();
+			}
+		}
 	}
 
 	void AbstractFile::disconnectData(QObject *data)

@@ -40,6 +40,7 @@
 
 class QIODevice;
 class QDir;
+class QFileInfo;
 
 namespace Banana
 {
@@ -53,7 +54,9 @@ namespace Utils
 	bool CreateSymLink(const QString &target, const QString& linkpath);
 	void SortStringList(QStringList &stringList);
 
-	bool LoadTextFromFile(QString &text, const QString &filepath);
+	bool LoadTextFromFile(QString &text, const QString &filePath);
+	bool SaveTextToFile(const QString &text, const QString &filePath);
+
 	bool LoadVariantMapFromFile(QVariantMap &vmap, const QString &filepath);
 	bool SaveVariantMapToFile(const QVariantMap &vmap, const QString &filepath);
 
@@ -67,6 +70,9 @@ namespace Utils
 
 	bool VariantsEqual(const QVariant &a, const QVariant &b);
 	bool VariantIsEmpty(const QVariant &value);
+
+	bool DeleteFileOrLink(const QString &filePath);
+	bool DeleteFileOrLink(const QFileInfo &fileInfo);
 
 	QJsonValue ConvertVariantToJsonValue(const QVariant &variant);
 	QVariant ConvertJsonValueToVariant(const QJsonValue &value);
@@ -95,6 +101,10 @@ namespace Utils
 	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName);
 
 	const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
+
+	bool IsDescendantOf(const QObject *ancestor, const QObject *object);
+	bool IsAncestorOf(const QObject *descendant, const QObject *object);
+
 }
 
 }

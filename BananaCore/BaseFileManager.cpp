@@ -131,91 +131,89 @@ namespace Banana
 		return 0;
 	}
 
-	bool BaseFileManager::processEntry(Qt::DropAction action, const QDir &pasteDir, const QFileInfo &file_src)
+	bool BaseFileManager::processEntry(Qt::DropAction action, const QDir &pasteDir, const QFileInfo &fileSource)
 	{
 		if (wasCanceled())
 			return false;
 
-		QFileInfo file_dst;
+		QFileInfo fileTarget;
 
-		processFileStarted(pasteDir, file_src);
+		processFileStarted(pasteDir, fileSource);
 
 		bool cut = (action == Qt::MoveAction);
 
 		bool result = true;
 
-		if (file_src.exists() || file_src.isSymLink())
+		if (fileSource.exists() || fileSource.isSymLink())
 		{
 			bool abort = false;
-			bool unify_path = false;
+			bool unifyPath = false;
 
-			file_dst = QFileInfo(pasteDir.filePath(file_src.fileName()));
+			fileTarget = QFileInfo(pasteDir.filePath(fileSource.fileName()));
 
-			bool same_dir = (file_src.dir() == pasteDir);
+			bool sameDir = (fileSource.dir() == pasteDir);
 
-			if (!same_dir)
+			if (!sameDir)
 			{
-				if (file_dst.isDir())
+				if (fileTarget.isDir())
 				{
-					if (file_src.isFile() || file_src.isSymLink())
-						unify_path = true;
+					if (fileSource.isFile() || fileSource.isSymLink())
+						unifyPath = true;
 				} else
-				if (file_dst.isFile() || file_dst.isSymLink())
+				if (fileTarget.isFile() || fileTarget.isSymLink())
 				{
-					int should_replace = shouldReplaceFile(file_dst);
+					int shouldReplace = shouldReplaceFile(fileTarget);
 
-					if (0 != (should_replace & ANSWER_ABORT))
+					if (0 != (shouldReplace & ANSWER_ABORT))
 					{
 						abort = true;
 					} else
-					if (0 == (should_replace & ANSWER_AGREE))
+					if (0 == (shouldReplace & ANSWER_AGREE))
 					{
-						unify_path = true;
+						unifyPath = true;
 					}
 				}
 			} else
 			{
 				if (!cut)
-					unify_path = true;
+					unifyPath = true;
 			}
 
 			if (!abort)
 			{
-				if (unify_path)
-					file_dst.setFile(FileNamingPolicy::uniqueFilePath(pasteDir, file_src));
+				if (unifyPath)
+					fileTarget.setFile(FileNamingPolicy::uniqueFilePath(pasteDir, fileSource));
 
-				if (!same_dir || file_src != file_dst)
+				if (!sameDir || fileSource != fileTarget)
 				{
-					if (file_src.isSymLink())
+					if (fileSource.isSymLink())
 					{
-						if (prepareTargetFilePath(file_dst)
-						&&	Utils::CreateSymLink(file_src.symLinkTarget(), file_dst.filePath()))
+						if (prepareTargetFilePath(fileTarget)
+						&&	Utils::CreateSymLink(fileSource.symLinkTarget(), fileTarget.filePath()))
 						{
 							if (cut)
 							{
-								QFile::remove(file_src.filePath());
-								QFileInfo check(file_src.filePath());
-								if (check.exists() || check.isSymLink())
+								if (!Utils::DeleteFileOrLink(fileSource))
 								{
-									abort = 0 != (error(DELETE, SYMLINK, file_src) & ANSWER_ABORT);
+									abort = 0 != (error(DELETE, SYMLINK, fileSource) & ANSWER_ABORT);
 								}
 							}
 						} else
 						{
-							abort = 0 != (error(CREATE, SYMLINK, file_dst) & ANSWER_ABORT);
+							abort = 0 != (error(CREATE, SYMLINK, fileTarget) & ANSWER_ABORT);
 						}
 					} else
-					if (file_src.isFile())
+					if (fileSource.isFile())
 					{
 						bool ok = false;
-						if (prepareTargetFilePath(file_dst))
+						if (prepareTargetFilePath(fileTarget))
 						{
 							if (cut)
 							{
-								ok = QFile::rename(file_src.filePath(), file_dst.filePath());
+								ok = QFile::rename(fileSource.filePath(), fileTarget.filePath());
 								if (!ok)
 								{
-									abort = 0 != (error(DELETE, FILE, file_src) & ANSWER_ABORT);
+									abort = 0 != (error(DELETE, FILE, fileSource) & ANSWER_ABORT);
 								}
 							}
 
@@ -223,9 +221,9 @@ namespace Banana
 							{
 								if (action == Qt::LinkAction)
 								{
-									ok = Utils::CreateSymLink(file_src.filePath(), file_dst.filePath());
+									ok = Utils::CreateSymLink(fileSource.filePath(), fileTarget.filePath());
 								} else
-									ok = QFile::copy(file_src.filePath(), file_dst.filePath());
+									ok = QFile::copy(fileSource.filePath(), fileTarget.filePath());
 							}
 						}
 
@@ -233,32 +231,32 @@ namespace Banana
 						{
 							abort = 0 != (error(CREATE, (action == Qt::LinkAction)
 														? SYMLINK
-														: FILE, file_dst) & ANSWER_ABORT);
+														: FILE, fileTarget) & ANSWER_ABORT);
 						}
 					} else
-					if (file_src.isDir())
+					if (fileSource.isDir())
 					{
 						bool ok = false;
 						bool crit = false;
-						if (QDir().mkpath(file_dst.path()))
+						if (QDir().mkpath(fileTarget.path()))
 						{
-							if ((QDir::cleanPath(QFileInfo(file_dst.path()).canonicalFilePath()) + "/")
-									.startsWith(QDir::cleanPath(file_src.canonicalFilePath()) + "/", Qt::CaseInsensitive))
+							if ((QDir::cleanPath(QFileInfo(fileTarget.path()).canonicalFilePath()) + "/")
+									.startsWith(QDir::cleanPath(fileSource.canonicalFilePath()) + "/", Qt::CaseInsensitive))
 							{
 								crit = true;
-								abort = 0 != (error(COPY_TO_ITSELF, DIRECTORY, file_src) & ANSWER_ABORT);
+								abort = 0 != (error(COPY_TO_ITSELF, DIRECTORY, fileSource) & ANSWER_ABORT);
 							}
 						}
 
 						if (!crit && cut
-						&&	!file_dst.exists()
-						&&	!file_dst.isSymLink())
+						&&	!fileTarget.exists()
+						&&	!fileTarget.isSymLink())
 						{
-							ok = QDir().rename(file_src.filePath(), file_dst.filePath());
+							ok = QDir().rename(fileSource.filePath(), fileTarget.filePath());
 
 							if (!ok)
 							{
-								abort = 0 != (error(DELETE, DIRECTORY, file_src) & ANSWER_ABORT);
+								abort = 0 != (error(DELETE, DIRECTORY, fileSource) & ANSWER_ABORT);
 							}
 						}
 
@@ -266,21 +264,21 @@ namespace Banana
 						{
 							if (action == Qt::LinkAction)
 							{
-								ok = Utils::CreateSymLink(file_src.filePath(), file_dst.filePath());
+								ok = Utils::CreateSymLink(fileSource.filePath(), fileTarget.filePath());
 								if (!ok)
 								{
-									abort = 0 != (error(CREATE, SYMLINK, file_dst) & ANSWER_ABORT);
+									abort = 0 != (error(CREATE, SYMLINK, fileTarget) & ANSWER_ABORT);
 								}
 							} else
-							if (!QDir().mkpath(file_dst.filePath()))
+							if (!QDir().mkpath(fileTarget.filePath()))
 							{
 								abort = 0 != (error(CREATE, (action == Qt::LinkAction)
 													? SYMLINK
-													: DIRECTORY, file_dst) & ANSWER_ABORT);
+													: DIRECTORY, fileTarget) & ANSWER_ABORT);
 							} else
 							{
-								QDir src_dir(file_src.filePath());
-								QDir dst_dir(file_dst.filePath());
+								QDir src_dir(fileSource.filePath());
+								QDir dst_dir(fileTarget.filePath());
 
 								auto entries = src_dir.entryInfoList(QDir::Dirs |
 																	 QDir::Files |
@@ -304,7 +302,7 @@ namespace Banana
 								{
 									if (!src_dir.removeRecursively())
 									{
-										abort = 0 != (error(DELETE, DIRECTORY, file_src) & ANSWER_ABORT);
+										abort = 0 != (error(DELETE, DIRECTORY, fileSource) & ANSWER_ABORT);
 									}
 								}
 							}
@@ -318,17 +316,16 @@ namespace Banana
 		}
 
 		if (result)
-			processFileFinished(file_src, file_dst);
+			processFileFinished(fileSource, fileTarget);
 		else
-			processFileAborted(pasteDir, file_src);
+			processFileAborted(pasteDir, fileSource);
 
 		return result;
 	}
 
 	bool BaseFileManager::prepareTargetFilePath(const QFileInfo &info)
 	{
-		return (!(info.exists() || info.isSymLink())
-				||	((info.isFile() || info.isSymLink()) && QFile::remove(info.filePath())))
-				&& QDir().mkpath(info.path());
+		return (Utils::DeleteFileOrLink(info)
+			&&	QDir().mkpath(info.path()));
 	}
 }

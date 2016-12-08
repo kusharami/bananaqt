@@ -95,12 +95,12 @@ namespace Banana
 		Q_INVOKABLE void removeAllChildren();
 
 		Q_INVOKABLE bool isAncestorOf(const QObject *object) const;
-		Q_INVOKABLE bool isDescendantOf(const QObject *object) const;
+		Q_INVOKABLE inline bool isDescendantOf(const QObject *object) const;
 
 		Q_INVOKABLE inline bool isLoading() const;
 
-		void beginLoad();
-		void endLoad();
+		inline void beginLoad();
+		inline void endLoad();
 
 		Q_INVOKABLE inline bool isInheritedChild() const;
 		Q_INVOKABLE inline bool isPrototypedRoot() const;
@@ -182,8 +182,6 @@ namespace Banana
 		void afterPrototypeChange();
 
 	protected:
-		virtual int internalPropertyCount() const;
-
 		bool shouldSwapModifiedFieldsFor(QObject *source) const;
 		virtual bool canAssignPropertyFrom(QObject *source, int propertyId) const;
 		virtual void doConnectPrototype();
@@ -234,6 +232,11 @@ namespace Banana
 		return undoStack;
 	}
 
+	bool Object::isDescendantOf(const QObject *object) const
+	{
+		return isDescendantOf(object, this);
+	}
+
 	template <typename T>
 	void Object::pushUndoCommand(const char *propertyName, const T &oldValue)
 	{
@@ -244,6 +247,17 @@ namespace Banana
 	bool Object::isLoading() const
 	{
 		return loadCounter > 0;
+	}
+
+	void Object::beginLoad()
+	{
+		loadCounter++;
+	}
+
+	void Object::endLoad()
+	{
+		Q_ASSERT(loadCounter > 0);
+		loadCounter--;
 	}
 
 	bool Object::isInheritedChild() const

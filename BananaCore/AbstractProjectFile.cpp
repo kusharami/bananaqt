@@ -187,13 +187,13 @@ namespace Banana
 	bool AbstractProjectFile::loadData(const QVariantMap &input)
 	{
 		bool ok = false;
-		loadCounter++;
-		auto project_dir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
-		auto root_dir = dynamic_cast<Directory *>(parent());
+		beginLoad();
+		auto projectDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
+		auto rootDir = dynamic_cast<Directory *>(parent());
 
-		if (nullptr != project_dir && project_dir->getProjectFile() == this && project_dir == root_dir)
+		if (nullptr != projectDir && projectDir->getProjectFile() == this && projectDir == rootDir)
 		{
-			auto siblings = project_dir->children();
+			auto siblings = projectDir->children();
 			foreach (QObject *sibling, siblings)
 			{
 				if (sibling != this)
@@ -239,15 +239,15 @@ namespace Banana
 
 					for (auto it = list.begin(); it != list.end(); ++it)
 					{
-						const QVariant &it_value = *it;
+						const QVariant &itValue = *it;
 
 						FileInfo info;
 						auto type = FileObjType::None;
-						switch (it_value.type())
+						switch (itValue.type())
 						{
 							case QVariant::Map:
 							{
-								QVariantMap map(it_value.toMap());
+								QVariantMap map(itValue.toMap());
 
 								auto v = Utils::ValueFrom(map, TYPE_KEY);
 								if (v.type() != QVariant::String)
@@ -286,12 +286,12 @@ namespace Banana
 
 							case QVariant::String:
 								type = FileObjType::File;
-								info.path = it_value.toString();
+								info.path = itValue.toString();
 								break;
 
 							default:
 							{
-								LOG_WARNING(QString("Unknown field type: %1").arg((int) it_value.type()));
+								LOG_WARNING(QString("Unknown field type: %1").arg((int) itValue.type()));
 								continue;
 							}
 						}
@@ -317,9 +317,9 @@ namespace Banana
 					{
 						for (auto &info : it->second)
 						{
-							project_dir->linkDirectory(
-										root_dir->getAbsoluteFilePathFor(info.target),
-										root_dir->getAbsoluteFilePathFor(info.path),
+							projectDir->linkDirectory(
+										rootDir->getAbsoluteFilePathFor(info.target),
+										rootDir->getAbsoluteFilePathFor(info.path),
 										false, false);
 						}
 
@@ -333,9 +333,9 @@ namespace Banana
 							switch (item.first)
 							{
 								case FileObjType::FileLink:
-									project_dir->linkFile(
-												root_dir->getAbsoluteFilePathFor(info.target),
-												root_dir->getAbsoluteFilePathFor(info.path),
+									projectDir->linkFile(
+												rootDir->getAbsoluteFilePathFor(info.target),
+												rootDir->getAbsoluteFilePathFor(info.path),
 												false, false);
 									break;
 
@@ -353,7 +353,7 @@ namespace Banana
 					auto list = value.toList();
 					value.clear();
 
-					auto search_paths = getSearchPaths();
+					auto searchPaths = getSearchPaths();
 
 					int order = 0;
 					for (auto &v : list)
@@ -364,8 +364,8 @@ namespace Banana
 							continue;
 						}
 
-						auto path = root_dir->getAbsoluteFilePathFor(v.toString());
-						if (nullptr == search_paths->registerPath(path, order))
+						auto path = rootDir->getAbsoluteFilePathFor(v.toString());
+						if (nullptr == searchPaths->registerPath(path, order))
 						{
 							LOG_WARNING(QString("Unable to register search path: '%1'").arg(path));
 							continue;
@@ -376,7 +376,7 @@ namespace Banana
 			}
 		}
 
-		loadCounter--;
+		endLoad();
 		return ok;
 	}
 
