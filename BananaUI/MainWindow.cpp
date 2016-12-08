@@ -230,10 +230,23 @@ namespace Banana
 		{
 			// make duplicates of the incoming atoms (really adding a reference)
 			TCHAR atomName[_MAX_PATH];
-			Q_ASSERT(::GlobalGetAtomName(appAtom, atomName, _MAX_PATH - 1) != 0);
-			Q_ASSERT(::GlobalAddAtom(atomName) == appAtom);
-			Q_ASSERT(::GlobalGetAtomName(systemTopicAtom, atomName, _MAX_PATH - 1) != 0);
-			Q_ASSERT(::GlobalAddAtom(atomName) == systemTopicAtom);
+
+			auto atomNameHandler = ::GlobalGetAtomName(appAtom, atomName, _MAX_PATH - 1);
+			Q_ASSERT(atomNameHandler != 0);
+			Q_UNUSED(atomNameHandler);
+
+			auto atomHandler = ::GlobalAddAtom(atomName);
+			Q_ASSERT(atomHandler == appAtom);
+			Q_UNUSED(atomHandler);
+
+			auto topicAtomNameHandler = ::GlobalGetAtomName(systemTopicAtom, atomName, _MAX_PATH - 1);
+			Q_ASSERT(topicAtomNameHandler != 0);
+			Q_UNUSED(topicAtomNameHandler);
+
+			auto topicAtomHandler = ::GlobalAddAtom(atomName);
+			Q_ASSERT(topicAtomHandler == systemTopicAtom);
+			Q_UNUSED(topicAtomHandler);
+
 			// send the WM_DDE_ACK (caller will delete duplicate atoms)
 			::SendMessage(reinterpret_cast<HWND>(message->wParam),
 						  WM_DDE_ACK,
@@ -250,10 +263,11 @@ namespace Banana
 		UINT_PTR unused;
 		HGLOBAL hData;
 		//IA64: Assume DDE LPARAMs are still 32-bit
-		Q_ASSERT(::UnpackDDElParam(WM_DDE_EXECUTE,
+		bool unpackDdeParam = ::UnpackDDElParam(WM_DDE_EXECUTE,
 								   message->lParam,
 								   &unused,
-								   reinterpret_cast<UINT_PTR*>(&hData)));
+								   reinterpret_cast<UINT_PTR*>(&hData));
+		Q_ASSERT(unpackDdeParam);
 		QString command = QString::fromWCharArray((LPCWSTR)::GlobalLock(hData));
 		::GlobalUnlock(hData);
 		// acknowledge now - before attempting to execute
