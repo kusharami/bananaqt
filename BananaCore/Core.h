@@ -44,9 +44,8 @@ class QObject;
 namespace Banana
 {
 
-	class BaseObject
+	struct BaseObject
 	{
-	public:
 		virtual ~BaseObject() {}
 
 		virtual bool isValid() const = 0;

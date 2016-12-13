@@ -46,7 +46,6 @@ namespace Banana
 
 	bool FileNameCollection::containsName(const QString &name) const
 	{
-		IS_VALID(this);
 		ENSURE(Utils::FileNameIsValid(name));
 
 		QFileInfo fileInfo(mDir.absoluteFilePath(name + mFileExtension));

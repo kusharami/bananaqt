@@ -96,8 +96,8 @@ HEADERS += \
     ContainerTypes.h \
     AbstractNameUnifier.h \
     FileNameCollection.h \
-    INameCollection.h \
-    NameEnumerator.h
+    NameEnumerator.h \
+    AbstractNameCollection.h
 
 RESOURCES = BananaCore.qrc
 

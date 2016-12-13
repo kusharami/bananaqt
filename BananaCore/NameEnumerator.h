@@ -38,7 +38,7 @@ namespace Banana
 
 	public:
 		NameEnumerator();
-		NameEnumerator(const INameCollectionPtr &ptr);
+		NameEnumerator(const NameCollectionPtr &ptr);
 
 		enum Type
 		{

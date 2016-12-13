@@ -24,7 +24,7 @@
 
 #include "AbstractNameUnifier.h"
 
-#include "INameCollection.h"
+#include "AbstractNameCollection.h"
 
 namespace Banana
 {

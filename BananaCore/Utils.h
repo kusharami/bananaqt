@@ -97,6 +97,8 @@ namespace Utils
 
 	void ShowInGraphicalShell(const QString &pathIn);
 
+	const QMetaObject *GetMetaObjectForClass(const QByteArray &className);
+
 	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject, const char *propertyName);
 	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName);
 

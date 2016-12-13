@@ -934,6 +934,14 @@ namespace Utils
 		return QFile::remove(fileInfo.filePath());
 	}
 
+	const QMetaObject *GetMetaObjectForClass(const QByteArray &className)
+	{
+		int typeId = QMetaType::type(className.endsWith('*')
+									 ? className
+									 : className + " *");
+		return QMetaType::metaObjectForType(typeId);
+	}
+
 }
 
 }

@@ -24,15 +24,14 @@
 
 #pragma once
 
-#include "Core.h"
-#include "INameCollection.h"
+#include "AbstractNameCollection.h"
 
 #include <QDir>
 
 namespace Banana
 {
 
-	class FileNameCollection : public BaseObject, public INameCollection
+	class FileNameCollection : public AbstractNameCollection
 	{
 	public:
 		FileNameCollection();

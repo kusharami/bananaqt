@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "Core.h"
+
 #include <memory>
 
 class QString;
@@ -31,13 +33,11 @@ class QString;
 namespace Banana
 {
 
-	struct INameCollection
+	struct AbstractNameCollection : public BaseObject
 	{
-		virtual ~INameCollection() {}
-
 		virtual bool containsName(const QString &name) const = 0;
 	};
 
-	typedef std::shared_ptr<INameCollection> INameCollectionPtr;
+	typedef std::shared_ptr<AbstractNameCollection> NameCollectionPtr;
 
 }

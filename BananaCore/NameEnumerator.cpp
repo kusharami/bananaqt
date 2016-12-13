@@ -37,7 +37,7 @@ namespace Banana
 	{
 	}
 
-	NameEnumerator::NameEnumerator(const INameCollectionPtr &ptr)
+	NameEnumerator::NameEnumerator(const NameCollectionPtr &ptr)
 		: mType(EndsWithNumber)
 	{
 		setNameCollection(ptr);
@@ -45,8 +45,6 @@ namespace Banana
 
 	QString NameEnumerator::uniqueNameFor(const QString &name) const
 	{
-		IS_VALID(this);
-
 		QString result(name);
 		QString withoutNumber;
 
@@ -54,6 +52,7 @@ namespace Banana
 
 		bool first = true;
 
+		IS_VALID(mNameCollection.get());
 		while (mNameCollection->containsName(result))
 		{
 			Q_ASSERT(first || number != originalNumber);
@@ -96,8 +95,6 @@ namespace Banana
 											   QString *resultNamePtr,
 											   QString *resultNumberPtr) const
 	{
-		IS_VALID(this);
-
 		int numberLength = 0;
 
 		QString resultName(fullName);

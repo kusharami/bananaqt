@@ -25,7 +25,7 @@
 #pragma once
 
 #include "Core.h"
-#include "INameCollection.h"
+#include "AbstractNameCollection.h"
 
 #include <QString>
 
@@ -35,22 +35,22 @@ namespace Banana
 	class AbstractNameUnifier : public BaseObject
 	{
 	public:
-		inline const INameCollectionPtr &nameCollection() const;
-		inline void setNameCollection(const INameCollectionPtr &ptr);
+		inline const NameCollectionPtr &nameCollection() const;
+		inline void setNameCollection(const NameCollectionPtr &ptr);
 
 		virtual QString uniqueNameFor(const QString &name) const = 0;
 		virtual bool isValid() const override;
 
 	protected:
-		INameCollectionPtr mNameCollection;
+		NameCollectionPtr mNameCollection;
 	};
 
-	const INameCollectionPtr &AbstractNameUnifier::nameCollection() const
+	const NameCollectionPtr &AbstractNameUnifier::nameCollection() const
 	{
 		return mNameCollection;
 	}
 
-	void AbstractNameUnifier::setNameCollection(const INameCollectionPtr &ptr)
+	void AbstractNameUnifier::setNameCollection(const NameCollectionPtr &ptr)
 	{
 		mNameCollection = ptr;
 	}
