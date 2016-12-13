@@ -528,7 +528,7 @@ namespace Utils
 		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
 		{
 			auto utf8 = text.toUtf8();
-			ok  = (utf8.size() == file.write(utf8));
+			ok = (utf8.size() == file.write(utf8));
 
 			file.close();
 		}
