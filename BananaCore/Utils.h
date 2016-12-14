@@ -41,6 +41,7 @@
 class QIODevice;
 class QDir;
 class QFileInfo;
+class QMimeData;
 
 namespace Banana
 {
@@ -66,7 +67,8 @@ namespace Utils
 	bool LoadBinaryFromIODevice(QByteArray &output, QIODevice *device);
 	bool LoadBinaryFromFile(QByteArray &output, const QString &filepath);
 
-	QStringList ListDirectoryContents(const QString &path, const QStringList &filters);
+	QStringList ListDirectoryContents(const QString &path,
+									  const QStringList &filters);
 
 	bool VariantsEqual(const QVariant &a, const QVariant &b);
 	bool VariantIsEmpty(const QVariant &value);
@@ -93,20 +95,37 @@ namespace Utils
 
 	QVariant ToStandardVariant(const QVariant &variant);
 
-	QVariant ValueFrom(const QVariantMap &data, const QString &key, const QVariant &default_value = QVariant());
+	QVariant ValueFrom(const QVariantMap &data, const QString &key,
+					   const QVariant &default_value = QVariant());
 
 	void ShowInGraphicalShell(const QString &pathIn);
 
 	const QMetaObject *GetMetaObjectForClass(const QByteArray &className);
 
-	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject, const char *propertyName);
-	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName);
+	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject,
+										const char *propertyName);
+	QMetaProperty GetMetaPropertyByName(const QObject *object,
+										const char *propertyName);
 
 	const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
 
-	bool IsDescendantOf(const QObject *ancestor, const QObject *object);
 	bool IsAncestorOf(const QObject *descendant, const QObject *object);
+	static inline bool IsDescendantOf(const QObject *ancestor,
+									  const QObject *object)
+	{
+		return IsAncestorOf(object, ancestor);
+	}
 
+	const QObject *LoadQObjectPointer(const QMetaObject *metaObject,
+									  const QMimeData *data);
+	void StoreQObjectPointer(const QObject *object, QMimeData *data);
+
+	template <typename T>
+	static inline const T *LoadObjectPointer(const QMimeData *data)
+	{
+		return static_cast<const T *>(LoadQObjectPointer(
+										  &T::staticMetaObject, data));
+	}
 }
 
 }

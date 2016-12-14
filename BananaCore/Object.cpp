@@ -34,7 +34,6 @@
 
 #include <QChildEvent>
 #include <QMetaProperty>
-#include <QMimeData>
 #include <QDebug>
 
 namespace Banana
@@ -193,38 +192,6 @@ namespace Banana
 		}
 
 		return result;
-	}
-
-	const QObject *Object::loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data)
-	{
-		Q_ASSERT(nullptr != metaObject);
-		Q_ASSERT(nullptr != data);
-
-		QString className(metaObject->className());
-		if (data->hasFormat(className))
-		{
-			auto bytes = data->data(className);
-
-			if (bytes.size() == sizeof(uintptr_t))
-			{
-				auto ptr = (uintptr_t *) bytes.constData();
-				return reinterpret_cast<QObject *>(*ptr);
-			}
-		}
-
-		return nullptr;
-	}
-
-	void Object::saveQObjectPointer(const QObject *object, QMimeData *data)
-	{
-		Q_ASSERT(nullptr != object);
-		Q_ASSERT(nullptr != data);
-
-		QByteArray bytes;
-		bytes.resize(sizeof(uintptr_t));
-		auto ptr = (uintptr_t *) bytes.data();
-		*ptr = (uintptr_t) object;
-		data->setData(object->metaObject()->className(), bytes);
 	}
 
 	bool Object::setPropertyModified(int propertyId, bool modified)

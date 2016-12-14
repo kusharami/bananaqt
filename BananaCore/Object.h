@@ -124,12 +124,6 @@ namespace Banana
 		QStringList getNamesChain(const QObject *topAncestor = nullptr) const;
 		static QStringList getNamesChain(const QObject *topAncestor, const QObject *bottomDescendant);
 
-		static const QObject *loadQObjectPointer(const QMetaObject *metaObject, const QMimeData *data);
-		static void saveQObjectPointer(const QObject *object, QMimeData *data);
-
-		template <typename T>
-		static inline const T *loadObjectPointer(const QMimeData *data);
-
 		inline bool isPropertyModified(int propertyId) const;
 		bool setPropertyModified(int propertyId, bool modified);
 
@@ -293,12 +287,6 @@ namespace Banana
 	quint64 Object::getPropertyModifiedBits() const
 	{
 		return modifiedSet.to_ullong();
-	}
-
-	template <typename T>
-	const T *Object::loadObjectPointer(const QMimeData *data)
-	{
-		return static_cast<const T *>(loadQObjectPointer(&T::staticMetaObject, data));
 	}
 
 	template <typename T, typename... ARG_T>
