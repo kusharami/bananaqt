@@ -24,40 +24,20 @@ SOFTWARE.
 
 #pragma once
 
-#include <QObject>
-#include <QUndoCommand>
+#include "Core.h"
+
+#include <memory>
+
+class QString;
 
 namespace Banana
 {
-	class AbstractObjectUndoCommand : public QObject, public QUndoCommand
+
+	struct AbstractNameCollection : public BaseObject
 	{
-	public:
-		AbstractObjectUndoCommand(QObject *object);
-
-	protected:
-		virtual void undo() override;
-		virtual void redo() override;
-
-		virtual void doUndo() = 0;
-		virtual void doRedo() = 0;
-
-		QObject *getObject() const;
-		void fetchObject();
-
-	private slots:
-		void onObjectDestroyed();
-
-	protected:
-		void connectObject();
-		void disconnectObject();
-
-		QObject *object;
-		QStringList objectPath;
-
-		int fetchIndex;
-		bool skipRedoOnPush;
+		virtual bool containsName(const QString &name) const = 0;
 	};
 
-
+	typedef std::shared_ptr<AbstractNameCollection> NameCollectionPtr;
 
 }

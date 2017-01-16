@@ -1,26 +1,26 @@
-/*
- * Banana Qt Libraries
- *
- * Copyright (c) 2016 Alexandra Cherdantseva
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+/*******************************************************************************
+Banana Qt Libraries
+
+Copyright (c) 2016 Alexandra Cherdantseva
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*******************************************************************************/
 
 #pragma once
 
@@ -41,6 +41,7 @@
 class QIODevice;
 class QDir;
 class QFileInfo;
+class QMimeData;
 
 namespace Banana
 {
@@ -66,7 +67,8 @@ namespace Utils
 	bool LoadBinaryFromIODevice(QByteArray &output, QIODevice *device);
 	bool LoadBinaryFromFile(QByteArray &output, const QString &filepath);
 
-	QStringList ListDirectoryContents(const QString &path, const QStringList &filters);
+	QStringList ListDirectoryContents(const QString &path,
+									  const QStringList &filters);
 
 	bool VariantsEqual(const QVariant &a, const QVariant &b);
 	bool VariantIsEmpty(const QVariant &value);
@@ -93,18 +95,44 @@ namespace Utils
 
 	QVariant ToStandardVariant(const QVariant &variant);
 
-	QVariant ValueFrom(const QVariantMap &data, const QString &key, const QVariant &default_value = QVariant());
+	QVariant ValueFrom(const QVariantMap &data, const QString &key,
+					   const QVariant &default_value = QVariant());
 
 	void ShowInGraphicalShell(const QString &pathIn);
 
-	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject, const char *propertyName);
-	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName);
+	const QMetaObject *GetMetaObjectForClass(const QByteArray &className);
+
+	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject,
+										const char *propertyName);
+	QMetaProperty GetMetaPropertyByName(const QObject *object,
+										const char *propertyName);
 
 	const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
 
-	bool IsDescendantOf(const QObject *ancestor, const QObject *object);
 	bool IsAncestorOf(const QObject *descendant, const QObject *object);
+	static inline bool IsDescendantOf(const QObject *ancestor,
+									  const QObject *object)
+	{
+		return IsAncestorOf(object, ancestor);
+	}
 
+	const QObject *LoadQObjectPointer(const QMetaObject *metaObject,
+									  const QMimeData *data);
+	void StoreQObjectPointer(const QObject *object, QMimeData *data);
+
+	template <typename T>
+	static inline const T *LoadObjectPointer(const QMimeData *data)
+	{
+		return static_cast<const T *>(LoadQObjectPointer(
+										  &T::staticMetaObject, data));
+	}
+
+	QObject *GetTopAncestor(QObject *object);
+	QObject *GetDescendant(const QObject *topAncestor,
+						   const QStringList &path);
+
+	QStringList GetNamesChain(const QObject *topAncestor,
+							  const QObject *bottomDescendant);
 }
 
 }

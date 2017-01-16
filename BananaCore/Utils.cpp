@@ -1,26 +1,26 @@
-/*
- * Banana Qt Libraries
- *
- * Copyright (c) 2016 Alexandra Cherdantseva
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+/*******************************************************************************
+Banana Qt Libraries
+
+Copyright (c) 2016 Alexandra Cherdantseva
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*******************************************************************************/
 
 #include "Utils.h"
 
@@ -49,6 +49,7 @@
 #include <QScriptEngine>
 #include <QMetaEnum>
 #include <QProcess>
+#include <QMimeData>
 
 #ifdef Q_OS_WIN
 #ifndef NOMINMAX
@@ -192,7 +193,8 @@ namespace Utils
 	{
 		QString result(source);
 
-		result.replace(QRegExp("[\\x00-\\x1F\\\\\\/\\|\\?\\:\\*\\\"\\<\\>]"), "_");
+		result.replace(QRegExp("[\\x00-\\x1F\\\\\\/\\|\\?\\:\\*\\\"\\<\\>]"),
+					   "_");
 
 		result.resize(std::min(max_size, result.length()));
 
@@ -221,7 +223,8 @@ namespace Utils
 		return result;
 	}
 
-	QVariant ValueFrom(const QVariantMap &data, const QString &key, const QVariant &default_value)
+	QVariant ValueFrom(const QVariantMap &data, const QString &key,
+					   const QVariant &default_value)
 	{
 		auto it = data.find(key);
 
@@ -243,7 +246,8 @@ namespace Utils
 
 				for (auto it = map.begin(); it != map.end(); ++it)
 				{
-					object.insert(it.key(), ConvertVariantToJsonValue(it.value()));
+					object.insert(it.key(),
+								  ConvertVariantToJsonValue(it.value()));
 				}
 
 				return QJsonValue(object);
@@ -268,14 +272,18 @@ namespace Utils
 				QJsonObject object;
 
 				object.insert(sTypeKey, "QUrl");
-				object.insert(sValueKey, variant.toUrl().toString(QUrl::FullyEncoded));
+				object.insert(sValueKey,
+							  variant.toUrl().toString(QUrl::FullyEncoded));
 
 				return QJsonValue(object);
 			}
 
 			case QMetaType::QFont:
 			{
-				return QJsonValue(QJsonObject::fromVariantMap(ConvertQFontToVariantMap(variant.value<QFont>())));
+				return QJsonValue(
+							QJsonObject::fromVariantMap(
+								ConvertQFontToVariantMap(
+									variant.value<QFont>())));
 			}
 
 			case QMetaType::QRect:
@@ -432,14 +440,16 @@ namespace Utils
 
 					if (type == "QUrl")
 					{
-						QUrl url(object.value(sValueKey).toString(), QUrl::StrictMode);
+						QUrl url(object.value(sValueKey).toString(),
+								 QUrl::StrictMode);
 
 						return QVariant(url);
 					}
 
 					if (type == "QFont")
 					{
-						return QVariant(ConvertVariantMapToQFont(object.toVariantMap()));
+						return QVariant(ConvertVariantMapToQFont(
+											object.toVariantMap()));
 					}
 				}
 			} else
@@ -453,8 +463,10 @@ namespace Utils
 				if (object.end() != x_it && object.end() != y_it
 				&&	object.end() != width_it && object.end() != height_it)
 				{
-					return QRectF(x_it.value().toDouble(), y_it.value().toDouble(),
-								  width_it.value().toDouble(), height_it.value().toDouble());
+					return QRectF(x_it.value().toDouble(),
+								  y_it.value().toDouble(),
+								  width_it.value().toDouble(),
+								  height_it.value().toDouble());
 				}
 			} else
 			if (object.size() == 2)
@@ -464,7 +476,8 @@ namespace Utils
 
 				if (object.end() != x_it && object.end() != y_it)
 				{
-					return QPointF(x_it.value().toDouble(), y_it.value().toDouble());
+					return QPointF(x_it.value().toDouble(),
+								   y_it.value().toDouble());
 				}
 
 				x_it = object.find(sWKey);
@@ -472,7 +485,8 @@ namespace Utils
 
 				if (object.end() != x_it && object.end() != y_it)
 				{
-					return QSizeF(x_it.value().toDouble(), y_it.value().toDouble());
+					return QSizeF(x_it.value().toDouble(),
+								  y_it.value().toDouble());
 				}
 			}
 
@@ -525,10 +539,12 @@ namespace Utils
 
 		QFile file(filePath);
 
-		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+		if (file.open(QIODevice::WriteOnly |
+					  QIODevice::Truncate |
+					  QIODevice::Text))
 		{
 			auto utf8 = text.toUtf8();
-			ok  = (utf8.size() == file.write(utf8));
+			ok = (utf8.size() == file.write(utf8));
 
 			file.close();
 		}
@@ -536,7 +552,8 @@ namespace Utils
 		return ok;
 	}
 
-	QStringList ListDirectoryContents(const QString &path, const QStringList &filters)
+	QStringList ListDirectoryContents(const QString &path,
+									  const QStringList &filters)
 	{
 		QStringList result;
 
@@ -589,7 +606,8 @@ namespace Utils
 		return true;
 	}
 
-	QScriptValue VariantToScriptValue(const QVariant &variant, QScriptEngine *engine)
+	QScriptValue VariantToScriptValue(const QVariant &variant,
+									  QScriptEngine *engine)
 	{
 		QScriptValue result;
 
@@ -606,7 +624,8 @@ namespace Utils
 					auto &key = it.key();
 					auto &value = it.value();
 
-					result.setProperty(key, VariantToScriptValue(value, engine));
+					result.setProperty(key,
+									   VariantToScriptValue(value, engine));
 				}
 			} break;
 
@@ -711,7 +730,9 @@ namespace Utils
 	bool CreateSymLink(const QString &target, const QString &linkpath)
 	{
 #ifdef Q_OS_WIN
-		DWORD dwFlags = QFileInfo(target).isDir() ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0;
+		DWORD dwFlags = QFileInfo(target).isDir()
+				? SYMBOLIC_LINK_FLAG_DIRECTORY
+				: 0;
 	#ifdef UNICODE
 		wchar_t wcTarget[1024];
 		wcTarget[target.toWCharArray(wcTarget)] = 0;
@@ -740,7 +761,8 @@ namespace Utils
 			auto meta = QMetaEnum::fromType<QFont::StyleStrategy>();
 			auto value = object.value(sStyleStrategyKey).toString().toLatin1();
 			bool ok = false;
-			auto strategy = (QFont::StyleStrategy) meta.keyToValue(value.data(), &ok);
+			auto strategy = (QFont::StyleStrategy) meta.keyToValue(
+						value.data(), &ok);
 			if (ok)
 				font.setStyleStrategy(strategy);
 		}
@@ -789,8 +811,9 @@ namespace Utils
 #elif defined(Q_OS_MAC)
 		QStringList scriptArgs;
 		scriptArgs << QLatin1String("-e")
-				   << QString::fromLatin1("tell application \"Finder\" to reveal POSIX file \"%1\"")
-					  .arg(pathIn);
+				   << QString::fromLatin1("tell application \"Finder\" "
+										  "to reveal POSIX "
+										  "file \"%1\"").arg(pathIn);
 		QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
 		scriptArgs.clear();
 		scriptArgs << QLatin1String("-e")
@@ -821,7 +844,8 @@ namespace Utils
 	{
 		return (value.isNull()
 			||	!value.isValid()
-			||	(value.type() == QVariant::String && value.toString().isEmpty()));
+			||	(	value.type() == QVariant::String
+				 &&	value.toString().isEmpty()));
 	}
 
 	QString QuoteString(const QString &value)
@@ -830,13 +854,15 @@ namespace Utils
 		return '"' + result.replace('\\', "\\\\").replace('"', "\\\"") + '"';
 	}
 
-	QMetaProperty GetMetaPropertyByName(const QObject *object, const char *propertyName)
+	QMetaProperty GetMetaPropertyByName(const QObject *object,
+										const char *propertyName)
 	{
 		Q_ASSERT(nullptr != object);
 		return GetMetaPropertyByName(object->metaObject(), propertyName);
 	}
 
-	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject, const char *propertyName)
+	QMetaProperty GetMetaPropertyByName(const QMetaObject *metaObject,
+										const char *propertyName)
 	{
 		Q_ASSERT(nullptr != metaObject);
 
@@ -875,29 +901,10 @@ namespace Utils
 		return (ConvertToFileName(fileName) == fileName);
 	}
 
-	bool IsDescendantOf(const QObject *ancestor, const QObject *object)
-	{
-		if (nullptr != object)
-		{
-			if (object->parent() == ancestor)
-				return true;
-
-			if (nullptr != ancestor)
-			{
-				foreach (QObject *child, ancestor->children())
-				{
-					if (IsDescendantOf(child, object))
-						return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
 	bool IsAncestorOf(const QObject *descendant, const QObject *object)
 	{
-		if (nullptr != object)
+		if (nullptr != object
+		&&	nullptr != descendant)
 		{
 			forever
 			{
@@ -933,6 +940,99 @@ namespace Utils
 #endif
 		return QFile::remove(fileInfo.filePath());
 	}
+
+	const QMetaObject *GetMetaObjectForClass(const QByteArray &className)
+	{
+		int typeId = QMetaType::type(className.endsWith('*')
+									 ? className
+									 : className + " *");
+		return QMetaType::metaObjectForType(typeId);
+	}
+
+	const QObject *LoadQObjectPointer(const QMetaObject *metaObject,
+									  const QMimeData *data)
+	{
+		Q_ASSERT(nullptr != metaObject);
+		Q_ASSERT(nullptr != data);
+
+		QString className(metaObject->className());
+		if (data->hasFormat(className))
+		{
+			auto bytes = data->data(className);
+
+			if (bytes.size() == sizeof(uintptr_t))
+			{
+				auto ptr = reinterpret_cast<const uintptr_t *>(
+							bytes.constData());
+				return reinterpret_cast<const QObject *>(*ptr);
+			}
+		}
+
+		return nullptr;
+	}
+
+	void StoreQObjectPointer(const QObject *object, QMimeData *data)
+	{
+		Q_ASSERT(nullptr != object);
+		Q_ASSERT(nullptr != data);
+
+		QByteArray bytes;
+		bytes.resize(sizeof(uintptr_t));
+		auto ptr = reinterpret_cast<uintptr_t *>(bytes.data());
+		*ptr = (uintptr_t) object;
+		data->setData(object->metaObject()->className(), bytes);
+	}
+
+	QStringList GetNamesChain(const QObject *topAncestor,
+							  const QObject *bottomDescendant)
+	{
+		QStringList result;
+
+		const QObject *current = bottomDescendant;
+
+		while (nullptr != current && current != topAncestor)
+		{
+			result.push_front(current->objectName());
+
+			current = current->parent();
+		}
+
+		return result;
+	}
+
+	QObject *GetTopAncestor(QObject *object)
+	{
+		while (nullptr != object)
+		{
+			auto parent = object->parent();
+			if (nullptr == parent)
+				return object;
+
+			object = parent;
+		}
+
+		return nullptr;
+	}
+
+	QObject *GetDescendant(const QObject *topAncestor,
+						   const QStringList &path)
+	{
+		auto result = const_cast<QObject *>(topAncestor);
+		if (nullptr == result)
+			return nullptr;
+
+		int count = path.count();
+		for (int i = 0; i < count; i++)
+		{
+			result = result->findChild<QObject *>(path.at(i),
+												  Qt::FindDirectChildrenOnly);
+			if (nullptr == result)
+				break;
+		}
+
+		return result;
+	}
+
 
 }
 
