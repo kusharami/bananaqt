@@ -33,288 +33,316 @@ SOFTWARE.
 
 namespace Banana
 {
-	ChangeValueCommand::ChangeValueCommand(Object *object,
-										   const QString &oldName,
-										   const QString &newName)
-		: AbstractObjectUndoCommand(object)
+
+ChangeValueCommand::ChangeValueCommand(Object *object,
+									   const QString &oldName,
+									   const QString &newName)
+	: AbstractObjectUndoCommand(object)
+{
+	objectPath[0] = oldName;
+
+	newStateBits = object->getPropertyModifiedBits();
+	oldStateBits = newStateBits;
+
+	auto metaProperty = Utils::GetMetaPropertyByName(this, "objectName");
+
+	pushEntry({ metaProperty, oldName, newName });
+}
+
+ChangeValueCommand::ChangeValueCommand(Object *object,
+									   const QMetaProperty &metaProperty,
+									   const QVariant &oldValue)
+	: AbstractObjectUndoCommand(object)
+{
+	newStateBits = object->getPropertyModifiedBits();
+	oldStateBits = newStateBits;
+
+	pushEntry(metaProperty, oldValue);
+}
+
+ChangeValueCommand::ChangeValueCommand(Object *object,
+									   int propertyId,
+									   bool oldState)
+	: AbstractObjectUndoCommand(object)
+{
+	Q_ASSERT(propertyId >= 0);
+	Q_ASSERT(propertyId < 64);
+
+	newStateBits = object->getPropertyModifiedBits();
+	oldStateBits = newStateBits;
+
+	quint64 flag = 1ULL << propertyId;
+	if (oldState)
+		oldStateBits |= flag;
+	else
+		oldStateBits &= ~flag;
+}
+
+ChangeValueCommand::ChangeValueCommand(Object *object, quint64 oldStateBits)
+	: AbstractObjectUndoCommand(object)
+	, oldStateBits(oldStateBits)
+	, newStateBits(object->getPropertyModifiedBits())
+{
+}
+
+int ChangeValueCommand::id() const
+{
+	return CHANGE_VALUE_COMMAND;
+}
+
+bool ChangeValueCommand::mergeWith(const QUndoCommand *other)
+{
+	auto otherCommand = dynamic_cast<const ChangeValueCommand *>(other);
+
+	if (nullptr != otherCommand)
 	{
-		objectPath[0] = oldName;
+		fetchObject();
 
-		newStateBits = object->getPropertyModifiedBits();
-		oldStateBits = newStateBits;
-
-		auto metaProperty = Utils::GetMetaPropertyByName(this, "objectName");
-
-		pushEntry({ metaProperty, oldName, newName });
-	}
-
-	ChangeValueCommand::ChangeValueCommand(Object *object,
-										   const QMetaProperty &metaProperty,
-										   const QVariant &oldValue)
-		: AbstractObjectUndoCommand(object)
-	{
-		newStateBits = object->getPropertyModifiedBits();
-		oldStateBits = newStateBits;
-
-		pushEntry(metaProperty, oldValue);
-	}
-
-	ChangeValueCommand::ChangeValueCommand(Object *object, int propertyId, bool oldState)
-		: AbstractObjectUndoCommand(object)
-	{
-		Q_ASSERT(propertyId >= 0);
-		Q_ASSERT(propertyId < 64);
-
-		newStateBits = object->getPropertyModifiedBits();
-		oldStateBits = newStateBits;
-
-		quint64 flag = 1ULL << propertyId;
-		if (oldState)
-			oldStateBits |= flag;
-		else
-			oldStateBits &= ~flag;
-	}
-
-	ChangeValueCommand::ChangeValueCommand(Object *object, quint64 oldStateBits)
-		: AbstractObjectUndoCommand(object)
-		, oldStateBits(oldStateBits)
-		, newStateBits(object->getPropertyModifiedBits())
-	{
-	}
-
-	int ChangeValueCommand::id() const
-	{
-		return CHANGE_VALUE_COMMAND;
-	}
-
-	bool ChangeValueCommand::mergeWith(const QUndoCommand *other)
-	{
-		auto otherCommand = dynamic_cast<const ChangeValueCommand *>(other);
-
-		if (nullptr != otherCommand)
+		if (getObject() == otherCommand->getObject())
 		{
-			fetchObject();
-
-			if (getObject() == otherCommand->getObject())
+			OrderedEntries orderedEntries;
+			auto orderedEntriesPtr = &otherCommand->orderedEntries;
+			if (orderedEntriesPtr->empty())
 			{
-				OrderedEntries orderedEntries;
-				auto orderedEntriesPtr = &otherCommand->orderedEntries;
-				if (orderedEntriesPtr->empty())
-				{
-					otherCommand->prepareOrderedEntries(orderedEntries);
-					orderedEntriesPtr = &orderedEntries;
-				}
-				for (auto entry : *orderedEntriesPtr)
-				{
-					pushEntry(*entry);
-				}
-
-				newStateBits = otherCommand->newStateBits;
-
-				return true;
+				otherCommand->prepareOrderedEntries(orderedEntries);
+				orderedEntriesPtr = &orderedEntries;
 			}
-		}
-
-		return false;
-	}
-
-	void ChangeValueCommand::doUndo()
-	{
-		applyValues(false);
-		applyStateBits(oldStateBits);
-	}
-
-	void ChangeValueCommand::doRedo()
-	{
-		applyValues(true);
-		applyStateBits(newStateBits);
-	}
-
-	bool ChangeValueCommand::entryIndexLess(const EntryData *a, const EntryData *b)
-	{
-		return a->index < b->index;
-	}
-
-	void ChangeValueCommand::prepareOrderedEntries(OrderedEntries &orderedEntries) const
-	{
-		if (!entries.empty() && orderedEntries.empty())
-		{
-			for (auto &it : entries)
+			for (auto entry : *orderedEntriesPtr)
 			{
-				orderedEntries.push_back(&it.second);
+				pushEntry(*entry);
 			}
 
-			std::sort(orderedEntries.begin(), orderedEntries.end(), ChangeValueCommand::entryIndexLess);
+			newStateBits = otherCommand->newStateBits;
+
+			return true;
 		}
 	}
-	void ChangeValueCommand::prepareOrderedEntries()
+
+	return false;
+}
+
+void ChangeValueCommand::doUndo()
+{
+	applyValues(false);
+	applyStateBits(oldStateBits);
+}
+
+void ChangeValueCommand::doRedo()
+{
+	applyValues(true);
+	applyStateBits(newStateBits);
+}
+
+bool ChangeValueCommand::entryIndexLess(const EntryData *a, const EntryData *b)
+{
+	return a->index < b->index;
+}
+
+void ChangeValueCommand::prepareOrderedEntries(
+		OrderedEntries &orderedEntries) const
+{
+	if (!entries.empty() && orderedEntries.empty())
 	{
-		prepareOrderedEntries(orderedEntries);
-	}
-
-	void ChangeValueCommand::applyValues(bool redo)
-	{
-		auto object = dynamic_cast<Object *>(getObject());
-		Q_ASSERT(nullptr != object);
-
-		prepareOrderedEntries();
-
-		object->beginUndoStackUpdate();
-		object->blockMacro();
-		object->beginLoad();
-		object->beginReload();
-
-		if (redo)
+		for (auto &it : entries)
 		{
-			for (auto entry : orderedEntries)
-			{
-				entry->metaProperty.write(object, entry->newValue);
-			}
-		} else
-		{
-			for (auto rit = orderedEntries.rbegin(); rit != orderedEntries.rend(); ++rit)
-			{
-				auto entry = *rit;
-				entry->metaProperty.write(object, entry->oldValue);
-			}
+			orderedEntries.push_back(&it.second);
 		}
 
-		object->endReload();
-		object->endLoad();
-		object->unblockMacro();
-		object->endUndoStackUpdate();
+		std::sort(orderedEntries.begin(), orderedEntries.end(),
+				  ChangeValueCommand::entryIndexLess);
 	}
+}
+void ChangeValueCommand::prepareOrderedEntries()
+{
+	prepareOrderedEntries(orderedEntries);
+}
 
-	void ChangeValueCommand::applyStateBits(quint64 bits)
+void ChangeValueCommand::applyValues(bool redo)
+{
+	auto object = dynamic_cast<Object *>(getObject());
+	Q_ASSERT(nullptr != object);
+
+	prepareOrderedEntries();
+
+	object->beginUndoStackUpdate();
+	object->blockMacro();
+	object->beginLoad();
+	object->beginReload();
+
+	if (redo)
 	{
-		auto object = dynamic_cast<Object *>(getObject());
-		Q_ASSERT(nullptr != object);
-
-		object->setPropertyModifiedBits(bits);
-	}
-
-	void ChangeValueCommand::pushEntry(const QMetaProperty &metaProperty, const QVariant &oldValue)
-	{
-		pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()) });
-	}
-
-	void ChangeValueCommand::pushEntry(const EntryData &entryData)
-	{
-		auto propertyIndex = entryData.metaProperty.propertyIndex();
-		auto it = entries.find(propertyIndex);
-		if (it == entries.end())
+		for (auto entry : orderedEntries)
 		{
-			auto index = entries.size();
-			entries[propertyIndex] =
-			{
-				entryData.metaProperty,
-				entryData.oldValue,
-				entryData.newValue,
-				index
-			};
-		} else
-		{
-			it->second.newValue = entryData.newValue;
+			entry->metaProperty.write(object, entry->newValue);
 		}
-
-		orderedEntries.clear();
-	}
-
-	QString ChangeValueCommand::getMultipleResetCommandTextFor(const QMetaObject *metaObject, const char *propertyName)
+	} else
 	{
-		Q_ASSERT(nullptr != metaObject);
-		Q_ASSERT(nullptr != propertyName);
-
-		return resetCommandPattern().arg(multipleObjectsStr(),
-										 QCoreApplication::translate(metaObject->className(), propertyName));
+		for (auto rit = orderedEntries.rbegin();
+			 rit != orderedEntries.rend();
+			 ++rit)
+		{
+			auto entry = *rit;
+			entry->metaProperty.write(object, entry->oldValue);
+		}
 	}
 
-	QString ChangeValueCommand::getMultipleResetCommandTextFor(const QMetaObject *metaObject,
-															   const QMetaProperty &metaProperty)
+	object->endReload();
+	object->endLoad();
+	object->unblockMacro();
+	object->endUndoStackUpdate();
+}
+
+void ChangeValueCommand::applyStateBits(quint64 bits)
+{
+	auto object = dynamic_cast<Object *>(getObject());
+	Q_ASSERT(nullptr != object);
+
+	object->setPropertyModifiedBits(bits);
+}
+
+void ChangeValueCommand::pushEntry(
+		const QMetaProperty &metaProperty, const QVariant &oldValue)
+{
+	pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()) });
+}
+
+void ChangeValueCommand::pushEntry(const EntryData &entryData)
+{
+	auto propertyIndex = entryData.metaProperty.propertyIndex();
+	auto it = entries.find(propertyIndex);
+	if (it == entries.end())
 	{
-		Q_ASSERT(nullptr != metaObject);
-
-		return resetCommandPattern().arg(multipleObjectsStr(),
-										 QCoreApplication::translate(metaObject->className(), metaProperty.name()));
-	}
-
-	QString ChangeValueCommand::getResetCommandTextFor(Object *object, const char *propertyName)
+		auto index = entries.size();
+		entries[propertyIndex] =
+		{
+			entryData.metaProperty,
+			entryData.oldValue,
+			entryData.newValue,
+			index
+		};
+	} else
 	{
-		Q_ASSERT(nullptr != object);
-		Q_ASSERT(nullptr != propertyName);
-
-		auto metaProperty = Utils::GetMetaPropertyByName(object, propertyName);
-		return getResetCommandTextFor(object, metaProperty);
+		it->second.newValue = entryData.newValue;
 	}
 
-	QString ChangeValueCommand::getResetCommandTextFor(Object *object, const QMetaProperty &metaProperty)
-	{
-		Q_ASSERT(nullptr != object);
+	orderedEntries.clear();
+}
 
-		auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
-		Q_ASSERT(nullptr != metaObject);
+QString ChangeValueCommand::getMultipleResetCommandTextFor(
+		const QMetaObject *metaObject, const char *propertyName)
+{
+	Q_ASSERT(nullptr != metaObject);
+	Q_ASSERT(nullptr != propertyName);
 
-		auto objectName = object->objectName();
-		if (objectName.isEmpty())
-			objectName = QCoreApplication::translate("ClassName", object->metaObject()->className());
+	return resetCommandPattern().arg(
+				multipleObjectsStr(),
+				QCoreApplication::translate(
+					metaObject->className(), propertyName));
+}
 
-		return resetCommandPattern().arg(objectName,
-										 QCoreApplication::translate(metaObject->className(), metaProperty.name()));
-	}
+QString ChangeValueCommand::getMultipleResetCommandTextFor(
+		const QMetaObject *metaObject, const QMetaProperty &metaProperty)
+{
+	Q_ASSERT(nullptr != metaObject);
 
-	QString ChangeValueCommand::getMultipleCommandTextFor(const QMetaObject *metaObject, const char *propertyName)
-	{
-		Q_ASSERT(nullptr != metaObject);
+	return resetCommandPattern().arg(
+				multipleObjectsStr(),
+				QCoreApplication::translate(
+					metaObject->className(), metaProperty.name()));
+}
 
-		QString propertyNameTr(QCoreApplication::translate(metaObject->className(), propertyName));
+QString ChangeValueCommand::getResetCommandTextFor(
+		Object *object, const char *propertyName)
+{
+	Q_ASSERT(nullptr != object);
+	Q_ASSERT(nullptr != propertyName);
 
-		return changeValueCommandPattern().arg(multipleObjectsStr(), propertyNameTr);
-	}
+	auto metaProperty = Utils::GetMetaPropertyByName(object, propertyName);
+	return getResetCommandTextFor(object, metaProperty);
+}
 
-	QString ChangeValueCommand::getMultipleCommandTextFor(const QMetaObject *metaObject,
-														   const QMetaProperty &metaProperty)
-	{
-		return getMultipleCommandTextFor(metaObject, metaProperty.name());
-	}
+QString ChangeValueCommand::getResetCommandTextFor(
+		Object *object, const QMetaProperty &metaProperty)
+{
+	Q_ASSERT(nullptr != object);
 
-	QString ChangeValueCommand::getCommandTextFor(Object *object, const char *propertyName)
-	{
-		Q_ASSERT(nullptr != object);
-		Q_ASSERT(nullptr != propertyName);
+	auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
+	Q_ASSERT(nullptr != metaObject);
 
-		return getCommandTextFor(object, Utils::GetMetaPropertyByName(object, propertyName));
-	}
+	auto objectName = object->objectName();
+	if (objectName.isEmpty())
+		objectName = QCoreApplication::translate(
+						 "ClassName",
+						 object->metaObject()->className());
 
-	QString ChangeValueCommand::getCommandTextFor(Object *object, const QMetaProperty &metaProperty)
-	{
-		Q_ASSERT(nullptr != object);
+	return resetCommandPattern().arg(
+				objectName,
+				QCoreApplication::translate(
+					metaObject->className(), metaProperty.name()));
+}
 
-		auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
-		Q_ASSERT(nullptr != metaObject);
+QString ChangeValueCommand::getMultipleCommandTextFor(
+		const QMetaObject *metaObject, const char *propertyName)
+{
+	Q_ASSERT(nullptr != metaObject);
 
-		QString objectName(object->objectName());
+	QString propertyNameTr(QCoreApplication::translate(
+							   metaObject->className(), propertyName));
 
-		if (objectName.isEmpty())
-			objectName = QCoreApplication::translate("ClassName", object->metaObject()->className());
+	return changeValueCommandPattern().arg(
+				multipleObjectsStr(), propertyNameTr);
+}
 
-		QString propertyName(QCoreApplication::translate(metaObject->className(), metaProperty.name()));
+QString ChangeValueCommand::getMultipleCommandTextFor(
+		const QMetaObject *metaObject, const QMetaProperty &metaProperty)
+{
+	return getMultipleCommandTextFor(metaObject, metaProperty.name());
+}
 
-		return changeValueCommandPattern().arg(objectName, propertyName);
-	}
+QString ChangeValueCommand::getCommandTextFor(
+		Object *object, const char *propertyName)
+{
+	Q_ASSERT(nullptr != object);
+	Q_ASSERT(nullptr != propertyName);
 
-	QString ChangeValueCommand::resetCommandPattern()
-	{
-		return tr("Reset value of <%2> [%1]");
-	}
+	return getCommandTextFor(object,
+							 Utils::GetMetaPropertyByName(
+								 object, propertyName));
+}
 
-	QString ChangeValueCommand::changeValueCommandPattern()
-	{
-		return tr("Change value of <%2> [%1]");
-	}
+QString ChangeValueCommand::getCommandTextFor(
+		Object *object, const QMetaProperty &metaProperty)
+{
+	Q_ASSERT(nullptr != object);
 
-	QString ChangeValueCommand::multipleObjectsStr()
-	{
-		return tr("Multiple objects");
-	}
+	auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
+	Q_ASSERT(nullptr != metaObject);
+
+	QString objectName(object->objectName());
+
+	if (objectName.isEmpty())
+		objectName = QCoreApplication::translate(
+						 "ClassName", object->metaObject()->className());
+
+	QString propertyName(QCoreApplication::translate(
+							 metaObject->className(), metaProperty.name()));
+
+	return changeValueCommandPattern().arg(objectName, propertyName);
+}
+
+QString ChangeValueCommand::resetCommandPattern()
+{
+	return tr("Reset value of <%2> [%1]");
+}
+
+QString ChangeValueCommand::changeValueCommandPattern()
+{
+	return tr("Change value of <%2> [%1]");
+}
+
+QString ChangeValueCommand::multipleObjectsStr()
+{
+	return tr("Multiple objects");
+}
 
 }

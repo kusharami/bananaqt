@@ -29,35 +29,34 @@ SOFTWARE.
 
 namespace Banana
 {
-	class AbstractObjectUndoCommand : public QObject, public QUndoCommand
-	{
-	public:
-		AbstractObjectUndoCommand(QObject *object);
 
-	protected:
-		virtual void undo() override;
-		virtual void redo() override;
+class AbstractObjectUndoCommand : public QObject, public QUndoCommand
+{
+public:
+	AbstractObjectUndoCommand(QObject *object);
 
-		virtual void doUndo() = 0;
-		virtual void doRedo() = 0;
+protected:
+	virtual void undo() override;
+	virtual void redo() override;
 
-		QObject *getObject() const;
-		void fetchObject();
+	virtual void doUndo() = 0;
+	virtual void doRedo() = 0;
 
-	private slots:
-		void onObjectDestroyed();
+	QObject *getObject() const;
+	void fetchObject();
 
-	protected:
-		void connectObject();
-		void disconnectObject();
+private slots:
+	void onObjectDestroyed();
 
-		QObject *object;
-		QStringList objectPath;
+protected:
+	void connectObject();
+	void disconnectObject();
 
-		int fetchIndex;
-		bool skipRedoOnPush;
-	};
+	QObject *object;
+	QStringList objectPath;
 
-
+	int fetchIndex;
+	bool skipRedoOnPush;
+};
 
 }

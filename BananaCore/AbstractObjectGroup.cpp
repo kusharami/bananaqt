@@ -28,111 +28,113 @@ SOFTWARE.
 
 namespace Banana
 {
-	QObjectList AbstractObjectGroup::filterChildren(const IChildFilter *filter, bool sort)
+
+QObjectList AbstractObjectGroup::filterChildren(
+		const IChildFilter *filter, bool sort)
+{
+	auto children = getChildren();
+
+	if (nullptr == filter)
+		return children;
+
+	QObjectList result;
+
+	for (auto child : children)
 	{
-		auto children = getChildren();
-
-		if (nullptr == filter)
-			return children;
-
-		QObjectList result;
-
-		for (auto child : children)
+		bool ok = false;
+		if (filter->filterMatch(child))
 		{
-			bool ok = false;
-			if (filter->filterMatch(child))
+			result.push_back(child);
+			ok = true;
+		}
+
+		AbstractObjectGroup *group = nullptr;
+
+		if (filter->shouldFilterDeeper(child))
+		{
+			group = dynamic_cast<AbstractObjectGroup *>(child);
+			if (nullptr != group)
 			{
-				result.push_back(child);
-				ok = true;
+				if (group->filterChildren(filter, false).empty())
+					continue;
 			}
-
-			AbstractObjectGroup *group = nullptr;
-
-			if (filter->shouldFilterDeeper(child))
-			{
-				group = dynamic_cast<AbstractObjectGroup *>(child);
-				if (nullptr != group)
-				{
-					if (group->filterChildren(filter, false).empty())
-						continue;
-				}
-			}
-
-			if (!ok && nullptr != group)
-				result.push_back(child);
 		}
 
-		if (sort)
-			sortChildren(result);
-
-		return result;
+		if (!ok && nullptr != group)
+			result.push_back(child);
 	}
 
-	int AbstractObjectGroup::getChildIndex(const QObject *object)
+	if (sort)
+		sortChildren(result);
+
+	return result;
+}
+
+int AbstractObjectGroup::getChildIndex(const QObject *object)
+{
+	if (nullptr != object)
 	{
-		if (nullptr != object)
-		{
-			auto &children = this->getChildren();
+		auto &children = this->getChildren();
 
-			auto it = std::find(children.begin(), children.end(), object);
+		auto it = std::find(children.begin(), children.end(), object);
 
-			if (children.end() != it)
-				return it - children.begin();
-		}
-		return -1;
+		if (children.end() != it)
+			return it - children.begin();
 	}
+	return -1;
+}
 
-	QObject *AbstractObjectGroup::getChildAt(int index)
+QObject *AbstractObjectGroup::getChildAt(int index)
+{
+	auto &children = getChildren();
+	if (index >= 0 && index < children.count())
 	{
-		auto &children = getChildren();
-		if (index >= 0 && index < children.count())
-		{
-			return children.at(index);
-		}
-
-		return nullptr;
+		return children.at(index);
 	}
 
-	void AbstractObjectGroup::removeAllGroupChildren()
+	return nullptr;
+}
+
+void AbstractObjectGroup::removeAllGroupChildren()
+{
+	auto children = getChildren();
+
+	for (auto child : children)
 	{
-		auto children = getChildren();
-
-		for (auto child : children)
-		{
-			deleteChild(child);
-		}
+		deleteChild(child);
 	}
+}
 
-	void AbstractObjectGroup::deleteChild(QObject *child)
+void AbstractObjectGroup::deleteChild(QObject *child)
+{
+	delete child;
+}
+
+const QObjectList &AbstractObjectGroup::getChildren()
+{
+	auto object = dynamic_cast<QObject *>(this);
+	Q_ASSERT(nullptr != object);
+	return object->children();
+}
+
+AbstractObjectGroup *AbstractObjectGroup::getRealGroup()
+{
+	return this;
+}
+
+bool AbstractObjectGroup::equals(QObject *groupObject)
+{
+	return (dynamic_cast<QObject *>(getRealGroup()) == groupObject);
+}
+
+void AbstractObjectGroup::sortChildren(QObjectList &children)
+{
+	std::sort(children.begin(), children.end(),
+	[](QObject *a, QObject *b)->bool
 	{
-		delete child;
-	}
-
-	const QObjectList &AbstractObjectGroup::getChildren()
-	{
-		auto object = dynamic_cast<QObject *>(this);
-		Q_ASSERT(nullptr != object);
-		return object->children();
-	}
-
-	AbstractObjectGroup *AbstractObjectGroup::getRealGroup()
-	{
-		return this;
-	}
-
-	bool AbstractObjectGroup::equals(QObject *groupObject)
-	{
-		return (dynamic_cast<QObject *>(getRealGroup()) == groupObject);
-	}
-
-	void AbstractObjectGroup::sortChildren(QObjectList &children)
-	{
-		std::sort(children.begin(), children.end(),
-		[](QObject *a, QObject *b)->bool
-		{
-			return QString::compare(a->objectName(), b->objectName(), Qt::CaseInsensitive) < 0;
-		});
-	}
-
+		return QString::compare(
+					a->objectName(), b->objectName(), Qt::CaseInsensitive) < 0;
+	});
+}
 
 }

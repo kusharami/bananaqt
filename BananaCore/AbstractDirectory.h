@@ -30,38 +30,45 @@ SOFTWARE.
 
 namespace Banana
 {
-	enum class DescendantState
-	{
-		Added,
-		Removed,
-		Renamed,
-		SearchPathsChanged
-	};
 
-	class AbstractDirectory : public AbstractFileSystemObject
-	{
-	public:
-		AbstractDirectory(QObject *thiz);
+enum class DescendantState
+{
+	Added,
+	Removed,
+	Renamed,
+	SearchPathsChanged
+};
 
-		QString getAbsoluteFilePathFor(const QString &path) const;
-		QString getRelativeFilePathFor(const QString &path) const;
+class AbstractDirectory : public AbstractFileSystemObject
+{
+public:
+	AbstractDirectory(QObject *thiz);
 
-		virtual const QString &getFileExtension() const override;
-		virtual QString getFileName() const override;
+	QString getAbsoluteFilePathFor(const QString &path) const;
+	QString getRelativeFilePathFor(const QString &path) const;
 
-		AbstractFileSystemObject *findFileSystemObject(const QString &path, bool linked);
-		template <typename T>
-		T *findFileT(const QString &path, bool linked = false)
-		{
-			return dynamic_cast<T *>(findFileSystemObject(path, linked));
-		}
+	virtual const QString &getFileExtension() const override;
+	virtual QString getFileName() const override;
 
-	protected:
-		friend class AbstractFileSystemObject;
+	AbstractFileSystemObject *findFileSystemObject(
+			const QString &path, bool linked);
 
-		virtual void descendantChanged(QObject *descendant, DescendantState state);
+	template <typename T>
+	inline T *findFileT(const QString &path, bool linked = false);
 
-	private:
-		AbstractFileSystemObject *internalFind(const QString &path, bool canonical);
-	};
+protected:
+	friend class AbstractFileSystemObject;
+
+	virtual void descendantChanged(QObject *descendant, DescendantState state);
+
+private:
+	AbstractFileSystemObject *internalFind(const QString &path, bool canonical);
+};
+
+template <typename T>
+T *AbstractDirectory::findFileT(const QString &path, bool linked)
+{
+	return dynamic_cast<T *>(findFileSystemObject(path, linked));
+}
+
 }

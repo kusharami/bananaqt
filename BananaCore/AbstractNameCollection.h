@@ -33,11 +33,11 @@ class QString;
 namespace Banana
 {
 
-	struct AbstractNameCollection : public BaseObject
-	{
-		virtual bool containsName(const QString &name) const = 0;
-	};
+struct AbstractNameCollection : public BaseObject
+{
+	virtual bool containsName(const QString &name) const = 0;
+};
 
-	typedef std::shared_ptr<AbstractNameCollection> NameCollectionPtr;
+typedef std::shared_ptr<AbstractNameCollection> NameCollectionPtr;
 
 }

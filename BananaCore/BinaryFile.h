@@ -31,24 +31,25 @@ SOFTWARE.
 
 namespace Banana
 {
-	class BinaryData : public Object, public QByteArray
-	{
-		Q_OBJECT
-	};
 
-	class BinaryFile : public Banana::BaseFileRegistrator<Banana::AbstractFile>
-	{
-		Q_OBJECT
+class BinaryData : public Object, public QByteArray
+{
+	Q_OBJECT
+};
 
-	public:
-		Q_INVOKABLE explicit BinaryFile();
+class BinaryFile : public Banana::BaseFileRegistrator<Banana::AbstractFile>
+{
+	Q_OBJECT
 
-		virtual bool isWritableFormat(const QString &extension) const override;
+public:
+	Q_INVOKABLE explicit BinaryFile();
 
-	protected:
-		virtual QObject *doCreateFileData() const override;
-		virtual bool doSave(QIODevice *device) override;
-		virtual bool doLoad(QIODevice *device) override;
-	};
+	virtual bool isWritableFormat(const QString &extension) const override;
+
+protected:
+	virtual QObject *doCreateFileData() const override;
+	virtual bool doSave(QIODevice *device) override;
+	virtual bool doLoad(QIODevice *device) override;
+};
 
 }

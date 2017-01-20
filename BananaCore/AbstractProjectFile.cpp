@@ -34,448 +34,481 @@ SOFTWARE.
 
 namespace Banana
 {
-	const QString AbstractProjectFile::SEARCH_PATHS_KEY = "SearchPaths";
-	const QString AbstractProjectFile::IGNORED_FILES_KEY = "IgnoredFiles";
-	const QString AbstractProjectFile::FILES_KEY = "Files";
-	const QString AbstractProjectFile::TYPE_KEY = "Type";
-	const QString AbstractProjectFile::PATH_KEY = "Path";
-	const QString AbstractProjectFile::TARGET_KEY = "Target";
-	const QString AbstractProjectFile::TYPE_FILE = "File";
-	const QString AbstractProjectFile::TYPE_DIR = "Directory";
-	const QString AbstractProjectFile::TYPE_DIR_LINK = "DirectoryLink";
-	const QString AbstractProjectFile::TYPE_FILE_LINK = "FileLink";
 
-	AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(const QString &str)
+const QString AbstractProjectFile::SEARCH_PATHS_KEY =
+		QStringLiteral("SearchPaths");
+const QString AbstractProjectFile::IGNORED_FILES_KEY =
+		QStringLiteral("IgnoredFiles");
+const QString AbstractProjectFile::FILES_KEY =
+		QStringLiteral("Files");
+const QString AbstractProjectFile::TYPE_KEY =
+		QStringLiteral("Type");
+const QString AbstractProjectFile::PATH_KEY =
+		QStringLiteral("Path");
+const QString AbstractProjectFile::TARGET_KEY =
+		QStringLiteral("Target");
+const QString AbstractProjectFile::TYPE_FILE =
+		QStringLiteral("File");
+const QString AbstractProjectFile::TYPE_DIR =
+		QStringLiteral("Directory");
+const QString AbstractProjectFile::TYPE_DIR_LINK =
+		QStringLiteral("DirectoryLink");
+const QString AbstractProjectFile::TYPE_FILE_LINK =
+		QStringLiteral("FileLink");
+
+AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(
+		const QString &str)
+{
+	if (str == TYPE_DIR)
+		return FileObjType::Directory;
+
+	if (str == TYPE_DIR_LINK)
+		return FileObjType::DirectoryLink;
+
+	if (str == TYPE_FILE)
+		return FileObjType::File;
+
+	if (str == TYPE_FILE_LINK)
+		return FileObjType::FileLink;
+
+	return FileObjType::None;
+}
+
+AbstractProjectFile::AbstractProjectFile(const QString &name,
+										 const QString &extension)
+	: VariantMapFile(extension)
+	, openedFiles(nullptr)
+	, searchPaths(nullptr)
+{
+	setObjectName(name);
+
+	(void) QT_TRANSLATE_NOOP("ClassName",
+							 "Banana::AbstractProjectFile");
+	(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile",
+							 "mHideIgnoredFiles");
+	(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile",
+							 "mIgnoredFilesPattern");
+	(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile",
+							 "mSearchPaths");
+}
+
+AbstractProjectFile::~AbstractProjectFile()
+{
+	watch(false);
+	delete searchPaths;
+}
+
+bool AbstractProjectFile::isWatched() const
+{
+	if (nullptr != openedFiles)
 	{
-		if (str == TYPE_DIR)
-			return FileObjType::Directory;
-
-		if (str == TYPE_DIR_LINK)
-			return FileObjType::DirectoryLink;
-
-		if (str == TYPE_FILE)
-			return FileObjType::File;
-
-		if (str == TYPE_FILE_LINK)
-			return FileObjType::FileLink;
-
-		return FileObjType::None;
+		return openedFiles->isFileWatched(this);
 	}
 
-	AbstractProjectFile::AbstractProjectFile(const QString &name, const QString &extension)
-		: VariantMapFile(extension)
-		, openedFiles(nullptr)
-		, searchPaths(nullptr)
-	{
-		setObjectName(name);
+	return false;
+}
 
-		(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractProjectFile");
-		(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mHideIgnoredFiles");
-		(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mIgnoredFilesPattern");
-		(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mSearchPaths");
-	}
+void AbstractProjectFile::watchFile()
+{
+	watch(true);
+}
 
-	AbstractProjectFile::~AbstractProjectFile()
-	{
-		watch(false);
-		delete searchPaths;
-	}
+QStringList AbstractProjectFile::getIgnoredFilesList() const
+{
+	return mIgnoredFilesPattern.split(QRegExp("[\n\r]+|\\|"),
+									  QString::SkipEmptyParts);
+}
 
-	bool AbstractProjectFile::isWatched() const
+void AbstractProjectFile::setIgnoredFilesList(const QStringList &value)
+{
+	std::set<QString> join;
+
+	QStringList newList;
+
+	for (auto &str : value)
 	{
-		if (nullptr != openedFiles)
+		if (join.find(str) == join.end())
 		{
-			return openedFiles->isFileWatched(this);
+			join.insert(str);
+			newList.push_back(str);
 		}
-
-		return false;
 	}
 
-	void AbstractProjectFile::watchFile()
+	setIgnoredFilesPattern(newList.join('\n'));
+}
+
+SearchPaths *AbstractProjectFile::getSearchPaths()
+{
+	if (searchPaths == nullptr)
 	{
-		watch(true);
+		auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
+							   getTopDirectory());
+		if (nullptr != projectDir)
+			searchPaths = new SearchPaths(projectDir);
 	}
 
-	QStringList AbstractProjectFile::getIgnoredFilesList() const
+	return searchPaths;
+}
+
+void AbstractProjectFile::resetSearchPaths()
+{
+	getSearchPaths()->clear();
+}
+
+QString AbstractProjectFile::getAbsoluteFilePathFor(
+		const QString &filepath) const
+{
+	auto root_dir = dynamic_cast<Directory *>(parent());
+	if (nullptr != root_dir)
+		return root_dir->getAbsoluteFilePathFor(filepath);
+
+	return QString();
+}
+
+void AbstractProjectFile::unwatchFile()
+{
+	watch(false);
+}
+
+void AbstractProjectFile::saveData(QVariantMap &output)
+{
+	VariantMapFile::saveData(output);
+
+	QVariantList paths;
+
+	auto root_dir = dynamic_cast<Directory *>(parent());
+	saveProjectDirectory(root_dir,
+						 getTopDirectory(),
+						 paths);
+
+	output.insert(FILES_KEY, paths);
+
+	// ----
+	paths.clear();
+
+	auto ignored = getIgnoredFilesList();
+
+	for (auto &pattern : ignored)
+		paths.push_back(pattern);
+
+	output.insert(IGNORED_FILES_KEY, paths);
+
+	// ----
+	paths.clear();
+
+	auto dirs = getSearchPaths()->getDirectoryList();
+
+	for (auto dir : dirs)
+		paths.push_back(dir->getFilePath(root_dir));
+
+	output.insert(SEARCH_PATHS_KEY, paths);
+}
+
+bool AbstractProjectFile::loadData(const QVariantMap &input)
+{
+	bool ok = false;
+	beginLoad();
+	auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
+						  getTopDirectory());
+	auto rootDir = dynamic_cast<Directory *>(parent());
+
+	if (nullptr != projectDir
+	&&	projectDir->getProjectFile() == this
+	&&	projectDir == rootDir)
 	{
-		return mIgnoredFilesPattern.split(QRegExp("[\n\r]+|\\|"), QString::SkipEmptyParts);
-	}
-
-	void AbstractProjectFile::setIgnoredFilesList(const QStringList &value)
-	{
-		std::set<QString> join;
-
-		QStringList newList;
-
-		for (auto &str : value)
+		auto siblings = projectDir->children();
+		foreach (QObject *sibling, siblings)
 		{
-			if (join.find(str) == join.end())
-			{
-				join.insert(str);
-				newList.push_back(str);
-			}
+			if (sibling != this)
+				delete sibling;
 		}
+		siblings.clear();
 
-		setIgnoredFilesPattern(newList.join('\n'));
-	}
-
-	SearchPaths *AbstractProjectFile::getSearchPaths()
-	{
-		if (searchPaths == nullptr)
+		if (VariantMapFile::loadData(input))
 		{
-			auto project_dir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
-			if (nullptr != project_dir)
-				searchPaths = new SearchPaths(project_dir);
-		}
+			ok = true;
 
-		return searchPaths;
-	}
+			auto value = Utils::ValueFrom(input, IGNORED_FILES_KEY);
 
-	void AbstractProjectFile::resetSearchPaths()
-	{
-		getSearchPaths()->clear();
-	}
-
-	QString AbstractProjectFile::getAbsoluteFilePathFor(const QString &filepath) const
-	{
-		auto root_dir = dynamic_cast<Directory *>(parent());
-		if (nullptr != root_dir)
-			return root_dir->getAbsoluteFilePathFor(filepath);
-
-		return QString();
-	}
-
-	void AbstractProjectFile::unwatchFile()
-	{
-		watch(false);
-	}
-
-	void AbstractProjectFile::saveData(QVariantMap &output)
-	{
-		VariantMapFile::saveData(output);
-
-		QVariantList paths;
-
-		auto root_dir = dynamic_cast<Directory *>(parent());
-		saveProjectDirectory(root_dir,
-							 getTopDirectory(),
-							 paths);
-
-		output.insert(FILES_KEY, paths);
-
-		// ----
-		paths.clear();
-
-		auto ignored = getIgnoredFilesList();
-
-		for (auto &pattern : ignored)
-			paths.push_back(pattern);
-
-		output.insert(IGNORED_FILES_KEY, paths);
-
-		// ----
-		paths.clear();
-
-		auto dirs = getSearchPaths()->getDirectoryList();
-
-		for (auto dir : dirs)
-			paths.push_back(dir->getFilePath(root_dir));
-
-		output.insert(SEARCH_PATHS_KEY, paths);
-	}
-
-	bool AbstractProjectFile::loadData(const QVariantMap &input)
-	{
-		bool ok = false;
-		beginLoad();
-		auto projectDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
-		auto rootDir = dynamic_cast<Directory *>(parent());
-
-		if (nullptr != projectDir && projectDir->getProjectFile() == this && projectDir == rootDir)
-		{
-			auto siblings = projectDir->children();
-			foreach (QObject *sibling, siblings)
+			if (value.type() == QVariant::List)
 			{
-				if (sibling != this)
-					delete sibling;
-			}
-			siblings.clear();
+				auto list = value.toList();
+				value.clear();
 
-			if (VariantMapFile::loadData(input))
-			{
-				ok = true;
+				QStringList ignored;
 
-				auto value = Utils::ValueFrom(input, IGNORED_FILES_KEY);
-
-				if (value.type() == QVariant::List)
+				for (auto &pattern : list)
 				{
-					auto list = value.toList();
-					value.clear();
-
-					QStringList ignored;
-
-					for (auto &pattern : list)
-					{
-						if (pattern.type() == QVariant::String)
-							ignored.push_back(pattern.toString());
-					}
-
-					setIgnoredFilesList(ignored);
+					if (pattern.type() == QVariant::String)
+						ignored.push_back(pattern.toString());
 				}
 
-				value = Utils::ValueFrom(input, FILES_KEY);
+				setIgnoredFilesList(ignored);
+			}
 
-				if (value.type() == QVariant::List)
+			value = Utils::ValueFrom(input, FILES_KEY);
+
+			if (value.type() == QVariant::List)
+			{
+				auto list = value.toList();
+				value.clear();
+				struct FileInfo
 				{
-					auto list = value.toList();
-					value.clear();
-					struct FileInfo
+					QString path;
+					QString target;
+				};
+
+				std::map<FileObjType, std::vector<FileInfo>> infos;
+
+				for (auto it = list.begin(); it != list.end(); ++it)
+				{
+					const QVariant &itValue = *it;
+
+					FileInfo info;
+					auto type = FileObjType::None;
+					switch (itValue.type())
 					{
-						QString path;
-						QString target;
-					};
-
-					std::map<FileObjType, std::vector<FileInfo>> infos;
-
-					for (auto it = list.begin(); it != list.end(); ++it)
-					{
-						const QVariant &itValue = *it;
-
-						FileInfo info;
-						auto type = FileObjType::None;
-						switch (itValue.type())
+						case QVariant::Map:
 						{
-							case QVariant::Map:
+							QVariantMap map(itValue.toMap());
+
+							auto v = Utils::ValueFrom(map, TYPE_KEY);
+							if (v.type() != QVariant::String)
 							{
-								QVariantMap map(itValue.toMap());
-
-								auto v = Utils::ValueFrom(map, TYPE_KEY);
-								if (v.type() != QVariant::String)
-								{
-									LOG_WARNING("Bad file type");
-									continue;
-								}
-								type = getFileObjTypeFromString(v.toString());
-
-								v = Utils::ValueFrom(map, PATH_KEY);
-								if (v.type() != QVariant::String)
-								{
-									LOG_WARNING("Bad path");
-									continue;
-								}
-								info.path = v.toString();
-
-								switch (type)
-								{
-									case FileObjType::FileLink:
-									case FileObjType::DirectoryLink:
-									{
-										v = Utils::ValueFrom(map, TARGET_KEY);
-										if (v.type() != QVariant::String)
-										{
-											LOG_WARNING("Bad path");
-											continue;
-										}
-										info.target = v.toString();
-									}	break;
-
-									default:
-										break;
-								}
-							}	break;
-
-							case QVariant::String:
-								type = FileObjType::File;
-								info.path = itValue.toString();
-								break;
-
-							default:
-							{
-								LOG_WARNING(QString("Unknown field type: %1").arg((int) itValue.type()));
+								LOG_WARNING("Bad file type");
 								continue;
 							}
-						}
+							type = getFileObjTypeFromString(v.toString());
 
-						switch (type)
-						{
-							case FileObjType::File:
-							case FileObjType::FileLink:
-							case FileObjType::Directory:
-							case FileObjType::DirectoryLink:
-								break;
-
-							case FileObjType::None:
+							v = Utils::ValueFrom(map, PATH_KEY);
+							if (v.type() != QVariant::String)
+							{
+								LOG_WARNING("Bad path");
 								continue;
-						}
+							}
+							info.path = v.toString();
 
-						infos[type].push_back(info);
-					}
-
-					auto it = infos.find(FileObjType::DirectoryLink);
-
-					if (infos.end() != it)
-					{
-						for (auto &info : it->second)
-						{
-							projectDir->linkDirectory(
-										rootDir->getAbsoluteFilePathFor(info.target),
-										rootDir->getAbsoluteFilePathFor(info.path),
-										false, false);
-						}
-
-						infos.erase(it);
-					}
-
-					for (auto &item : infos)
-					{
-						for (auto &info : item.second)
-						{
-							switch (item.first)
+							switch (type)
 							{
 								case FileObjType::FileLink:
-									projectDir->linkFile(
-												rootDir->getAbsoluteFilePathFor(info.target),
-												rootDir->getAbsoluteFilePathFor(info.path),
-												false, false);
-									break;
+								case FileObjType::DirectoryLink:
+								{
+									v = Utils::ValueFrom(map, TARGET_KEY);
+									if (v.type() != QVariant::String)
+									{
+										LOG_WARNING("Bad path");
+										continue;
+									}
+									info.target = v.toString();
+								}	break;
 
 								default:
 									break;
 							}
+						}	break;
+
+						case QVariant::String:
+							type = FileObjType::File;
+							info.path = itValue.toString();
+							break;
+
+						default:
+						{
+							LOG_WARNING(QStringLiteral("Unknown field type: %1")
+										.arg((int) itValue.type()));
+							continue;
 						}
 					}
+
+					switch (type)
+					{
+						case FileObjType::File:
+						case FileObjType::FileLink:
+						case FileObjType::Directory:
+						case FileObjType::DirectoryLink:
+							break;
+
+						case FileObjType::None:
+							continue;
+					}
+
+					infos[type].push_back(info);
 				}
 
-				value = Utils::ValueFrom(input, SEARCH_PATHS_KEY);
+				auto it = infos.find(FileObjType::DirectoryLink);
 
-				if (value.type() == QVariant::List)
+				if (infos.end() != it)
 				{
-					auto list = value.toList();
-					value.clear();
-
-					auto searchPaths = getSearchPaths();
-
-					int order = 0;
-					for (auto &v : list)
+					for (auto &info : it->second)
 					{
-						if (v.type() != QVariant::String)
-						{
-							LOG_WARNING("Bad search path");
-							continue;
-						}
+						projectDir->linkDirectory(
+									rootDir->getAbsoluteFilePathFor(
+										info.target),
+									rootDir->getAbsoluteFilePathFor(
+										info.path),
+									false, false);
+					}
 
-						auto path = rootDir->getAbsoluteFilePathFor(v.toString());
-						if (nullptr == searchPaths->registerPath(path, order))
+					infos.erase(it);
+				}
+
+				for (auto &item : infos)
+				{
+					for (auto &info : item.second)
+					{
+						switch (item.first)
 						{
-							LOG_WARNING(QString("Unable to register search path: '%1'").arg(path));
-							continue;
+							case FileObjType::FileLink:
+								projectDir->linkFile(
+											rootDir->getAbsoluteFilePathFor(
+												info.target),
+											rootDir->getAbsoluteFilePathFor(
+												info.path),
+											false, false);
+								break;
+
+							default:
+								break;
 						}
-						order++;
 					}
 				}
 			}
-		}
 
-		endLoad();
-		return ok;
-	}
+			value = Utils::ValueFrom(input, SEARCH_PATHS_KEY);
 
-	void AbstractProjectFile::doUpdateFilePath(bool check_oldpath)
-	{
-		openedFiles = nullptr;
-		auto projectDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
-		if (nullptr != projectDir)
-		{
-			openedFiles = projectDir->getOpenedFiles();
-		}
-
-		VariantMapFile::doUpdateFilePath(check_oldpath);
-	}
-
-	void AbstractProjectFile::watch(bool yes)
-	{
-		if (nullptr != openedFiles)
-		{
-			if (!canonicalPath.isEmpty())
-				openedFiles->watchFile(this, yes);
-		}
-	}
-
-	void AbstractProjectFile::saveProjectDirectory(Directory *root_dir,
-												   Directory *dir,
-												   QVariantList &output) const
-	{
-		Q_ASSERT(nullptr != root_dir);
-		Q_ASSERT(nullptr != dir);
-
-		for (auto child : dir->children())
-		{
-			dir = dynamic_cast<Directory *>(child);
-			if (nullptr != dir)
+			if (value.type() == QVariant::List)
 			{
-				if (nullptr == dynamic_cast<RootDirectory *>(child))
+				auto list = value.toList();
+				value.clear();
+
+				auto searchPaths = getSearchPaths();
+
+				int order = 0;
+				for (auto &v : list)
 				{
-					auto relative_path = dir->getFilePath(root_dir);
-					QFileInfo info(dir->getFilePath());
-
-					if (info.isSymLink())
+					if (v.type() != QVariant::String)
 					{
-						QVariantMap map;
-						map.insert(TYPE_KEY, TYPE_DIR_LINK);
-						map.insert(PATH_KEY, relative_path);
-						map.insert(TARGET_KEY, root_dir->getRelativeFilePathFor(info.symLinkTarget()));
-
-						output.push_back(map);
+						LOG_WARNING(QStringLiteral("Bad search path"));
+						continue;
 					}
-				}
 
-				saveProjectDirectory(root_dir, dir, output);
-			} else
-			{
-				auto file = dynamic_cast<AbstractFile *>(child);
-				if (nullptr != file && file != this)
-				{
-					auto relative_filepath = file->getFilePath(root_dir);
-					if (file->isSymLink())
+					auto path = rootDir->getAbsoluteFilePathFor(v.toString());
+					if (nullptr == searchPaths->registerPath(path, order))
 					{
-						QVariantMap map;
-						map.insert(TYPE_KEY, TYPE_FILE_LINK);
-						map.insert(PATH_KEY, relative_filepath);
-						map.insert(TARGET_KEY, root_dir->getRelativeFilePathFor(file->getSymLinkTarget()));
-
-						output.push_back(map);
+						LOG_WARNING(
+						QStringLiteral("Unable to register search path: '%1'")
+									.arg(path));
+						continue;
 					}
+					order++;
 				}
 			}
 		}
 	}
 
-	void AbstractProjectFile::doSetHideIgnoredFiles(bool value)
+	endLoad();
+	return ok;
+}
+
+void AbstractProjectFile::doUpdateFilePath(bool check_oldpath)
+{
+	openedFiles = nullptr;
+	auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
+						  getTopDirectory());
+	if (nullptr != projectDir)
 	{
-		auto oldValue = mHideIgnoredFiles;
-		mHideIgnoredFiles = value;
-		PUSH_UNDO_COMMAND(HideIgnoredFiles, oldValue);
-		emit changedHideIgnoredFiles();
-		setModified(true);
+		openedFiles = projectDir->getOpenedFiles();
 	}
 
-	void AbstractProjectFile::resetHideIgnoredFiles()
-	{
-		setHideIgnoredFiles(true);
-	}
+	VariantMapFile::doUpdateFilePath(check_oldpath);
+}
 
-	void AbstractProjectFile::doSetIgnoredFilesPattern(const QString &value)
+void AbstractProjectFile::watch(bool yes)
+{
+	if (nullptr != openedFiles)
 	{
-		auto oldValue = mIgnoredFilesPattern;
-		mIgnoredFilesPattern = value;
-		PUSH_UNDO_COMMAND(IgnoredFilesPattern, oldValue);
-		emit changedIgnoredFilesPattern();
-		setModified(true);
+		if (!canonicalPath.isEmpty())
+			openedFiles->watchFile(this, yes);
 	}
+}
 
-	void AbstractProjectFile::resetIgnoredFilesPattern()
+void AbstractProjectFile::saveProjectDirectory(Directory *rootDir,
+											   Directory *dir,
+											   QVariantList &output) const
+{
+	Q_ASSERT(nullptr != rootDir);
+	Q_ASSERT(nullptr != dir);
+
+	for (auto child : dir->children())
 	{
-		setIgnoredFilesPattern(QString());
+		dir = dynamic_cast<Directory *>(child);
+		if (nullptr != dir)
+		{
+			if (nullptr == dynamic_cast<RootDirectory *>(child))
+			{
+				auto relative_path = dir->getFilePath(rootDir);
+				QFileInfo info(dir->getFilePath());
+
+				if (info.isSymLink())
+				{
+					QVariantMap map;
+					map.insert(TYPE_KEY, TYPE_DIR_LINK);
+					map.insert(PATH_KEY, relative_path);
+					map.insert(TARGET_KEY, rootDir->getRelativeFilePathFor(
+								   info.symLinkTarget()));
+
+					output.push_back(map);
+				}
+			}
+
+			saveProjectDirectory(rootDir, dir, output);
+		} else
+		{
+			auto file = dynamic_cast<AbstractFile *>(child);
+			if (nullptr != file && file != this)
+			{
+				auto relative_filepath = file->getFilePath(rootDir);
+				if (file->isSymLink())
+				{
+					QVariantMap map;
+					map.insert(TYPE_KEY, TYPE_FILE_LINK);
+					map.insert(PATH_KEY, relative_filepath);
+					map.insert(TARGET_KEY, rootDir->getRelativeFilePathFor(
+								   file->getSymLinkTarget()));
+
+					output.push_back(map);
+				}
+			}
+		}
 	}
+}
+
+void AbstractProjectFile::doSetHideIgnoredFiles(bool value)
+{
+	auto oldValue = mHideIgnoredFiles;
+	mHideIgnoredFiles = value;
+	PUSH_UNDO_COMMAND(HideIgnoredFiles, oldValue);
+	emit changedHideIgnoredFiles();
+	setModified(true);
+}
+
+void AbstractProjectFile::resetHideIgnoredFiles()
+{
+	setHideIgnoredFiles(true);
+}
+
+void AbstractProjectFile::doSetIgnoredFilesPattern(const QString &value)
+{
+	auto oldValue = mIgnoredFilesPattern;
+	mIgnoredFilesPattern = value;
+	PUSH_UNDO_COMMAND(IgnoredFilesPattern, oldValue);
+	emit changedIgnoredFilesPattern();
+	setModified(true);
+}
+
+void AbstractProjectFile::resetIgnoredFilesPattern()
+{
+	setIgnoredFilesPattern(QString());
+}
 
 }

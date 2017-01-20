@@ -27,103 +27,104 @@ SOFTWARE.
 namespace Banana
 {
 
-	AbstractObjectUndoCommand::AbstractObjectUndoCommand(QObject *object)
-		: object(object)
-		, fetchIndex(-1)
-		, skipRedoOnPush(true)
+AbstractObjectUndoCommand::AbstractObjectUndoCommand(QObject *object)
+	: object(object)
+	, fetchIndex(-1)
+	, skipRedoOnPush(true)
+{
+	while (nullptr != object)
 	{
-		while (nullptr != object)
+		objectPath.push_back(object->objectName());
+		object = object->parent();
+	}
+
+	connectObject();
+}
+
+void AbstractObjectUndoCommand::undo()
+{
+	fetchObject();
+
+	doUndo();
+}
+
+void AbstractObjectUndoCommand::redo()
+{
+	if (skipRedoOnPush)
+	{
+		skipRedoOnPush = false;
+		return;
+	}
+
+	fetchObject();
+
+	doRedo();
+}
+
+QObject *AbstractObjectUndoCommand::getObject() const
+{
+	if (fetchIndex >= 0)
+		return nullptr;
+
+	return object;
+}
+
+void AbstractObjectUndoCommand::onObjectDestroyed()
+{
+	class ObjectHack : public QObject
+	{
+	public:
+		bool wasDeleted() const
 		{
-			objectPath.push_back(object->objectName());
-			object = object->parent();
+			return d_ptr->wasDeleted;
 		}
+	};
+
+	while (nullptr != object && static_cast<ObjectHack *>(object)->wasDeleted())
+	{
+		fetchIndex++;
+		object = object->parent();
+	}
+
+	if (nullptr != object)
+		connectObject();
+}
+
+void AbstractObjectUndoCommand::fetchObject()
+{
+	if (fetchIndex >= 0)
+	{
+		disconnectObject();
+
+		for (int i = fetchIndex; i >= 0; i--)
+		{
+			object = object->findChild<QObject *>(
+						 objectPath.at(i), Qt::FindDirectChildrenOnly);
+			Q_ASSERT(nullptr != object);
+		}
+
+		fetchIndex = -1;
 
 		connectObject();
 	}
 
-	void AbstractObjectUndoCommand::undo()
-	{
-		fetchObject();
+	Q_ASSERT(nullptr != object);
+}
 
-		doUndo();
-	}
+void AbstractObjectUndoCommand::connectObject()
+{
+	Q_ASSERT(nullptr != object);
 
-	void AbstractObjectUndoCommand::redo()
-	{
-		if (skipRedoOnPush)
-		{
-			skipRedoOnPush = false;
-			return;
-		}
+	QObject::connect(object, &QObject::destroyed,
+					 this, &AbstractObjectUndoCommand::onObjectDestroyed);
+}
 
-		fetchObject();
+void AbstractObjectUndoCommand::disconnectObject()
+{
+	Q_ASSERT(nullptr != object);
 
-		doRedo();
-	}
-
-	QObject *AbstractObjectUndoCommand::getObject() const
-	{
-		if (fetchIndex >= 0)
-			return nullptr;
-
-		return object;
-	}
-
-	void AbstractObjectUndoCommand::onObjectDestroyed()
-	{
-		class ObjectHack : public QObject
-		{
-		public:
-			bool wasDeleted() const
-			{
-				return d_ptr->wasDeleted;
-			}
-		};
-
-		while (nullptr != object && static_cast<ObjectHack *>(object)->wasDeleted())
-		{
-			fetchIndex++;
-			object = object->parent();
-		}
-
-		if (nullptr != object)
-			connectObject();
-	}
-
-	void AbstractObjectUndoCommand::fetchObject()
-	{
-		if (fetchIndex >= 0)
-		{
-			disconnectObject();
-
-			for (int i = fetchIndex; i >= 0; i--)
-			{
-				object = object->findChild<QObject *>(objectPath.at(i), Qt::FindDirectChildrenOnly);
-				Q_ASSERT(nullptr != object);
-			}
-
-			fetchIndex = -1;
-
-			connectObject();
-		}
-
-		Q_ASSERT(nullptr != object);
-	}
-
-	void AbstractObjectUndoCommand::connectObject()
-	{
-		Q_ASSERT(nullptr != object);
-
-		QObject::connect(object, &QObject::destroyed,
-						 this, &AbstractObjectUndoCommand::onObjectDestroyed);
-	}
-
-	void AbstractObjectUndoCommand::disconnectObject()
-	{
-		Q_ASSERT(nullptr != object);
-
-		QObject::disconnect(object, &QObject::destroyed,
-							this, &AbstractObjectUndoCommand::onObjectDestroyed);
-	}
+	QObject::disconnect(object, &QObject::destroyed,
+						this, &AbstractObjectUndoCommand::onObjectDestroyed);
+}
 
 }
