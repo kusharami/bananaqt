@@ -32,60 +32,61 @@ SOFTWARE.
 
 namespace Banana
 {
-	class NameEnumerator : public AbstractNameUnifier
+class NameEnumerator : public AbstractNameUnifier
+{
+	Q_GADGET
+
+public:
+	NameEnumerator();
+	NameEnumerator(const NameCollectionPtr &ptr);
+
+	enum Type
 	{
-		Q_GADGET
-
-	public:
-		NameEnumerator();
-		NameEnumerator(const NameCollectionPtr &ptr);
-
-		enum Type
-		{
-			StartsWithNumber,
-			EndsWithNumber
-		};
-		Q_ENUM(Type)
-
-		inline Type type() const;
-		inline void setType(Type value);
-
-		inline QString separator() const;
-		inline void setSeparator(const QString &value);
-
-		void separateNameAndNumber(const QString &fullName,
-								   QString *resultNamePtr = nullptr,
-								   QString *resultNumberPtr = nullptr) const;
-
-		virtual QString uniqueNameFor(const QString &name) const override;
-		virtual bool isValid() const override;
-
-	private:
-		QString attachNumber(const QString &name, quint64 number) const;
-
-		Type mType;
-		QString mSeparator;
+		StartsWithNumber,
+		EndsWithNumber
 	};
 
-	NameEnumerator::Type NameEnumerator::type() const
-	{
-		return mType;
-	}
+	Q_ENUM(Type)
 
-	void NameEnumerator::setType(Type value)
-	{
-		mType = value;
-	}
+	inline Type type() const;
+	inline void setType(Type value);
 
-	QString NameEnumerator::separator() const
-	{
-		return mSeparator;
-	}
+	inline QString separator() const;
+	inline void setSeparator(const QString &value);
 
-	void NameEnumerator::setSeparator(const QString &value)
-	{
-		mSeparator = value;
-	}
+	void separateNameAndNumber(const QString &fullName,
+							   QString *resultNamePtr = nullptr,
+							   QString *resultNumberPtr = nullptr) const;
+
+	virtual QString uniqueNameFor(const QString &name) const override;
+	virtual bool isValid() const override;
+
+private:
+	QString attachNumber(const QString &name, quint64 number) const;
+
+	Type mType;
+	QString mSeparator;
+};
+
+NameEnumerator::Type NameEnumerator::type() const
+{
+	return mType;
+}
+
+void NameEnumerator::setType(Type value)
+{
+	mType = value;
+}
+
+QString NameEnumerator::separator() const
+{
+	return mSeparator;
+}
+
+void NameEnumerator::setSeparator(const QString &value)
+{
+	mSeparator = value;
+}
 
 }
 

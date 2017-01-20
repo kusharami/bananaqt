@@ -28,7 +28,7 @@ SOFTWARE.
 
 namespace Ui
 {
-	class ProjectTreeWidget;
+class ProjectTreeWidget;
 }
 
 class QMenu;
@@ -71,4 +71,5 @@ private:
 	QString currentFilter;
 	QRegExp::PatternSyntax pattern_syntax;
 };
+
 }

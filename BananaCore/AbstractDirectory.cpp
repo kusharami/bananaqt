@@ -66,7 +66,7 @@ QString AbstractDirectory::getFileName() const
 }
 
 AbstractFileSystemObject *AbstractDirectory::findFileSystemObject(
-		const QString &path, bool linked)
+	const QString &path, bool linked)
 {
 	AbstractFileSystemObject *result = nullptr;
 	if (!path.isEmpty())
@@ -81,8 +81,10 @@ AbstractFileSystemObject *AbstractDirectory::findFileSystemObject(
 			{
 				QFileInfo info(absolute_path);
 				if (info.exists())
+				{
 					result = top_dir->internalFind(
-								 info.canonicalFilePath(), true);
+							info.canonicalFilePath(), true);
+				}
 			}
 		}
 	}
@@ -90,8 +92,8 @@ AbstractFileSystemObject *AbstractDirectory::findFileSystemObject(
 	return result;
 }
 
-void AbstractDirectory::descendantChanged(QObject *descendant,
-										  DescendantState state)
+void AbstractDirectory::descendantChanged(
+	QObject *descendant, DescendantState state)
 {
 	auto parent = getParentDirectory();
 	if (nullptr != parent)
@@ -99,7 +101,7 @@ void AbstractDirectory::descendantChanged(QObject *descendant,
 }
 
 AbstractFileSystemObject *AbstractDirectory::internalFind(
-		const QString &path, bool canonical)
+	const QString &path, bool canonical)
 {
 	if (canonical)
 	{

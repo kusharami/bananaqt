@@ -29,26 +29,27 @@ class QString;
 
 namespace Banana
 {
-	extern const char pX[];
-	extern const char pY[];
-	extern const char pWidth[];
-	extern const char pHeight[];
-	extern const char pNoExtension[];
-	extern const char pUntitledFileName[];
-	extern const char pFalse[];
-	extern const char pTrue[];
+extern const char pX[];
+extern const char pY[];
+extern const char pWidth[];
+extern const char pHeight[];
+extern const char pNoExtension[];
+extern const char pUntitledFileName[];
+extern const char pFalse[];
+extern const char pTrue[];
 
-	QFont getDefaultFont();
-	QString getBoolString(bool value);
+QFont getDefaultFont();
+QString getBoolString(bool value);
 
-	enum
-	{
-		CHANGE_VALUE_COMMAND,
-		CHANGE_CONTENTS_COMMAND,
-		CHILD_ACTION_COMMAND,
+enum
+{
+	CHANGE_VALUE_COMMAND,
+	CHANGE_CONTENTS_COMMAND,
+	CHILD_ACTION_COMMAND,
 
-		RESERVED,
+	RESERVED,
 
-		USER_COMMAND = 1024
-	};
+	USER_COMMAND = 1024
+};
+
 }

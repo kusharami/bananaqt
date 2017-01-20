@@ -31,44 +31,44 @@ SOFTWARE.
 
 namespace Banana
 {
-	class SearchPaths;
+class SearchPaths;
 
-	class QtnPropertySearchPaths : public QtnProperty
-	{
-		Q_OBJECT
+class QtnPropertySearchPaths : public QtnProperty
+{
+	Q_OBJECT
 
-	public:
-		explicit QtnPropertySearchPaths(QObject *object,
-										const QMetaProperty &metaProperty);
+public:
+	explicit QtnPropertySearchPaths(QObject *object,
+									const QMetaProperty &metaProperty);
 
-		SearchPaths *getSearchPaths() const;
+	SearchPaths *getSearchPaths() const;
 
-		static QString getPlaceholderStr();
-		static void Register();
+	static QString getPlaceholderStr();
+	static void Register();
 
-	private:
-		QObject *object;
-		QMetaProperty metaProperty;
-	};
+private:
+	QObject *object;
+	QMetaProperty metaProperty;
+};
 
-	class QtnPropertyDelegateSearchPaths
-		: public QtnPropertyDelegateTyped<QtnPropertySearchPaths>
-	{
-		Q_DISABLE_COPY(QtnPropertyDelegateSearchPaths)
+class QtnPropertyDelegateSearchPaths
+	: public QtnPropertyDelegateTyped<QtnPropertySearchPaths>
+{
+	Q_DISABLE_COPY(QtnPropertyDelegateSearchPaths)
 
-	public:
-		QtnPropertyDelegateSearchPaths(QtnPropertySearchPaths &owner);
+public:
+	QtnPropertyDelegateSearchPaths(QtnPropertySearchPaths &owner);
 
-	protected:
-		virtual void drawValueImpl(QStylePainter &painter,
-								   const QRect &rect,
-								   const QStyle::State &state,
-								   bool *needTooltip = nullptr) const override;
+protected:
+	virtual void drawValueImpl(QStylePainter &painter, const QRect &rect,
+							   const QStyle::State &state,
+							   bool *needTooltip = nullptr) const override;
 
-		virtual QWidget* createValueEditorImpl(QWidget *parent,
-											   const QRect &rect,
-											   QtnInplaceInfo *inplaceInfo = nullptr) override;
+	virtual QWidget *createValueEditorImpl(
+		QWidget *parent, const QRect &rect, QtnInplaceInfo *inplaceInfo =
+			nullptr) override;
 
-		virtual bool propertyValueToStr(QString &strValue) const override;
-	};
+	virtual bool propertyValueToStr(QString &strValue) const override;
+};
+
 }

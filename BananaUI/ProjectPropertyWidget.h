@@ -28,7 +28,7 @@ SOFTWARE.
 
 namespace Banana
 {
-	class AbstractProjectFile;
+class AbstractProjectFile;
 
 class ProjectPropertyWidget : public ObjectPropertyWidget
 {
@@ -47,4 +47,5 @@ private:
 	void connectFile();
 	void disconnectFile();
 };
+
 }

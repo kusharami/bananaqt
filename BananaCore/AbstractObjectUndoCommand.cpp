@@ -78,6 +78,7 @@ void AbstractObjectUndoCommand::onObjectDestroyed()
 		{
 			return d_ptr->wasDeleted;
 		}
+
 	};
 
 	while (nullptr != object && static_cast<ObjectHack *>(object)->wasDeleted())
@@ -99,7 +100,7 @@ void AbstractObjectUndoCommand::fetchObject()
 		for (int i = fetchIndex; i >= 0; i--)
 		{
 			object = object->findChild<QObject *>(
-						 objectPath.at(i), Qt::FindDirectChildrenOnly);
+					objectPath.at(i), Qt::FindDirectChildrenOnly);
 			Q_ASSERT(nullptr != object);
 		}
 
@@ -115,16 +116,18 @@ void AbstractObjectUndoCommand::connectObject()
 {
 	Q_ASSERT(nullptr != object);
 
-	QObject::connect(object, &QObject::destroyed,
-					 this, &AbstractObjectUndoCommand::onObjectDestroyed);
+	QObject::connect(
+		object, &QObject::destroyed,
+		this, &AbstractObjectUndoCommand::onObjectDestroyed);
 }
 
 void AbstractObjectUndoCommand::disconnectObject()
 {
 	Q_ASSERT(nullptr != object);
 
-	QObject::disconnect(object, &QObject::destroyed,
-						this, &AbstractObjectUndoCommand::onObjectDestroyed);
+	QObject::disconnect(
+		object, &QObject::destroyed,
+		this, &AbstractObjectUndoCommand::onObjectDestroyed);
 }
 
 }

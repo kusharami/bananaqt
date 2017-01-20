@@ -34,215 +34,226 @@ SOFTWARE.
 namespace Banana
 {
 
-	AbstractFileRegistrator::AbstractFileRegistrator(AbstractFile *thiz)
-		: thiz(thiz)
-		, data(nullptr)
-		, openedFiles(nullptr)
-		, namingPolicy(nullptr)
-	{
-	}
+AbstractFileRegistrator::AbstractFileRegistrator(AbstractFile *thiz)
+	: thiz(thiz)
+	, data(nullptr)
+	, openedFiles(nullptr)
+	, namingPolicy(nullptr)
+{
+}
 
-	AbstractFileRegistrator::~AbstractFileRegistrator()
-	{
-		closeFileData();
-	}
+AbstractFileRegistrator::~AbstractFileRegistrator()
+{
+	closeFileData();
+}
 
-	void AbstractFileRegistrator::createFileData(bool *reused)
+void AbstractFileRegistrator::createFileData(bool *reused)
+{
+	disconnectFileData();
+
+	initCreateFileData();
+	Q_ASSERT(nullptr != openedFiles);
+
+	data = openedFiles->getRegisteredFileData(thiz->canonicalPath);
+
+	if (nullptr != reused)
+		*reused = (nullptr != data);
+
+	if (nullptr == data)
+		data = doCreateFileData();
+
+	Q_ASSERT(nullptr != data);
+
+	openedFiles->registerFile(thiz->canonicalPath, data);
+
+	data->setObjectName(QFileInfo(thiz->canonicalPath).fileName());
+
+	connectFileData();
+}
+
+void AbstractFileRegistrator::closeFileData()
+{
+	if (nullptr != data)
 	{
 		disconnectFileData();
 
-		initCreateFileData();
-		Q_ASSERT(nullptr != openedFiles);
+		deleteData();
 
-		data = openedFiles->getRegisteredFileData(thiz->canonicalPath);
+		disconnectContext();
+	}
+}
 
-		if (nullptr != reused)
-			*reused = (nullptr != data);
+bool AbstractFileRegistrator::canChangeFilePath(const QString &newFilePath)
+{
+	if (nullptr != data)
+	{
+		if (nullptr != openedFiles)
+			return openedFiles->canChangeFilePath(
+				thiz->canonicalPath,
+				newFilePath);
+	}
 
-		if (nullptr == data)
-			data = doCreateFileData();
+	return true;
+}
 
-		Q_ASSERT(nullptr != data);
+void AbstractFileRegistrator::deleteData()
+{
+	auto toDelete = data;
+	data = nullptr;
+	if (nullptr != openedFiles && nullptr != toDelete)
+	{
+		auto deleteResult = openedFiles->deleteFileData(thiz->canonicalPath);
+		Q_ASSERT(deleteResult == toDelete);
+		Q_UNUSED(deleteResult);
+	}
+}
 
-		openedFiles->registerFile(thiz->canonicalPath, data);
+bool AbstractFileRegistrator::updateFilePath(const QString &oldPath,
+											 const QString &newPath)
+{
+	if (nullptr != data)
+	{
+		if (nullptr != openedFiles)
+		{
+			auto new_data = openedFiles->updateFilePath(oldPath, newPath);
 
-		data->setObjectName(QFileInfo(thiz->canonicalPath).fileName());
+			if (nullptr == new_data)
+				return false;
 
+			updateData(new_data);
+		}
+	}
+
+	return true;
+}
+
+void AbstractFileRegistrator::clearDataConnections()
+{
+	for (auto &connection : connections)
+	{
+		QObject::disconnect(connection);
+	}
+
+	connections.clear();
+}
+
+bool AbstractFileRegistrator::isWatchedInternal() const
+{
+	if (nullptr != openedFiles)
+	{
+		return openedFiles->isFileWatched(thiz);
+	}
+
+	return false;
+}
+
+void AbstractFileRegistrator::watch(bool yes)
+{
+	if (nullptr != openedFiles)
+	{
+		openedFiles->watchFile(thiz, yes);
+	}
+}
+
+void AbstractFileRegistrator::updateData(QObject *data)
+{
+	if (data != this->data)
+	{
+		thiz->disconnectData();
+		disconnectFileData();
+
+		this->data = data;
+
+		thiz->connectData();
 		connectFileData();
+
+		emit thiz->dataChanged();
 	}
+}
 
-	void AbstractFileRegistrator::closeFileData()
+void AbstractFileRegistrator::connectContext()
+{
+	if (nullptr != openedFiles)
 	{
-		if (nullptr != data)
-		{
-			disconnectFileData();
-
-			deleteData();
-
-			disconnectContext();
-		}
-	}
-
-	bool AbstractFileRegistrator::canChangeFilePath(const QString &newFilePath)
-	{
-		if (nullptr != data)
-		{
-			if (nullptr != openedFiles)
-				return openedFiles->canChangeFilePath(thiz->canonicalPath, newFilePath);
-		}
-
-		return true;
-	}
-
-	void AbstractFileRegistrator::deleteData()
-	{
-		auto toDelete = data;
-		data = nullptr;
-		if (nullptr != openedFiles && nullptr != toDelete)
-		{
-			auto deleteResult = openedFiles->deleteFileData(thiz->canonicalPath);
-			Q_ASSERT(deleteResult == toDelete);
-			Q_UNUSED(deleteResult);
-		}
-	}
-
-	bool AbstractFileRegistrator::updateFilePath(const QString &oldPath, const QString &newPath)
-	{
-		if (nullptr != data)
-		{
-			if (nullptr != openedFiles)
-			{
-				auto new_data = openedFiles->updateFilePath(oldPath, newPath);
-
-				if (nullptr == new_data)
-					return false;
-
-				updateData(new_data);
-			}
-		}
-
-		return true;
-	}
-
-	void AbstractFileRegistrator::clearDataConnections()
-	{
-		for (auto &connection : connections)
-			QObject::disconnect(connection);
-
-		connections.clear();
-	}
-
-	bool AbstractFileRegistrator::isWatchedInternal() const
-	{
-		if (nullptr != openedFiles)
-		{
-			return openedFiles->isFileWatched(thiz);
-		}
-
-		return false;
-	}
-
-	void AbstractFileRegistrator::watch(bool yes)
-	{
-		if (nullptr != openedFiles)
-		{
-			openedFiles->watchFile(thiz, yes);
-		}
-	}
-
-	void AbstractFileRegistrator::updateData(QObject *data)
-	{
-		if (data != this->data)
-		{
-			thiz->disconnectData();
-			disconnectFileData();
-
-			this->data = data;
-
-			thiz->connectData();
-			connectFileData();
-
-			emit thiz->dataChanged();
-		}
-	}
-
-	void AbstractFileRegistrator::connectContext()
-	{
-		if (nullptr != openedFiles)
-		{
-			openedFilesConnection = QObject::connect(openedFiles, &QObject::destroyed, [this]()
+		openedFilesConnection = QObject::connect(
+				openedFiles, &QObject::destroyed, [this]()
 			{
 				openedFiles = nullptr;
 			});
-		}
 	}
+}
 
-	void AbstractFileRegistrator::disconnectContext()
+void AbstractFileRegistrator::disconnectContext()
+{
+	if (nullptr != openedFiles)
 	{
-		if (nullptr != openedFiles)
-		{
-			QObject::disconnect(openedFilesConnection);
-			openedFiles = nullptr;
-		}
+		QObject::disconnect(openedFilesConnection);
+		openedFiles = nullptr;
 	}
+}
 
-	void AbstractFileRegistrator::initCreateFileData()
+void AbstractFileRegistrator::initCreateFileData()
+{
+	disconnectContext();
+
+	auto object = thiz->parent();
+
+	while (nullptr != object)
 	{
-		disconnectContext();
+		auto group = dynamic_cast<ProjectGroup *>(object);
 
-		auto object = thiz->parent();
-
-		while (nullptr != object)
+		if (nullptr != group)
 		{
-			auto group = dynamic_cast<ProjectGroup *>(object);
-
-			if (nullptr != group)
-			{
-				openedFiles = group->getOpenedFiles();
-				connectContext();
-				break;
-			}
-
-			object = object->parent();
+			openedFiles = group->getOpenedFiles();
+			connectContext();
+			break;
 		}
-	}
 
-	void AbstractFileRegistrator::connectFileData()
+		object = object->parent();
+	}
+}
+
+void AbstractFileRegistrator::connectFileData()
+{
+	auto data = this->data;
+	if (nullptr != data)
 	{
-		auto data = this->data;
-		if (nullptr != data)
-		{
-			thisDestroyConnection = QObject::connect(thiz, &QObject::destroyed, [this]()
+		thisDestroyConnection = QObject::connect(
+				thiz, &QObject::destroyed, [this]()
 			{
 				deleteData();
 			});
 
-			connections.push_back(QObject::connect(data, &QObject::destroyed, [this]()
+		connections.push_back(
+			QObject::connect(
+				data, &QObject::destroyed, [this]()
 			{
 				QObject::disconnect(thisDestroyConnection);
 				connections.clear();
 				this->data = nullptr;
 			}));
 
-			auto obj = dynamic_cast<Object *>(data);
-			if (nullptr != obj)
-			{
-				connections.push_back(QObject::connect(obj, &Object::modifiedFlagChanged, [this](bool modified)
+		auto obj = dynamic_cast<Object *>(data);
+		if (nullptr != obj)
+		{
+			connections.push_back(
+				QObject::connect(
+					obj, &Object::modifiedFlagChanged, [this](bool modified)
 				{
 					thiz->setModified(modified);
 				}));
-			}
 		}
 	}
+}
 
-	void AbstractFileRegistrator::disconnectFileData()
+void AbstractFileRegistrator::disconnectFileData()
+{
+	if (nullptr != data)
 	{
-		if (nullptr != data)
-		{
-			QObject::disconnect(thisDestroyConnection);
+		QObject::disconnect(thisDestroyConnection);
 
-			clearDataConnections();
-		}
+		clearDataConnections();
 	}
+}
 
 }

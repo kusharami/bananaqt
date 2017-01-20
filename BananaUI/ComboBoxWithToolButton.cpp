@@ -50,6 +50,7 @@ public:
 		view()->setMinimumWidth(view()->sizeHintForColumn(0));
 		QComboBox::showPopup();
 	}
+
 };
 
 ComboBoxWithToolButton::ComboBoxWithToolButton(QWidget *parent)
@@ -85,14 +86,14 @@ void ComboBoxWithToolButton::applyQtnInplaceInfo(QtnInplaceInfo *inplaceInfo)
 	{
 		if (inplaceInfo->activationEvent->type() == QEvent::KeyPress)
 		{
-			QKeyEvent* keyEvent = static_cast<QKeyEvent*>(inplaceInfo->activationEvent);
+			QKeyEvent *keyEvent =
+				static_cast<QKeyEvent *>(inplaceInfo->activationEvent);
 			if (qtnAcceptForLineEdit(keyEvent))
 			{
 				combo->setEditText(keyEvent->text());
 				return;
 			}
-		}
-		else
+		} else
 		{
 			auto lineEdit = combo->lineEdit();
 			Q_ASSERT(nullptr != lineEdit);
@@ -100,4 +101,5 @@ void ComboBoxWithToolButton::applyQtnInplaceInfo(QtnInplaceInfo *inplaceInfo)
 		}
 	}
 }
+
 }

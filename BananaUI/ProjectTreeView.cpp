@@ -51,10 +51,12 @@ ProjectTreeView::ProjectTreeView(QWidget *parent)
 	, projectDirModel(nullptr)
 	, filterModel(new ProjectDirectoryFilterModel(this))
 {
-	QObject::connect(filterModel, &QAbstractItemModel::modelAboutToBeReset,
-					 this, &ProjectTreeView::onFilterModelAboutToBeReset);
-	QObject::connect(filterModel, &QAbstractItemModel::modelReset,
-					 this, &ProjectTreeView::onFilterModelReset);
+	QObject::connect(
+		filterModel, &QAbstractItemModel::modelAboutToBeReset,
+		this, &ProjectTreeView::onFilterModelAboutToBeReset);
+	QObject::connect(
+		filterModel, &QAbstractItemModel::modelReset,
+		this, &ProjectTreeView::onFilterModelReset);
 }
 
 void ProjectTreeView::select(AbstractFileSystemObject *file, bool expand)
@@ -68,7 +70,8 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 	if (filePath.isEmpty())
 		return;
 
-	AbstractProjectDirectory *project_dir = projectDirModel->getProjectDirectory();
+	AbstractProjectDirectory *project_dir =
+		projectDirModel->getProjectDirectory();
 
 	QFileInfo fileInfo;
 
@@ -103,7 +106,9 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 	for (auto it = to_expand.rbegin(); it != to_expand.rend(); ++it)
 	{
 		while (projectDirModel->canFetchMore(*it))
+		{
 			projectDirModel->fetchMore(*it);
+		}
 
 		this->expand(filterModel->mapFromSource(*it));
 	}
@@ -120,15 +125,16 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 		setCurrentIndex(index);
 
 		std::shared_ptr<QMetaObject::Connection> c(new QMetaObject::Connection);
-		*c.get() = QObject::connect(filterModel, &QAbstractItemModel::layoutChanged,
-									[this, fileInfo, c]() mutable
-		{
-			QObject::disconnect(*c.get());
-			c = nullptr;
-			auto index = projectDirModel->index(fileInfo.filePath());
-			index = filterModel->mapFromSource(index);
-			scrollTo(index, QTreeView::PositionAtCenter);
-		});
+		*c.get() = QObject::connect(
+				filterModel, &QAbstractItemModel::layoutChanged,
+				[this, fileInfo, c]() mutable
+			{
+				QObject::disconnect(*c.get());
+				c = nullptr;
+				auto index = projectDirModel->index(fileInfo.filePath());
+				index = filterModel->mapFromSource(index);
+				scrollTo(index, QTreeView::PositionAtCenter);
+			});
 	}
 }
 
@@ -137,6 +143,7 @@ QModelIndexList ProjectTreeView::getSelectedFilesIndexList() const
 	auto sel_model = selectionModel();
 	if (nullptr != sel_model)
 		return filterModel->mapSelectionToSource(sel_model->selection()).indexes();
+
 
 	return QModelIndexList();
 }
@@ -157,7 +164,10 @@ QStringList ProjectTreeView::getSelectedFilesList(bool relative) const
 				auto info = projectDirModel->fileInfo(index);
 
 				if (relative && nullptr != project_dir)
-					result.push_back(project_dir->getRelativeFilePathFor(info.filePath()));
+					result.push_back(
+						project_dir->getRelativeFilePathFor(
+							info.
+							filePath()));
 				else
 					result.push_back(info.filePath());
 			}
@@ -203,7 +213,8 @@ void ProjectTreeView::copyDirPaths()
 			auto info = projectDirModel->fileInfo(index);
 			if (info.isFile())
 				set.insert(info.path());
-			else if (info.isDir())
+			else
+			if (info.isDir())
 				set.insert(info.filePath());
 
 		}
@@ -251,7 +262,8 @@ void ProjectTreeView::copyDirNames()
 			auto info = projectDirModel->fileInfo(index);
 			if (info.isFile())
 				set.insert(QFileInfo(info.path()).fileName());
-			else if (info.isDir())
+			else
+			if (info.isDir())
 				set.insert(info.fileName());
 
 		}
@@ -278,13 +290,18 @@ void ProjectTreeView::copyToClipboard(bool cut)
 
 		for (auto &index : sel_model->selectedIndexes())
 		{
-			urls.push_back(QUrl::fromLocalFile(projectDirModel->filePath(filterModel->mapToSource(index))));
+			urls.push_back(
+				QUrl::fromLocalFile(
+					projectDirModel->filePath(
+						filterModel->mapToSource(index))));
 		}
 
 		mime->setUrls(urls);
 		auto uri_list = mime->data("text/uri-list");
 		mime->setData("text/plain", uri_list);
-		mime->setData("x-special/gnome-copied-files", QByteArray(cut ? "cut\n" : "copy\n").append(uri_list));
+		mime->setData(
+			"x-special/gnome-copied-files",
+			QByteArray(cut ? "cut\n" : "copy\n").append(uri_list));
 		if (cut)
 			mime->setData(kCutSelFormat, "1");
 
@@ -313,7 +330,8 @@ void ProjectTreeView::pasteFromClipboard()
 				else
 					pasteDir = QDir(info.filePath());
 			} else
-				pasteDir = QDir(projectDirModel->getProjectDirectory()->getFilePath());
+				pasteDir = QDir(
+						projectDirModel->getProjectDirectory()->getFilePath());
 
 			if (!pasteDir.exists())
 				return;
@@ -322,11 +340,13 @@ void ProjectTreeView::pasteFromClipboard()
 			if (mime->hasFormat(kCutSelFormat))
 			{
 				bool ok = false;
-				cut = (0 != QString(mime->data(kCutSelFormat)).toInt(&ok) || !ok);
+				cut =
+					(0 != QString(mime->data(kCutSelFormat)).toInt(&ok) || !ok);
 			}
 
-			if (projectDirModel->getFileManager()->processUrls(cut ? Qt::MoveAction : Qt::CopyAction,
-															 pasteDir, mime->urls()))
+			if (projectDirModel->getFileManager()->processUrls(
+					cut ? Qt::MoveAction : Qt::CopyAction,
+					pasteDir, mime->urls()))
 			{
 				if (cut)
 					QApplication::clipboard()->clear();
@@ -364,8 +384,9 @@ void ProjectTreeView::setProjectDirectory(AbstractProjectDirectory *dir)
 			QTreeView::setModel(filterModel);
 			setRootIndex(filterModel->mapFromSource(root_index));
 
-			QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged,
-							 this, &ProjectTreeView::modelSelectionChanged);
+			QObject::connect(
+				selectionModel(), &QItemSelectionModel::selectionChanged,
+				this, &ProjectTreeView::modelSelectionChanged);
 		}
 	}
 }
@@ -383,7 +404,7 @@ void ProjectTreeView::setFileTypeFilter(const QMetaObject *meta_object)
 
 void ProjectTreeView::setReadOnly(bool yes)
 {
-	Q_ASSERT (nullptr != filterModel);
+	Q_ASSERT(nullptr != filterModel);
 	filterModel->setReadOnly(yes);
 }
 
@@ -513,9 +534,10 @@ void ProjectTreeView::convertDropAction(QDropEvent *event)
 	auto model = getProjectTreeModel();
 	Q_ASSERT(nullptr != model);
 
-	event->setDropAction(model->convertDropAction(event->mimeData(),
-												  event->proposedAction()));
+	event->setDropAction(
+		model->convertDropAction(
+			event->mimeData(),
+			event->proposedAction()));
 }
-
 
 }

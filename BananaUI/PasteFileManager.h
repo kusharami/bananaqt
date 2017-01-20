@@ -30,7 +30,7 @@ class QProgressDialog;
 
 namespace Banana
 {
-	class AbstractFileSystemObject;
+class AbstractFileSystemObject;
 
 class PasteFileManager : public QObject, public Banana::BaseFileManager
 {
@@ -47,9 +47,12 @@ protected:
 	virtual void processStarted() override;
 	virtual void processFinished() override;
 	virtual void processAborted() override;
-	virtual void processFileStarted(const QDir &pasteDir, const QFileInfo &file_src) override;
-	virtual void processFileFinished(const QFileInfo &file_src, const QFileInfo &file_dst) override;
-	virtual void processFileAborted(const QDir &pasteDir, const QFileInfo &file_src) override;
+	virtual void processFileStarted(const QDir &pasteDir,
+									const QFileInfo &file_src) override;
+	virtual void processFileFinished(const QFileInfo &file_src,
+									 const QFileInfo &file_dst) override;
+	virtual void processFileAborted(const QDir &pasteDir,
+									const QFileInfo &file_src) override;
 
 private:
 	void endFileProcess(Banana::AbstractFileSystemObject *fsys);
@@ -58,4 +61,5 @@ private:
 	QProgressDialog *dialog;
 	int replace_button;
 };
+
 }

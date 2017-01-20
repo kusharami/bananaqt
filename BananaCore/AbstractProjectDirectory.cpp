@@ -64,7 +64,7 @@ void AbstractProjectDirectory::setParent(QObject *parent)
 }
 
 QString AbstractProjectDirectory::getFilePath(
-		const AbstractDirectory *relativeTo) const
+	const AbstractDirectory *relativeTo) const
 {
 	if (nullptr != relativeTo)
 	{
@@ -93,7 +93,7 @@ QString AbstractProjectDirectory::getFixedName(const QString &source) const
 }
 
 std::vector<const char *> AbstractProjectDirectory::getFileExtensions(
-		bool toCreate) const
+	bool toCreate) const
 {
 	std::vector<const char *> result;
 	for (auto &item : getRegisteredFileTypes())
@@ -111,7 +111,7 @@ AbstractProjectFile *AbstractProjectDirectory::getProjectFile() const
 }
 
 AbstractFile *AbstractProjectDirectory::newFile(
-		const QString &path, bool first, bool multiple)
+	const QString &path, bool first, bool multiple)
 {
 	AbstractFile *resultFile = nullptr;
 	auto delegate = getProjectGroupDelegate();
@@ -120,7 +120,7 @@ AbstractFile *AbstractProjectDirectory::newFile(
 	bool silent = (nullptr == delegate || projectGroup->isSilent());
 
 	Answer *rememberAnswer = (multiple && !silent
-							   ? &this->nfRememberAnswer : nullptr);
+							  ? &this->nfRememberAnswer : nullptr);
 
 	if (first && !silent)
 		this->nfRememberAnswer = Answer::Unknown;
@@ -137,16 +137,16 @@ AbstractFile *AbstractProjectDirectory::newFile(
 			if (isFileReplaceAllowed(absolutePath, rememberAnswer, &fileType))
 			{
 				resultFile = dynamic_cast<AbstractFile *>(
-								  findFileSystemObject(absolutePath, false));
+						findFileSystemObject(absolutePath, false));
 				bool found = (nullptr != resultFile);
 				if (!found)
 				{
 					resultFile = dynamic_cast<AbstractFile *>(
-									  fileType->newInstance());
+							fileType->newInstance());
 					Q_ASSERT(nullptr != resultFile);
 
 					auto first_child = initFileSystemObject(
-										   resultFile, absolutePath);
+							resultFile, absolutePath);
 					Q_ASSERT(nullptr != first_child);
 				}
 
@@ -170,7 +170,7 @@ AbstractFile *AbstractProjectDirectory::newFile(
 }
 
 AbstractFile *AbstractProjectDirectory::addFile(
-		const QString &path, bool mustExist, bool verbose)
+	const QString &path, bool mustExist, bool verbose)
 {
 	AbstractFile *resultFile = nullptr;
 
@@ -190,14 +190,14 @@ AbstractFile *AbstractProjectDirectory::addFile(
 				// do nothing
 			} else
 			if (nullptr == object)
-			{	 // Should not have a directory with the same name
+			{				// Should not have a directory with the same name
 				if (!mustExist || fileInfo.exists())
 				{
 					auto fileType = getFileTypeByExtension(path);
 					Q_ASSERT(nullptr != fileType);
 
 					resultFile = dynamic_cast<AbstractFile *>(
-									 fileType->newInstance());
+							fileType->newInstance());
 					if (nullptr == resultFile)
 						return nullptr;
 
@@ -221,10 +221,11 @@ AbstractFile *AbstractProjectDirectory::addFile(
 	return resultFile;
 }
 
-AbstractFile *AbstractProjectDirectory::linkFile(QString targetFilePath,
-												 QString linkFilePath,
-												 bool mustExist,
-												 bool verbose)
+AbstractFile *AbstractProjectDirectory::linkFile(
+	QString targetFilePath,
+	QString linkFilePath,
+	bool mustExist,
+	bool verbose)
 {
 	QFileInfo target(getAbsoluteFilePathFor(targetFilePath));
 	QFileInfo link(getAbsoluteFilePathFor(linkFilePath));
@@ -243,9 +244,10 @@ AbstractFile *AbstractProjectDirectory::linkFile(QString targetFilePath,
 	{
 		if (target.exists())
 		{
-			if (0 == QString::compare(target.canonicalFilePath(),
-									  link.canonicalFilePath(),
-									  Qt::CaseInsensitive))
+			if (0 == QString::compare(
+					target.canonicalFilePath(),
+					link.canonicalFilePath(),
+					Qt::CaseInsensitive))
 			{
 				return addExistingFile(linkFilePath, verbose);
 			}
@@ -277,7 +279,7 @@ AbstractFile *AbstractProjectDirectory::linkFile(QString targetFilePath,
 }
 
 Directory *AbstractProjectDirectory::addSearchPath(
-		const QString &path, int order, bool verbose)
+	const QString &path, int order, bool verbose)
 {
 	auto result = dynamic_cast<Directory *>(findFileSystemObject(path, false));
 	if (nullptr == result)
@@ -290,7 +292,7 @@ Directory *AbstractProjectDirectory::addSearchPath(
 }
 
 Directory *AbstractProjectDirectory::addDirectory(
-		const QString &path, bool mustExist, bool verbose)
+	const QString &path, bool mustExist, bool verbose)
 {
 	if (mustExist)
 	{
@@ -315,10 +317,11 @@ Directory *AbstractProjectDirectory::addDirectory(
 	return dir;
 }
 
-Directory *AbstractProjectDirectory::linkDirectory(QString targetPath,
-												   QString linkPath,
-												   bool mustExist,
-												   bool verbose)
+Directory *AbstractProjectDirectory::linkDirectory(
+	QString targetPath,
+	QString linkPath,
+	bool mustExist,
+	bool verbose)
 {
 	QFileInfo target(getAbsoluteFilePathFor(targetPath));
 	QFileInfo link(getAbsoluteFilePathFor(linkPath));
@@ -336,9 +339,10 @@ Directory *AbstractProjectDirectory::linkDirectory(QString targetPath,
 	{
 		if (target.exists())
 		{
-			if (0 == QString::compare(target.canonicalFilePath(),
-									  link.canonicalFilePath(),
-									  Qt::CaseInsensitive))
+			if (0 == QString::compare(
+					target.canonicalFilePath(),
+					link.canonicalFilePath(),
+					Qt::CaseInsensitive))
 			{
 				return addDirectory(linkPath, true, verbose);
 			}
@@ -370,13 +374,13 @@ Directory *AbstractProjectDirectory::linkDirectory(QString targetPath,
 }
 
 AbstractFile *AbstractProjectDirectory::addExistingFile(
-		const QString &path, bool verbose)
+	const QString &path, bool verbose)
 {
 	return addFile(path, true, verbose);
 }
 
 AbstractFile *AbstractProjectDirectory::linkExistingFile(
-		const QString &target, const QString &link, bool verbose)
+	const QString &target, const QString &link, bool verbose)
 {
 	return linkFile(target, link, true, verbose);
 }
@@ -398,9 +402,9 @@ bool AbstractProjectDirectory::saveFile(AbstractFile *file)
 }
 
 bool AbstractProjectDirectory::validateFileSaveAsPath(
-		AbstractFile *file,
-		QString &newFilePath,
-		const QString &selectedFilter) const
+	AbstractFile *file,
+	QString &newFilePath,
+	const QString &selectedFilter) const
 {
 	auto metaObject = file->metaObject();
 
@@ -421,15 +425,19 @@ bool AbstractProjectDirectory::validateFileSaveAsPath(
 		if (newExtension == nullptr || 0 == newExtension[0])
 		{
 			if (!selectedFilter.isEmpty())
-				currentExtension = getFileExtensionFromFilter(metaObject, selectedFilter);
+				currentExtension = getFileExtensionFromFilter(
+						metaObject,
+						selectedFilter);
 
 			givenName = newInfo.fileName();
 			newFilePath += currentExtension;
 		} else
 		{
-			errorMessage(errorFormatStr(Error::FileCannotBeSavedInSpecificFormat)
-					.arg(getFileTypeTitle(metaObject),
-						 getFileFormatName(newExtension)));
+			errorMessage(
+				errorFormatStr(Error::FileCannotBeSavedInSpecificFormat)
+				.arg(
+					getFileTypeTitle(metaObject),
+					getFileFormatName(newExtension)));
 
 			return false;
 		}
@@ -439,9 +447,11 @@ bool AbstractProjectDirectory::validateFileSaveAsPath(
 
 	if (0 != givenName.compare(correctName, Qt::CaseSensitive))
 	{
-		errorMessage(errorFormatStr(Error::CannotBeUsedAsFileName)
-					 .arg(givenName, getFileTypeTitle(file->metaObject()),
-					 correctName));
+		errorMessage(
+			errorFormatStr(Error::CannotBeUsedAsFileName)
+			.arg(
+				givenName, getFileTypeTitle(file->metaObject()),
+				correctName));
 
 		return false;
 	}
@@ -449,12 +459,13 @@ bool AbstractProjectDirectory::validateFileSaveAsPath(
 	return true;
 }
 
-bool AbstractProjectDirectory::saveFileAs(AbstractFile *file,
-										  const QString &filePath,
-										  const QString &selectedFilter,
-										  bool verbose,
-										  bool first,
-										  bool multiple)
+bool AbstractProjectDirectory::saveFileAs(
+	AbstractFile *file,
+	const QString &filePath,
+	const QString &selectedFilter,
+	bool verbose,
+	bool first,
+	bool multiple)
 {
 	auto delegate = getProjectGroupDelegate();
 	auto projectGroup = getProjectGroup();
@@ -472,8 +483,8 @@ bool AbstractProjectDirectory::saveFileAs(AbstractFile *file,
 
 	QString newFilePath(filePath);
 	if (!newFilePath.isEmpty()
-	&&	validateFileSaveAsPath(file, newFilePath, selectedFilter)
-	&&	isFileReplaceAllowed(newFilePath, rememberAnswer, nullptr))
+		&& validateFileSaveAsPath(file, newFilePath, selectedFilter)
+		&& isFileReplaceAllowed(newFilePath, rememberAnswer, nullptr))
 	{
 		auto found = findFileSystemObject(newFilePath, false);
 		auto resultFile = dynamic_cast<AbstractFile *>(found);
@@ -495,7 +506,7 @@ bool AbstractProjectDirectory::saveFileAs(AbstractFile *file,
 
 		QFileInfo info(newFilePath);
 		if ((file->isOpen() || QFile::exists(oldFilePath))
-		&&	(info.exists() || info.isSymLink()))
+			&& (info.exists() || info.isSymLink()))
 		{
 			ok = Utils::DeleteFileOrLink(info);
 		}
@@ -503,11 +514,11 @@ bool AbstractProjectDirectory::saveFileAs(AbstractFile *file,
 		if (ok)
 		{
 			auto connection = QObject::connect(
-								  file, &AbstractFile::updateFilePathError,
-			[&ok](const QString &, const QString &) mutable
-			{
-				ok = false;
-			});
+					file, &AbstractFile::updateFilePathError,
+					[&ok](const QString &, const QString &) mutable
+				{
+					ok = false;
+				});
 
 			auto oldCanonicalPath = file->getCanonicalFilePath();
 
@@ -523,7 +534,7 @@ bool AbstractProjectDirectory::saveFileAs(AbstractFile *file,
 				Q_ASSERT(nullptr != resultDir);
 
 				auto cfile = dynamic_cast<AbstractFile *>(
-								 findFileSystemObject(oldCanonicalPath, true));
+						findFileSystemObject(oldCanonicalPath, true));
 				if (nullptr != cfile)
 				{
 					cfile->watchFile();
@@ -594,12 +605,13 @@ QObjectList AbstractProjectDirectory::getSearchDirectoryList() const
 
 	fillSearchDirListFrom(this, result);
 
-	std::sort(result.begin(), result.end(), [](QObject *a, QObject *b) -> bool
-	{
-		auto dir1 = static_cast<Directory *>(a);
-		auto dir2 = static_cast<Directory *>(b);
-		return (dir1->getSearchOrder() < dir2->getSearchOrder());
-	});
+	std::sort(
+		result.begin(), result.end(), [](QObject *a, QObject *b) -> bool
+		{
+			auto dir1 = static_cast<Directory *>(a);
+			auto dir2 = static_cast<Directory *>(b);
+			return (dir1->getSearchOrder() < dir2->getSearchOrder());
+		});
 
 	return result;
 }
@@ -616,8 +628,9 @@ void AbstractProjectDirectory::saveAllFiles()
 	if (not_saved.count() > 0)
 	{
 		if (not_saved.count() == 1)
-			filePathError(Error::CannotWriteFile,
-						  not_saved.at(0)->getFilePath());
+			filePathError(
+				Error::CannotWriteFile,
+				not_saved.at(0)->getFilePath());
 		else
 			errorMessage(Directory::tr("Some files were unable to be saved!"));
 	}
@@ -644,9 +657,9 @@ AbstractProjectFile *AbstractProjectDirectory::createProjectFile()
 }
 
 bool AbstractProjectDirectory::isFileReplaceAllowed(
-		const QString &absolutePath,
-		Answer *rememberAnswer,
-		const QMetaObject **outFileType)
+	const QString &absolutePath,
+	Answer *rememberAnswer,
+	const QMetaObject **outFileType)
 {
 	if (QFileInfo(absolutePath).isDir())
 		return false;
@@ -669,9 +682,10 @@ bool AbstractProjectDirectory::isFileReplaceAllowed(
 		auto foundFile = dynamic_cast<AbstractFile *>(found);
 		if (nullptr != foundFile)
 		{
-			if (0 != QString::compare(foundFile->getFilePath(),
-									  absolutePath,
-									  Qt::CaseInsensitive))
+			if (0 != QString::compare(
+					foundFile->getFilePath(),
+					absolutePath,
+					Qt::CaseInsensitive))
 			{
 				filePathError(Error::CannotWriteFile, absolutePath);
 				return false;
@@ -714,7 +728,7 @@ bool AbstractProjectDirectory::isFileReplaceAllowed(
 }
 
 void AbstractProjectDirectory::internalFindFiles(
-		Directory *directory, const QRegExp &regExp, QObjectList &dest)
+	Directory *directory, const QRegExp &regExp, QObjectList &dest)
 {
 	for (auto child : directory->children())
 	{
@@ -735,7 +749,7 @@ void AbstractProjectDirectory::internalFindFiles(
 }
 
 void AbstractProjectDirectory::saveAllFiles(
-		Directory *directory, QList<AbstractFile *> &notSaved)
+	Directory *directory, QList<AbstractFile *> &notSaved)
 {
 	for (auto child : directory->getChildren())
 	{
@@ -746,9 +760,9 @@ void AbstractProjectDirectory::saveAllFiles(
 		{
 			auto file = dynamic_cast<AbstractFile *>(child);
 			if (nullptr != file
-			&&	file->isOpen()
-			&&	file->isModified()
-			&&	!file->save())
+				&& file->isOpen()
+				&& file->isModified()
+				&& !file->save())
 			{
 				notSaved.push_back(file);
 			}
@@ -757,13 +771,13 @@ void AbstractProjectDirectory::saveAllFiles(
 }
 
 QString AbstractProjectDirectory::stripExtension(
-		const QString &fileName, const QString &extension)
+	const QString &fileName, const QString &extension)
 {
 	return QString(fileName.data(), fileName.length() - extension.length());
 }
 
 void AbstractProjectDirectory::filePathError(
-		Error error, const QString &filePath)
+	Error error, const QString &filePath)
 {
 	errorMessage(filePathErrorStr(error, filePath));
 }
@@ -783,7 +797,7 @@ void AbstractProjectDirectory::errorMessage(const QString &message) const
 }
 
 void AbstractProjectDirectory::fillSearchDirListFrom(
-		const Directory *dir, QObjectList &list) const
+	const Directory *dir, QObjectList &list) const
 {
 	Q_ASSERT(nullptr != dir);
 
@@ -828,7 +842,7 @@ void AbstractProjectDirectory::onLinkDestroyed()
 }
 
 void AbstractProjectDirectory::descendantChanged(
-		QObject *descendant, DescendantState state)
+	QObject *descendant, DescendantState state)
 {
 	auto fsys = dynamic_cast<AbstractFileSystemObject *>(descendant);
 
@@ -842,18 +856,19 @@ void AbstractProjectDirectory::descendantChanged(
 				if (symLink)
 				{
 					QObject::connect(
-								descendant,
-								&QObject::destroyed,
-								this,
-								&AbstractProjectDirectory::onLinkDestroyed);
+						descendant,
+						&QObject::destroyed,
+						this,
+						&AbstractProjectDirectory::onLinkDestroyed);
 				}
 				break;
 
 			case DescendantState::Removed:
-				QObject::disconnect(descendant,
-									&QObject::destroyed,
-									this,
-									&AbstractProjectDirectory::onLinkDestroyed);
+				QObject::disconnect(
+					descendant,
+					&QObject::destroyed,
+					this,
+					&AbstractProjectDirectory::onLinkDestroyed);
 				break;
 
 			default:
@@ -864,7 +879,8 @@ void AbstractProjectDirectory::descendantChanged(
 		{
 			if (state == DescendantState::SearchPathsChanged)
 				emit changedSearchPaths();
-			else if (!symLink)
+			else
+			if (!symLink)
 				return;
 
 			projectFile->setModified(true);

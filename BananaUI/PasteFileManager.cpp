@@ -59,14 +59,16 @@ int PasteFileManager::shouldReplaceFile(const QFileInfo &info)
 	QMessageBox::StandardButton button;
 	if (replace_button == 0)
 	{
-		button = QMessageBox::question(parent_widget, QApplication::applicationName(),
-									  tr("File '%1' is already exists. Do you want to replace it?\n"
-										 "If no, the enumerated name will be given.")
-									  .arg(info.filePath()),
-									   QMessageBox::Yes | QMessageBox::No |
-									   QMessageBox::YesToAll | QMessageBox::NoToAll |
-									   QMessageBox::Abort,
-									   QMessageBox::Yes);
+		button = QMessageBox::question(
+				parent_widget, QApplication::applicationName(),
+				tr(
+					"File '%1' is already exists. Do you want to replace it?\n"
+					"If no, the enumerated name will be given.")
+				.arg(info.filePath()),
+				QMessageBox::Yes | QMessageBox::No |
+				QMessageBox::YesToAll | QMessageBox::NoToAll |
+				QMessageBox::Abort,
+				QMessageBox::Yes);
 	} else
 		button = (QMessageBox::StandardButton) replace_button;
 
@@ -75,6 +77,7 @@ int PasteFileManager::shouldReplaceFile(const QFileInfo &info)
 		case QMessageBox::YesToAll:
 			replace_button = QMessageBox::YesToAll;
 			result |= ANSWER_ALL;
+
 		case QMessageBox::Yes:
 			result |= ANSWER_AGREE;
 			break;
@@ -82,6 +85,7 @@ int PasteFileManager::shouldReplaceFile(const QFileInfo &info)
 		case QMessageBox::NoToAll:
 			replace_button = QMessageBox::NoToAll;
 			result |= ANSWER_ALL;
+
 		case QMessageBox::No:
 			break;
 
@@ -144,16 +148,18 @@ int PasteFileManager::error(int action, int what, const QFileInfo &info)
 					return 0;
 
 				case DIRECTORY:
-					message_fmt = tr("Unable to copy/move directory '%1' to its descendant directory or to itself!");
+					message_fmt = tr(
+							"Unable to copy/move directory '%1' to its descendant directory or to itself!");
 					break;
 			}
 			break;
 	}
 
 	if (QMessageBox::Abort ==
-		QMessageBox::critical(parent_widget, QApplication::applicationName(),
-							  message_fmt.arg(info.filePath()),
-							  QMessageBox::Ignore | QMessageBox::Abort, QMessageBox::Ignore))
+		QMessageBox::critical(
+			parent_widget, QApplication::applicationName(),
+			message_fmt.arg(info.filePath()),
+			QMessageBox::Ignore | QMessageBox::Abort, QMessageBox::Ignore))
 		return ANSWER_ABORT;
 
 	return 0;
@@ -179,6 +185,7 @@ void PasteFileManager::processStarted()
 		{
 			return QSize(500, 60);
 		}
+
 	};
 
 	auto label = new Label;
@@ -214,24 +221,37 @@ void PasteFileManager::processAborted()
 	dialog = nullptr;
 }
 
-void PasteFileManager::processFileStarted(const QDir &pasteDir, const QFileInfo &file_src)
+void PasteFileManager::processFileStarted(const QDir &pasteDir,
+										  const QFileInfo &file_src)
 {
-	auto file = dynamic_cast<AbstractFile *>(project_dir->findFileSystemObject(file_src.filePath(), false));
+	auto file =
+		dynamic_cast<AbstractFile *>(project_dir->findFileSystemObject(
+										 file_src.
+										 filePath(), false));
 	if (nullptr != file)
 		file->unwatchFile();
 
 	switch (action)
 	{
 		case Qt::MoveAction:
-			dialog->setLabelText(tr("Move '%1' to '%2'").arg(file_src.filePath(), pasteDir.path()));
+			dialog->setLabelText(
+				tr("Move '%1' to '%2'").arg(
+					file_src.filePath(),
+					pasteDir.path()));
 			break;
 
 		case Qt::CopyAction:
-			dialog->setLabelText(tr("Copy '%1' to '%2'").arg(file_src.filePath(), pasteDir.path()));
+			dialog->setLabelText(
+				tr("Copy '%1' to '%2'").arg(
+					file_src.filePath(),
+					pasteDir.path()));
 			break;
 
 		case Qt::LinkAction:
-			dialog->setLabelText(tr("Make link to '%1' in '%2'").arg(file_src.filePath(), pasteDir.path()));
+			dialog->setLabelText(
+				tr("Make link to '%1' in '%2'").arg(
+					file_src.
+					filePath(), pasteDir.path()));
 			break;
 
 		default:
@@ -241,7 +261,8 @@ void PasteFileManager::processFileStarted(const QDir &pasteDir, const QFileInfo 
 	QApplication::processEvents();
 }
 
-void PasteFileManager::processFileFinished(const QFileInfo &file_src, const QFileInfo &file_dst)
+void PasteFileManager::processFileFinished(const QFileInfo &file_src,
+										   const QFileInfo &file_dst)
 {
 	auto fsys = project_dir->findFileSystemObject(file_src.filePath(), false);
 
@@ -249,9 +270,13 @@ void PasteFileManager::processFileFinished(const QFileInfo &file_src, const QFil
 	{
 		QFileInfo info(file_src.filePath());
 		if (!info.exists() && !info.isSymLink()
-		&&	0 != QString::compare(file_src.filePath(), file_dst.filePath(), Qt::CaseInsensitive))
+			&& 0 !=
+			QString::compare(
+				file_src.filePath(), file_dst.filePath(),
+				Qt::CaseInsensitive))
 		{
-			auto fsys2 = project_dir->findFileSystemObject(file_dst.filePath(), false);
+			auto fsys2 = project_dir->findFileSystemObject(
+					file_dst.filePath(), false);
 
 			if (nullptr != fsys2)
 			{
@@ -259,7 +284,8 @@ void PasteFileManager::processFileFinished(const QFileInfo &file_src, const QFil
 					break;
 			} else
 			{
-				fsys2 = project_dir->findFileSystemObject(file_dst.filePath(), true);
+				fsys2 = project_dir->findFileSystemObject(
+						file_dst.filePath(), true);
 
 				if (fsys2 != fsys)
 				{
@@ -284,15 +310,19 @@ void PasteFileManager::processFileFinished(const QFileInfo &file_src, const QFil
 
 					if (nullptr != old_data)
 					{
-						connection = QObject::connect(old_data, &QObject::destroyed, [&old_data]() mutable
-						{
-							old_data = nullptr;
-						});
+						connection = QObject::connect(
+								old_data, &QObject::destroyed,
+								[&old_data]() mutable
+							{
+								old_data = nullptr;
+							});
 					}
 
 					file->setLoadError(true);
 
-					auto result = project_dir->initFileSystemObject(file, file_dst.filePath());
+					auto result = project_dir->initFileSystemObject(
+							file,
+							file_dst.filePath());
 
 					Q_ASSERT(nullptr != result);
 
@@ -340,7 +370,9 @@ void PasteFileManager::processFileFinished(const QFileInfo &file_src, const QFil
 					} else
 					{
 						new_dir = new Directory(file_dst.fileName());
-						auto result = project_dir->initFileSystemObject(new_dir, file_dst.filePath());
+						auto result = project_dir->initFileSystemObject(
+								new_dir,
+								file_dst.filePath());
 						Q_ASSERT(nullptr != result);
 					}
 				}
@@ -356,9 +388,13 @@ void PasteFileManager::processFileFinished(const QFileInfo &file_src, const QFil
 	endFileProcess(fsys);
 }
 
-void PasteFileManager::processFileAborted(const QDir &, const QFileInfo &file_src)
+void PasteFileManager::processFileAborted(const QDir &,
+										  const QFileInfo &file_src)
 {
-	endFileProcess(project_dir->findFileSystemObject(file_src.filePath(), false));
+	endFileProcess(
+		project_dir->findFileSystemObject(
+			file_src.filePath(),
+			false));
 }
 
 void PasteFileManager::endFileProcess(AbstractFileSystemObject *fsys)
@@ -371,4 +407,5 @@ void PasteFileManager::endFileProcess(AbstractFileSystemObject *fsys)
 
 	QApplication::processEvents();
 }
+
 }

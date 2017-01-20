@@ -29,100 +29,98 @@ SOFTWARE.
 
 #include "BananaCore/Utils.h"
 
-
 namespace Banana
 {
 
-	SelectTreeItemsCommand::SelectTreeItemsCommand(BaseTreeView *tree)
-		: tree(tree)
-		, skipRedoOnPush(true)
-	{
+SelectTreeItemsCommand::SelectTreeItemsCommand(BaseTreeView *tree)
+	: tree(tree)
+	, skipRedoOnPush(true)
+{
 
+}
+
+SelectTreeItemsCommand::SelectTreeItemsCommand(
+	BaseTreeView *tree, const QObjectSet &oldSelected,
+	const QObjectSet &newSelected)
+	: tree(tree)
+	, skipRedoOnPush(true)
+{
+	setOldSelected(oldSelected);
+	setNewSelected(newSelected);
+}
+
+void SelectTreeItemsCommand::setOldSelected(const QObjectSet &set)
+{
+	toPaths(set, oldSelected);
+}
+
+void SelectTreeItemsCommand::setNewSelected(const QObjectSet &set)
+{
+	toPaths(set, newSelected);
+}
+
+void SelectTreeItemsCommand::undo()
+{
+	select(oldSelected);
+}
+
+void SelectTreeItemsCommand::redo()
+{
+	if (skipRedoOnPush)
+	{
+		skipRedoOnPush = false;
+		return;
 	}
 
-	SelectTreeItemsCommand::SelectTreeItemsCommand(
-			BaseTreeView *tree,
-			const QObjectSet &oldSelected,
-			const QObjectSet &newSelected)
-		: tree(tree)
-		, skipRedoOnPush(true)
+	select(newSelected);
+}
+
+int SelectTreeItemsCommand::id() const
+{
+	return SELECT_TREE_ITEMS_COMMAND;
+}
+
+bool SelectTreeItemsCommand::mergeWith(const QUndoCommand *other)
+{
+	auto otherCommand = dynamic_cast<const SelectTreeItemsCommand *>(other);
+	if (nullptr != otherCommand && tree == otherCommand->tree)
 	{
-		setOldSelected(oldSelected);
-		setNewSelected(newSelected);
+		newSelected = otherCommand->newSelected;
+
+		return true;
 	}
 
-	void SelectTreeItemsCommand::setOldSelected(const QObjectSet &set)
-	{
-		toPaths(set, oldSelected);
-	}
+	return false;
+}
 
-	void SelectTreeItemsCommand::setNewSelected(const QObjectSet &set)
+void SelectTreeItemsCommand::toPaths(const QObjectSet &source, Paths &output)
+{
+	output.clear();
+	for (auto object : source)
 	{
-		toPaths(set, newSelected);
-	}
-
-	void SelectTreeItemsCommand::undo()
-	{
-		select(oldSelected);
-	}
-
-	void SelectTreeItemsCommand::redo()
-	{
-		if (skipRedoOnPush)
+		auto topAncestor = Utils::GetTopAncestor(object);
+		if (nullptr != topAncestor)
 		{
-			skipRedoOnPush = false;
-			return;
-		}
-
-		select(newSelected);
-	}
-
-	int SelectTreeItemsCommand::id() const
-	{
-		return SELECT_TREE_ITEMS_COMMAND;
-	}
-
-	bool SelectTreeItemsCommand::mergeWith(const QUndoCommand *other)
-	{
-		auto otherCommand = dynamic_cast<const SelectTreeItemsCommand *>(other);
-		if (nullptr != otherCommand && tree == otherCommand->tree)
-		{
-			newSelected = otherCommand->newSelected;
-
-			return true;
-		}
-
-		return false;
-	}
-
-	void SelectTreeItemsCommand::toPaths(const QObjectSet &source,
-										 Paths &output)
-	{
-		output.clear();
-		for (auto object : source)
-		{
-			auto topAncestor = Utils::GetTopAncestor(object);
-			if (nullptr != topAncestor)
-			{
-				output.push_back({
-									 topAncestor,
-									 Utils::GetNamesChain(topAncestor, object)
-								 });
-			}
+			output.push_back(
+				{
+					topAncestor,
+					Utils::GetNamesChain(topAncestor, object)
+				});
 		}
 	}
+}
 
-	void SelectTreeItemsCommand::select(const Paths &toSelect)
+void SelectTreeItemsCommand::select(const Paths &toSelect)
+{
+	QObjectSet toSelectSet;
+	for (auto &path : toSelect)
 	{
-		QObjectSet toSelectSet;
-		for (auto &path : toSelect)
-		{
-			auto object = Utils::GetDescendant(path.topAncestor, path.path);
-			if (nullptr != object)
-				toSelectSet.insert(object);
-		}
-
-		tree->select(toSelectSet);
+		auto object = Utils::GetDescendant(path.topAncestor, path.path);
+		if (nullptr != object)
+			toSelectSet.insert(object);
 	}
+
+	tree->select(toSelectSet);
+}
 
 }

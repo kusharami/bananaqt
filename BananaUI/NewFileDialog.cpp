@@ -41,7 +41,8 @@ using namespace Banana;
 namespace Banana
 {
 
-NewFileDialog::NewFileDialog(AbstractProjectDirectory *project_dir, const QString &path, QWidget *parent)
+NewFileDialog::NewFileDialog(AbstractProjectDirectory *project_dir,
+							 const QString &path, QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::NewFileDialog)
 	, project_dir(project_dir)
@@ -51,9 +52,11 @@ NewFileDialog::NewFileDialog(AbstractProjectDirectory *project_dir, const QStrin
 
 	ui->setupUi(this);
 
-	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint | Qt::WindowMinMaxButtonsHint))
-				|	Qt::MSWindowsFixedSizeDialogHint
-				|	Qt::CustomizeWindowHint);
+	setWindowFlags(
+		(windowFlags() &
+		 ~(Qt::WindowContextHelpButtonHint | Qt::WindowMinMaxButtonsHint))
+		| Qt::MSWindowsFixedSizeDialogHint
+		| Qt::CustomizeWindowHint);
 
 	ui->editCreateIn->setText(project_dir->getAbsoluteFilePathFor(path));
 
@@ -61,27 +64,37 @@ NewFileDialog::NewFileDialog(AbstractProjectDirectory *project_dir, const QStrin
 
 	for (auto ext : extensions)
 	{
-		file_types.push_back({ QCoreApplication::translate("FileFormatName", ext), ext });
+		file_types.push_back(
+			{ QCoreApplication::translate(
+				  "FileFormatName",
+				  ext), ext });
 	}
 
-	std::sort(file_types.begin(), file_types.end(), [](const FileTypeInfo &a, const FileTypeInfo &b) -> bool
-	{
-		return QString::compare(a.name, b.name, Qt::CaseInsensitive) < 0;
-	});
+	std::sort(
+		file_types.begin(), file_types.end(),
+		[](const FileTypeInfo &a, const FileTypeInfo &b) -> bool
+		{
+			return QString::compare(a.name, b.name, Qt::CaseInsensitive) < 0;
+		});
 
 	auto extension = getLastNewFileExtension();
 
-	auto it = std::find_if(file_types.begin(), file_types.end(), [&extension](const FileTypeInfo &a) -> bool
-	{
-		return 0 == QString::compare(a.extension, extension, Qt::CaseInsensitive);
-	});
+	auto it = std::find_if(
+			file_types.begin(), file_types.end(),
+			[&extension](const FileTypeInfo &a) -> bool
+		{
+			return 0 ==
+			QString::compare(a.extension, extension, Qt::CaseInsensitive);
+		});
 
 	for (auto &type : file_types)
 	{
 		ui->comboBoxFileType->addItem(type.name);
 	}
 
-	ui->comboBoxFileType->setCurrentIndex(it == file_types.end() ? 0 : static_cast<int>(it - file_types.begin()));
+	ui->comboBoxFileType->setCurrentIndex(
+		it ==
+		file_types.end() ? 0 : static_cast<int>(it - file_types.begin()));
 }
 
 NewFileDialog::~NewFileDialog()
@@ -142,9 +155,10 @@ void NewFileDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void NewFileDialog::on_buttonBrowse_clicked()
 {
-	auto path = QFileDialog::getExistingDirectory(this, tr("Select New File Directory"),
-												  ui->editCreateIn->text(),
-												  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	auto path = QFileDialog::getExistingDirectory(
+			this, tr("Select New File Directory"),
+			ui->editCreateIn->text(),
+			QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	if (!path.isEmpty())
 		ui->editCreateIn->setText(path);
 }
@@ -166,17 +180,19 @@ bool NewFileDialog::validateInputName()
 
 	if (actual_name.isEmpty())
 	{
-		QMessageBox::critical(this, QCoreApplication::applicationName(),
-						tr("%1 name cannot be empty!").arg(getFileTypeInfo().name));
+		QMessageBox::critical(
+			this, QCoreApplication::applicationName(),
+			tr("%1 name cannot be empty!").arg(getFileTypeInfo().name));
 		return false;
 	}
 
 	auto valid_name = Utils::ConvertToFileName(actual_name);
 	if (0 != QString::compare(actual_name, valid_name, Qt::CaseSensitive))
 	{
-		QMessageBox::critical(this, QCoreApplication::applicationName(),
-							  tr("'%2' is invalid %1 name. Try '%3'.")
-							  .arg(getFileTypeInfo().name, actual_name, valid_name));
+		QMessageBox::critical(
+			this, QCoreApplication::applicationName(),
+			tr("'%2' is invalid %1 name. Try '%3'.")
+			.arg(getFileTypeInfo().name, actual_name, valid_name));
 
 		return false;
 	}
@@ -197,7 +213,11 @@ const NewFileDialog::FileTypeInfo &NewFileDialog::getFileTypeInfo() const
 QString NewFileDialog::getResultFilePath()
 {
 	QDir dir(ui->editCreateIn->text());
-	return QDir::cleanPath(dir.absoluteFilePath(getInputName() + getFileTypeInfo().extension));
+	return QDir::cleanPath(
+		dir.absoluteFilePath(
+			getInputName() +
+			getFileTypeInfo().extension));
 
 }
+
 }

@@ -34,80 +34,92 @@ SOFTWARE.
 
 namespace Banana
 {
-	class AbstractFile;
-	class ProjectGroup;
-	class OpenedFiles : public Object, public AbstractObjectGroup
+class AbstractFile;
+class ProjectGroup;
+class OpenedFiles : public Object, public AbstractObjectGroup
+{
+	Q_OBJECT
+
+public:
+	explicit OpenedFiles(ProjectGroup *owner);
+	virtual ~OpenedFiles();
+
+	inline ProjectGroup *getOwner() const;
+
+	bool fileIsOpened(const QString &filePath);
+	QObject *getRegisteredFileData(const QString &filePath);
+	void registerFile(const QString &filePath, QObject *data);
+	QObject *unregisterFile(const QString &filePath,
+							unsigned *ref_count_ptr = nullptr);
+	QObject *deleteFileData(const QString &filePath);
+
+	QObject *updateFilePath(const QString &oldFilePath,
+							const QString &newFilePath);
+	bool canChangeFilePath(const QString &oldFilePath,
+						   const QString &newFilePath);
+
+	virtual const QObjectList &getChildren() override;
+	virtual void resetChildren() override;
+
+	bool isFileWatched(const Banana::AbstractFile *file) const;
+	bool isFileWatched(const QString &filePath) const;
+
+	void watchFile(AbstractFile *file, bool yes);
+	void watch(const QString &path, bool yes);
+
+	template <typename CLASS>
+	inline void connectFilesChanged(
+		CLASS *object, void (CLASS::*onFilesChanged)(
+			const QString &))
 	{
-		Q_OBJECT
-	public:
-		explicit OpenedFiles(ProjectGroup *owner);
-		virtual ~OpenedFiles();
+		QObject::connect(
+			this, &OpenedFiles::filesChanged,
+			object, onFilesChanged);
+	}
 
-		inline ProjectGroup *getOwner() const;
+	template <typename CLASS>
+	inline void disconnectFilesChanged(
+		CLASS *object, void (CLASS::*onFilesChanged)(
+			const QString &))
+	{
+		QObject::disconnect(
+			this, &OpenedFiles::filesChanged,
+			object, onFilesChanged);
+	}
 
-		bool fileIsOpened(const QString &filePath);
-		QObject *getRegisteredFileData(const QString &filePath);
-		void registerFile(const QString &filePath, QObject *data);
-		QObject *unregisterFile(const QString &filePath, unsigned *ref_count_ptr = nullptr);
-		QObject *deleteFileData(const QString &filePath);
+	void clearWatcher();
 
-		QObject *updateFilePath(const QString &oldFilePath, const QString &newFilePath);
-		bool canChangeFilePath(const QString &oldFilePath, const QString &newFilePath);
+signals:
+	void filesChanged(const QString &path);
 
-		virtual const QObjectList &getChildren() override;
-		virtual void resetChildren() override;
+private slots:
+	void onFileDataParentChanged();
 
-		bool isFileWatched(const Banana::AbstractFile *file) const;
-		bool isFileWatched(const QString &filePath) const;
-
-		void watchFile(AbstractFile *file, bool yes);
-		void watch(const QString &path, bool yes);
-
-		template <typename CLASS>
-		inline void connectFilesChanged(CLASS *object, void (CLASS::*onFilesChanged)(const QString &))
-		{
-			QObject::connect(this, &OpenedFiles::filesChanged,
-							 object, onFilesChanged);
-		}
-
-		template <typename CLASS>
-		inline void disconnectFilesChanged(CLASS *object, void (CLASS::*onFilesChanged)(const QString &))
-		{
-			QObject::disconnect(this, &OpenedFiles::filesChanged,
-								object, onFilesChanged);
-		}
-
-		void clearWatcher();
-
-	signals:
-		void filesChanged(const QString &path);
-
-	private slots:
-		void onFileDataParentChanged();
-
-	private:
-		struct Info
-		{
-			QObject *data;
-			unsigned ref_count;
-		};
-		typedef std::map<QString, Info> FileMap;
-
-		void resetWatcher(bool copy);
-		void addPathInternal(const QString &path);
-		void removePathInternal(const QString &path);
-
-		FileMap::iterator findFileData(const QString &filePath);
-		FileMap file_map;
-		QObjectList m_children;
-		QFileSystemWatcher *watcher;
-		ProjectGroup *owner;
-
-		friend class OpenedFilesPathGroup;
+private:
+	struct Info
+	{
+		QObject *data;
+		unsigned ref_count;
 	};
 
-	ProjectGroup *OpenedFiles::getOwner() const
-	{
-		return owner;
-	}
+	typedef std::map<QString, Info> FileMap;
+
+	void resetWatcher(bool copy);
+	void addPathInternal(const QString &path);
+	void removePathInternal(const QString &path);
+
+	FileMap::iterator findFileData(const QString &filePath);
+	FileMap file_map;
+	QObjectList m_children;
+	QFileSystemWatcher *watcher;
+	ProjectGroup *owner;
+
+	friend class OpenedFilesPathGroup;
+};
+
+ProjectGroup *OpenedFiles::getOwner() const
+{
+	return owner;
+}
+
 }

@@ -30,164 +30,167 @@ SOFTWARE.
 namespace Banana
 {
 
-	ChildActionCommand::ChildActionCommand(Object *object, Action action)
-		: AbstractObjectUndoCommand(object->parent())
+ChildActionCommand::ChildActionCommand(Object *object, Action action)
+	: AbstractObjectUndoCommand(object->parent())
+{
+	initFields(object, action);
+}
+
+ChildActionCommand::ChildActionCommand(
+	Object *object, Object *parent, Action action)
+	: AbstractObjectUndoCommand(parent)
+{
+	initFields(object, action);
+}
+
+ChildActionCommand::ChildActionCommand(Object *object, Object *oldParent)
+	: AbstractObjectUndoCommand(object->parent())
+{
+	if (nullptr == oldParent)
 	{
-		initFields(object, action);
-	}
-
-	ChildActionCommand::ChildActionCommand(Object *object, Object *parent, Action action)
-		: AbstractObjectUndoCommand(parent)
+		initFields(object, Add);
+	} else
 	{
-		initFields(object, action);
-	}
-
-	ChildActionCommand::ChildActionCommand(Object *object, Object *oldParent)
-		: AbstractObjectUndoCommand(object->parent())
-	{
-		if (nullptr == oldParent)
-		{
-			initFields(object, Add);
-		} else
-		{
-			childMetaObject = object->metaObject();
-			childObjectName = object->objectName();
-			stateBits = object->getPropertyModifiedBits();
-			action = Move;
-			subCommand = new ChildActionCommand(object, oldParent, Delete);
-			savedContents = subCommand->savedContents;
-		}
-	}
-
-	ChildActionCommand::~ChildActionCommand()
-	{
-		if (nullptr != subCommand
-		&&	savedContents == subCommand->savedContents)
-		{
-			subCommand->savedContents = nullptr;
-		}
-
-		delete savedContents;
-		delete subCommand;
-	}
-
-	void ChildActionCommand::initFields(Object *object, Action action)
-	{
-		Q_ASSERT(nullptr != object);
-
 		childMetaObject = object->metaObject();
 		childObjectName = object->objectName();
 		stateBits = object->getPropertyModifiedBits();
-		this->action = action;
-		savedContents = new QVariantMap;
-		subCommand = nullptr;
-		object->saveContents(*savedContents, Object::SaveStandalone);
+		action = Move;
+		subCommand = new ChildActionCommand(object, oldParent, Delete);
+		savedContents = subCommand->savedContents;
 	}
+}
 
-	int ChildActionCommand::id() const
+ChildActionCommand::~ChildActionCommand()
+{
+	if (nullptr != subCommand
+		&& savedContents == subCommand->savedContents)
 	{
-		return CHILD_ACTION_COMMAND;
+		subCommand->savedContents = nullptr;
 	}
 
-	QString ChildActionCommand::getAddCommandTextFor(Object *object)
+	delete savedContents;
+	delete subCommand;
+}
+
+void ChildActionCommand::initFields(Object *object, Action action)
+{
+	Q_ASSERT(nullptr != object);
+
+	childMetaObject = object->metaObject();
+	childObjectName = object->objectName();
+	stateBits = object->getPropertyModifiedBits();
+	this->action = action;
+	savedContents = new QVariantMap;
+	subCommand = nullptr;
+	object->saveContents(*savedContents, Object::SaveStandalone);
+}
+
+int ChildActionCommand::id() const
+{
+	return CHILD_ACTION_COMMAND;
+}
+
+QString ChildActionCommand::getAddCommandTextFor(Object *object)
+{
+	Q_ASSERT(nullptr != object);
+	return tr("Add object [%1]").arg(object->objectName());
+}
+
+QString ChildActionCommand::getMultiAddCommandText()
+{
+	return tr("Add multiple objects");
+}
+
+QString ChildActionCommand::getDeleteCommandTextFor(Object *object)
+{
+	Q_ASSERT(nullptr != object);
+	return tr("Delete object [%1]").arg(object->objectName());
+}
+
+QString ChildActionCommand::getMultiDeleteCommandText()
+{
+	return tr("Delete multiple objects");
+}
+
+void ChildActionCommand::doUndo()
+{
+	switch (action)
 	{
-		Q_ASSERT(nullptr != object);
-		return tr("Add object [%1]").arg(object->objectName());
-	}
+		case Add:
+			del();
+			break;
 
-	QString ChildActionCommand::getMultiAddCommandText()
+		case Move:
+			del();
+			subCommand->add();
+			break;
+
+		case Delete:
+			add();
+			break;
+	}
+}
+
+void ChildActionCommand::doRedo()
+{
+	switch (action)
 	{
-		return tr("Add multiple objects");
+		case Add:
+			add();
+			break;
+
+		case Move:
+			subCommand->del();
+			add();
+			break;
+
+		case Delete:
+			del();
+			break;
 	}
+}
 
-	QString ChildActionCommand::getDeleteCommandTextFor(Object *object)
-	{
-		Q_ASSERT(nullptr != object);
-		return tr("Delete object [%1]").arg(object->objectName());
-	}
+void ChildActionCommand::add()
+{
+	auto newChild = dynamic_cast<Object *>(childMetaObject->newInstance());
+	Q_ASSERT(nullptr != newChild);
 
-	QString ChildActionCommand::getMultiDeleteCommandText()
-	{
-		return tr("Delete multiple objects");
-	}
+	auto object = dynamic_cast<Object *>(getObject());
+	Q_ASSERT(nullptr != object);
 
-	void ChildActionCommand::doUndo()
-	{
-		switch (action)
-		{
-			case Add:
-				del();
-				break;
+	object->beginUndoStackUpdate();
+	object->beginReload();
 
-			case Move:
-				del();
-				subCommand->add();
-				break;
+	newChild->beginLoad();
 
-			case Delete:
-				add();
-				break;
-		}
-	}
+	newChild->loadContents(*savedContents, true);
+	newChild->setObjectName(childObjectName);
+	newChild->setParent(object);
 
-	void ChildActionCommand::doRedo()
-	{
-		switch (action)
-		{
-			case Add:
-				add();
-				break;
+	newChild->endLoad();
 
-			case Move:
-				subCommand->del();
-				add();
-				break;
+	object->endReload();
+	object->endUndoStackUpdate();
 
-			case Delete:
-				del();
-				break;
-		}
-	}
+	newChild->setPropertyModifiedBits(stateBits);
+}
 
-	void ChildActionCommand::add()
-	{
-		auto newChild = dynamic_cast<Object *>(childMetaObject->newInstance());
-		Q_ASSERT(nullptr != newChild);
+void ChildActionCommand::del()
+{
+	auto object = dynamic_cast<Object *>(getObject());
+	Q_ASSERT(nullptr != object);
 
-		auto object = dynamic_cast<Object *>(getObject());
-		Q_ASSERT(nullptr != object);
+	object->beginUndoStackUpdate();
+	object->beginReload();
 
-		object->beginUndoStackUpdate();
-		object->beginReload();
+	auto toDelete = object->findChild<Object *>(
+			childObjectName,
+			Qt::FindDirectChildrenOnly);
+	Q_ASSERT(nullptr != toDelete);
+	delete toDelete;
 
-		newChild->beginLoad();
-
-		newChild->loadContents(*savedContents, true);
-		newChild->setObjectName(childObjectName);
-		newChild->setParent(object);
-
-		newChild->endLoad();
-
-		object->endReload();
-		object->endUndoStackUpdate();
-
-		newChild->setPropertyModifiedBits(stateBits);
-	}
-
-	void ChildActionCommand::del()
-	{
-		auto object = dynamic_cast<Object *>(getObject());
-		Q_ASSERT(nullptr != object);
-
-		object->beginUndoStackUpdate();
-		object->beginReload();
-
-		auto toDelete = object->findChild<Object *>(childObjectName, Qt::FindDirectChildrenOnly);
-		Q_ASSERT(nullptr != toDelete);
-		delete toDelete;
-
-		object->endReload();
-		object->endUndoStackUpdate();
-	}
+	object->endReload();
+	object->endUndoStackUpdate();
+}
 
 }

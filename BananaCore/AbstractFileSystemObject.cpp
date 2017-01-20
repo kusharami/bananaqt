@@ -81,7 +81,7 @@ AbstractDirectory *AbstractFileSystemObject::getParentDirectory() const
 }
 
 QString AbstractFileSystemObject::getFilePath(
-		const AbstractDirectory *relative_to) const
+	const AbstractDirectory *relative_to) const
 {
 	QString path;
 	auto fileName = getFileName();
@@ -124,8 +124,9 @@ QString AbstractFileSystemObject::getBaseName() const
 {
 	QString filename(getFileName());
 
-	return QString(filename.constData(),
-				   filename.length() - getFileExtension().length());
+	return QString(
+		filename.constData(),
+		filename.length() - getFileExtension().length());
 }
 
 bool AbstractFileSystemObject::rename(const QString &new_name)
@@ -158,8 +159,8 @@ bool AbstractFileSystemObject::setFileName(const QString &value)
 				if (!newExtension.isEmpty())
 				{
 					newFileName.setUnicode(
-								newFileName.data(),
-								newFileName.length() - newExtension.length());
+						newFileName.data(),
+						newFileName.length() - newExtension.length());
 				}
 
 				bool symLink = isSymLink();
@@ -168,9 +169,11 @@ bool AbstractFileSystemObject::setFileName(const QString &value)
 				thiz->blockSignals(false);
 				thiz->setObjectName(newFileName);
 
-				file->setModified(modified
-					|| (!symLink && 0 != oldExtension.compare(newExtension,
-												  Qt::CaseInsensitive)));
+				file->setModified(
+					modified
+					|| (!symLink && 0 != oldExtension.compare(
+							newExtension,
+							Qt::CaseInsensitive)));
 
 				auto dir = getParentDirectory();
 				if (nullptr != dir)
@@ -186,7 +189,7 @@ bool AbstractFileSystemObject::setFileName(const QString &value)
 }
 
 bool AbstractFileSystemObject::updateFileExtension(
-		const QString &filename, QString *outExt)
+	const QString &filename, QString *outExt)
 {
 	bool found = false;
 	QString extension;
@@ -194,7 +197,8 @@ bool AbstractFileSystemObject::updateFileExtension(
 	{
 		if (ext.isEmpty())
 			found = true;
-		else if (filename.endsWith(ext, Qt::CaseInsensitive))
+		else
+		if (filename.endsWith(ext, Qt::CaseInsensitive))
 		{
 			extension = ext;
 			found = true;
@@ -208,9 +212,10 @@ bool AbstractFileSystemObject::updateFileExtension(
 			*outExt = extension;
 
 		return (getFileName().isEmpty()
-			||	0 == QString::compare(getFileExtension(),
-									  extension, Qt::CaseInsensitive)
-			||	isWritableFormat(extension));
+				|| 0 == QString::compare(
+					getFileExtension(),
+					extension, Qt::CaseInsensitive)
+				|| isWritableFormat(extension));
 	}
 
 	return false;
@@ -223,8 +228,9 @@ void AbstractFileSystemObject::updateFileNameError(const QString &failedName)
 	if (failedName.isEmpty())
 		executeUpdateFilePathError(info.filePath(), failedName);
 	else
-		executeUpdateFilePathError(info.filePath(),
-								   info.dir().absoluteFilePath(failedName));
+		executeUpdateFilePathError(
+			info.filePath(),
+			info.dir().absoluteFilePath(failedName));
 }
 
 QStringList AbstractFileSystemObject::getSupportedExtensions() const

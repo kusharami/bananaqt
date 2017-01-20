@@ -58,4 +58,3 @@ int main(int argc, char *argv[])
 	QTEST_SET_MAIN_SOURCE_PATH
 	return executeTests(argc, argv);
 }
-

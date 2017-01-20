@@ -29,8 +29,9 @@ SOFTWARE.
 namespace Banana
 {
 
-	enum
-	{
-		SELECT_TREE_ITEMS_COMMAND = RESERVED,
-	};
+enum
+{
+	SELECT_TREE_ITEMS_COMMAND = RESERVED,
+};
+
 }

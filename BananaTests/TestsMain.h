@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include <functional>
 
-#define UTF16(c) QString::fromWCharArray(L##c)
+#define UTF16(c) QStringLiteral(c)
 #define UTF8(c) QString::fromUtf8(c)
 
 #if defined(_UNICODE) && defined(_MSC_VER)
@@ -50,8 +50,8 @@ size_t registerTest()
 	return registerTestCreator([]() -> QObject * { return new T; });
 }
 
-#define CAT2(a,b) a##b
-#define CAT(a,b) CAT2(a,b)
+#define CAT2(a, b) a ## b
+#define CAT(a, b) CAT2(a, b)
 
 #define REGISTER_TEST(Class) \
-static auto CAT(test, __COUNTER__) = registerTest<Class>()
+	static auto CAT(test, __COUNTER__) = registerTest<Class>()

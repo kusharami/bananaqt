@@ -29,7 +29,7 @@ SOFTWARE.
 
 namespace Ui
 {
-	class ListMessageDialog;
+class ListMessageDialog;
 }
 
 namespace Banana
@@ -69,4 +69,5 @@ ListMessageDialog::Type ListMessageDialog::type() const
 {
 	return mType;
 }
+
 }

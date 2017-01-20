@@ -33,392 +33,407 @@ SOFTWARE.
 
 namespace Banana
 {
-	class OpenedFilesPathGroup : public QObject, public AbstractObjectGroup
+class OpenedFilesPathGroup : public QObject, public AbstractObjectGroup
+{
+public:
+	OpenedFilesPathGroup(OpenedFiles *parent);
+
+	virtual const QObjectList &getChildren() override;
+	virtual void resetChildren() override;
+	virtual AbstractObjectGroup *getRealGroup() override;
+
+protected:
+	virtual void sortChildren(QObjectList &children) override;
+	virtual void deleteChild(QObject *child) override;
+
+private:
+	OpenedFiles *openedFiles;
+};
+
+OpenedFiles::OpenedFiles(ProjectGroup *owner)
+	: watcher(nullptr)
+	, owner(owner)
+{
+	resetWatcher(false);
+}
+
+OpenedFiles::~OpenedFiles()
+{
+	delete watcher;
+}
+
+bool OpenedFiles::fileIsOpened(const QString &filePath)
+{
+	return nullptr != getRegisteredFileData(filePath);
+}
+
+QObject *OpenedFiles::getRegisteredFileData(const QString &filePath)
+{
+	auto it = findFileData(filePath);
+
+	if (file_map.end() != it)
+		return it->second.data;
+
+	return nullptr;
+}
+
+void OpenedFiles::registerFile(const QString &filePath, QObject *data)
+{
+	auto it = findFileData(filePath);
+
+	if (file_map.end() == it)
 	{
-	public:
-		OpenedFilesPathGroup(OpenedFiles *parent);
-
-		virtual const QObjectList &getChildren() override;
-		virtual void resetChildren() override;
-		virtual AbstractObjectGroup *getRealGroup() override;
-
-	protected:
-		virtual void sortChildren(QObjectList &children) override;
-		virtual void deleteChild(QObject *child) override;
-
-	private:
-		OpenedFiles *openedFiles;
-	};
-
-
-	OpenedFiles::OpenedFiles(ProjectGroup *owner)
-		: watcher(nullptr)
-		, owner(owner)
-	{
-		resetWatcher(false);
+		it =
+			file_map.insert(
+				std::pair<QString, Info>(
+					filePath,
+					{ data, 0 })).first;
+		addPathInternal(filePath);
 	}
 
-	OpenedFiles::~OpenedFiles()
+	Q_ASSERT(it->second.data == data);
+
+	if (it->second.ref_count == 0)
 	{
-		delete watcher;
-	}
+		auto path = QFileInfo(filePath).path();
+		if (path.isEmpty())
+			path = ".";
 
-	bool OpenedFiles::fileIsOpened(const QString &filePath)
-	{
-		return nullptr != getRegisteredFileData(filePath);
-	}
-
-	QObject *OpenedFiles::getRegisteredFileData(const QString &filePath)
-	{
-		auto it = findFileData(filePath);
-
-		if (file_map.end() != it)
-			return it->second.data;
-
-		return nullptr;
-	}
-
-	void OpenedFiles::registerFile(const QString &filePath, QObject *data)
-	{
-		auto it = findFileData(filePath);
-
-		if (file_map.end() == it)
+		auto pathGroup = findChild<OpenedFilesPathGroup *>(
+				path,
+				Qt::FindDirectChildrenOnly);
+		if (nullptr == pathGroup)
 		{
-			it = file_map.insert(std::pair<QString, Info>(filePath, { data, 0 })).first;
-			addPathInternal(filePath);
+			pathGroup = new OpenedFilesPathGroup(this);
+			pathGroup->setObjectName(path);
 		}
+		data->setParent(pathGroup);
 
-		Q_ASSERT(it->second.data == data);
+		QObject::connect(
+			data, &QObject::destroyed,
+			this, &OpenedFiles::resetChildren);
 
-		if (it->second.ref_count == 0)
-		{
-			auto path = QFileInfo(filePath).path();
-			if (path.isEmpty())
-				path = ".";
-
-			auto pathGroup = findChild<OpenedFilesPathGroup *>(path, Qt::FindDirectChildrenOnly);
-			if (nullptr == pathGroup)
-			{
-				pathGroup = new OpenedFilesPathGroup(this);
-				pathGroup->setObjectName(path);
-			}
-			data->setParent(pathGroup);
-
-			QObject::connect(data, &QObject::destroyed,
-							 this, &OpenedFiles::resetChildren);
-
-			auto obj = dynamic_cast<Object *>(data);
-			if (nullptr != obj)
-			{
-				QObject::connect(obj, &Object::parentChanged,
-								 this, &OpenedFiles::onFileDataParentChanged);
-			}
-			resetChildren();
-		}
-
-		it->second.ref_count++;
-	}
-
-	QObject *OpenedFiles::unregisterFile(const QString &filePath, unsigned *ref_count_ptr)
-	{
-		auto it = findFileData(filePath);
-
-		QObject *result = nullptr;
-
-		if (nullptr != ref_count_ptr)
-			*ref_count_ptr = 0;
-
-		if (file_map.end() != it)
-		{
-			result = it->second.data;
-			if (0 == --it->second.ref_count)
-			{
-				removePathInternal(filePath);
-				file_map.erase(it);
-			} else if (nullptr != ref_count_ptr)
-				*ref_count_ptr = it->second.ref_count;
-		}
-
-		return result;
-	}
-
-	QObject *OpenedFiles::deleteFileData(const QString &filePath)
-	{
-		unsigned ref_count = 0;
-
-		auto data = unregisterFile(filePath, &ref_count);
-		if (ref_count == 0)
-			delete data;
-
-		return data;
-	}
-
-	QObject *OpenedFiles::updateFilePath(const QString &oldFilePath, const QString &newFilePath)
-	{
-		auto it = findFileData(oldFilePath);
-
-		if (file_map.end() == it)
-			return nullptr;
-
-		auto data = it->second.data;
-
-		if (0 == QString::compare(oldFilePath, newFilePath, Qt::CaseInsensitive))
-			return data;
-
-		Q_ASSERT(nullptr != data);
-
-		unsigned ref_count = 0;
-
-		auto unregistered = unregisterFile(oldFilePath, &ref_count);
-		Q_ASSERT(data == unregistered);
-		Q_UNUSED(unregistered);
-
-		if (ref_count == 0)
-		{
-			it = findFileData(newFilePath);
-
-			if (file_map.end() == it)
-			{
-				registerFile(newFilePath, data);
-				return data;
-			}
-		} else
-		{
-			auto new_data = data->metaObject()->newInstance();
-
-			new_data->setObjectName(data->objectName());
-
-			registerFile(newFilePath, new_data);
-
-			auto object = dynamic_cast<Object *>(new_data);
-			if (nullptr != object)
-			{
-				auto src = dynamic_cast<Object *>(data);
-				bool old_modified = src->isModified();
-
-				object->assign(src);
-
-				object->setModified(old_modified);
-			} else
-			{
-				QVariantMap vmap;
-				Object::saveContents(object, vmap);
-				Object::loadContents(vmap, new_data, true);
-			}
-
-			return new_data;
-		}
-
-		return nullptr;
-	}
-
-	bool OpenedFiles::canChangeFilePath(const QString &oldFilePath, const QString &newFilePath)
-	{
-		if (0 == QString::compare(oldFilePath, newFilePath, Qt::CaseInsensitive))
-			return true;
-
-		auto old_data = getRegisteredFileData(oldFilePath);
-		auto found_data = getRegisteredFileData(newFilePath);
-
-		if (found_data == old_data)
-			return true;
-
-		if (nullptr == found_data)
-			return true;
-
-		return false;
-	}
-
-	const QObjectList &OpenedFiles::getChildren()
-	{
-		if (m_children.empty())
-		{
-			for (auto pathObject : children())
-			{
-				for (auto pathChild : pathObject->children())
-				{
-					auto fileObject = dynamic_cast<Object *>(pathChild);
-					if (nullptr == fileObject || !fileObject->isDeleted())
-						m_children.push_back(pathChild);
-				}
-			}
-		}
-
-		return m_children;
-	}
-
-	void OpenedFiles::resetChildren()
-	{
-		m_children.clear();
-	}
-
-	bool OpenedFiles::isFileWatched(const AbstractFile *file) const
-	{
-		Q_ASSERT(nullptr != file);
-
-		if (file->isSymLink())
-			return isFileWatched(file->getFilePath());
-
-		return isFileWatched(file->getCanonicalFilePath());
-	}
-
-	bool OpenedFiles::isFileWatched(const QString &filePath) const
-	{
-		QFileInfo info(filePath);
-
-		if (info.isFile() || (info.isSymLink() && !info.isDir()))
-		{
-			for (auto &it_path : watcher->files())
-			{
-				if (0 == QString::compare(it_path, filePath, Qt::CaseInsensitive))
-					return true;
-			}
-		}
-
-		return false;
-	}
-
-	void OpenedFiles::watchFile(AbstractFile *file, bool yes)
-	{
-		if (file->isSymLink())
-		{
-			watch(file->getFilePath(), yes);
-		} else
-		if (yes)
-		{
-			addPathInternal(QFileInfo(file->getFilePath()).canonicalPath());
-		}
-
-		watch(file->getCanonicalFilePath(), yes);
-	}
-
-	void OpenedFiles::watch(const QString &path, bool yes)
-	{
-		if (!path.isEmpty())
-		{
-			if (yes)
-			{
-				addPathInternal(path);
-			} else
-			{
-				removePathInternal(path);
-			}
-		}
-	}
-
-	void OpenedFiles::clearWatcher()
-	{
-		resetWatcher(false);
-	}
-
-	void OpenedFiles::onFileDataParentChanged()
-	{
-		resetChildren();
-
-		QObject::disconnect(sender(), &QObject::destroyed,
-							this, &OpenedFiles::resetChildren);
-
-		auto obj = dynamic_cast<Object *>(sender());
+		auto obj = dynamic_cast<Object *>(data);
 		if (nullptr != obj)
 		{
-			QObject::disconnect(obj, &Object::parentChanged,
-								this, &OpenedFiles::onFileDataParentChanged);
+			QObject::connect(
+				obj, &Object::parentChanged,
+				this, &OpenedFiles::onFileDataParentChanged);
 		}
+		resetChildren();
 	}
 
-	void OpenedFiles::resetWatcher(bool copy)
+	it->second.ref_count++;
+}
+
+QObject *OpenedFiles::unregisterFile(const QString &filePath,
+									 unsigned *ref_count_ptr)
+{
+	auto it = findFileData(filePath);
+
+	QObject *result = nullptr;
+
+	if (nullptr != ref_count_ptr)
+		*ref_count_ptr = 0;
+
+	if (file_map.end() != it)
 	{
-		QStringList files;
-
-		if (copy)
-			files = watcher->files();
-		delete watcher;
-
-		watcher = new QFileSystemWatcher;
-
-		if (copy)
+		result = it->second.data;
+		if (0 == --it->second.ref_count)
 		{
-			for (auto &path : files)
+			removePathInternal(filePath);
+			file_map.erase(it);
+		} else
+		if (nullptr != ref_count_ptr)
+			*ref_count_ptr = it->second.ref_count;
+	}
+
+	return result;
+}
+
+QObject *OpenedFiles::deleteFileData(const QString &filePath)
+{
+	unsigned ref_count = 0;
+
+	auto data = unregisterFile(filePath, &ref_count);
+	if (ref_count == 0)
+		delete data;
+
+	return data;
+}
+
+QObject *OpenedFiles::updateFilePath(const QString &oldFilePath,
+									 const QString &newFilePath)
+{
+	auto it = findFileData(oldFilePath);
+
+	if (file_map.end() == it)
+		return nullptr;
+
+	auto data = it->second.data;
+
+	if (0 == QString::compare(oldFilePath, newFilePath, Qt::CaseInsensitive))
+		return data;
+
+	Q_ASSERT(nullptr != data);
+
+	unsigned ref_count = 0;
+
+	auto unregistered = unregisterFile(oldFilePath, &ref_count);
+	Q_ASSERT(data == unregistered);
+	Q_UNUSED(unregistered);
+
+	if (ref_count == 0)
+	{
+		it = findFileData(newFilePath);
+
+		if (file_map.end() == it)
+		{
+			registerFile(newFilePath, data);
+			return data;
+		}
+	} else
+	{
+		auto new_data = data->metaObject()->newInstance();
+
+		new_data->setObjectName(data->objectName());
+
+		registerFile(newFilePath, new_data);
+
+		auto object = dynamic_cast<Object *>(new_data);
+		if (nullptr != object)
+		{
+			auto src = dynamic_cast<Object *>(data);
+			bool old_modified = src->isModified();
+
+			object->assign(src);
+
+			object->setModified(old_modified);
+		} else
+		{
+			QVariantMap vmap;
+			Object::saveContents(object, vmap);
+			Object::loadContents(vmap, new_data, true);
+		}
+
+		return new_data;
+	}
+
+	return nullptr;
+}
+
+bool OpenedFiles::canChangeFilePath(const QString &oldFilePath,
+									const QString &newFilePath)
+{
+	if (0 == QString::compare(oldFilePath, newFilePath, Qt::CaseInsensitive))
+		return true;
+
+	auto old_data = getRegisteredFileData(oldFilePath);
+	auto found_data = getRegisteredFileData(newFilePath);
+
+	if (found_data == old_data)
+		return true;
+
+	if (nullptr == found_data)
+		return true;
+
+	return false;
+}
+
+const QObjectList &OpenedFiles::getChildren()
+{
+	if (m_children.empty())
+	{
+		for (auto pathObject : children())
+		{
+			for (auto pathChild : pathObject->children())
 			{
-				addPathInternal(path);
+				auto fileObject = dynamic_cast<Object *>(pathChild);
+				if (nullptr == fileObject || !fileObject->isDeleted())
+					m_children.push_back(pathChild);
 			}
 		}
-
-		QObject::connect(watcher, &QFileSystemWatcher::fileChanged,
-						 this, &OpenedFiles::filesChanged);
-		QObject::connect(watcher, &QFileSystemWatcher::directoryChanged,
-						 this, &OpenedFiles::filesChanged);
 	}
 
-	void OpenedFiles::removePathInternal(const QString &path)
-	{
-		if (!watcher->removePath(path))
-		{
-			auto files = watcher->files();
-			resetWatcher(false);
+	return m_children;
+}
 
-			for (auto &p : files)
-			{
-				if (0 != QString::compare(path, p, Qt::CaseInsensitive))
-					addPathInternal(p);
-			}
+void OpenedFiles::resetChildren()
+{
+	m_children.clear();
+}
+
+bool OpenedFiles::isFileWatched(const AbstractFile *file) const
+{
+	Q_ASSERT(nullptr != file);
+
+	if (file->isSymLink())
+		return isFileWatched(file->getFilePath());
+
+	return isFileWatched(file->getCanonicalFilePath());
+}
+
+bool OpenedFiles::isFileWatched(const QString &filePath) const
+{
+	QFileInfo info(filePath);
+
+	if (info.isFile() || (info.isSymLink() && !info.isDir()))
+	{
+		for (auto &it_path : watcher->files())
+		{
+			if (0 == QString::compare(it_path, filePath, Qt::CaseInsensitive))
+				return true;
 		}
 	}
 
-	void OpenedFiles::addPathInternal(const QString &path)
-	{
-		QFileInfo info(path);
+	return false;
+}
 
-		if (info.exists() || info.isSymLink())
+void OpenedFiles::watchFile(AbstractFile *file, bool yes)
+{
+	if (file->isSymLink())
+	{
+		watch(file->getFilePath(), yes);
+	} else
+	if (yes)
+	{
+		addPathInternal(QFileInfo(file->getFilePath()).canonicalPath());
+	}
+
+	watch(file->getCanonicalFilePath(), yes);
+}
+
+void OpenedFiles::watch(const QString &path, bool yes)
+{
+	if (!path.isEmpty())
+	{
+		if (yes)
 		{
-			if (watcher->addPath(path))
-			{
-				if (!info.isRoot())
-					addPathInternal(QDir(info.path()).canonicalPath());
-			}
+			addPathInternal(path);
+		} else
+		{
+			removePathInternal(path);
+		}
+	}
+}
+
+void OpenedFiles::clearWatcher()
+{
+	resetWatcher(false);
+}
+
+void OpenedFiles::onFileDataParentChanged()
+{
+	resetChildren();
+
+	QObject::disconnect(
+		sender(), &QObject::destroyed,
+		this, &OpenedFiles::resetChildren);
+
+	auto obj = dynamic_cast<Object *>(sender());
+	if (nullptr != obj)
+	{
+		QObject::disconnect(
+			obj, &Object::parentChanged,
+			this, &OpenedFiles::onFileDataParentChanged);
+	}
+}
+
+void OpenedFiles::resetWatcher(bool copy)
+{
+	QStringList files;
+
+	if (copy)
+		files = watcher->files();
+	delete watcher;
+
+	watcher = new QFileSystemWatcher;
+
+	if (copy)
+	{
+		for (auto &path : files)
+		{
+			addPathInternal(path);
 		}
 	}
 
-	OpenedFiles::FileMap::iterator OpenedFiles::findFileData(const QString &filePath)
+	QObject::connect(
+		watcher, &QFileSystemWatcher::fileChanged,
+		this, &OpenedFiles::filesChanged);
+	QObject::connect(
+		watcher, &QFileSystemWatcher::directoryChanged,
+		this, &OpenedFiles::filesChanged);
+}
+
+void OpenedFiles::removePathInternal(const QString &path)
+{
+	if (!watcher->removePath(path))
 	{
-		auto it = file_map.find(filePath);
+		auto files = watcher->files();
+		resetWatcher(false);
 
-		if (file_map.end() != it)
-			return it;
-
-		return file_map.end();
+		for (auto &p : files)
+		{
+			if (0 != QString::compare(path, p, Qt::CaseInsensitive))
+				addPathInternal(p);
+		}
 	}
+}
 
-	OpenedFilesPathGroup::OpenedFilesPathGroup(OpenedFiles *parent)
-		: QObject(parent)
-		, openedFiles(parent)
+void OpenedFiles::addPathInternal(const QString &path)
+{
+	QFileInfo info(path);
+
+	if (info.exists() || info.isSymLink())
 	{
-		Q_ASSERT(nullptr != parent);
+		if (watcher->addPath(path))
+		{
+			if (!info.isRoot())
+				addPathInternal(QDir(info.path()).canonicalPath());
+		}
 	}
+}
 
-	const QObjectList &OpenedFilesPathGroup::getChildren()
-	{
-		return openedFiles->getChildren();
-	}
+OpenedFiles::FileMap::iterator OpenedFiles::findFileData(const QString &filePath)
+{
+	auto it = file_map.find(filePath);
 
-	void OpenedFilesPathGroup::resetChildren()
-	{
-		openedFiles->resetChildren();
-	}
+	if (file_map.end() != it)
+		return it;
 
-	AbstractObjectGroup *OpenedFilesPathGroup::getRealGroup()
-	{
-		return openedFiles;
-	}
+	return file_map.end();
+}
 
-	void OpenedFilesPathGroup::sortChildren(QObjectList &children)
-	{
-		openedFiles->sortChildren(children);
-	}
+OpenedFilesPathGroup::OpenedFilesPathGroup(OpenedFiles *parent)
+	: QObject(parent)
+	, openedFiles(parent)
+{
+	Q_ASSERT(nullptr != parent);
+}
 
-	void OpenedFilesPathGroup::deleteChild(QObject *child)
-	{
-		openedFiles->deleteChild(child);
-	}
+const QObjectList &OpenedFilesPathGroup::getChildren()
+{
+	return openedFiles->getChildren();
+}
+
+void OpenedFilesPathGroup::resetChildren()
+{
+	openedFiles->resetChildren();
+}
+
+AbstractObjectGroup *OpenedFilesPathGroup::getRealGroup()
+{
+	return openedFiles;
+}
+
+void OpenedFilesPathGroup::sortChildren(QObjectList &children)
+{
+	openedFiles->sortChildren(children);
+}
+
+void OpenedFilesPathGroup::deleteChild(QObject *child)
+{
+	openedFiles->deleteChild(child);
+}
 
 }

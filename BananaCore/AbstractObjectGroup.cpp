@@ -30,7 +30,7 @@ namespace Banana
 {
 
 QObjectList AbstractObjectGroup::filterChildren(
-		const IChildFilter *filter, bool sort)
+	const IChildFilter *filter, bool sort)
 {
 	auto children = getChildren();
 
@@ -129,12 +129,13 @@ bool AbstractObjectGroup::equals(QObject *groupObject)
 
 void AbstractObjectGroup::sortChildren(QObjectList &children)
 {
-	std::sort(children.begin(), children.end(),
-	[](QObject *a, QObject *b)->bool
-	{
-		return QString::compare(
-					a->objectName(), b->objectName(), Qt::CaseInsensitive) < 0;
-	});
+	std::sort(
+		children.begin(), children.end(),
+		[](QObject *a, QObject *b) -> bool
+		{
+			return QString::compare(
+				a->objectName(), b->objectName(), Qt::CaseInsensitive) < 0;
+		});
 }
 
 }

@@ -62,12 +62,14 @@ public:
 	BaseFileManager();
 	virtual ~BaseFileManager() {}
 
-	bool processUrls(Qt::DropAction action,
-					 const QDir &pasteDir,
-					 const QList<QUrl> &urls);
-	bool processEntries(Qt::DropAction action,
-						const QDir &pasteDir,
-						const QFileInfoList &entries);
+	bool processUrls(
+		Qt::DropAction action,
+		const QDir &pasteDir,
+		const QList<QUrl> &urls);
+	bool processEntries(
+		Qt::DropAction action,
+		const QDir &pasteDir,
+		const QFileInfoList &entries);
 
 	void setProjectDirectory(AbstractProjectDirectory *projectDir);
 
@@ -75,12 +77,15 @@ protected:
 	virtual void processStarted();
 	virtual void processFinished();
 	virtual void processAborted();
-	virtual void processFileStarted(const QDir &pasteDir,
-									const QFileInfo &fileSrc);
-	virtual void processFileFinished(const QFileInfo &fileSrc,
-									 const QFileInfo &fileDst);
-	virtual void processFileAborted(const QDir &pasteDir,
-									const QFileInfo &fileSrc);
+	virtual void processFileStarted(
+		const QDir &pasteDir,
+		const QFileInfo &fileSrc);
+	virtual void processFileFinished(
+		const QFileInfo &fileSrc,
+		const QFileInfo &fileDst);
+	virtual void processFileAborted(
+		const QDir &pasteDir,
+		const QFileInfo &fileSrc);
 
 	virtual bool wasCanceled() const;
 	virtual int shouldReplaceFile(const QFileInfo &);
@@ -90,9 +95,10 @@ protected:
 	AbstractProjectDirectory *project_dir;
 
 private:
-	bool processEntry(Qt::DropAction action,
-					  const QDir &pasteDir,
-					  const QFileInfo &fileSrc);
+	bool processEntry(
+		Qt::DropAction action,
+		const QDir &pasteDir,
+		const QFileInfo &fileSrc);
 	static bool prepareTargetFilePath(const QFileInfo &info);
 };
 

@@ -45,8 +45,7 @@ void AbstractObjectSelector::setObjectSelected(QObject *object, bool value)
 		{
 			selected.insert(object);
 			doConnectSelected(object);
-		}
-		else
+		} else
 		{
 			doDisconnectSelected(object);
 			selected.erase(object);
@@ -64,7 +63,9 @@ bool AbstractObjectSelector::selectionIsEmpty() const
 void AbstractObjectSelector::clearSelection()
 {
 	for (auto object : selected)
+	{
 		doDisconnectSelected(object);
+	}
 
 	selected.clear();
 	doChangeObjectSelection(nullptr, false);

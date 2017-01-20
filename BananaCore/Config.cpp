@@ -42,42 +42,45 @@ static void InitResources()
 namespace Banana
 {
 
-	namespace Core
+namespace Core
+{
+
+void Register()
+{
+	(void) QT_TRANSLATE_NOOP("ClassName", "QObject");
+	(void) QT_TRANSLATE_NOOP("QObject", "objectName");
+
+	InitResources();
+
+	qRegisterMetaType<QVariantMap>();
+	qRegisterMetaType<SearchPaths *>();
+
+	Directory::registerFileType(
+		pNoExtension,
+		&BinaryFile::staticMetaObject,
+		&BinaryData::staticMetaObject);
+}
+
+void InstallTranslations(const QLocale &locale)
+{
+	static QTranslator translator;
+	if (translator.load(locale, "BananaCore.qm", "", ":/Translations"))
 	{
-		void Register()
-		{
-			(void) QT_TRANSLATE_NOOP("ClassName", "QObject");
-			(void) QT_TRANSLATE_NOOP("QObject", "objectName");
-
-			InitResources();
-
-			qRegisterMetaType<QVariantMap>();
-			qRegisterMetaType<SearchPaths *>();
-
-			Directory::registerFileType(pNoExtension,
-										&BinaryFile::staticMetaObject,
-										&BinaryData::staticMetaObject);
-		}
-
-		void InstallTranslations(const QLocale &locale)
-		{
-			static QTranslator translator;
-			if (translator.load(locale, "BananaCore.qm", "", ":/Translations"))
-			{
-				QCoreApplication::installTranslator(&translator);
-			}
-		}
+		QCoreApplication::installTranslator(&translator);
 	}
+}
 
-	OS getHostOS()
-	{
+}
+
+OS getHostOS()
+{
 #if defined(Q_OS_WIN)
-		return OS_WINDOWS;
+	return OS_WINDOWS;
 #elif defined(Q_OS_MAC)
-		return OS_MAC;
+	return OS_MAC;
 #else
-		return OS_UNKNOWN;
+	return OS_UNKNOWN;
 #endif
-	}
+}
 
 }

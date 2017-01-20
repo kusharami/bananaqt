@@ -31,29 +31,30 @@ SOFTWARE.
 namespace Banana
 {
 
-	FileNameCollection::FileNameCollection()
-	{
+FileNameCollection::FileNameCollection()
+{
 
-	}
+}
 
-	FileNameCollection::FileNameCollection(const QDir &dir,
-										   const QString &fileExtension)
-		: mDir(dir)
-		, mFileExtension(fileExtension)
-	{
+FileNameCollection::FileNameCollection(const QDir &dir,
+									   const QString &fileExtension)
+	: mDir(dir)
+	, mFileExtension(fileExtension)
+{
 
-	}
+}
 
-	bool FileNameCollection::containsName(const QString &name) const
-	{
-		ENSURE(Utils::FileNameIsValid(name));
+bool FileNameCollection::containsName(const QString &name) const
+{
+	ENSURE(Utils::FileNameIsValid(name));
 
-		QFileInfo fileInfo(mDir.absoluteFilePath(name + mFileExtension));
-		return (fileInfo.exists() || fileInfo.isSymLink());
-	}
+	QFileInfo fileInfo(mDir.absoluteFilePath(name + mFileExtension));
+	return (fileInfo.exists() || fileInfo.isSymLink());
+}
 
-	bool FileNameCollection::isValid() const
-	{
-		return mDir.exists() && Utils::FileNameIsValid(mFileExtension);
-	}
+bool FileNameCollection::isValid() const
+{
+	return mDir.exists() && Utils::FileNameIsValid(mFileExtension);
+}
+
 }

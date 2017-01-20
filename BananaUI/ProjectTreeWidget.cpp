@@ -40,8 +40,7 @@ namespace Banana
 static const QString sPatternSyntaxKey = "PatternSyntax";
 
 typedef std::map<QRegExp::PatternSyntax, QString> PatternSyntaxMap;
-static const PatternSyntaxMap patternSyntaxMap =
-{
+static const PatternSyntaxMap patternSyntaxMap = {
 	{ QRegExp::FixedString, "ContainingString" },
 	{ QRegExp::RegExp, "RegExp" },
 	{ QRegExp::WildcardUnix, "Wildcard" },
@@ -77,7 +76,9 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 	QSettings settings;
 
 	settings.beginGroup(metaObject()->className());
-	pattern_syntax = stringToPatternSyntax(settings.value(sPatternSyntaxKey).toString());
+	pattern_syntax = stringToPatternSyntax(
+			settings.value(
+				sPatternSyntaxKey).toString());
 	settings.endGroup();
 
 	switch (pattern_syntax)
@@ -98,7 +99,9 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 			break;
 	}
 
-	QObject::connect(ui->filterEdit, &QLineEdit::textChanged, this, &ProjectTreeWidget::onFilterTextChanged);
+	QObject::connect(
+		ui->filterEdit, &QLineEdit::textChanged, this,
+		&ProjectTreeWidget::onFilterTextChanged);
 
 	auto menu = new QMenu(this);
 
@@ -167,7 +170,10 @@ void ProjectTreeWidget::updateFilter(bool force)
 			pattern_syntax = QRegExp::RegExp;
 		}
 
-		model->setFilterRegExp(QRegExp(text, Qt::CaseInsensitive, pattern_syntax));
+		model->setFilterRegExp(
+			QRegExp(
+				text, Qt::CaseInsensitive,
+				pattern_syntax));
 	}
 }
 
@@ -219,4 +225,5 @@ void ProjectTreeWidget::on_actionOptionsContainingString_toggled(bool checked)
 		ui->actionOptionsWildcard->setChecked(false);
 	}
 }
+
 }

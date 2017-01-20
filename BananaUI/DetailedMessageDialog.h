@@ -30,54 +30,55 @@ SOFTWARE.
 
 namespace Ui
 {
-	class DetailedMessageDialog;
+class DetailedMessageDialog;
 }
 
 namespace Banana
 {
-	class DetailedMessageDialog : public QDialog
+class DetailedMessageDialog : public QDialog
+{
+	Q_OBJECT
+
+public:
+	explicit DetailedMessageDialog(QWidget *parent = nullptr);
+	virtual ~DetailedMessageDialog();
+
+	enum Type
 	{
-		Q_OBJECT
-
-	public:
-		explicit DetailedMessageDialog(QWidget *parent = nullptr);
-		virtual ~DetailedMessageDialog();
-
-		enum Type
-		{
-			None = QMessageBox::NoIcon,
-			Information = QMessageBox::Information,
-			Warning = QMessageBox::Warning,
-			Error = QMessageBox::Critical,
-			Question = QMessageBox::Question
-		};
-
-		using StandardButton = QDialogButtonBox::StandardButton;
-		using StandardButtons = QDialogButtonBox::StandardButtons;
-
-		void setMessage(const QString &text, Qt::TextFormat format = Qt::PlainText);
-		void setDetailsText(const QString &text);
-		void setButtons(const StandardButtons &buttons);
-
-		inline Type type() const;
-		void setType(Type type);
-
-		QDialogButtonBox *buttonBox() const;
-		StandardButton standardButton(QAbstractButton *button) const;
-		QAbstractButton *clickedButton() const;
-
-	private slots:
-		void onButtonClicked(QAbstractButton *button);
-
-	private:
-		Ui::DetailedMessageDialog *ui;
-
-		QAbstractButton *mLastClickedButton;
-		Type mType;
+		None = QMessageBox::NoIcon,
+		Information = QMessageBox::Information,
+		Warning = QMessageBox::Warning,
+		Error = QMessageBox::Critical,
+		Question = QMessageBox::Question
 	};
 
-	DetailedMessageDialog::Type DetailedMessageDialog::type() const
-	{
-		return mType;
-	}
+	using StandardButton = QDialogButtonBox::StandardButton;
+	using StandardButtons = QDialogButtonBox::StandardButtons;
+
+	void setMessage(const QString &text, Qt::TextFormat format = Qt::PlainText);
+	void setDetailsText(const QString &text);
+	void setButtons(const StandardButtons &buttons);
+
+	inline Type type() const;
+	void setType(Type type);
+
+	QDialogButtonBox *buttonBox() const;
+	StandardButton standardButton(QAbstractButton *button) const;
+	QAbstractButton *clickedButton() const;
+
+private slots:
+	void onButtonClicked(QAbstractButton *button);
+
+private:
+	Ui::DetailedMessageDialog *ui;
+
+	QAbstractButton *mLastClickedButton;
+	Type mType;
+};
+
+DetailedMessageDialog::Type DetailedMessageDialog::type() const
+{
+	return mType;
+}
+
 }

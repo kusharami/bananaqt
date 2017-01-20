@@ -43,22 +43,22 @@ class ChangeValueCommand : public AbstractObjectUndoCommand
 
 public:
 	static QString getMultipleResetCommandTextFor(
-			const QMetaObject *metaObject, const char *propertyName);
+		const QMetaObject *metaObject, const char *propertyName);
 	static QString getMultipleResetCommandTextFor(
-			const QMetaObject *metaObject, const QMetaProperty &metaProperty);
+		const QMetaObject *metaObject, const QMetaProperty &metaProperty);
 	static QString getResetCommandTextFor(
-			Object *object, const char *propertyName);
+		Object *object, const char *propertyName);
 	static QString getResetCommandTextFor(
-			Object *object, const QMetaProperty &metaProperty);
+		Object *object, const QMetaProperty &metaProperty);
 
-	static QString getMultipleCommandTextFor(const QMetaObject *metaObject,
-											 const char *propertyName);
-	static QString getMultipleCommandTextFor(const QMetaObject *metaObject,
-											 const QMetaProperty &metaProperty);
+	static QString getMultipleCommandTextFor(
+		const QMetaObject *metaObject, const char *propertyName);
+	static QString getMultipleCommandTextFor(
+		const QMetaObject *metaObject, const QMetaProperty &metaProperty);
 
 	static QString getCommandTextFor(Object *object, const char *propertyName);
 	static QString getCommandTextFor(
-			Object *object, const QMetaProperty &metaProperty);
+		Object *object, const QMetaProperty &metaProperty);
 
 	static QString resetCommandPattern();
 	static QString changeValueCommandPattern();
@@ -67,10 +67,10 @@ public:
 
 public:
 	ChangeValueCommand(
-			Object *object, const QString &oldName, const QString &newName);
-	ChangeValueCommand(Object *object,
-					   const QMetaProperty &metaProperty,
-					   const QVariant &oldValue);
+		Object *object, const QString &oldName, const QString &newName);
+	ChangeValueCommand(
+		Object *object, const QMetaProperty &metaProperty,
+		const QVariant &oldValue);
 	ChangeValueCommand(Object *object, int propertyId, bool oldState);
 	ChangeValueCommand(Object *object, quint64 oldStateBits);
 

@@ -34,9 +34,8 @@ SOFTWARE.
 namespace Banana
 {
 
-ChangeValueCommand::ChangeValueCommand(Object *object,
-									   const QString &oldName,
-									   const QString &newName)
+ChangeValueCommand::ChangeValueCommand(
+	Object *object, const QString &oldName, const QString &newName)
 	: AbstractObjectUndoCommand(object)
 {
 	objectPath[0] = oldName;
@@ -49,9 +48,9 @@ ChangeValueCommand::ChangeValueCommand(Object *object,
 	pushEntry({ metaProperty, oldName, newName });
 }
 
-ChangeValueCommand::ChangeValueCommand(Object *object,
-									   const QMetaProperty &metaProperty,
-									   const QVariant &oldValue)
+ChangeValueCommand::ChangeValueCommand(
+	Object *object, const QMetaProperty &metaProperty,
+	const QVariant &oldValue)
 	: AbstractObjectUndoCommand(object)
 {
 	newStateBits = object->getPropertyModifiedBits();
@@ -60,9 +59,8 @@ ChangeValueCommand::ChangeValueCommand(Object *object,
 	pushEntry(metaProperty, oldValue);
 }
 
-ChangeValueCommand::ChangeValueCommand(Object *object,
-									   int propertyId,
-									   bool oldState)
+ChangeValueCommand::ChangeValueCommand(
+	Object *object, int propertyId, bool oldState)
 	: AbstractObjectUndoCommand(object)
 {
 	Q_ASSERT(propertyId >= 0);
@@ -139,7 +137,7 @@ bool ChangeValueCommand::entryIndexLess(const EntryData *a, const EntryData *b)
 }
 
 void ChangeValueCommand::prepareOrderedEntries(
-		OrderedEntries &orderedEntries) const
+	OrderedEntries &orderedEntries) const
 {
 	if (!entries.empty() && orderedEntries.empty())
 	{
@@ -148,10 +146,12 @@ void ChangeValueCommand::prepareOrderedEntries(
 			orderedEntries.push_back(&it.second);
 		}
 
-		std::sort(orderedEntries.begin(), orderedEntries.end(),
-				  ChangeValueCommand::entryIndexLess);
+		std::sort(
+			orderedEntries.begin(), orderedEntries.end(),
+			ChangeValueCommand::entryIndexLess);
 	}
 }
+
 void ChangeValueCommand::prepareOrderedEntries()
 {
 	prepareOrderedEntries(orderedEntries);
@@ -201,7 +201,7 @@ void ChangeValueCommand::applyStateBits(quint64 bits)
 }
 
 void ChangeValueCommand::pushEntry(
-		const QMetaProperty &metaProperty, const QVariant &oldValue)
+	const QMetaProperty &metaProperty, const QVariant &oldValue)
 {
 	pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()) });
 }
@@ -213,8 +213,7 @@ void ChangeValueCommand::pushEntry(const EntryData &entryData)
 	if (it == entries.end())
 	{
 		auto index = entries.size();
-		entries[propertyIndex] =
-		{
+		entries[propertyIndex] = {
 			entryData.metaProperty,
 			entryData.oldValue,
 			entryData.newValue,
@@ -229,30 +228,30 @@ void ChangeValueCommand::pushEntry(const EntryData &entryData)
 }
 
 QString ChangeValueCommand::getMultipleResetCommandTextFor(
-		const QMetaObject *metaObject, const char *propertyName)
+	const QMetaObject *metaObject, const char *propertyName)
 {
 	Q_ASSERT(nullptr != metaObject);
 	Q_ASSERT(nullptr != propertyName);
 
 	return resetCommandPattern().arg(
-				multipleObjectsStr(),
-				QCoreApplication::translate(
-					metaObject->className(), propertyName));
+		multipleObjectsStr(),
+		QCoreApplication::translate(
+			metaObject->className(), propertyName));
 }
 
 QString ChangeValueCommand::getMultipleResetCommandTextFor(
-		const QMetaObject *metaObject, const QMetaProperty &metaProperty)
+	const QMetaObject *metaObject, const QMetaProperty &metaProperty)
 {
 	Q_ASSERT(nullptr != metaObject);
 
 	return resetCommandPattern().arg(
-				multipleObjectsStr(),
-				QCoreApplication::translate(
-					metaObject->className(), metaProperty.name()));
+		multipleObjectsStr(),
+		QCoreApplication::translate(
+			metaObject->className(), metaProperty.name()));
 }
 
 QString ChangeValueCommand::getResetCommandTextFor(
-		Object *object, const char *propertyName)
+	Object *object, const char *propertyName)
 {
 	Q_ASSERT(nullptr != object);
 	Q_ASSERT(nullptr != propertyName);
@@ -262,7 +261,7 @@ QString ChangeValueCommand::getResetCommandTextFor(
 }
 
 QString ChangeValueCommand::getResetCommandTextFor(
-		Object *object, const QMetaProperty &metaProperty)
+	Object *object, const QMetaProperty &metaProperty)
 {
 	Q_ASSERT(nullptr != object);
 
@@ -272,17 +271,17 @@ QString ChangeValueCommand::getResetCommandTextFor(
 	auto objectName = object->objectName();
 	if (objectName.isEmpty())
 		objectName = QCoreApplication::translate(
-						 "ClassName",
-						 object->metaObject()->className());
+				"ClassName",
+				object->metaObject()->className());
 
 	return resetCommandPattern().arg(
-				objectName,
-				QCoreApplication::translate(
-					metaObject->className(), metaProperty.name()));
+		objectName,
+		QCoreApplication::translate(
+			metaObject->className(), metaProperty.name()));
 }
 
 QString ChangeValueCommand::getMultipleCommandTextFor(
-		const QMetaObject *metaObject, const char *propertyName)
+	const QMetaObject *metaObject, const char *propertyName)
 {
 	Q_ASSERT(nullptr != metaObject);
 
@@ -290,28 +289,29 @@ QString ChangeValueCommand::getMultipleCommandTextFor(
 							   metaObject->className(), propertyName));
 
 	return changeValueCommandPattern().arg(
-				multipleObjectsStr(), propertyNameTr);
+		multipleObjectsStr(), propertyNameTr);
 }
 
 QString ChangeValueCommand::getMultipleCommandTextFor(
-		const QMetaObject *metaObject, const QMetaProperty &metaProperty)
+	const QMetaObject *metaObject, const QMetaProperty &metaProperty)
 {
 	return getMultipleCommandTextFor(metaObject, metaProperty.name());
 }
 
 QString ChangeValueCommand::getCommandTextFor(
-		Object *object, const char *propertyName)
+	Object *object, const char *propertyName)
 {
 	Q_ASSERT(nullptr != object);
 	Q_ASSERT(nullptr != propertyName);
 
-	return getCommandTextFor(object,
-							 Utils::GetMetaPropertyByName(
-								 object, propertyName));
+	return getCommandTextFor(
+		object,
+		Utils::GetMetaPropertyByName(
+			object, propertyName));
 }
 
 QString ChangeValueCommand::getCommandTextFor(
-		Object *object, const QMetaProperty &metaProperty)
+	Object *object, const QMetaProperty &metaProperty)
 {
 	Q_ASSERT(nullptr != object);
 
@@ -322,7 +322,7 @@ QString ChangeValueCommand::getCommandTextFor(
 
 	if (objectName.isEmpty())
 		objectName = QCoreApplication::translate(
-						 "ClassName", object->metaObject()->className());
+				"ClassName", object->metaObject()->className());
 
 	QString propertyName(QCoreApplication::translate(
 							 metaObject->className(), metaProperty.name()));

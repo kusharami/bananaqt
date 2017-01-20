@@ -20,4 +20,6 @@ win32 {
 
 LIBS += -L$$BIN_DIR
 
+OTHER_FILES += $$_PRO_FILE_PWD_/../uncrustify.cfg
+
 for(tr, TRANSLATIONS):system($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_PWD_/$${tr})

@@ -29,14 +29,14 @@ SOFTWARE.
 
 namespace Ui
 {
-	class AddFilesToIgnoreListDialog;
+class AddFilesToIgnoreListDialog;
 }
 
 class QAbstractButton;
 
 namespace Banana
 {
-	class AbstractProjectFile;
+class AbstractProjectFile;
 
 class AddFilesToIgnoreListDialog : public QDialog
 {
@@ -48,8 +48,7 @@ public:
 										QWidget *parent = nullptr);
 	virtual ~AddFilesToIgnoreListDialog();
 
-	static bool execute(const QStringList &pathList,
-						AbstractProjectFile *file,
+	static bool execute(const QStringList &pathList, AbstractProjectFile *file,
 						QWidget *parent);
 
 public Q_SLOTS:

@@ -30,7 +30,7 @@ class QtnPropertyConnector;
 
 namespace Banana
 {
-	class Object;
+class Object;
 
 class ObjectPropertyWidget : public QObjectPropertyWidget
 {
@@ -40,11 +40,14 @@ public:
 	explicit ObjectPropertyWidget(QWidget *parent = nullptr);
 
 private slots:
-	void onBeforePropertyEdited(QtnProperty *property, QtnPropertyValuePtr newValue);
+	void onBeforePropertyEdited(QtnProperty *property,
+								QtnPropertyValuePtr newValue);
 	void onPropertyEdited(QtnProperty *property);
 
 private:
 	static Banana::Object *getObjectForProperty(QtnPropertyBase *property);
-	static QtnPropertyConnector *getConnectorForProperty(QtnPropertyBase *property);
+	static QtnPropertyConnector *getConnectorForProperty(
+		QtnPropertyBase *property);
 };
+
 }

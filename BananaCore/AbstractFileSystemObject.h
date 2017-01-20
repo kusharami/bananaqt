@@ -39,7 +39,7 @@ public:
 	AbstractFileSystemObject(QObject *thiz);
 	virtual ~AbstractFileSystemObject();
 
-	QObject *getObject() const { return thiz; }
+	inline QObject *getObject() const;
 
 	virtual bool isSymLink() const;
 	virtual QString getSymLinkTarget() const;
@@ -47,7 +47,7 @@ public:
 	AbstractDirectory *getTopDirectory() const;
 	AbstractDirectory *getParentDirectory() const;
 	virtual QString getFilePath(
-			const AbstractDirectory *relative_to = nullptr) const;
+		const AbstractDirectory *relative_to = nullptr) const;
 	virtual QString getCanonicalFilePath() const;
 	virtual QString getFileName() const;
 	QString getBaseName() const;
@@ -65,12 +65,17 @@ protected:
 	virtual bool updateFileExtension(const QString &filename, QString *outExt);
 	virtual void updateFileNameError(const QString &failedName);
 	virtual void executeUpdateFilePathError(
-			const QString &path, const QString &failed_path) = 0;
+		const QString &path, const QString &failed_path) = 0;
 
 	AbstractFileSystemObject *internalFind(
-			const QString &path, bool canonical) const;
+		const QString &path, bool canonical) const;
 
 	QObject *thiz;
 };
+
+QObject *AbstractFileSystemObject::getObject() const
+{
+	return thiz;
+}
 
 }

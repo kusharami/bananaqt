@@ -41,11 +41,12 @@ class AbstractProjectFile : public VariantMapFile
 {
 	Q_OBJECT
 
-	Q_PROPERTY(Banana::SearchPaths *mSearchPaths
-			   READ getSearchPaths
-			   RESET resetSearchPaths
-			   DESIGNABLE true
-			   STORED false)
+	Q_PROPERTY(
+		Banana::SearchPaths * mSearchPaths
+		READ getSearchPaths
+		RESET resetSearchPaths
+		DESIGNABLE true
+		STORED false)
 
 public:
 	CUSTOM_PROPERTY(bool, HideIgnoredFiles)
@@ -101,9 +102,10 @@ private:
 	static FileObjType getFileObjTypeFromString(const QString &str);
 
 	void watch(bool yes);
-	void saveProjectDirectory(Directory *root_dir,
-							  Directory *dir,
-							  QVariantList &output) const;
+	void saveProjectDirectory(
+		Directory *root_dir,
+		Directory *dir,
+		QVariantList &output) const;
 
 	OpenedFiles *openedFiles;
 	SearchPaths *searchPaths;

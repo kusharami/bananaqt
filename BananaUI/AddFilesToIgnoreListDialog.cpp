@@ -37,7 +37,8 @@ using namespace Banana;
 namespace Banana
 {
 
-AddFilesToIgnoreListDialog::AddFilesToIgnoreListDialog(Banana::AbstractProjectFile *file, const QString &path, QWidget *parent)
+AddFilesToIgnoreListDialog::AddFilesToIgnoreListDialog(
+	Banana::AbstractProjectFile *file, const QString &path, QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::AddFilesToIgnoreListDialog)
 	, ignore_what(EXACT)
@@ -45,15 +46,17 @@ AddFilesToIgnoreListDialog::AddFilesToIgnoreListDialog(Banana::AbstractProjectFi
 {
 	ui->setupUi(this);
 
-	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint
-				|	Qt::WindowMinMaxButtonsHint))
-				|	Qt::MSWindowsFixedSizeDialogHint
-				|	Qt::CustomizeWindowHint);
+	setWindowFlags(
+		(windowFlags() & ~(Qt::WindowContextHelpButtonHint
+						   | Qt::WindowMinMaxButtonsHint))
+		| Qt::MSWindowsFixedSizeDialogHint
+		| Qt::CustomizeWindowHint);
 
 	setPath(path);
 
-	QObject::connect(ui->lineEditExact, &QLineEdit::editingFinished,
-					 this, &AddFilesToIgnoreListDialog::onExactEditingFinished);
+	QObject::connect(
+		ui->lineEditExact, &QLineEdit::editingFinished,
+		this, &AddFilesToIgnoreListDialog::onExactEditingFinished);
 }
 
 AddFilesToIgnoreListDialog::~AddFilesToIgnoreListDialog()
@@ -61,7 +64,9 @@ AddFilesToIgnoreListDialog::~AddFilesToIgnoreListDialog()
 	delete ui;
 }
 
-bool AddFilesToIgnoreListDialog::execute(const QStringList &pathList, AbstractProjectFile *file, QWidget *parent)
+bool AddFilesToIgnoreListDialog::execute(const QStringList &pathList,
+										 AbstractProjectFile *file,
+										 QWidget *parent)
 {
 	if (pathList.count() == 1)
 	{
@@ -79,7 +84,9 @@ bool AddFilesToIgnoreListDialog::execute(const QStringList &pathList, AbstractPr
 	auto ignored = file->getIgnoredFilesList();
 
 	for (auto &path : pathList)
+	{
 		ignored.push_back(project_dir->getRelativeFilePathFor(path));
+	}
 
 	file->setIgnoredFilesList(ignored);
 
@@ -115,7 +122,9 @@ void AddFilesToIgnoreListDialog::accept()
 
 	if (pattern.isEmpty())
 	{
-		QMessageBox::critical(this, QCoreApplication::applicationName(), tr("Empty pattern!"));
+		QMessageBox::critical(
+			this, QCoreApplication::applicationName(),
+			tr("Empty pattern!"));
 	} else
 	{
 		auto ignored = project_file->getIgnoredFilesList();
@@ -203,4 +212,5 @@ void AddFilesToIgnoreListDialog::on_buttonBox_clicked(QAbstractButton *button)
 			break;
 	}
 }
+
 }

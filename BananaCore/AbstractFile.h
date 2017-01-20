@@ -39,34 +39,41 @@ class Directory;
 class AbstractDirectory;
 class AbstractFileRegistrator;
 class OpenedFiles;
-class AbstractFile : public Object, public AbstractFileSystemObject, public FileNamingPolicy
+class AbstractFile
+	: public Object
+	, public AbstractFileSystemObject
+	, public FileNamingPolicy
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QString fileName
-			   READ getFileName
-			   WRITE setFileName
-			   SCRIPTABLE true
-			   STORED false
-			   DESIGNABLE false)
+	Q_PROPERTY(
+		QString fileName
+		READ getFileName
+		WRITE setFileName
+		SCRIPTABLE true
+		STORED false
+		DESIGNABLE false)
 
-	Q_PROPERTY(QString filePath
-			   READ getFilePath
-			   SCRIPTABLE true
-			   STORED false
-			   DESIGNABLE false)
+	Q_PROPERTY(
+		QString filePath
+		READ getFilePath
+		SCRIPTABLE true
+		STORED false
+		DESIGNABLE false)
 
-	Q_PROPERTY(QString shortFilePath
-			   READ getFilePathShort
-			   SCRIPTABLE true
-			   STORED false
-			   DESIGNABLE false)
+	Q_PROPERTY(
+		QString shortFilePath
+		READ getFilePathShort
+		SCRIPTABLE true
+		STORED false
+		DESIGNABLE false)
 
-	Q_PROPERTY(QString canonicalFilePath
-			   READ getCanonicalFilePath
-			   SCRIPTABLE true
-			   STORED false
-			   DESIGNABLE false)
+	Q_PROPERTY(
+		QString canonicalFilePath
+		READ getCanonicalFilePath
+		SCRIPTABLE true
+		STORED false
+		DESIGNABLE false)
 
 public:
 	explicit AbstractFile(const QString &extension);
@@ -80,15 +87,7 @@ public:
 	Q_INVOKABLE QObject *getData(bool open = true);
 
 	template <typename CLASS>
-	CLASS *getDataAs(bool open = true)
-	{
-		auto result = getData(open);
-
-		if (result != nullptr)
-			Q_ASSERT(nullptr != dynamic_cast<CLASS *>(result));
-
-		return static_cast<CLASS *>(result);
-	}
+	inline CLASS *getDataAs(bool open = true);
 
 	Q_INVOKABLE bool isOpen() const;
 	Q_INVOKABLE bool canClose();
@@ -149,8 +148,12 @@ protected:
 
 	virtual void changeFilePath(const QString &newPath);
 	virtual bool tryChangeFilePath(const QString &newPath);
-	virtual void executeUpdateFilePathError(const QString &path, const QString &failedPath) override;
-	virtual bool updateFileExtension(const QString &fileName, QString *outExtension) override;
+	virtual void executeUpdateFilePathError(
+		const QString &path,
+		const QString &failedPath) override;
+	virtual bool updateFileExtension(
+		const QString &fileName,
+		QString *outExtension) override;
 	virtual void doUpdateFilePath(bool checkOldPath);
 	virtual void doParentChange() override;
 	virtual QObject *doGetData();
@@ -180,6 +183,17 @@ private:
 	QString savedPath;
 	QObject *connectedData;
 };
+
+template <typename CLASS>
+CLASS *AbstractFile::getDataAs(bool open)
+{
+	auto result = getData(open);
+
+	if (result != nullptr)
+		Q_ASSERT(nullptr != dynamic_cast<CLASS *>(result));
+
+	return static_cast<CLASS *>(result);
+}
 
 unsigned AbstractFile::getBindCount() const
 {

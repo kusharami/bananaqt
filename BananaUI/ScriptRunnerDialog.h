@@ -28,15 +28,15 @@ SOFTWARE.
 
 namespace Ui
 {
-	class ScriptRunnerDialog;
+class ScriptRunnerDialog;
 }
 
 class QAbstractButton;
 
 namespace Banana
 {
-	class ProjectGroup;
-	class ScriptRunner;
+class ProjectGroup;
+class ScriptRunner;
 
 class ScriptRunnerDialog : public QDialog
 {
@@ -80,4 +80,5 @@ private:
 	ProjectGroup *group;
 	ScriptRunner *runner;
 };
+
 }

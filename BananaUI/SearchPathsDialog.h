@@ -32,15 +32,15 @@ SOFTWARE.
 
 namespace Ui
 {
-	class SearchPathsDialog;
+class SearchPathsDialog;
 }
 
 class QItemSelection;
 
 namespace Banana
 {
-	class ProjectDirectoryModel;
-	class Directory;
+class ProjectDirectoryModel;
+class Directory;
 
 class SearchPathsDialog;
 
@@ -49,12 +49,17 @@ class SearchPathsTableModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	explicit SearchPathsTableModel(Banana::ProjectDirectoryModel *project_dir_model,
-								  QObject *parent = nullptr);
+	explicit SearchPathsTableModel(
+		Banana::ProjectDirectoryModel *project_dir_model,
+		QObject *parent = nullptr);
 	virtual ~SearchPathsTableModel();
 
-	virtual int rowCount(const QModelIndex &index = QModelIndex()) const override;
-	virtual int columnCount(const QModelIndex &index = QModelIndex()) const override;
+	virtual int rowCount(
+		const QModelIndex &index =
+			QModelIndex()) const override;
+	virtual int columnCount(
+		const QModelIndex &index =
+			QModelIndex()) const override;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 	virtual QVariant data(const QModelIndex &index, int role) const override;
 
@@ -64,7 +69,8 @@ public:
 	Banana::Directory *getDirectoryAtIndex(const QModelIndex &index) const;
 
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-							  int row, int column, const QModelIndex &parent) override;
+							  int row, int column,
+							  const QModelIndex &parent) override;
 	virtual Qt::DropActions supportedDropActions() const override;
 	virtual Qt::DropActions supportedDragActions() const override;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
@@ -79,7 +85,8 @@ signals:
 	void shouldReselect();
 
 protected:
-	virtual bool removeRows(int row, int count, const QModelIndex &parent) override;
+	virtual bool removeRows(int row, int count,
+							const QModelIndex &parent) override;
 
 private:
 	void load();
@@ -134,4 +141,5 @@ private:
 	SearchPathsTableModel *paths_model;
 	bool popup;
 };
+
 }

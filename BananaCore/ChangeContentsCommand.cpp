@@ -30,8 +30,8 @@ SOFTWARE.
 namespace Banana
 {
 
-ChangeContentsCommand::ChangeContentsCommand(Object *object,
-											 const QVariantMap &oldContents)
+ChangeContentsCommand::ChangeContentsCommand(
+	Object *object, const QVariantMap &oldContents)
 	: AbstractObjectUndoCommand(object)
 	, oldContents(oldContents)
 {

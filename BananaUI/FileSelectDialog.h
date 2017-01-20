@@ -30,21 +30,22 @@ SOFTWARE.
 
 namespace Ui
 {
-	class FileSelectDialog;
+class FileSelectDialog;
 }
 
 class QAbstractButton;
 
 namespace Banana
 {
-	class ProjectDirectoryModel;
+class ProjectDirectoryModel;
 
 class FileSelectDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit FileSelectDialog(Banana::ProjectDirectoryModel *model, QWidget *parent = nullptr);
+	explicit FileSelectDialog(Banana::ProjectDirectoryModel *model,
+							  QWidget *parent = nullptr);
 	virtual ~FileSelectDialog();
 
 	QString getSelectedFilePath() const;
@@ -103,4 +104,5 @@ private:
 	bool dirs;
 	bool popup;
 };
+
 }
