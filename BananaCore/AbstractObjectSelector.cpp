@@ -27,53 +27,54 @@ SOFTWARE.
 namespace Banana
 {
 
-	AbstractObjectSelector::~AbstractObjectSelector()
-	{
+AbstractObjectSelector::~AbstractObjectSelector()
+{
 
-	}
+}
 
-	bool AbstractObjectSelector::isObjectSelected(QObject *object)
-	{
-		return selected.end() != selected.find(object);
-	}
+bool AbstractObjectSelector::isObjectSelected(QObject *object)
+{
+	return selected.end() != selected.find(object);
+}
 
-	void AbstractObjectSelector::setObjectSelected(QObject *object, bool value)
+void AbstractObjectSelector::setObjectSelected(QObject *object, bool value)
+{
+	if (isObjectSelected(object) != value)
 	{
-		if (isObjectSelected(object) != value)
+		if (value)
 		{
-			if (value)
-			{
-				selected.insert(object);
-				doConnectSelected(object);
-			}
-			else
-			{
-				doDisconnectSelected(object);
-				selected.erase(object);
-			}
-
-			doChangeObjectSelection(object, false);
-		}
-	}
-
-	bool AbstractObjectSelector::selectionIsEmpty() const
-	{
-		return selected.empty();
-	}
-
-	void AbstractObjectSelector::clearSelection()
-	{
-		for (auto object : selected)
+			selected.insert(object);
+			doConnectSelected(object);
+		} else
+		{
 			doDisconnectSelected(object);
+			selected.erase(object);
+		}
 
-		selected.clear();
-		doChangeObjectSelection(nullptr, false);
+		doChangeObjectSelection(object, false);
 	}
+}
 
-	void AbstractObjectSelector::onSelectedObjectDestroyed(QObject *object)
+bool AbstractObjectSelector::selectionIsEmpty() const
+{
+	return selected.empty();
+}
+
+void AbstractObjectSelector::clearSelection()
+{
+	for (auto object : selected)
 	{
-		selected.erase(object);
-		doChangeObjectSelection(object, true);
+		doDisconnectSelected(object);
 	}
+
+	selected.clear();
+	doChangeObjectSelection(nullptr, false);
+}
+
+void AbstractObjectSelector::onSelectedObjectDestroyed(QObject *object)
+{
+	selected.erase(object);
+	doChangeObjectSelection(object, true);
+}
 
 }

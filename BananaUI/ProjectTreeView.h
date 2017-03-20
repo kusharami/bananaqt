@@ -32,10 +32,10 @@ class QProgressDialog;
 
 namespace Banana
 {
-	class AbstractProjectDirectory;
-	class AbstractFileSystemObject;
-	class ProjectDirectoryModel;
-	class ProjectDirectoryFilterModel;
+class AbstractProjectDirectory;
+class AbstractFileSystemObject;
+class ProjectDirectoryModel;
+class ProjectDirectoryFilterModel;
 
 class ProjectTreeView : public QTreeView
 {
@@ -92,4 +92,5 @@ private:
 	Banana::ProjectDirectoryModel *projectDirModel;
 	Banana::ProjectDirectoryFilterModel *filterModel;
 };
+
 }

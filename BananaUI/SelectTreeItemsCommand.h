@@ -32,42 +32,43 @@ SOFTWARE.
 
 namespace Banana
 {
-	class BaseTreeView;
+class BaseTreeView;
 
-	class SelectTreeItemsCommand : public QUndoCommand
+class SelectTreeItemsCommand : public QUndoCommand
+{
+public:
+	SelectTreeItemsCommand(BaseTreeView *tree);
+	SelectTreeItemsCommand(BaseTreeView *tree, const QObjectSet &oldSelected,
+						   const QObjectSet &newSelected);
+
+	void setOldSelected(const QObjectSet &set);
+	void setNewSelected(const QObjectSet &set);
+
+	virtual void undo() override;
+	virtual void redo() override;
+
+	virtual int id() const override;
+	virtual bool mergeWith(const QUndoCommand *other) override;
+
+private:
+	struct Path
 	{
-	public:
-		SelectTreeItemsCommand(BaseTreeView *tree);
-		SelectTreeItemsCommand(BaseTreeView *tree, const QObjectSet &oldSelected, const QObjectSet &newSelected);
-
-		void setOldSelected(const QObjectSet &set);
-		void setNewSelected(const QObjectSet &set);
-
-		virtual void undo() override;
-		virtual void redo() override;
-
-		virtual int id() const override;
-		virtual bool mergeWith(const QUndoCommand *other) override;
-
-	private:
-		struct Path
-		{
-			QObject *topAncestor;
-			QStringList path;
-		};
-
-		typedef std::vector<Path> Paths;
-
-		static void toPaths(const QObjectSet &source, Paths &output);
-
-		void select(const Paths &toSelect);
-
-		BaseTreeView *tree;
-
-		Paths newSelected;
-		Paths oldSelected;
-
-		bool skipRedoOnPush;
+		QObject *topAncestor;
+		QStringList path;
 	};
+
+	typedef std::vector<Path> Paths;
+
+	static void toPaths(const QObjectSet &source, Paths &output);
+
+	void select(const Paths &toSelect);
+
+	BaseTreeView *tree;
+
+	Paths newSelected;
+	Paths oldSelected;
+
+	bool skipRedoOnPush;
+};
 
 }

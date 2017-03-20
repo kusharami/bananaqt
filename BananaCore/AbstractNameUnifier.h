@@ -32,27 +32,27 @@ SOFTWARE.
 namespace Banana
 {
 
-	class AbstractNameUnifier : public BaseObject
-	{
-	public:
-		inline const NameCollectionPtr &nameCollection() const;
-		inline void setNameCollection(const NameCollectionPtr &ptr);
+class AbstractNameUnifier : public BaseObject
+{
+public:
+	inline const NameCollectionPtr &nameCollection() const;
+	inline void setNameCollection(const NameCollectionPtr &ptr);
 
-		virtual QString uniqueNameFor(const QString &name) const = 0;
-		virtual bool isValid() const override;
+	virtual QString uniqueNameFor(const QString &name) const = 0;
+	virtual bool isValid() const override;
 
-	protected:
-		NameCollectionPtr mNameCollection;
-	};
+protected:
+	NameCollectionPtr mNameCollection;
+};
 
-	const NameCollectionPtr &AbstractNameUnifier::nameCollection() const
-	{
-		return mNameCollection;
-	}
+const NameCollectionPtr &AbstractNameUnifier::nameCollection() const
+{
+	return mNameCollection;
+}
 
-	void AbstractNameUnifier::setNameCollection(const NameCollectionPtr &ptr)
-	{
-		mNameCollection = ptr;
-	}
+void AbstractNameUnifier::setNameCollection(const NameCollectionPtr &ptr)
+{
+	mNameCollection = ptr;
+}
 
 }

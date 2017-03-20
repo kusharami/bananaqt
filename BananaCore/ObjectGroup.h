@@ -33,51 +33,56 @@ SOFTWARE.
 
 namespace Banana
 {
-	struct IChildFilter;
-	enum class ConnectionState;
-	class ObjectGroup : public Object, public AbstractObjectGroup
-	{
-		Q_OBJECT
-	public:
-		explicit ObjectGroup();
+struct IChildFilter;
+enum class ConnectionState;
+class ObjectGroup : public Object, public AbstractObjectGroup
+{
+	Q_OBJECT
 
-		void registerChildType(const QMetaObject *meta_object,
-							   Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive);
-		void unregisterChildType(const QMetaObject *meta_object, bool children = true);
-		void unregisterAllChildTypes(bool children = true);
+public:
+	explicit ObjectGroup();
 
-		bool isSupportedChildType(const QMetaObject *meta_object) const;
+	void registerChildType(
+		const QMetaObject *meta_object, Qt::CaseSensitivity sensitivity =
+			Qt::CaseInsensitive);
+	void unregisterChildType(const QMetaObject *meta_object,
+							 bool children = true);
+	void unregisterAllChildTypes(bool children = true);
 
-		virtual const QObjectList &getChildren() override;
-		virtual void resetChildren() override;
+	bool isSupportedChildType(const QMetaObject *meta_object) const;
 
-	signals:
-		void childObjectConnectionChanged(QObject *object, ConnectionState state);
+	virtual const QObjectList &getChildren() override;
+	virtual void resetChildren() override;
 
-	protected:
-		virtual UniqueNameScope *createNameScope(const QMetaObject *meta_object,
-												 Qt::CaseSensitivity sensitivity) const;
-		virtual void doAddChild(QObject *object) override;
-		virtual void doRemoveChild(QObject *object) override;
-		virtual void doConnectChildObject(QObject *object);
-		virtual void doDisconnectChildObject(QObject *object);
+signals:
+	void childObjectConnectionChanged(QObject *object, ConnectionState state);
 
-	private slots:
-		void onChildObjectDestroyed(QObject *object);
-		void childrenNeedRearrange();
+protected:
+	virtual UniqueNameScope *createNameScope(const QMetaObject *meta_object,
+											 Qt::CaseSensitivity sensitivity)
+	const;
+	virtual void doAddChild(QObject *object) override;
+	virtual void doRemoveChild(QObject *object) override;
+	virtual void doConnectChildObject(QObject *object);
+	virtual void doDisconnectChildObject(QObject *object);
 
-	private:
-		void reconnectChildren(UniqueNameScope *new_scope);
-		void connectChildObject(QObject *object, UniqueNameScope *scope);
-		void disconnectChildObject(QObject *object, UniqueNameScope *scope);
+private slots:
+	void onChildObjectDestroyed(QObject *object);
+	void childrenNeedRearrange();
 
-	protected:
-		void makeChildList();
+private:
+	void reconnectChildren(UniqueNameScope *new_scope);
+	void connectChildObject(QObject *object, UniqueNameScope *scope);
+	void disconnectChildObject(QObject *object, UniqueNameScope *scope);
 
-		typedef std::unique_ptr<UniqueNameScope> NameScopePtr;
-		typedef std::map<const QMetaObject *, NameScopePtr> ChildTypesMap;
+protected:
+	void makeChildList();
 
-		QObjectList m_children;
-		ChildTypesMap child_types;
-	};
+	typedef std::unique_ptr<UniqueNameScope> NameScopePtr;
+	typedef std::map<const QMetaObject *, NameScopePtr> ChildTypesMap;
+
+	QObjectList m_children;
+	ChildTypesMap child_types;
+};
+
 }

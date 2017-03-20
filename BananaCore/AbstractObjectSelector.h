@@ -31,31 +31,31 @@ SOFTWARE.
 namespace Banana
 {
 
-	class AbstractObjectSelector
-	{
-	public:
-		virtual ~AbstractObjectSelector();
+class AbstractObjectSelector
+{
+public:
+	virtual ~AbstractObjectSelector();
 
-		bool isObjectSelected(QObject *object);
-		void setObjectSelected(QObject *object, bool value);
+	bool isObjectSelected(QObject *object);
+	void setObjectSelected(QObject *object, bool value);
 
-		bool selectionIsEmpty() const;
+	bool selectionIsEmpty() const;
 
-		virtual void clearSelection();
-		inline const QObjectSet &getSelectedObjects() const;
+	virtual void clearSelection();
+	inline const QObjectSet &getSelectedObjects() const;
 
-	protected:
-		virtual void doConnectSelected(QObject *object) = 0;
-		virtual void doDisconnectSelected(QObject *object) = 0;
-		virtual void doChangeObjectSelection(QObject *object, bool destroyed) = 0;
-		void onSelectedObjectDestroyed(QObject *object);
+protected:
+	virtual void doConnectSelected(QObject *object) = 0;
+	virtual void doDisconnectSelected(QObject *object) = 0;
+	virtual void doChangeObjectSelection(QObject *object, bool destroyed) = 0;
+	void onSelectedObjectDestroyed(QObject *object);
 
-		QObjectSet selected;
-	};
+	QObjectSet selected;
+};
 
-	const QObjectSet &AbstractObjectSelector::getSelectedObjects() const
-	{
-		return selected;
-	}
+const QObjectSet &AbstractObjectSelector::getSelectedObjects() const
+{
+	return selected;
+}
 
 }

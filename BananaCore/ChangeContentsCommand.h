@@ -30,23 +30,25 @@ SOFTWARE.
 
 namespace Banana
 {
-	class Object;
 
-	class ChangeContentsCommand : public AbstractObjectUndoCommand
-	{
-	public:
-		ChangeContentsCommand(Object *object, const QVariantMap &oldContents);
+class Object;
 
-		virtual int id() const override;
+class ChangeContentsCommand : public AbstractObjectUndoCommand
+{
+public:
+	ChangeContentsCommand(Object *object, const QVariantMap &oldContents);
 
-	protected:
-		virtual void doUndo() override;
-		virtual void doRedo() override;
+	virtual int id() const override;
 
-	private:
-		void applyContents(const QVariantMap &contents);
+protected:
+	virtual void doUndo() override;
+	virtual void doRedo() override;
 
-		QVariantMap oldContents;
-		QVariantMap newContents;
-	};
+private:
+	void applyContents(const QVariantMap &contents);
+
+	QVariantMap oldContents;
+	QVariantMap newContents;
+};
+
 }

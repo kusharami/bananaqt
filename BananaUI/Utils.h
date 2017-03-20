@@ -30,10 +30,9 @@ class QWidget;
 
 namespace Banana
 {
-	namespace Utils
-	{
-		void addShortcutForAction(QWidget *parent,
-								  const QKeySequence &sequence,
-								  QAction *action);
-	}
+namespace Utils
+{
+void addShortcutForAction(QWidget *parent, const QKeySequence &sequence,
+						  QAction *action);
+}
 }

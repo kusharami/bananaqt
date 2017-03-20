@@ -29,199 +29,215 @@ SOFTWARE.
 namespace Banana
 {
 
-	UniqueNameScope::UniqueNameScope(const QMetaObject *meta_object,
-									 Qt::CaseSensitivity sensitivity, QObject *parent)
-		: QObject(parent)
-		, meta_object(meta_object)
-		, sensitivity(sensitivity)
-	{
-	}
+UniqueNameScope::UniqueNameScope(const QMetaObject *meta_object,
+								 Qt::CaseSensitivity sensitivity,
+								 QObject *parent)
+	: QObject(parent)
+	, meta_object(meta_object)
+	, sensitivity(sensitivity)
+{
+}
 
-	const QMetaObject *UniqueNameScope::getObjectType() const
-	{
-		return meta_object;
-	}
+const QMetaObject *UniqueNameScope::getObjectType() const
+{
+	return meta_object;
+}
 
-	Qt::CaseSensitivity UniqueNameScope::getCaseSensitivity() const
-	{
-		return sensitivity;
-	}
+Qt::CaseSensitivity UniqueNameScope::getCaseSensitivity() const
+{
+	return sensitivity;
+}
 
-	void UniqueNameScope::setCaseSensitivity(Qt::CaseSensitivity value)
-	{
-		sensitivity = value;
-	}
+void UniqueNameScope::setCaseSensitivity(Qt::CaseSensitivity value)
+{
+	sensitivity = value;
+}
 
-	void UniqueNameScope::connectObject(QObject *object)
+void UniqueNameScope::connectObject(QObject *object)
+{
+	if (nullptr != object
+		&& (nullptr == meta_object
+			|| nullptr != meta_object->cast(object)))
 	{
-		if (nullptr != object
-		&&	(	nullptr == meta_object
-			||	nullptr != meta_object->cast(object)))
+		internalConnectObject(object);
+
+		setObjectName(object, object->objectName());
+	}
+}
+
+void UniqueNameScope::disconnectObject(QObject *object)
+{
+	if (nullptr != object
+		&& (nullptr == meta_object
+			|| nullptr != meta_object->cast(object)))
+	{
+		internalDisconnectObject(object);
+	}
+}
+
+QObject *UniqueNameScope::findSibling(QObject *object,
+									  const QString &find_name) const
+{
+	auto parent = object->parent();
+
+	if (nullptr != parent)
+	{
+		for (auto sibling : parent->children())
 		{
-			internalConnectObject(object);
-
-			setObjectName(object, object->objectName());
-		}
-	}
-
-	void UniqueNameScope::disconnectObject(QObject *object)
-	{
-			if (nullptr != object
-			&&	(	nullptr == meta_object
-				||	nullptr != meta_object->cast(object)))
-		{
-			internalDisconnectObject(object);
-		}
-	}
-
-	QObject *UniqueNameScope::findSibling(QObject *object, const QString &find_name) const
-	{
-		auto parent = object->parent();
-
-		if (nullptr != parent)
-		{
-			for (auto sibling : parent->children())
+			if (sibling != object
+				&& checkSiblingNameForObject(sibling, find_name, object))
 			{
-				if (sibling != object
-				&&	checkSiblingNameForObject(sibling, find_name, object))
-				{
-					return sibling;
-				}
+				return sibling;
 			}
 		}
-
-		return nullptr;
 	}
 
-	bool UniqueNameScope::checkSiblingNameForObject(QObject *sibling, const QString &name, QObject *) const
-	{
-		if (nullptr == meta_object || nullptr != meta_object->cast(sibling))
-			return (0 == name.compare(sibling->objectName(), sensitivity));
+	return nullptr;
+}
 
-		return false;
+bool UniqueNameScope::checkSiblingNameForObject(QObject *sibling,
+												const QString &name,
+												QObject *) const
+{
+	if (nullptr == meta_object || nullptr != meta_object->cast(sibling))
+		return (0 == name.compare(sibling->objectName(), sensitivity));
+
+	return false;
+}
+
+void UniqueNameScope::onObjectNameChanged(const QString &name)
+{
+	setObjectName(sender(), name);
+}
+
+QString UniqueNameScope::getNumberedFormat(QObject *object)
+{
+	return QString("%1") + getNumberSeparator(object) + QString("%2");
+}
+
+QString UniqueNameScope::getFixedName(const QString &name, QObject *object)
+{
+	QString result(name);
+	auto naming = dynamic_cast<AbstractNamingPolicy *>(object);
+	if (nullptr != naming)
+		result = naming->getFixedName(result);
+
+	if (result.isEmpty())
+	{
+		result = QString(object->metaObject()->className());
+		int cut_idx = result.lastIndexOf("::");
+		if (cut_idx >= 0)
+			result.remove(0, cut_idx + 2);
 	}
 
-	void UniqueNameScope::onObjectNameChanged(const QString &name)
+	return result;
+}
+
+QString UniqueNameScope::getNumberSeparator(QObject *object)
+{
+	auto naming = dynamic_cast<AbstractNamingPolicy *>(object);
+	if (nullptr != naming)
 	{
-		setObjectName(sender(), name);
+		return naming->getNumberSeparator();
 	}
 
-	QString UniqueNameScope::getNumberedFormat(QObject *object)
-	{
-		return QString("%1") + getNumberSeparator(object) + QString("%2");
-	}
+	return QString(" ");
+}
 
-	QString UniqueNameScope::getFixedName(const QString &name, QObject *object)
-	{
-		QString result(name);
-		auto naming = dynamic_cast<AbstractNamingPolicy *>(object);
-		if (nullptr != naming)
-			result = naming->getFixedName(result);
+void UniqueNameScope::setObjectName(QObject *object, const QString &name)
+{
+	auto parent = object->parent();
 
-		if (result.isEmpty())
+	if (nullptr != parent)
+	{
+		internalDisconnectObject(object);
+
+		QString new_name(getFixedName(name, object));
+		QString new_name_without_number;
+
+		bool no_number_initialized = false;
+
+		quint32 number = 0;
+
+		do
 		{
-			result = QString(object->metaObject()->className());
-			int cut_idx = result.lastIndexOf("::");
-			if (cut_idx >= 0)
-				result.remove(0, cut_idx + 2);
-		}
+			auto found = findSibling(object, new_name);
 
-		return result;
-	}
-
-	QString UniqueNameScope::getNumberSeparator(QObject *object)
-	{
-		auto naming = dynamic_cast<AbstractNamingPolicy *>(object);
-		if (nullptr != naming)
-		{
-			return naming->getNumberSeparator();
-		}
-
-		return QString(" ");
-	}
-
-	void UniqueNameScope::setObjectName(QObject *object, const QString &name)
-	{
-		auto parent = object->parent();
-
-		if (nullptr != parent)
-		{
-			internalDisconnectObject(object);
-
-			QString new_name(getFixedName(name, object));
-			QString new_name_without_number;
-
-			bool no_number_initialized = false;
-
-			quint32 number = 0;
-
-			do
+			if (nullptr == found)
 			{
-				auto found = findSibling(object, new_name);
+				object->setObjectName(new_name);
+				break;
+			}
 
-				if (nullptr == found)
+			if (!no_number_initialized)
+			{
+				no_number_initialized = true;
+
+				int len = new_name.length();
+				if (len > 0 && new_name.at(len - 1).isDigit())
 				{
-					object->setObjectName(new_name);
-					break;
-				}
-
-				if (!no_number_initialized)
-				{
-					no_number_initialized = true;
-
-					int len = new_name.length();
-					if (len > 0 && new_name.at(len - 1).isDigit())
+					int new_len = len;
+					for (int j = len - 1; j >= 0; j--)
 					{
-						int new_len = len;
-						for (int j = len - 1; j >= 0; j--)
+						bool ok;
+						QString::fromRawData(
+							&new_name.constData()[j],
+							len - j).toUInt(&ok);
+
+						if (ok)
+							new_len--;
+						else
+							break;
+					}
+
+					if (new_len > 0)
+					{
+						auto number_separator = getNumberSeparator(object);
+						auto sep_len = number_separator.length();
+						auto check_index = new_len - sep_len;
+						if (sep_len > 0
+							&& check_index >= 0
+							&& number_separator ==
+							QString::fromRawData(
+								&new_name.constData()[
+									check_index], sep_len))
 						{
-							bool ok;
-							QString::fromRawData(&new_name.constData()[j], len - j).toUInt(&ok);
-
-							if (ok)
-								new_len--;
-							else
-								break;
+							new_len = check_index;
 						}
+					}
 
-						if (new_len > 0)
-						{
-							auto number_separator = getNumberSeparator(object);
-							auto sep_len = number_separator.length();
-							auto check_index = new_len - sep_len;
-							if (sep_len > 0
-							&&	check_index >= 0
-							&&	number_separator == QString::fromRawData(&new_name.constData()[check_index], sep_len))
-							{
-								new_len = check_index;
-							}
-						}
-
-						new_name_without_number = QString(new_name.constData(), new_len);
-					} else
-						new_name_without_number = new_name;
-				}
-
-				if (number > 0)
-				{
-					new_name = getNumberedFormat(object).arg(new_name_without_number, QString::number(number));
+					new_name_without_number = QString(
+							new_name.constData(), new_len);
 				} else
-					new_name = new_name_without_number;
+					new_name_without_number = new_name;
+			}
 
-				number++;
-			} while (true);
+			if (number > 0)
+			{
+				new_name = getNumberedFormat(object).arg(
+						new_name_without_number, QString::number(number));
+			} else
+				new_name = new_name_without_number;
 
-			internalConnectObject(object);
-		}
+			number++;
+		} while (true);
+
+		internalConnectObject(object);
 	}
+}
 
-	void UniqueNameScope::internalConnectObject(QObject *object)
-	{
-		QObject::connect(object, &QObject::objectNameChanged, this, &UniqueNameScope::onObjectNameChanged);
-	}
+void UniqueNameScope::internalConnectObject(QObject *object)
+{
+	QObject::connect(
+		object, &QObject::objectNameChanged, this,
+		&UniqueNameScope::onObjectNameChanged);
+}
 
-	void UniqueNameScope::internalDisconnectObject(QObject *object)
-	{
-		QObject::disconnect(object, &QObject::objectNameChanged, this, &UniqueNameScope::onObjectNameChanged);
-	}
+void UniqueNameScope::internalDisconnectObject(QObject *object)
+{
+	QObject::disconnect(
+		object, &QObject::objectNameChanged, this,
+		&UniqueNameScope::onObjectNameChanged);
+}
+
 }

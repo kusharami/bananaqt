@@ -30,22 +30,23 @@ SOFTWARE.
 
 namespace Ui
 {
-	class NewFileDialog;
+class NewFileDialog;
 }
 
 class QAbstractButton;
 
 namespace Banana
 {
-	class AbstractFile;
-	class AbstractProjectDirectory;
+class AbstractFile;
+class AbstractProjectDirectory;
 
 class NewFileDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit NewFileDialog(Banana::AbstractProjectDirectory *project_dir, const QString &path, QWidget *parent = nullptr);
+	explicit NewFileDialog(Banana::AbstractProjectDirectory *project_dir,
+						   const QString &path, QWidget *parent = nullptr);
 	virtual ~NewFileDialog();
 
 	Banana::AbstractFile *getResultFile() const;
@@ -80,4 +81,5 @@ private:
 
 	std::vector<FileTypeInfo> file_types;
 };
+
 }

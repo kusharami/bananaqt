@@ -28,27 +28,28 @@ SOFTWARE.
 
 namespace Banana
 {
-	struct IChildFilter;
-	class AbstractObjectGroup
-	{
-	public:
-		virtual ~AbstractObjectGroup() {}
 
-		virtual const QObjectList &getChildren();
-		virtual AbstractObjectGroup *getRealGroup();
+struct IChildFilter;
+class AbstractObjectGroup
+{
+public:
+	virtual ~AbstractObjectGroup() {}
 
-		bool equals(QObject *groupObject);
+	virtual const QObjectList &getChildren();
+	virtual AbstractObjectGroup *getRealGroup();
 
-		QObjectList filterChildren(const IChildFilter *filter, bool sort = true);
-		int getChildIndex(const QObject *object);
-		QObject *getChildAt(int index);
+	bool equals(QObject *groupObject);
 
-		void removeAllGroupChildren();
-		virtual void resetChildren() = 0;
+	QObjectList filterChildren(const IChildFilter *filter, bool sort = true);
+	int getChildIndex(const QObject *object);
+	QObject *getChildAt(int index);
 
-	protected:
-		virtual void sortChildren(QObjectList &children);
-		virtual void deleteChild(QObject *child);
-	};
+	void removeAllGroupChildren();
+	virtual void resetChildren() = 0;
+
+protected:
+	virtual void sortChildren(QObjectList &children);
+	virtual void deleteChild(QObject *child);
+};
 
 }

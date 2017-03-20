@@ -43,8 +43,9 @@ ListMessageDialog::ListMessageDialog(QWidget *parent)
 
 	setWindowTitle(QCoreApplication::applicationName());
 
-	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint))
-				   | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+	setWindowFlags(
+		(windowFlags() & ~(Qt::WindowContextHelpButtonHint))
+		| Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 }
 
 ListMessageDialog::~ListMessageDialog()
@@ -69,7 +70,10 @@ void ListMessageDialog::setType(Type type)
 			case Warning:
 			case Error:
 			case Question:
-				ui->iconLabel->setPixmap(QMessageBox::standardIcon((QMessageBox::Icon) type));
+				ui->iconLabel->setPixmap(
+					QMessageBox::standardIcon(
+						(QMessageBox
+						 ::Icon) type));
 				ui->iconLabel->show();
 				break;
 
@@ -86,4 +90,5 @@ void ListMessageDialog::addListItem(const QString &text, const QString &hint)
 	item->setText(text);
 	item->setToolTip(hint);
 }
+
 }

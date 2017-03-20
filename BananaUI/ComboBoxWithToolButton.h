@@ -59,4 +59,5 @@ QToolButton *ComboBoxWithToolButton::getToolButton() const
 {
 	return toolButton;
 }
+
 }

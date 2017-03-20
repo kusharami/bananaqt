@@ -28,34 +28,37 @@ SOFTWARE.
 
 namespace Banana
 {
-	struct MainWindowPrivate;
+struct MainWindowPrivate;
 
-	class MainWindow : public QMainWindow
-	{
-		Q_OBJECT
-	public:
-		explicit MainWindow(QWidget *parent = nullptr);
-		virtual ~MainWindow();
+class MainWindow : public QMainWindow
+{
+	Q_OBJECT
 
-		virtual void openFileOutside(const QString& filePath);
-		virtual void customOutsideCommand(const QString &command, const QString &params);
+public:
+	explicit MainWindow(QWidget *parent = nullptr);
+	virtual ~MainWindow();
 
-	protected:
-		void registerFileType(const QString& documentId,
-							  const QString& fileTypeName,
-							  const QString& fileExtension,
-							  qint32         appIconIndex = 0);
-		void registerCommand(const QString& command,
-							 const QString& documentId,
-							 const QString cmdLineArg = QString::null,
-							 const QString ddeCommand = QString::null);
-		void enableOpenOutside();
-		virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
-		virtual bool eventFilter(QObject *watched, QEvent *event) override;
+	virtual void openFileOutside(const QString &filePath);
+	virtual void customOutsideCommand(const QString &command,
+									  const QString &params);
 
-		friend struct MainWindowPrivate;
-	private:
-		MainWindowPrivate *p;
-	};
+protected:
+	void registerFileType(const QString &documentId,
+						  const QString &fileTypeName,
+						  const QString &fileExtension,
+						  qint32 appIconIndex = 0);
+	void registerCommand(const QString &command, const QString &documentId,
+						 const QString cmdLineArg = QString::null,
+						 const QString ddeCommand = QString::null);
+	void enableOpenOutside();
+	virtual bool nativeEvent(const QByteArray &eventType, void *message,
+							 long *result) override;
+	virtual bool eventFilter(QObject *watched, QEvent *event) override;
+
+	friend struct MainWindowPrivate;
+
+private:
+	MainWindowPrivate *p;
+};
 
 }

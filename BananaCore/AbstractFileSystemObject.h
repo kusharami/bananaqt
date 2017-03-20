@@ -31,42 +31,51 @@ class QObject;
 
 namespace Banana
 {
-	class AbstractDirectory;
-	class AbstractFileSystemObject
-	{
-	public:
-		AbstractFileSystemObject(QObject *thiz);
-		virtual ~AbstractFileSystemObject();
 
-		QObject *getObject() const { return thiz; }
+class AbstractDirectory;
+class AbstractFileSystemObject
+{
+public:
+	AbstractFileSystemObject(QObject *thiz);
+	virtual ~AbstractFileSystemObject();
 
-		virtual bool isSymLink() const;
-		virtual QString getSymLinkTarget() const;
+	inline QObject *getObject() const;
 
-		AbstractDirectory *getTopDirectory() const;
-		AbstractDirectory *getParentDirectory() const;
-		virtual QString getFilePath(const AbstractDirectory *relative_to = nullptr) const;
-		virtual QString getCanonicalFilePath() const;
-		virtual QString getFileName() const;
-		QString getBaseName() const;
+	virtual bool isSymLink() const;
+	virtual QString getSymLinkTarget() const;
 
-		virtual bool rename(const QString &new_name);
-		virtual bool setFileName(const QString &value);
+	AbstractDirectory *getTopDirectory() const;
+	AbstractDirectory *getParentDirectory() const;
+	virtual QString getFilePath(
+		const AbstractDirectory *relative_to = nullptr) const;
+	virtual QString getCanonicalFilePath() const;
+	virtual QString getFileName() const;
+	QString getBaseName() const;
 
-		virtual const QString &getFileExtension() const = 0;
+	virtual bool rename(const QString &new_name);
+	virtual bool setFileName(const QString &value);
 
-		virtual QStringList getSupportedExtensions() const;
+	virtual const QString &getFileExtension() const = 0;
 
-		virtual bool isWritableFormat(const QString &extension) const;
+	virtual QStringList getSupportedExtensions() const;
 
-	protected:
-		virtual bool updateFileExtension(const QString &filename, QString *out_ext);
-		virtual void updateFileNameError(const QString &failed_name);
-		virtual void executeUpdateFilePathError(const QString &path, const QString &failed_path) = 0;
+	virtual bool isWritableFormat(const QString &extension) const;
 
-		AbstractFileSystemObject *internalFind(const QString &path, bool canonical) const;
+protected:
+	virtual bool updateFileExtension(const QString &filename, QString *outExt);
+	virtual void updateFileNameError(const QString &failedName);
+	virtual void executeUpdateFilePathError(
+		const QString &path, const QString &failed_path) = 0;
 
-		QObject *thiz;
-	};
+	AbstractFileSystemObject *internalFind(
+		const QString &path, bool canonical) const;
+
+	QObject *thiz;
+};
+
+QObject *AbstractFileSystemObject::getObject() const
+{
+	return thiz;
+}
 
 }

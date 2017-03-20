@@ -33,92 +33,98 @@ using namespace Banana;
 namespace Banana
 {
 
-	DetailedMessageDialog::DetailedMessageDialog(QWidget *parent)
-		: QDialog(parent)
-		, ui(new Ui::DetailedMessageDialog)
-		, mLastClickedButton(nullptr)
-		, mType(None)
+DetailedMessageDialog::DetailedMessageDialog(QWidget *parent)
+	: QDialog(parent)
+	, ui(new Ui::DetailedMessageDialog)
+	, mLastClickedButton(nullptr)
+	, mType(None)
+{
+	ui->setupUi(this);
+
+	ui->iconLabel->hide();
+	ui->detailsText->setReadOnly(true);
+
+	setWindowTitle(QCoreApplication::applicationName());
+
+	setWindowFlags(
+		(windowFlags() & ~(Qt::WindowContextHelpButtonHint))
+		| Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+
+	QObject::connect(
+		ui->buttonBox, &QDialogButtonBox::clicked,
+		this, &DetailedMessageDialog::onButtonClicked);
+}
+
+DetailedMessageDialog::~DetailedMessageDialog()
+{
+	delete ui;
+}
+
+void DetailedMessageDialog::setMessage(const QString &text,
+									   Qt::TextFormat format)
+{
+	ui->label->setTextFormat(format);
+	ui->label->setText(text);
+}
+
+void DetailedMessageDialog::setDetailsText(const QString &text)
+{
+	ui->detailsText->setPlainText(text);
+}
+
+void DetailedMessageDialog::setButtons(const StandardButtons &buttons)
+{
+	ui->buttonBox->setStandardButtons(buttons);
+}
+
+void DetailedMessageDialog::setType(Type type)
+{
+	if (mType != type)
 	{
-		ui->setupUi(this);
-
-		ui->iconLabel->hide();
-		ui->detailsText->setReadOnly(true);
-
-		setWindowTitle(QCoreApplication::applicationName());
-
-		setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint))
-					   | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
-
-		QObject::connect(ui->buttonBox, &QDialogButtonBox::clicked,
-						 this, &DetailedMessageDialog::onButtonClicked);
-	}
-
-	DetailedMessageDialog::~DetailedMessageDialog()
-	{
-		delete ui;
-	}
-
-	void DetailedMessageDialog::setMessage(const QString &text, Qt::TextFormat format)
-	{
-		ui->label->setTextFormat(format);
-		ui->label->setText(text);
-	}
-
-	void DetailedMessageDialog::setDetailsText(const QString &text)
-	{
-		ui->detailsText->setPlainText(text);
-	}
-
-	void DetailedMessageDialog::setButtons(const StandardButtons &buttons)
-	{
-		ui->buttonBox->setStandardButtons(buttons);
-	}
-
-	void DetailedMessageDialog::setType(Type type)
-	{
-		if (mType != type)
+		mType = type;
+		switch (type)
 		{
-			mType = type;
-			switch (type)
-			{
-				case Information:
-				case Warning:
-				case Error:
-				case Question:
-					ui->iconLabel->setPixmap(QMessageBox::standardIcon((QMessageBox::Icon) type));
-					ui->iconLabel->show();
-					break;
+			case Information:
+			case Warning:
+			case Error:
+			case Question:
+				ui->iconLabel->setPixmap(
+					QMessageBox::standardIcon(
+						(QMessageBox
+						 ::Icon) type));
+				ui->iconLabel->show();
+				break;
 
-				default:
-					ui->iconLabel->hide();
-					break;
-			}
+			default:
+				ui->iconLabel->hide();
+				break;
 		}
 	}
+}
 
-	QDialogButtonBox *DetailedMessageDialog::buttonBox() const
-	{
-		return ui->buttonBox;
-	}
+QDialogButtonBox *DetailedMessageDialog::buttonBox() const
+{
+	return ui->buttonBox;
+}
 
-	DetailedMessageDialog::StandardButton
-	DetailedMessageDialog::standardButton(QAbstractButton *button) const
-	{
-		return ui->buttonBox->standardButton(button);
-	}
+DetailedMessageDialog::StandardButton DetailedMessageDialog::standardButton(
+	QAbstractButton *button) const
+{
+	return ui->buttonBox->standardButton(button);
+}
 
-	QAbstractButton *DetailedMessageDialog::clickedButton() const
-	{
-		return mLastClickedButton;
-	}
+QAbstractButton *DetailedMessageDialog::clickedButton() const
+{
+	return mLastClickedButton;
+}
 
-	void DetailedMessageDialog::onButtonClicked(QAbstractButton *button)
-	{
-		mLastClickedButton = button;
-		if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
-			accept();
-		else
-			reject();
-	}
+void DetailedMessageDialog::onButtonClicked(QAbstractButton *button)
+{
+	mLastClickedButton = button;
+	if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
+		accept();
+	else
+		reject();
+}
 
 }

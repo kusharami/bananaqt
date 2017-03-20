@@ -32,64 +32,64 @@ SOFTWARE.
 
 namespace Banana
 {
-	class UndoStack;
-	class AbstractFile;
+class UndoStack;
+class AbstractFile;
 
-	class FileTabBar : public QTabBar
-	{
-		Q_OBJECT
+class FileTabBar : public QTabBar
+{
+	Q_OBJECT
 
-	public:
-		explicit FileTabBar(QWidget *parent = nullptr);
+public:
+	explicit FileTabBar(QWidget *parent = nullptr);
 
-		typedef std::function<bool (AbstractFile *)> CanOpenFunc;
-		typedef std::function<bool (AbstractFile *, bool multiple)> CanCloseFunc;
+	typedef std::function<bool (AbstractFile *)> CanOpenFunc;
+	typedef std::function<bool (AbstractFile *, bool multiple)> CanCloseFunc;
 
-		void setCanOpen(const CanOpenFunc &canOpen);
-		void setCanClose(const CanCloseFunc &canClose);
+	void setCanOpen(const CanOpenFunc &canOpen);
+	void setCanClose(const CanCloseFunc &canClose);
 
-		AbstractFile *getFileAtIndex(int index) const;
-		AbstractFile *getCurrentFile() const;
-		UndoStack *getCurrentUndoStack() const;
+	AbstractFile *getFileAtIndex(int index) const;
+	AbstractFile *getCurrentFile() const;
+	UndoStack *getCurrentUndoStack() const;
 
-		bool fileOpen(AbstractFile *file);
-		void fileClose(AbstractFile *file, bool multiple = false);
+	bool fileOpen(AbstractFile *file);
+	void fileClose(AbstractFile *file, bool multiple = false);
 
-		bool isFileOpen(AbstractFile *file) const;
+	bool isFileOpen(AbstractFile *file) const;
 
-	signals:
-		void fileOpenError(AbstractFile *file);
-		void fileOpened(AbstractFile *file);
-		void fileFlagsChanged(AbstractFile *file);
-		void fileClosed(AbstractFile *file);
+signals:
+	void fileOpenError(AbstractFile *file);
+	void fileOpened(AbstractFile *file);
+	void fileFlagsChanged(AbstractFile *file);
+	void fileClosed(AbstractFile *file);
 
-	private slots:
-		void onTabCloseRequested(int index);
-		void onTabMoved(int from, int to);
-		void onFileClosed();
-		void onFileDestroyed(QObject *object);
-		void onFileFlagsChanged();
-		void updateTabText();
+private slots:
+	void onTabCloseRequested(int index);
+	void onTabMoved(int from, int to);
+	void onFileClosed();
+	void onFileDestroyed(QObject *object);
+	void onFileFlagsChanged();
+	void updateTabText();
 
-	private:
-		static QString getFileIsModifiedFmt();
-		static UndoStack *getFileUndoStack(AbstractFile *file);
+private:
+	static QString getFileIsModifiedFmt();
+	static UndoStack *getFileUndoStack(AbstractFile *file);
 
-		void closeTab(int index, bool multiple);
-		void doFileClose(AbstractFile *file);
-		static QString getTitleForFile(AbstractFile *file);
-		static QString getToolTipForFile(AbstractFile *file);
+	void closeTab(int index, bool multiple);
+	void doFileClose(AbstractFile *file);
+	static QString getTitleForFile(AbstractFile *file);
+	static QString getToolTipForFile(AbstractFile *file);
 
-		void connectFile(AbstractFile *file);
-		void disconnectFile(AbstractFile *file);
+	void connectFile(AbstractFile *file);
+	void disconnectFile(AbstractFile *file);
 
-		typedef std::vector<AbstractFile *> FileVector;
+	typedef std::vector<AbstractFile *> FileVector;
 
-		int getFileIndex(QObject *fileObject, bool valid = false) const;
+	int getFileIndex(QObject *fileObject, bool valid = false) const;
 
-		CanOpenFunc canOpen;
-		CanCloseFunc canClose;
-		FileVector openedFiles;
-	};
+	CanOpenFunc canOpen;
+	CanCloseFunc canClose;
+	FileVector openedFiles;
+};
 
 }

@@ -29,130 +29,132 @@ SOFTWARE.
 
 namespace Banana
 {
-	class CleanCancelEvent : public QEvent
+class CleanCancelEvent : public QEvent
+{
+public:
+	CleanCancelEvent()
+		: QEvent(User)
 	{
-	public:
-		CleanCancelEvent()
-			: QEvent(User)
-		{
 
-		}
-	};
-
-	UndoStack::UndoStack(QObject *parent)
-		: QUndoStack(parent)
-		, blockCounter(0)
-		, macroCounter(0)
-		, updateCounter(0)
-		, firstClean(true)
-	{
-		QObject::connect(this, &QUndoStack::cleanChanged,
-						 this, &UndoStack::onCleanChanged);
 	}
 
-	void UndoStack::beginUpdate()
+};
+
+UndoStack::UndoStack(QObject *parent)
+	: QUndoStack(parent)
+	, blockCounter(0)
+	, macroCounter(0)
+	, updateCounter(0)
+	, firstClean(true)
+{
+	QObject::connect(
+		this, &QUndoStack::cleanChanged,
+		this, &UndoStack::onCleanChanged);
+}
+
+void UndoStack::beginUpdate()
+{
+	updateCounter++;
+}
+
+void UndoStack::endUpdate()
+{
+	Q_ASSERT(updateCounter > 0);
+	updateCounter--;
+}
+
+void UndoStack::beginMacro(const QString &text)
+{
+	if (0 == macroCounter++)
 	{
-		updateCounter++;
+		QUndoStack::beginMacro(text);
+		emit macroStarted();
+	}
+}
+
+void UndoStack::endMacro()
+{
+	Q_ASSERT(macroCounter > 0);
+
+	if (0 == --macroCounter)
+	{
+		emit macroFinished();
+		QUndoStack::endMacro();
+	}
+}
+
+void UndoStack::blockMacro()
+{
+	blockCounter++;
+}
+
+void UndoStack::unblockMacro()
+{
+	Q_ASSERT(blockCounter > 0);
+	blockCounter--;
+}
+
+void UndoStack::clear(bool force)
+{
+	if (force || (updateCounter == 0 && macroCounter == 0))
+	{
+		updateCounter = 0;
+		macroCounter = 0;
+		firstClean = isClean();
+		QUndoStack::clear();
+	}
+}
+
+void UndoStack::setClean()
+{
+	if (!isClean())
+	{
+		firstClean = (index() == 0);
+		QUndoStack::setClean();
+	}
+}
+
+bool UndoStack::canPushForMacro() const
+{
+	return macroCounter > 0 && blockCounter == 0;
+}
+
+QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
+{
+	switch (action)
+	{
+		case Qt::CopyAction:
+			return tr("Drag && Drop: Copy");
+
+		case Qt::MoveAction:
+			return tr("Drag && Drop: Move");
+
+		case Qt::LinkAction:
+			return tr("Drag && Drop: Link");
+
+		default:
+			qFatal("Unsupported drop action");
+			break;
 	}
 
-	void UndoStack::endUpdate()
+	return QString();
+}
+
+void UndoStack::customEvent(QEvent *event)
+{
+	auto cleanCancelEvent = dynamic_cast<CleanCancelEvent *>(event);
+	if (nullptr != cleanCancelEvent)
 	{
-		Q_ASSERT(updateCounter > 0);
-		updateCounter--;
+		emit cleanChanged(false);
 	}
+}
 
-	void UndoStack::beginMacro(const QString &text)
+void UndoStack::onCleanChanged(bool clean)
+{
+	if (clean && !firstClean && cleanIndex() == 0 && index() == 0)
 	{
-		if (0 == macroCounter++)
-		{
-			QUndoStack::beginMacro(text);
-			emit macroStarted();
-		}
+		QApplication::postEvent(this, new CleanCancelEvent);
 	}
-
-	void UndoStack::endMacro()
-	{
-		Q_ASSERT(macroCounter > 0);
-
-		if (0 == --macroCounter)
-		{
-			emit macroFinished();
-			QUndoStack::endMacro();
-		}
-	}
-
-	void UndoStack::blockMacro()
-	{
-		blockCounter++;
-	}
-
-	void UndoStack::unblockMacro()
-	{
-		Q_ASSERT(blockCounter > 0);
-		blockCounter--;
-	}
-
-	void UndoStack::clear(bool force)
-	{
-		if (force || (updateCounter == 0 && macroCounter == 0))
-		{
-			updateCounter = 0;
-			macroCounter = 0;
-			firstClean = isClean();
-			QUndoStack::clear();
-		}
-	}
-
-	void UndoStack::setClean()
-	{
-		if (!isClean())
-		{
-			firstClean = (index() == 0);
-			QUndoStack::setClean();
-		}
-	}
-
-	bool UndoStack::canPushForMacro() const
-	{
-		return macroCounter > 0 && blockCounter == 0;
-	}
-
-	QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
-	{
-		switch (action)
-		{
-			case Qt::CopyAction:
-				return tr("Drag && Drop: Copy");
-
-			case Qt::MoveAction:
-				return tr("Drag && Drop: Move");
-
-			case Qt::LinkAction:
-				return tr("Drag && Drop: Link");
-
-			default:
-				qFatal("Unsupported drop action");
-				break;
-		}
-
-		return QString();
-	}
-
-	void UndoStack::customEvent(QEvent *event)
-	{
-		auto cleanCancelEvent = dynamic_cast<CleanCancelEvent *>(event);
-		if (nullptr != cleanCancelEvent)
-		{
-			emit cleanChanged(false);
-		}
-	}
-
-	void UndoStack::onCleanChanged(bool clean)
-	{
-		if (clean && !firstClean && cleanIndex() == 0 && index() == 0)
-		{
-			QApplication::postEvent(this, new CleanCancelEvent);
-		}
-	}
+}
 
 }

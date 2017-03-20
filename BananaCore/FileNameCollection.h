@@ -31,44 +31,44 @@ SOFTWARE.
 namespace Banana
 {
 
-	class FileNameCollection : public AbstractNameCollection
-	{
-	public:
-		FileNameCollection();
-		FileNameCollection(const QDir &dir, const QString &fileExtension);
+class FileNameCollection : public AbstractNameCollection
+{
+public:
+	FileNameCollection();
+	FileNameCollection(const QDir &dir, const QString &fileExtension);
 
-		inline const QDir &dir();
-		inline void setDir(const QDir &value);
+	inline const QDir &dir();
+	inline void setDir(const QDir &value);
 
-		inline const QString &fileExtension();
-		inline void setFileExtension(const QString &value);
+	inline const QString &fileExtension();
+	inline void setFileExtension(const QString &value);
 
-		virtual bool containsName(const QString &name) const override;
-		virtual bool isValid() const override;
+	virtual bool containsName(const QString &name) const override;
+	virtual bool isValid() const override;
 
-	private:
-		QDir mDir;
-		QString mFileExtension;
-	};
+private:
+	QDir mDir;
+	QString mFileExtension;
+};
 
-	const QDir &FileNameCollection::dir()
-	{
-		return mDir;
-	}
+const QDir &FileNameCollection::dir()
+{
+	return mDir;
+}
 
-	void FileNameCollection::setDir(const QDir &value)
-	{
-		mDir = value;
-	}
+void FileNameCollection::setDir(const QDir &value)
+{
+	mDir = value;
+}
 
-	const QString &FileNameCollection::fileExtension()
-	{
-		return mFileExtension;
-	}
+const QString &FileNameCollection::fileExtension()
+{
+	return mFileExtension;
+}
 
-	void FileNameCollection::setFileExtension(const QString &value)
-	{
-		mFileExtension = value;
-	}
+void FileNameCollection::setFileExtension(const QString &value)
+{
+	mFileExtension = value;
+}
 
 }
