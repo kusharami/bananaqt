@@ -114,7 +114,7 @@ QMetaProperty GetMetaPropertyByName(
 const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
 
 bool IsAncestorOf(const QObject *descendant, const QObject *object);
-static inline bool IsDescendantOf(
+inline bool IsDescendantOf(
 	const QObject *ancestor, const QObject *object)
 {
 	return IsAncestorOf(object, ancestor);
