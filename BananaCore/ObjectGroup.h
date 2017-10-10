@@ -43,13 +43,13 @@ public:
 	explicit ObjectGroup();
 
 	void registerChildType(
-		const QMetaObject *meta_object, Qt::CaseSensitivity sensitivity =
+		const QMetaObject *metaObject, Qt::CaseSensitivity sensitivity =
 			Qt::CaseInsensitive);
-	void unregisterChildType(const QMetaObject *meta_object,
-							 bool children = true);
+	void unregisterChildType(
+		const QMetaObject *metaObject, bool children = true);
 	void unregisterAllChildTypes(bool children = true);
 
-	bool isSupportedChildType(const QMetaObject *meta_object) const;
+	bool isSupportedChildType(const QMetaObject *metaObject) const;
 
 	virtual const QObjectList &getChildren() override;
 	virtual void resetChildren() override;
@@ -58,9 +58,9 @@ signals:
 	void childObjectConnectionChanged(QObject *object, ConnectionState state);
 
 protected:
-	virtual UniqueNameScope *createNameScope(const QMetaObject *meta_object,
-											 Qt::CaseSensitivity sensitivity)
-	const;
+	virtual UniqueNameScope *createNameScope(
+		const QMetaObject *metaObject,
+		Qt::CaseSensitivity sensitivity) const;
 	virtual void doAddChild(QObject *object) override;
 	virtual void doRemoveChild(QObject *object) override;
 	virtual void doConnectChildObject(QObject *object);
@@ -84,5 +84,4 @@ protected:
 	QObjectList m_children;
 	ChildTypesMap child_types;
 };
-
 }

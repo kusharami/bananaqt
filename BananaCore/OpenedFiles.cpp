@@ -96,56 +96,72 @@ void OpenedFiles::registerFile(const QString &filePath, QObject *data)
 	if (it->second.ref_count == 0)
 	{
 		auto path = QFileInfo(filePath).path();
+
 		if (path.isEmpty())
 			path = ".";
 
 		auto pathGroup = findChild<OpenedFilesPathGroup *>(
 				path,
 				Qt::FindDirectChildrenOnly);
+
 		if (nullptr == pathGroup)
 		{
 			pathGroup = new OpenedFilesPathGroup(this);
 			pathGroup->setObjectName(path);
 		}
+
 		data->setParent(pathGroup);
 
-		QObject::connect(
-			data, &QObject::destroyed,
-			this, &OpenedFiles::resetChildren);
-
 		auto obj = dynamic_cast<Object *>(data);
+
 		if (nullptr != obj)
 		{
 			QObject::connect(
+				obj, &Object::beforeDestroy,
+				this, &OpenedFiles::onBeforeDestroy);
+
+			QObject::connect(
 				obj, &Object::parentChanged,
 				this, &OpenedFiles::onFileDataParentChanged);
+		} else
+		{
+			QObject::connect(
+				data, &QObject::destroyed,
+				this, &OpenedFiles::onBeforeDestroy);
 		}
+
 		resetChildren();
 	}
 
 	it->second.ref_count++;
 }
 
-QObject *OpenedFiles::unregisterFile(const QString &filePath,
-									 unsigned *ref_count_ptr)
+void OpenedFiles::onBeforeDestroy(QObject *)
+{
+	resetChildren();
+}
+
+QObject *OpenedFiles::unregisterFile(
+	const QString &filePath, unsigned *refCountPtr)
 {
 	auto it = findFileData(filePath);
 
 	QObject *result = nullptr;
 
-	if (nullptr != ref_count_ptr)
-		*ref_count_ptr = 0;
+	if (nullptr != refCountPtr)
+		*refCountPtr = 0;
 
 	if (file_map.end() != it)
 	{
 		result = it->second.data;
+
 		if (0 == --it->second.ref_count)
 		{
 			removePathInternal(filePath);
 			file_map.erase(it);
 		} else
-		if (nullptr != ref_count_ptr)
-			*ref_count_ptr = it->second.ref_count;
+		if (nullptr != refCountPtr)
+			*refCountPtr = it->second.ref_count;
 	}
 
 	return result;
@@ -156,14 +172,15 @@ QObject *OpenedFiles::deleteFileData(const QString &filePath)
 	unsigned ref_count = 0;
 
 	auto data = unregisterFile(filePath, &ref_count);
+
 	if (ref_count == 0)
 		delete data;
 
 	return data;
 }
 
-QObject *OpenedFiles::updateFilePath(const QString &oldFilePath,
-									 const QString &newFilePath)
+QObject *OpenedFiles::updateFilePath(
+	const QString &oldFilePath, const QString &newFilePath)
 {
 	auto it = findFileData(oldFilePath);
 
@@ -201,6 +218,7 @@ QObject *OpenedFiles::updateFilePath(const QString &oldFilePath,
 		registerFile(newFilePath, new_data);
 
 		auto object = dynamic_cast<Object *>(new_data);
+
 		if (nullptr != object)
 		{
 			auto src = dynamic_cast<Object *>(data);
@@ -222,8 +240,8 @@ QObject *OpenedFiles::updateFilePath(const QString &oldFilePath,
 	return nullptr;
 }
 
-bool OpenedFiles::canChangeFilePath(const QString &oldFilePath,
-									const QString &newFilePath)
+bool OpenedFiles::canChangeFilePath(
+	const QString &oldFilePath, const QString &newFilePath)
 {
 	if (0 == QString::compare(oldFilePath, newFilePath, Qt::CaseInsensitive))
 		return true;
@@ -249,7 +267,8 @@ const QObjectList &OpenedFiles::getChildren()
 			for (auto pathChild : pathObject->children())
 			{
 				auto fileObject = dynamic_cast<Object *>(pathChild);
-				if (nullptr == fileObject || !fileObject->isDeleted())
+
+				if (nullptr != fileObject && !fileObject->isDeleted())
 					m_children.push_back(pathChild);
 			}
 		}
@@ -326,16 +345,22 @@ void OpenedFiles::onFileDataParentChanged()
 {
 	resetChildren();
 
-	QObject::disconnect(
-		sender(), &QObject::destroyed,
-		this, &OpenedFiles::resetChildren);
-
 	auto obj = dynamic_cast<Object *>(sender());
+
 	if (nullptr != obj)
 	{
 		QObject::disconnect(
+			obj, &Object::beforeDestroy,
+			this, &OpenedFiles::onBeforeDestroy);
+
+		QObject::disconnect(
 			obj, &Object::parentChanged,
 			this, &OpenedFiles::onFileDataParentChanged);
+	} else
+	{
+		QObject::disconnect(
+			sender(), &QObject::destroyed,
+			this, &OpenedFiles::onBeforeDestroy);
 	}
 }
 
@@ -345,6 +370,7 @@ void OpenedFiles::resetWatcher(bool copy)
 
 	if (copy)
 		files = watcher->files();
+
 	delete watcher;
 
 	watcher = new QFileSystemWatcher;
@@ -394,7 +420,8 @@ void OpenedFiles::addPathInternal(const QString &path)
 	}
 }
 
-OpenedFiles::FileMap::iterator OpenedFiles::findFileData(const QString &filePath)
+OpenedFiles::FileMap::iterator OpenedFiles::findFileData(
+	const QString &filePath)
 {
 	auto it = file_map.find(filePath);
 
@@ -435,5 +462,4 @@ void OpenedFilesPathGroup::deleteChild(QObject *child)
 {
 	openedFiles->deleteChild(child);
 }
-
 }
