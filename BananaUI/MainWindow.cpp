@@ -190,8 +190,6 @@ void MainWindow::enableOpenOutside()
 bool MainWindow::nativeEvent(
 	const QByteArray &eventType, void *message, long *result)
 {
-	qDebug() << "Native event: " << eventType;
-
 #ifdef Q_OS_WIN
 	auto msg = reinterpret_cast<MSG *>(message);
 	switch (msg->message)

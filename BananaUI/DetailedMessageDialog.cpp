@@ -32,7 +32,6 @@ using namespace Banana;
 
 namespace Banana
 {
-
 DetailedMessageDialog::DetailedMessageDialog(QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::DetailedMessageDialog)
@@ -60,8 +59,8 @@ DetailedMessageDialog::~DetailedMessageDialog()
 	delete ui;
 }
 
-void DetailedMessageDialog::setMessage(const QString &text,
-									   Qt::TextFormat format)
+void DetailedMessageDialog::setMessage(
+	const QString &text, Qt::TextFormat format)
 {
 	ui->label->setTextFormat(format);
 	ui->label->setText(text);
@@ -82,6 +81,7 @@ void DetailedMessageDialog::setType(Type type)
 	if (mType != type)
 	{
 		mType = type;
+
 		switch (type)
 		{
 			case Information:
@@ -121,10 +121,10 @@ QAbstractButton *DetailedMessageDialog::clickedButton() const
 void DetailedMessageDialog::onButtonClicked(QAbstractButton *button)
 {
 	mLastClickedButton = button;
+
 	if (ui->buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
 		accept();
 	else
 		reject();
 }
-
 }

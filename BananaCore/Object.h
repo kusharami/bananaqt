@@ -60,10 +60,11 @@ public:
 	Q_INVOKABLE inline QObject *getPrototype() const;
 	void setPrototype(Object *prototype);
 
-	static bool loadContents(const QVariantMap &source, QObject *destination,
-							 bool skipObjectName);
-	static void saveContents(const QObject *source, QVariantMap &destination,
-							 QObject *prototype = nullptr);
+	static bool loadContents(
+		const QVariantMap &source, QObject *destination, bool skipObjectName);
+	static void saveContents(
+		const QObject *source, QVariantMap &destination,
+		QObject *prototype = nullptr);
 
 	enum SaveMode
 	{
@@ -73,8 +74,8 @@ public:
 	};
 
 	virtual bool loadContents(const QVariantMap &source, bool skipObjectName);
-	virtual void saveContents(QVariantMap &destination,
-							  SaveMode saveMode = SavePrototyped);
+	virtual void saveContents(
+		QVariantMap &destination, SaveMode saveMode = SavePrototyped);
 
 	Q_INVOKABLE void applyContents(const QVariantMap &source);
 
@@ -112,8 +113,9 @@ public:
 
 	inline bool isModified() const;
 	void setModified(bool value);
-	static void modifyObject(QObject *object, bool modified, bool signalize,
-							 bool children);
+	static void modifyObject(
+		QObject *object, bool modified, bool signalize,
+		bool children);
 
 	inline bool isDeleted() const;
 
@@ -131,8 +133,8 @@ public:
 	inline quint64 getPropertyModifiedBits() const;
 	void setPropertyModifiedBits(quint64 propertyIdBits);
 
-	QMetaPropertyVec getPropertyListAffectedBy(const QMetaProperty &metaProperty)
-	const;
+	QMetaPropertyVec getPropertyListAffectedBy(
+		const QMetaProperty &metaProperty)    const;
 
 	void deprototype();
 
@@ -144,7 +146,8 @@ signals:
 	void reloadFinished();
 	void childAdded(QObject *child);
 	void childRemoved(QObject *child);
-	void beforeDestroy(QObject *object);
+	void beforeDestroy(Object *object);
+	void beforeDeleteByUser();
 
 private slots:
 	void onPrototypeChildAdded(QObject *protoChild);
@@ -157,8 +160,9 @@ private slots:
 	void onUndoStackCleanChanged(bool clean);
 
 private:
-	void pushUndoCommandInternal(const char *propertyName,
-								 const QVariant &oldValue);
+	void pushUndoCommandInternal(
+		const char *propertyName,
+		const QVariant &oldValue);
 	Object *getMainPrototype() const;
 	void internalAssign(QObject *source, bool fresh, bool top);
 	void internalSetPrototype(Object *prototype, bool child, bool fresh);
@@ -240,8 +244,6 @@ void Object::pushUndoCommand(const char *propertyName, const T &oldValue)
 {
 	if (canPushUndoCommand())
 		pushUndoCommandInternal(propertyName, QVariant::fromValue<T>(oldValue));
-
-
 }
 
 bool Object::isLoading() const
@@ -313,5 +315,4 @@ CLASS *Object::getPrototypeAs() const
 
 	return static_cast<CLASS *>(prototype);
 }
-
 }

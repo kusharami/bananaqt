@@ -49,14 +49,14 @@ public:
 	bool fileIsOpened(const QString &filePath);
 	QObject *getRegisteredFileData(const QString &filePath);
 	void registerFile(const QString &filePath, QObject *data);
-	QObject *unregisterFile(const QString &filePath,
-							unsigned *ref_count_ptr = nullptr);
+	QObject *unregisterFile(
+		const QString &filePath, unsigned *refCountPtr = nullptr);
 	QObject *deleteFileData(const QString &filePath);
 
-	QObject *updateFilePath(const QString &oldFilePath,
-							const QString &newFilePath);
-	bool canChangeFilePath(const QString &oldFilePath,
-						   const QString &newFilePath);
+	QObject *updateFilePath(
+		const QString &oldFilePath, const QString &newFilePath);
+	bool canChangeFilePath(
+		const QString &oldFilePath, const QString &newFilePath);
 
 	virtual const QObjectList &getChildren() override;
 	virtual void resetChildren() override;
@@ -69,8 +69,7 @@ public:
 
 	template <typename CLASS>
 	inline void connectFilesChanged(
-		CLASS *object, void (CLASS::*onFilesChanged)(
-			const QString &))
+		CLASS *object, void (CLASS::*onFilesChanged)(const QString &))
 	{
 		QObject::connect(
 			this, &OpenedFiles::filesChanged,
@@ -79,8 +78,7 @@ public:
 
 	template <typename CLASS>
 	inline void disconnectFilesChanged(
-		CLASS *object, void (CLASS::*onFilesChanged)(
-			const QString &))
+		CLASS *object, void (CLASS::*onFilesChanged)(const QString &))
 	{
 		QObject::disconnect(
 			this, &OpenedFiles::filesChanged,
@@ -94,6 +92,7 @@ signals:
 
 private slots:
 	void onFileDataParentChanged();
+	void onBeforeDestroy(QObject *obj);
 
 private:
 	struct Info
@@ -121,5 +120,4 @@ ProjectGroup *OpenedFiles::getOwner() const
 {
 	return owner;
 }
-
 }

@@ -38,7 +38,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 static const QString sFilterSeparator =
 #ifdef Q_OS_WIN
 	"; "
@@ -51,12 +50,12 @@ static const char szFilterFmt[] =
 	QT_TRANSLATE_NOOP("FileTypeFilter", "%1 (%2)");
 
 QString Directory::getAbsoluteFilePathFor(
-	const QString &path,
-	bool search) const
+	const QString &path, bool search) const
 {
 	if (!QDir::isAbsolutePath(path))
 	{
 		auto first_path = AbstractDirectory::getAbsoluteFilePathFor(path);
+
 		if (!search || QFileInfo::exists(first_path))
 			return first_path;
 
@@ -73,6 +72,7 @@ QString Directory::getAbsoluteFilePathFor(
 				auto dir = static_cast<Directory *>(obj);
 
 				auto found_path = dir->getAbsoluteFilePathFor(path);
+
 				if (QFileInfo::exists(found_path))
 					return found_path;
 			}
@@ -87,6 +87,7 @@ Directory::Directory(const QString &name)
 	, searched(false)
 {
 	registerChildType(&Directory::staticMetaObject);
+
 	for (auto &item : registeredFileTypes)
 	{
 		registerChildType(item.fileMetaObject);
@@ -108,6 +109,7 @@ Directory *Directory::getParentDirectory() const
 QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 {
 	auto filesys_object = dynamic_cast<AbstractFileSystemObject *>(object);
+
 	if (nullptr == filesys_object)
 		return nullptr;
 
@@ -125,6 +127,7 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 	Directory *first_child_dir = nullptr;
 
 	auto splitted = Utils::SplitPath(relative_dirpath);
+
 	if (QDir::isRelativePath(relative_dirpath)
 		&& (splitted.isEmpty() || splitted.at(0) != ".."))
 	{
@@ -133,6 +136,7 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 		for (auto it = splitted.begin(); it != splitted.end(); ++it)
 		{
 			auto &dir_name = *it;
+
 			if (dir_name == ".")
 				continue;
 
@@ -141,6 +145,7 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 					Qt::FindDirectChildrenOnly);
 			dir = (nullptr !=
 				   found ? found : Object::create<Directory>(dir, dir_name));
+
 			if (nullptr == first_child_dir)
 				first_child_dir = dir;
 		}
@@ -151,19 +156,24 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 		dir =
 			(nullptr !=
 			 found ? found : Object::create<RootDirectory>(this, dirpath));
+
 		if (nullptr == first_child_dir)
 			first_child_dir = dir;
 	}
 
 	bool old_modified = false;
 	auto file = dynamic_cast<AbstractFile *>(filesys_object);
+
 	if (nullptr != file)
 	{
 		old_modified = file->isModified();
 	}
+
 	filesys_object->setFileName(info.fileName());
+
 	if (nullptr == object->parent())
 		modifyObject(object, false, false, true);
+
 	object->setParent(dir);
 
 	if (nullptr != file)
@@ -260,13 +270,16 @@ const QMetaObject *Directory::getFileTypeByExtension(
 	const QMetaObject *result = nullptr;
 	const char *resultExtension = nullptr;
 	int longestMatch = 0;
+
 	for (auto &item : registeredFileTypes)
 	{
 		QString extension(item.extension);
+
 		if (!extension.isEmpty()
 			&& filePath.endsWith(extension, Qt::CaseInsensitive))
 		{
 			int extensionLength = extension.length();
+
 			if (extensionLength > longestMatch)
 			{
 				longestMatch = extensionLength;
@@ -291,12 +304,14 @@ const QMetaObject *Directory::getFileTypeByExtension(
 		{
 			if (nullptr != extensionPtr)
 				*extensionPtr = item.extension;
+
 			return item.fileMetaObject;
 		}
 	}
 
 	if (nullptr != extensionPtr)
 		*extensionPtr = nullptr;
+
 	return nullptr;
 }
 
@@ -315,6 +330,7 @@ std::vector<const char *> Directory::getFileTypeExtensions(
 	const QMetaObject *metaObject)
 {
 	std::vector<const char *> result;
+
 	for (auto &item : registeredFileTypes)
 	{
 		if (item.fileMetaObject == metaObject)
@@ -325,8 +341,7 @@ std::vector<const char *> Directory::getFileTypeExtensions(
 }
 
 const Directory::RegisteredFileType *Directory::findRegisteredFileType(
-	const char *extension,
-	const QMetaObject *fileMetaObject,
+	const char *extension, const QMetaObject *fileMetaObject,
 	const QMetaObject *dataMetaObject)
 {
 	for (auto &item : registeredFileTypes)
@@ -356,8 +371,7 @@ QString Directory::getFilterForExtension(const char *extension)
 }
 
 QString Directory::getFileExtensionFromFilter(
-	const QMetaObject *metaObject,
-	const QString &filter)
+	const QMetaObject *metaObject, const QString &filter)
 {
 	for (auto pszExtension : getFileTypeExtensions(metaObject))
 	{
@@ -378,6 +392,7 @@ QString Directory::getFilterForFileType(const QMetaObject *metaObject)
 	for (auto pszExtension : getFileTypeExtensions(metaObject))
 	{
 		QString extension(pszExtension);
+
 		if (!extension.isEmpty())
 		{
 			extensions.push_back(QString("*") + extension);
@@ -425,6 +440,7 @@ QStringList Directory::getAllPossibleFilters()
 	for (auto &item : registeredFileTypes)
 	{
 		QString extension(item.extension);
+
 		if (!extension.isEmpty())
 		{
 			extensions.push_back('*' + extension);
@@ -553,6 +569,7 @@ void Directory::getFilesIn(Directory *dir, std::set<AbstractFile *> &files)
 	for (auto child : dir->children())
 	{
 		auto sub_dir = dynamic_cast<Directory *>(child);
+
 		if (nullptr != sub_dir)
 		{
 			getFilesIn(sub_dir, files);
@@ -576,6 +593,7 @@ void Directory::getDirContents(
 		output.insert(fsys);
 
 		auto sub_dir = dynamic_cast<Directory *>(child);
+
 		if (nullptr != sub_dir)
 		{
 			getDirContents(sub_dir, output);
@@ -596,6 +614,7 @@ bool Directory::rename(const QString &new_name)
 bool Directory::moveTo(Directory *target_dir, const QString &new_name)
 {
 	bool ok = false;
+
 	if (metaObject() == &Directory::staticMetaObject)
 	{
 		auto new_dir = new Directory(
@@ -617,6 +636,7 @@ bool Directory::moveTo(Directory *target_dir, const QString &new_name)
 		}
 
 		QDir dir(getFilePath());
+
 		if (!dir.exists() || QDir().rename(dir.path(), dest_info.filePath()))
 		{
 			setParent(target_dir);
@@ -676,9 +696,11 @@ QString Directory::getFileFormatNameFrom(const QString &filePath, bool plural)
 {
 	QString result;
 	int idx = 0;
+
 	while (result.isEmpty())
 	{
 		idx = filePath.lastIndexOf('.', idx - 1);
+
 		if (idx < 0)
 			break;
 
@@ -762,7 +784,6 @@ void Directory::descendantChanged(QObject *descendant, DescendantState state)
 RootDirectory::RootDirectory(const QString &path)
 	: Directory(path)
 {
-
 }
 
 void RootDirectory::setPath(const QString &path)
@@ -778,6 +799,7 @@ bool RootDirectory::rename(const QString &)
 QString RootDirectory::getFileName() const
 {
 	auto parent = dynamic_cast<AbstractDirectory *>(this->parent());
+
 	if (nullptr != parent)
 		return QDir(parent->getFilePath()).relativeFilePath(objectName());
 
@@ -787,6 +809,7 @@ QString RootDirectory::getFileName() const
 QString RootDirectory::getFixedName(const QString &source) const
 {
 	auto parent = getParentDirectory();
+
 	if (nullptr != parent)
 		return QDir::cleanPath(
 			QDir(parent->getFilePath()).absoluteFilePath(
@@ -794,5 +817,4 @@ QString RootDirectory::getFixedName(const QString &source) const
 
 	return QDir(source).path();
 }
-
 }

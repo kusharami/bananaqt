@@ -48,7 +48,6 @@ using namespace Banana;
 
 namespace Banana
 {
-
 static const QString kDragDropSearchPaths("Banana/DragDropSearchPaths");
 static const QStringList kDragDropMimeTypes(
 	{
@@ -57,8 +56,9 @@ static const QStringList kDragDropMimeTypes(
 		kDragDropSearchPaths
 	});
 
-SearchPathsDialog::SearchPathsDialog(ProjectDirectoryModel *project_dir_model,
-									 QWidget *parent)
+SearchPathsDialog::SearchPathsDialog(
+	ProjectDirectoryModel *project_dir_model,
+	QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::SearchPathsDialog)
 	, project_dir_model(project_dir_model)
@@ -141,11 +141,13 @@ void SearchPathsDialog::onSelectionChanged()
 void SearchPathsDialog::applySavedPathSelection()
 {
 	auto sel_model = ui->tableView->selectionModel();
+
 	if (sel_model != nullptr)
 	{
 		QItemSelection selection;
 		paths_model->getSavedSelection(selection);
 		auto indexes = selection.indexes();
+
 		if (indexes.count() > 0)
 		{
 			ui->tableView->setCurrentIndex(selection.indexes().at(0));
@@ -212,10 +214,11 @@ QVariant SearchPathsTableModel::data(const QModelIndex &index, int role) const
 		switch (role)
 		{
 			case Qt::DisplayRole:
-				return dir->getFilePath(project_dir_model->getProjectDirectory());
+				return QDir::toNativeSeparators(
+					dir->getFilePath(project_dir_model->getProjectDirectory()));
 
 			case Qt::ToolTipRole:
-				return dir->getFilePath();
+				return QDir::toNativeSeparators(dir->getFilePath());
 
 			default:
 				break;
@@ -238,29 +241,35 @@ void SearchPathsTableModel::registerPaths(const QStringList &paths, int order)
 	if (nullptr != project_dir_model)
 	{
 		auto project_dir = project_dir_model->getProjectDirectory();
+
 		if (nullptr != project_dir)
 		{
 			for (auto &path : paths)
 			{
 				QFileInfo info(path);
+
 				if (info.exists())
 				{
 					if (!info.isDir())
 						info.setFile(info.path());
+
 					auto dir = project_dir->addSearchPath(
 							info.filePath(), order, false);
+
 					if (nullptr != dir && dir != project_dir)
 					{
 						auto found_it =
 							std::find(dirs.begin(), dirs.end(), dir);
 
 						int insert_order = order;
+
 						if (found_it == dirs.end())
 							order++;
 						else
 						{
 							if (found_it - dirs.begin() < insert_order)
 								insert_order--;
+
 							dirs.erase(found_it);
 						}
 
@@ -300,6 +309,7 @@ void SearchPathsTableModel::unregisterPaths(const QModelIndexList &indexes)
 	{
 		auto dir = dirs.at(index.row());
 		dir->setSearched(false);
+
 		if (dir->children().empty())
 		{
 			if (nullptr != dynamic_cast<RootDirectory *>(dir))
@@ -313,8 +323,8 @@ void SearchPathsTableModel::unregisterPaths(const QModelIndexList &indexes)
 	endResetModel();
 }
 
-Directory *SearchPathsTableModel::getDirectoryAtIndex(const QModelIndex &index)
-const
+Directory *SearchPathsTableModel::getDirectoryAtIndex(
+	const QModelIndex &index) const
 {
 	if (index.isValid())
 		return dirs.at(index.row());
@@ -322,9 +332,9 @@ const
 	return nullptr;
 }
 
-bool SearchPathsTableModel::dropMimeData(const QMimeData *data,
-										 Qt::DropAction action, int row, int,
-										 const QModelIndex &parent)
+bool SearchPathsTableModel::dropMimeData(
+	const QMimeData *data, Qt::DropAction action, int row, int,
+	const QModelIndex &parent)
 {
 	switch (action)
 	{
@@ -356,10 +366,9 @@ bool SearchPathsTableModel::dropMimeData(const QMimeData *data,
 					for (auto ptr = item_ptr; ptr < end_ptr; ptr++, row++)
 					{
 						auto dir =
-							static_cast<Directory *>(reinterpret_cast<void *>(*
-																			  ptr));
+							static_cast<Directory *>(reinterpret_cast<void *>(
+														 *ptr));
 						dirs.insert(dirs.begin() + row, dir);
-
 					}
 
 					endInsertRows();
@@ -369,6 +378,7 @@ bool SearchPathsTableModel::dropMimeData(const QMimeData *data,
 			} else
 			{
 				QStringList paths;
+
 				if (data->hasUrls())
 				{
 					for (auto &url : data->urls())
@@ -389,6 +399,7 @@ bool SearchPathsTableModel::dropMimeData(const QMimeData *data,
 					registerPaths(paths, row);
 				}
 			}
+
 			break;
 		}
 
@@ -472,14 +483,16 @@ void SearchPathsTableModel::onDirectoryDestroyed(QObject *dir)
 
 	auto it =
 		std::find(dirs.begin(), dirs.end(), static_cast<Directory *>(dir));
+
 	if (it != dirs.end())
 		dirs.erase(it);
 
 	endResetModel();
 }
 
-bool SearchPathsTableModel::removeRows(int row, int count,
-									   const QModelIndex &parent)
+bool SearchPathsTableModel::removeRows(
+	int row, int count,
+	const QModelIndex &parent)
 {
 	if (count > 0 && internalDrop)
 	{
@@ -489,6 +502,7 @@ bool SearchPathsTableModel::removeRows(int row, int count,
 
 		auto first_it = dirs.begin() + row;
 		auto last_it = first_it + count;
+
 		for (auto it = first_it; it != last_it; ++it)
 		{
 			dirs_to_select.push_back(*it);
@@ -514,12 +528,15 @@ bool SearchPathsTableModel::removeRows(int row, int count,
 void SearchPathsTableModel::load()
 {
 	dirs.clear();
+
 	if (nullptr != project_dir_model)
 	{
 		auto project_dir = project_dir_model->getProjectDirectory();
+
 		if (nullptr != project_dir)
 		{
 			auto project_file = project_dir->getProjectFile();
+
 			if (nullptr != project_file)
 			{
 				auto search_paths =
@@ -587,6 +604,7 @@ void SearchPathsDialog::on_tableView_customContextMenuRequested(
 	auto indexes = sel_model->selectedIndexes();
 
 	bool shouldPopup = false;
+
 	if (indexes.count() > 0)
 	{
 		for (auto &index : indexes)
@@ -628,6 +646,7 @@ void SearchPathsDialog::on_tableView_customContextMenuRequested(
 void SearchPathsDialog::on_actionCopyAbsolutePath_triggered()
 {
 	auto dirs = getSelectedDirs();
+
 	if (!dirs.empty())
 	{
 		auto mime = new QMimeData;
@@ -636,7 +655,7 @@ void SearchPathsDialog::on_actionCopyAbsolutePath_triggered()
 
 		for (auto dir : dirs)
 		{
-			list.push_back(dir->getFilePath());
+			list.push_back(QDir::toNativeSeparators(dir->getFilePath()));
 		}
 
 		mime->setText(list.join('\n'));
@@ -648,6 +667,7 @@ void SearchPathsDialog::on_actionCopyAbsolutePath_triggered()
 void SearchPathsDialog::on_actionCopyDirName_triggered()
 {
 	auto dirs = getSelectedDirs();
+
 	if (!dirs.empty())
 	{
 		auto mime = new QMimeData;
@@ -684,9 +704,11 @@ std::vector<Directory *> SearchPathsDialog::getSelectedDirs() const
 void SearchPathsDialog::on_actionUnregisterSelected_triggered()
 {
 	auto sel_model = ui->tableView->selectionModel();
+
 	if (sel_model != nullptr)
 	{
 		auto indexes = sel_model->selectedIndexes();
+
 		if (indexes.count() > 0)
 		{
 			if (QMessageBox::question(
@@ -700,5 +722,4 @@ void SearchPathsDialog::on_actionUnregisterSelected_triggered()
 		}
 	}
 }
-
 }

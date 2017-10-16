@@ -31,10 +31,8 @@ SOFTWARE.
 
 namespace Banana
 {
-ProjectGroup::ProjectGroup(CocosGLWidget *cocos,
-						   const QMetaObject *projectDirType)
-	: cocos(cocos)
-	, openedFiles(new OpenedFiles(this))
+ProjectGroup::ProjectGroup(const QMetaObject *projectDirType)
+	: openedFiles(new OpenedFiles(this))
 	, activeProjectDir(nullptr)
 	, delegate(nullptr)
 	, undoGroup(nullptr)
@@ -130,11 +128,6 @@ void ProjectGroup::setDelegate(IProjectGroupDelegate *delegate)
 OpenedFiles *ProjectGroup::getOpenedFiles() const
 {
 	return openedFiles;
-}
-
-CocosGLWidget *ProjectGroup::getCocosWidget() const
-{
-	return cocos;
 }
 
 bool ProjectGroup::isSilent() const

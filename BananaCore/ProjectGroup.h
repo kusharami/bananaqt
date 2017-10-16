@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "AbstractProjectDirectory.h"
 
-class CocosGLWidget;
 class QUndoGroup;
 
 namespace Banana
@@ -56,8 +55,7 @@ class ProjectGroup : public Banana::ObjectGroup
 		DESIGNABLE false)
 
 public:
-	explicit ProjectGroup(CocosGLWidget *cocos,
-						  const QMetaObject *projectDirType);
+	explicit ProjectGroup(const QMetaObject *projectDirType);
 	virtual ~ProjectGroup();
 
 	inline QUndoGroup *getUndoGroup() const;
@@ -72,7 +70,6 @@ public:
 	void setDelegate(IProjectGroupDelegate *delegate);
 
 	Banana::OpenedFiles *getOpenedFiles() const;
-	CocosGLWidget *getCocosWidget() const;
 
 	bool isSilent() const;
 	void getSilent(bool value);
@@ -100,7 +97,6 @@ private:
 
 	static void closeUnboundFiles(Directory *dir);
 
-	CocosGLWidget *cocos;
 	Banana::OpenedFiles *openedFiles;
 	AbstractProjectDirectory *activeProjectDir;
 	IProjectGroupDelegate *delegate;

@@ -31,22 +31,21 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ObjectGroup::ObjectGroup()
 {
-
 }
 
-void ObjectGroup::registerChildType(const QMetaObject *meta_object,
-									Qt::CaseSensitivity sensitivity)
+void ObjectGroup::registerChildType(
+	const QMetaObject *metaObject, Qt::CaseSensitivity sensitivity)
 {
-	Q_ASSERT(nullptr != meta_object);
+	Q_ASSERT(nullptr != metaObject);
 
-	auto it = child_types.find(meta_object);
+	auto it = child_types.find(metaObject);
+
 	if (child_types.end() == it)
 	{
-		auto scope = createNameScope(meta_object, sensitivity);
-		child_types[meta_object] = NameScopePtr(scope);
+		auto scope = createNameScope(metaObject, sensitivity);
+		child_types[metaObject] = NameScopePtr(scope);
 
 		reconnectChildren(scope);
 	} else
@@ -55,10 +54,10 @@ void ObjectGroup::registerChildType(const QMetaObject *meta_object,
 	}
 }
 
-void ObjectGroup::unregisterChildType(const QMetaObject *meta_object,
-									  bool children)
+void ObjectGroup::unregisterChildType(
+	const QMetaObject *metaObject, bool children)
 {
-	auto it = child_types.find(meta_object);
+	auto it = child_types.find(metaObject);
 
 	if (child_types.end() != it)
 	{
@@ -69,15 +68,16 @@ void ObjectGroup::unregisterChildType(const QMetaObject *meta_object,
 			if (children)
 			{
 				auto group = dynamic_cast<ObjectGroup *>(child);
+
 				if (nullptr != group)
-					group->unregisterChildType(meta_object, children);
+					group->unregisterChildType(metaObject, children);
 			}
 
-			if (child->metaObject() == meta_object)
+			if (child->metaObject() == metaObject)
 				disconnectChildObject(child, it->second.get());
 		}
 
-		child_types.erase(meta_object);
+		child_types.erase(metaObject);
 	}
 }
 
@@ -88,6 +88,7 @@ void ObjectGroup::unregisterAllChildTypes(bool children)
 		if (children)
 		{
 			auto group = dynamic_cast<ObjectGroup *>(child);
+
 			if (nullptr != group)
 				group->unregisterAllChildTypes(children);
 		}
@@ -103,9 +104,9 @@ void ObjectGroup::unregisterAllChildTypes(bool children)
 	child_types.clear();
 }
 
-bool ObjectGroup::isSupportedChildType(const QMetaObject *meta_object) const
+bool ObjectGroup::isSupportedChildType(const QMetaObject *metaObject) const
 {
-	return child_types.end() != child_types.find(meta_object);
+	return child_types.end() != child_types.find(metaObject);
 }
 
 const QObjectList &ObjectGroup::getChildren()
@@ -120,16 +121,16 @@ void ObjectGroup::resetChildren()
 	childrenNeedRearrange();
 }
 
-UniqueNameScope *ObjectGroup::createNameScope(const QMetaObject *meta_object,
-											  Qt::CaseSensitivity sensitivity)
-const
+UniqueNameScope *ObjectGroup::createNameScope(
+	const QMetaObject *metaObject, Qt::CaseSensitivity sensitivity) const
 {
-	return new UniqueNameScope(meta_object, sensitivity);
+	return new UniqueNameScope(metaObject, sensitivity);
 }
 
 void ObjectGroup::doAddChild(QObject *object)
 {
 	auto it = child_types.find(object->metaObject());
+
 	if (child_types.end() != it)
 	{
 		connectChildObject(object, it->second.get());
@@ -141,6 +142,7 @@ void ObjectGroup::doAddChild(QObject *object)
 void ObjectGroup::doRemoveChild(QObject *object)
 {
 	auto it = child_types.find(object->metaObject());
+
 	if (child_types.end() != it)
 	{
 		disconnectChildObject(object, it->second.get());
@@ -175,9 +177,10 @@ void ObjectGroup::reconnectChildren(UniqueNameScope *new_scope)
 {
 	childrenNeedRearrange();
 
-	foreach(QObject * child, children())
+	for (auto child : children())
 	{
 		auto object = new_scope->getObjectType()->cast(child);
+
 		if (nullptr != object)
 			connectChildObject(object, new_scope);
 	}
@@ -187,12 +190,14 @@ void ObjectGroup::makeChildList()
 {
 	if (m_children.empty())
 	{
-		foreach(QObject * child, children())
+		for (auto child : children())
 		{
 			auto it = child_types.find(child->metaObject());
+
 			if (child_types.end() != it)
 			{
 				auto object = dynamic_cast<Object *>(child);
+
 				if (nullptr == object || !object->isDeleted())
 					m_children.push_back(child);
 			}
@@ -208,9 +213,20 @@ void ObjectGroup::connectChildObject(QObject *object, UniqueNameScope *scope)
 
 	scope->connectObject(object);
 
-	QObject::connect(
-		object, &QObject::destroyed, this,
-		&ObjectGroup::onChildObjectDestroyed);
+	auto obj = dynamic_cast<Object *>(object);
+
+	if (obj)
+	{
+		QObject::connect(
+			obj, &Object::beforeDestroy,
+			this, &ObjectGroup::onChildObjectDestroyed);
+	} else
+	{
+		QObject::connect(
+			object, &QObject::destroyed, this,
+			&ObjectGroup::onChildObjectDestroyed);
+	}
+
 	QObject::connect(
 		object, &QObject::objectNameChanged, this,
 		&ObjectGroup::childrenNeedRearrange);
@@ -224,14 +240,24 @@ void ObjectGroup::disconnectChildObject(QObject *object, UniqueNameScope *scope)
 
 	scope->disconnectObject(object);
 
-	QObject::disconnect(
-		object, &QObject::destroyed, this,
-		&ObjectGroup::onChildObjectDestroyed);
+	auto obj = dynamic_cast<Object *>(object);
+
+	if (obj)
+	{
+		QObject::disconnect(
+			obj, &Object::beforeDestroy,
+			this, &ObjectGroup::onChildObjectDestroyed);
+	} else
+	{
+		QObject::disconnect(
+			object, &QObject::destroyed, this,
+			&ObjectGroup::onChildObjectDestroyed);
+	}
+
 	QObject::disconnect(
 		object, &QObject::objectNameChanged, this,
 		&ObjectGroup::childrenNeedRearrange);
 
 	doDisconnectChildObject(object);
 }
-
 }

@@ -51,9 +51,9 @@ using namespace Banana;
 
 namespace Banana
 {
-
-FileSelectDialog::FileSelectDialog(ProjectDirectoryModel *model,
-								   QWidget *parent)
+FileSelectDialog::FileSelectDialog(
+	ProjectDirectoryModel *model,
+	QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::FileSelectDialog)
 	, ignoreAccept(false)
@@ -135,29 +135,35 @@ QStringList FileSelectDialog::getSelectedFilePathList(bool relative) const
 	return ui->treeWidget->getTreeView()->getSelectedFilesList(relative);
 }
 
-bool FileSelectDialog::execute(const QMetaObject *filter,
-							   const QString &file_path, bool multiselect)
+bool FileSelectDialog::execute(
+	const QMetaObject *filter, const QString &file_path, bool multiselect)
 {
 	if (filter == &Directory::staticMetaObject)
 	{
 		dirs = true;
 		setWindowTitle(
-			multiselect ? tr("Select Directories") : tr(
-				"Select Directory"));
+			multiselect
+			? tr("Select Directories")
+			: tr("Select Directory"));
 	} else
 	{
 		dirs = false;
 
 		if (nullptr != filter)
+		{
 			setWindowTitle(
 				tr("Select %1").arg(
 					Directory::getFileTypeTitle(
 						filter, multiselect)));
-		else
-			setWindowTitle(multiselect ? tr("Select Files") : tr("Select File"));
-
-
+		} else
+		{
+			setWindowTitle(
+				multiselect
+				? tr("Select Files")
+				: tr("Select File"));
+		}
 	}
+
 	ui->treeWidget->showFilter(!dirs);
 	auto tree = ui->treeWidget->getTreeView();
 
@@ -224,6 +230,7 @@ void FileSelectDialog::onTreeViewCustomContextMenuRequested(const QPoint &pos)
 	if (index.isValid() && tree->visualRect(index).contains(pos, true))
 	{
 		index = tree->getCurrentFileIndex();
+
 		if (!index.isValid())
 			return;
 
@@ -245,6 +252,7 @@ void FileSelectDialog::onTreeViewCustomContextMenuRequested(const QPoint &pos)
 				menu.addAction(ui->actionCopyFilePath);
 				menu.addAction(ui->actionCopyFileName);
 			}
+
 			menu.addAction(ui->actionCopyDirPath);
 			menu.addAction(ui->actionCopyDirName);
 			menu.addSeparator();
@@ -282,6 +290,7 @@ void FileSelectDialog::on_buttonBox_clicked(QAbstractButton *button)
 			for (auto &index : indexes)
 			{
 				auto info = model->fileInfo(index);
+
 				if ((dirs && info.isDir())
 					|| (!dirs && info.isFile()))
 				{
@@ -342,8 +351,7 @@ void FileSelectDialog::updateActions()
 
 	ui->actionShowInGraphicalShell->setEnabled(exists);
 	ui->actionShowInGraphicalShell->setText(
-		getShowInGraphicalShellCommandText(
-			fileName));
+		getShowInGraphicalShellCommandText(fileName));
 
 	auto model = getModel();
 
@@ -374,6 +382,7 @@ void FileSelectDialog::updateActions()
 
 	auto clipboardData = QApplication::clipboard()->mimeData();
 	bool pasteEnabled = false;
+
 	if (nullptr != clipboardData &&
 		nullptr != ui->treeWidget->getTreeView()->selectionModel())
 		pasteEnabled = clipboardData->hasUrls();
@@ -413,6 +422,7 @@ void FileSelectDialog::on_actionEditDelete_triggered()
 	DeleteFilesDialog dialog(this);
 
 	auto indexes = tree->getSelectedFilesIndexList();
+
 	if (indexes.size() > 0)
 		dialog.execute(indexes, model);
 }
@@ -460,6 +470,7 @@ void FileSelectDialog::on_actionShowInGraphicalShell_triggered()
 void FileSelectDialog::on_actionOpenFile_triggered()
 {
 	auto model = getModel();
+
 	if (nullptr != model)
 	{
 		model->openFiles(getSelectedFilePathList());
@@ -469,10 +480,10 @@ void FileSelectDialog::on_actionOpenFile_triggered()
 void FileSelectDialog::on_actionLocateFile_triggered()
 {
 	auto model = getModel();
+
 	if (nullptr != model)
 	{
 		model->locateFile(getSelectedFilePath());
 	}
 }
-
 }
