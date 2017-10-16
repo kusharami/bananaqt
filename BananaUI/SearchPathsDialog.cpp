@@ -323,8 +323,8 @@ void SearchPathsTableModel::unregisterPaths(const QModelIndexList &indexes)
 	endResetModel();
 }
 
-Directory *SearchPathsTableModel::getDirectoryAtIndex(const QModelIndex &index)
-const
+Directory *SearchPathsTableModel::getDirectoryAtIndex(
+	const QModelIndex &index) const
 {
 	if (index.isValid())
 		return dirs.at(index.row());
@@ -333,8 +333,7 @@ const
 }
 
 bool SearchPathsTableModel::dropMimeData(
-	const QMimeData *data,
-	Qt::DropAction action, int row, int,
+	const QMimeData *data, Qt::DropAction action, int row, int,
 	const QModelIndex &parent)
 {
 	switch (action)
@@ -367,8 +366,8 @@ bool SearchPathsTableModel::dropMimeData(
 					for (auto ptr = item_ptr; ptr < end_ptr; ptr++, row++)
 					{
 						auto dir =
-							static_cast<Directory *>(reinterpret_cast<void *>(*
-																			  ptr));
+							static_cast<Directory *>(reinterpret_cast<void *>(
+														 *ptr));
 						dirs.insert(dirs.begin() + row, dir);
 					}
 
@@ -656,7 +655,7 @@ void SearchPathsDialog::on_actionCopyAbsolutePath_triggered()
 
 		for (auto dir : dirs)
 		{
-			list.push_back(dir->getFilePath());
+			list.push_back(QDir::toNativeSeparators(dir->getFilePath()));
 		}
 
 		mime->setText(list.join('\n'));
