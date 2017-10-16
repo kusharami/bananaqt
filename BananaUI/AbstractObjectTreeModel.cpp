@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 AbstractObjectTreeModel::AbstractObjectTreeModel(QObject *parent)
 	: QAbstractItemModel(parent)
 	, noReset(0)
@@ -66,6 +65,7 @@ QVariant AbstractObjectTreeModel::data(const QModelIndex &index, int role) const
 	if (index.isValid())
 	{
 		auto item = getItemAt(index);
+
 		if (nullptr != item)
 		{
 			switch (role)
@@ -102,6 +102,7 @@ QVariant AbstractObjectTreeModel::data(const QModelIndex &index, int role) const
 			}
 		}
 	}
+
 	return QVariant();
 }
 
@@ -113,14 +114,16 @@ Qt::ItemFlags AbstractObjectTreeModel::flags(const QModelIndex &index) const
 	Qt::ItemFlags result = QAbstractItemModel::flags(index);
 
 	auto item = getItemAt(index);
+
 	if (nullptr != item)
 		result |= getItemFlagsForItem(item);
 
 	return result;
 }
 
-QModelIndex AbstractObjectTreeModel::index(int row, int column,
-										   const QModelIndex &parent) const
+QModelIndex AbstractObjectTreeModel::index(
+	int row, int column,
+	const QModelIndex &parent) const
 {
 	if (hasIndex(row, column, parent))
 	{
@@ -150,6 +153,7 @@ QModelIndex AbstractObjectTreeModel::parent(const QModelIndex &index) const
 	{
 		auto itemParent = item->parent();
 		auto parentGroup = dynamic_cast<AbstractObjectGroup *>(itemParent);
+
 		if (nullptr != parentGroup)
 		{
 			parentGroup = parentGroup->getRealGroup();
@@ -158,6 +162,7 @@ QModelIndex AbstractObjectTreeModel::parent(const QModelIndex &index) const
 			Q_ASSERT(nullptr != itemParent);
 			auto parentParent =
 				dynamic_cast<AbstractObjectGroup *>(itemParent->parent());
+
 			if (nullptr != parentParent)
 			{
 				auto index = createIndex(
@@ -193,12 +198,14 @@ int AbstractObjectTreeModel::columnCount(const QModelIndex &) const
 	return 1;
 }
 
-bool AbstractObjectTreeModel::setData(const QModelIndex &index,
-									  const QVariant &value, int role)
+bool AbstractObjectTreeModel::setData(
+	const QModelIndex &index,
+	const QVariant &value, int role)
 {
 	if (Qt::EditRole == role)
 	{
 		auto item = getItemAt(index);
+
 		if (nullptr != item)
 		{
 			setTextForItem(item, value.toString());
@@ -219,15 +226,17 @@ bool AbstractObjectTreeModel::removeColumns(int, int, const QModelIndex &)
 	return false;
 }
 
-bool AbstractObjectTreeModel::insertRows(int position, int rows,
-										 const QModelIndex &parent)
+bool AbstractObjectTreeModel::insertRows(
+	int, int,
+	const QModelIndex &parent)
 {
 	// TODO
 	return false;
 }
 
-bool AbstractObjectTreeModel::removeRows(int position, int rows,
-										 const QModelIndex &parent)
+bool AbstractObjectTreeModel::removeRows(
+	int, int,
+	const QModelIndex &parent)
 {
 	// TODO
 	return false;
@@ -243,10 +252,11 @@ Qt::DropActions AbstractObjectTreeModel::supportedDragActions() const
 	return Qt::MoveAction;
 }
 
-bool AbstractObjectTreeModel::dropMimeData(const QMimeData *data,
-										   Qt::DropAction action, int row,
-										   int column,
-										   const QModelIndex &parent)
+bool AbstractObjectTreeModel::dropMimeData(
+	const QMimeData *data,
+	Qt::DropAction action, int row,
+	int column,
+	const QModelIndex &parent)
 {
 	// TODO
 
@@ -285,14 +295,17 @@ QModelIndex AbstractObjectTreeModel::findModelIndex(QObject *item) const
 	if (nullptr != item)
 	{
 		auto it = indexMap.find(item);
+
 		if (indexMap.end() != it)
 			return it->second;
 
 		auto itemParent = item->parent();
+
 		if (nullptr != itemParent
 			&& item != rootGroup)
 		{
 			auto parentGroup = dynamic_cast<AbstractObjectGroup *>(itemParent);
+
 			if (nullptr != parentGroup)
 			{
 				parentGroup = parentGroup->getRealGroup();
@@ -312,6 +325,7 @@ QModelIndex AbstractObjectTreeModel::findModelIndex(QObject *item) const
 void AbstractObjectTreeModel::doConnectObject(QObject *object)
 {
 	auto obj = dynamic_cast<Object *>(object);
+
 	if (nullptr != obj)
 	{
 		QObject::connect(
@@ -347,6 +361,7 @@ void AbstractObjectTreeModel::doConnectObject(QObject *object)
 void AbstractObjectTreeModel::doDisconnectObject(QObject *object)
 {
 	auto obj = dynamic_cast<Object *>(object);
+
 	if (nullptr != obj)
 	{
 		QObject::disconnect(
@@ -384,9 +399,11 @@ void AbstractObjectTreeModel::doDisconnectObject(QObject *object)
 void AbstractObjectTreeModel::selectItems(const QObjectSet &items)
 {
 	QItemSelection selection;
+
 	for (auto item : items)
 	{
 		auto index = findModelIndex(item);
+
 		if (index.isValid())
 		{
 			selection.select(index, index);
@@ -401,6 +418,7 @@ void AbstractObjectTreeModel::onBeforeObjectDestroy(QObject *object)
 	beginResetModel();
 
 	auto parentGroup = dynamic_cast<AbstractObjectGroup *>(object->parent());
+
 	if (nullptr != parentGroup)
 		parentGroup->resetChildren();
 
@@ -453,8 +471,9 @@ void AbstractObjectTreeModel::connectObject(QObject *object)
 	}
 }
 
-void AbstractObjectTreeModel::disconnectObject(QObject *object,
-											   bool parent_disconnect)
+void AbstractObjectTreeModel::disconnectObject(
+	QObject *object,
+	bool parent_disconnect)
 {
 	if (isSupportedItem(object))
 	{
@@ -472,8 +491,9 @@ void AbstractObjectTreeModel::disconnectObject(QObject *object,
 	}
 }
 
-int AbstractObjectTreeModel::getChildIndex(AbstractObjectGroup *group,
-										   QObject *child) const
+int AbstractObjectTreeModel::getChildIndex(
+	AbstractObjectGroup *group,
+	QObject *child) const
 {
 	if (0 == getFiltersCount())
 		return group->getChildIndex(child);
@@ -488,7 +508,8 @@ int AbstractObjectTreeModel::getChildIndex(AbstractObjectGroup *group,
 	return -1;
 }
 
-QObjectList AbstractObjectTreeModel::getGroupChildren(AbstractObjectGroup *group)
+QObjectList AbstractObjectTreeModel::getGroupChildren(
+	AbstractObjectGroup *group)
 const
 {
 	auto no_const = const_cast<AbstractObjectTreeModel *>(this);
@@ -522,11 +543,13 @@ void AbstractObjectTreeModel::beginResetModel()
 	if (noReset == 0)
 	{
 		indexMap.clear();
+
 		if (resetCount == 0)
 		{
 			emit beforeModelReset();
 			QAbstractItemModel::beginResetModel();
 		}
+
 		resetCount++;
 	}
 }
@@ -536,6 +559,7 @@ void AbstractObjectTreeModel::endResetModel()
 	if (noReset == 0)
 	{
 		Q_ASSERT(resetCount > 0);
+
 		if (--resetCount == 0)
 		{
 			QAbstractItemModel::endResetModel();
@@ -548,5 +572,4 @@ UndoStack *AbstractObjectTreeModel::getUndoStack() const
 {
 	return nullptr;
 }
-
 }

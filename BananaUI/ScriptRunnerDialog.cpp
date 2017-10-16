@@ -45,7 +45,6 @@ using namespace Banana;
 
 namespace Banana
 {
-
 static const QString sScriptRunnerGroup = QStringLiteral("ScriptRunner");
 
 ScriptRunnerDialog::ScriptRunnerDialog(ScriptRunner *runner, QWidget *parent)
@@ -64,7 +63,6 @@ ScriptRunnerDialog::ScriptRunnerDialog(ScriptRunner *runner, QWidget *parent)
 	QObject::connect(
 		runner, &ScriptRunner::logPrint, this,
 		&ScriptRunnerDialog::onLogPrint);
-
 }
 
 ScriptRunnerDialog::~ScriptRunnerDialog()
@@ -72,8 +70,9 @@ ScriptRunnerDialog::~ScriptRunnerDialog()
 	delete ui;
 }
 
-void ScriptRunnerDialog::execute(ProjectGroup *group,
-								 const QString &script_filepath)
+void ScriptRunnerDialog::execute(
+	ProjectGroup *group,
+	const QString &script_filepath)
 {
 	this->group = group;
 
@@ -157,7 +156,7 @@ void ScriptRunnerDialog::apply()
 
 void ScriptRunnerDialog::setScriptFilePath(const QString &filepath)
 {
-	ui->editScriptFile->setText(filepath);
+	ui->editScriptFile->setText(QDir::toNativeSeparators(filepath));
 
 	if (!filepath.isEmpty())
 	{
@@ -177,6 +176,7 @@ void ScriptRunnerDialog::setScriptFilePath(const QString &filepath)
 void ScriptRunnerDialog::registerScript()
 {
 	auto filepath = ui->editScriptFile->text();
+
 	if (QFile::exists(filepath))
 	{
 		emit registerFilePath(filepath);
@@ -264,11 +264,13 @@ void ScriptRunnerDialog::insertList(const QStringList &value)
 	cursor.removeSelectedText();
 
 	int count = value.count();
+
 	if (count == 1)
 		cursor.insertText(Utils::QuoteString(value.at(0)));
 	else
 	{
 		QString str = "[\n";
+
 		for (int i = 0; i < count; i++)
 		{
 			str.append(Utils::QuoteString(value.at(i)));
@@ -284,5 +286,4 @@ void ScriptRunnerDialog::insertList(const QStringList &value)
 		cursor.insertText(str);
 	}
 }
-
 }

@@ -85,6 +85,7 @@ QIcon ProjectDirectoryModel::icon(const QFileInfo &info) const
 	if (info.isFile())
 	{
 		QString filename(info.fileName());
+
 		for (auto &data : fileTypesInfo)
 		{
 			if (filename.endsWith(data.first, Qt::CaseInsensitive))
@@ -108,9 +109,11 @@ QVariant ProjectDirectoryModel::data(const QModelIndex &index, int role) const
 				QFont font;
 
 				info.refresh();
+
 				if (info.isSymLink())
 				{
 					font.setItalic(true);
+
 					if (!info.exists())
 						font.setStrikeOut(true);
 				}
@@ -129,11 +132,13 @@ QVariant ProjectDirectoryModel::data(const QModelIndex &index, int role) const
 				return QFileSystemModel::data(index, role);
 		}
 	}
+
 	return QVariant();
 }
 
-bool ProjectDirectoryModel::setData(const QModelIndex &index,
-									const QVariant &value, int role)
+bool ProjectDirectoryModel::setData(
+	const QModelIndex &index,
+	const QVariant &value, int role)
 {
 	if (index.isValid() && role == Qt::EditRole)
 	{
@@ -198,15 +203,17 @@ bool ProjectDirectoryModel::setData(const QModelIndex &index,
 	{
 		if (role == Qt::EditRole)
 			emit dataChanged(index, index);
+
 		return true;
 	}
 
 	return false;
 }
 
-bool ProjectDirectoryModel::dropMimeData(const QMimeData *data,
-										 Qt::DropAction action, int, int,
-										 const QModelIndex &parent)
+bool ProjectDirectoryModel::dropMimeData(
+	const QMimeData *data,
+	Qt::DropAction action, int, int,
+	const QModelIndex &parent)
 {
 	if (!parent.isValid() || isReadOnly())
 		return false;
@@ -237,8 +244,9 @@ Qt::DropAction ProjectDirectoryModel::convertDropAction(
 	return action;
 }
 
-void ProjectDirectoryModel::setFileTypeInfo(const QString &extension,
-											const FileTypeInfo &info)
+void ProjectDirectoryModel::setFileTypeInfo(
+	const QString &extension,
+	const FileTypeInfo &info)
 {
 	fileTypesInfo[extension] = info;
 }
@@ -298,8 +306,9 @@ void ProjectDirectoryModel::onProjectDirectoryDestroyed()
 
 QString ProjectDirectoryModel::getToolTipForFile(const QFileInfo &info)
 {
-	QString tooltip(info.filePath());
+	QString tooltip = QDir::toNativeSeparators(info.filePath());
 	QString canonicalFilePath;
+
 	if (info.exists())
 		canonicalFilePath = info.canonicalFilePath();
 	else
@@ -308,16 +317,19 @@ QString ProjectDirectoryModel::getToolTipForFile(const QFileInfo &info)
 	if (info.isSymLink())
 	{
 		if (info.exists())
-			tooltip = tr("Links to '%1'").arg(info.symLinkTarget());
-		else
+		{
+			tooltip = tr("Links to '%1'").arg(
+					QDir::toNativeSeparators(info.symLinkTarget()));
+		} else
+		{
 			tooltip = tr("Symbolic link target '%1' does not exist").arg(
-					info.symLinkTarget());
+					QDir::toNativeSeparators(info.symLinkTarget()));
+		}
 	}
 
 	if (info.isFile())
 		return QString("%1<br><img src=\"%2\">").arg(
-			tooltip,
-			canonicalFilePath);
+			tooltip, canonicalFilePath);
 
 	return tooltip;
 }
@@ -355,6 +367,7 @@ void ProjectDirectoryModel::setFileManager(BaseFileManager *manager)
 {
 	if (nullptr != manager)
 		manager->setProjectDirectory(projectDir);
+
 	fileManager = manager;
 }
 
@@ -362,5 +375,4 @@ BaseFileManager *ProjectDirectoryModel::getFileManager() const
 {
 	return fileManager;
 }
-
 }

@@ -43,7 +43,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 static const QString kCutSelFormat("application/x-kde-cutselection");
 
 ProjectTreeView::ProjectTreeView(QWidget *parent)
@@ -86,9 +85,11 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 	QModelIndexList to_expand;
 	QModelIndex fileIndex;
 	auto pathInfo = fileInfo;
+
 	do
 	{
 		fileIndex = projectDirModel->index(pathInfo.path());
+
 		if (!fileIndex.isValid())
 			break;
 
@@ -122,6 +123,7 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 
 		if (expand)
 			this->expand(index);
+
 		setCurrentIndex(index);
 
 		std::shared_ptr<QMetaObject::Connection> c(new QMetaObject::Connection);
@@ -141,9 +143,10 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 QModelIndexList ProjectTreeView::getSelectedFilesIndexList() const
 {
 	auto sel_model = selectionModel();
-	if (nullptr != sel_model)
-		return filterModel->mapSelectionToSource(sel_model->selection()).indexes();
 
+	if (nullptr != sel_model)
+		return filterModel->mapSelectionToSource(
+			sel_model->selection()).indexes();
 
 	return QModelIndexList();
 }
@@ -151,6 +154,7 @@ QModelIndexList ProjectTreeView::getSelectedFilesIndexList() const
 QStringList ProjectTreeView::getSelectedFilesList(bool relative) const
 {
 	QStringList result;
+
 	if (nullptr != projectDirModel)
 	{
 		auto indexes = getSelectedFilesIndexList();
@@ -164,21 +168,26 @@ QStringList ProjectTreeView::getSelectedFilesList(bool relative) const
 				auto info = projectDirModel->fileInfo(index);
 
 				if (relative && nullptr != project_dir)
+				{
 					result.push_back(
-						project_dir->getRelativeFilePathFor(
-							info.
-							filePath()));
-				else
-					result.push_back(info.filePath());
+						QDir::toNativeSeparators(
+							project_dir->getRelativeFilePathFor(
+								info.filePath())));
+				} else
+				{
+					result.push_back(QDir::toNativeSeparators(info.filePath()));
+				}
 			}
 		}
 	}
+
 	return result;
 }
 
 void ProjectTreeView::copyFilePaths()
 {
 	auto indexes = getSelectedFilesIndexList();
+
 	if (!indexes.empty())
 	{
 		auto mime = new QMimeData;
@@ -188,9 +197,9 @@ void ProjectTreeView::copyFilePaths()
 		for (auto &index : indexes)
 		{
 			auto info = projectDirModel->fileInfo(index);
-			if (info.isFile())
-				list.push_back(info.filePath());
 
+			if (info.isFile())
+				list.push_back(QDir::toNativeSeparators(info.filePath()));
 		}
 
 		mime->setText(list.join('\n'));
@@ -202,6 +211,7 @@ void ProjectTreeView::copyFilePaths()
 void ProjectTreeView::copyDirPaths()
 {
 	auto indexes = getSelectedFilesIndexList();
+
 	if (!indexes.empty())
 	{
 		auto mime = new QMimeData;
@@ -211,12 +221,12 @@ void ProjectTreeView::copyDirPaths()
 		for (auto &index : indexes)
 		{
 			auto info = projectDirModel->fileInfo(index);
+
 			if (info.isFile())
-				set.insert(info.path());
+				set.insert(QDir::toNativeSeparators(info.path()));
 			else
 			if (info.isDir())
-				set.insert(info.filePath());
-
+				set.insert(QDir::toNativeSeparators(info.filePath()));
 		}
 
 		mime->setText(set.toList().join('\n'));
@@ -228,6 +238,7 @@ void ProjectTreeView::copyDirPaths()
 void ProjectTreeView::copyFileNames()
 {
 	auto indexes = getSelectedFilesIndexList();
+
 	if (!indexes.empty())
 	{
 		auto mime = new QMimeData;
@@ -237,9 +248,9 @@ void ProjectTreeView::copyFileNames()
 		for (auto &index : indexes)
 		{
 			auto info = projectDirModel->fileInfo(index);
+
 			if (info.isFile())
 				set.insert(info.fileName());
-
 		}
 
 		mime->setText(set.toList().join('\n'));
@@ -251,6 +262,7 @@ void ProjectTreeView::copyFileNames()
 void ProjectTreeView::copyDirNames()
 {
 	auto indexes = getSelectedFilesIndexList();
+
 	if (!indexes.empty())
 	{
 		auto mime = new QMimeData;
@@ -260,12 +272,12 @@ void ProjectTreeView::copyDirNames()
 		for (auto &index : indexes)
 		{
 			auto info = projectDirModel->fileInfo(index);
+
 			if (info.isFile())
 				set.insert(QFileInfo(info.path()).fileName());
 			else
 			if (info.isDir())
 				set.insert(info.fileName());
-
 		}
 
 		mime->setText(set.toList().join('\n'));
@@ -302,6 +314,7 @@ void ProjectTreeView::copyToClipboard(bool cut)
 		mime->setData(
 			"x-special/gnome-copied-files",
 			QByteArray(cut ? "cut\n" : "copy\n").append(uri_list));
+
 		if (cut)
 			mime->setData(kCutSelFormat, "1");
 
@@ -321,6 +334,7 @@ void ProjectTreeView::pasteFromClipboard()
 		{
 			auto findex = getCurrentFileIndex();
 			QDir pasteDir;
+
 			if (findex.isValid())
 			{
 				auto info = projectDirModel->fileInfo(findex);
@@ -337,6 +351,7 @@ void ProjectTreeView::pasteFromClipboard()
 				return;
 
 			bool cut = false;
+
 			if (mime->hasFormat(kCutSelFormat))
 			{
 				bool ok = false;
@@ -363,6 +378,7 @@ QModelIndex ProjectTreeView::getCurrentFileIndex() const
 QModelIndex ProjectTreeView::getCurrentFilterIndex() const
 {
 	auto sel_model = selectionModel();
+
 	if (nullptr != sel_model)
 	{
 		if (sel_model->hasSelection())
@@ -379,6 +395,7 @@ void ProjectTreeView::setProjectDirectory(AbstractProjectDirectory *dir)
 	if (nullptr != projectDirModel)
 	{
 		auto root_index = projectDirModel->setProjectDirectory(dir);
+
 		if (nullptr != dir)
 		{
 			QTreeView::setModel(filterModel);
@@ -440,6 +457,7 @@ void ProjectTreeView::onFilterModelAboutToBeReset()
 	if (projectDirModel)
 	{
 		auto index = getCurrentFileIndex();
+
 		if (index.isValid())
 			savedCurrent = projectDirModel->fileInfo(index).filePath();
 	}
@@ -453,8 +471,10 @@ void ProjectTreeView::onFilterModelAboutToBeReset()
 void ProjectTreeView::onFilterModelReset()
 {
 	AbstractProjectDirectory *project_dir = nullptr;
+
 	if (nullptr != projectDirModel)
 		project_dir = projectDirModel->getProjectDirectory();
+
 	setProjectDirectory(project_dir);
 
 	if (nullptr != projectDirModel)
@@ -462,9 +482,11 @@ void ProjectTreeView::onFilterModelReset()
 		for (auto &path : expanded)
 		{
 			auto index = projectDirModel->index(path);
+
 			if (index.isValid())
 			{
 				index = filterModel->mapFromSource(index);
+
 				if (index.isValid())
 					expand(index);
 			}
@@ -487,9 +509,11 @@ void ProjectTreeView::saveExpandedDirs(const QModelIndex &parent_index)
 	for (int i = 0; i < count; i++)
 	{
 		auto index = filterModel->index(i, 0, parent_index);
+
 		if (index.isValid() && isExpanded(index))
 		{
 			index = filterModel->mapToSource(index);
+
 			if (index.isValid())
 			{
 				auto info = projectDirModel->fileInfo(index);
@@ -501,6 +525,7 @@ void ProjectTreeView::saveExpandedDirs(const QModelIndex &parent_index)
 	for (int i = 0; i < count; i++)
 	{
 		auto index = filterModel->index(i, 0, parent_index);
+
 		if (index.isValid() && isExpanded(index))
 			saveExpandedDirs(index);
 	}
@@ -539,5 +564,4 @@ void ProjectTreeView::convertDropAction(QDropEvent *event)
 			event->mimeData(),
 			event->proposedAction()));
 }
-
 }

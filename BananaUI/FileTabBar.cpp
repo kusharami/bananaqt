@@ -30,6 +30,7 @@ SOFTWARE.
 #include "BananaCore/UndoStack.h"
 
 #include <QUndoGroup>
+#include <QDir>
 
 namespace Banana
 {
@@ -83,6 +84,7 @@ UndoStack *FileTabBar::getFileUndoStack(AbstractFile *file)
 	if (nullptr != file)
 	{
 		auto dataObject = dynamic_cast<Object *>(file->getData(false));
+
 		if (nullptr != dataObject)
 			return dataObject->getUndoStack();
 	}
@@ -97,9 +99,11 @@ bool FileTabBar::fileOpen(AbstractFile *file)
 	if (canOpen(file))
 	{
 		int index = getFileIndex(file, true);
+
 		if (index < 0)
 		{
 			file->bind();
+
 			if (!file->open())
 			{
 				file->unbind(false);
@@ -121,11 +125,13 @@ bool FileTabBar::fileOpen(AbstractFile *file)
 			auto projectGroup = projectDir->getProjectGroup();
 			Q_ASSERT(nullptr != projectGroup);
 			auto undoGroup = projectGroup->getUndoGroup();
+
 			if (nullptr != undoGroup)
 			{
 				auto fileData = dynamic_cast<Object *>(file->getData(false));
 				Q_ASSERT(nullptr != fileData);
 				auto undoStack = fileData->getUndoStack();
+
 				if (nullptr != undoStack)
 					undoGroup->addStack(undoStack);
 			}
@@ -170,6 +176,7 @@ void FileTabBar::closeTab(int index, bool multiple)
 	if (canClose(file, multiple))
 	{
 		file->unbind(false);
+
 		if (file->isOpen())
 			doFileClose(file);
 	}
@@ -254,7 +261,7 @@ QString FileTabBar::getToolTipForFile(AbstractFile *file)
 {
 	Q_ASSERT(nullptr != file);
 
-	QString result(file->getFilePath());
+	QString result(QDir::toNativeSeparators(file->getFilePath()));
 
 	if (file->isModified())
 		result = getFileIsModifiedFmt().arg(result);
@@ -311,6 +318,7 @@ int FileTabBar::getFileIndex(QObject *fileObject, bool valid) const
 	auto file = valid
 		? dynamic_cast<AbstractFile *>(fileObject)
 		: static_cast<AbstractFile *>(fileObject);
+
 	if (nullptr != file)
 	{
 		auto it = std::find(openedFiles.begin(), openedFiles.end(), file);
@@ -335,5 +343,4 @@ int FileTabBar::getFileIndex(QObject *fileObject, bool valid) const
 
 	return -1;
 }
-
 }
