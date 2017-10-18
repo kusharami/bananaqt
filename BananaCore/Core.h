@@ -30,20 +30,19 @@ SOFTWARE.
 #include <set>
 
 #ifdef QT_DEBUG
-#       define IS_VALID(obj) Q_ASSERT(nullptr != (obj) && (obj)->isValid())
-#       define REQUIRE(expression) Q_ASSERT(expression)
-#       define ENSURE(expression) Q_ASSERT(expression)
+#define IS_VALID(obj) Q_ASSERT(nullptr != (obj) && (obj)->isValid())
+#define REQUIRE(expression) Q_ASSERT(expression)
+#define ENSURE(expression) Q_ASSERT(expression)
 #else
-#       define IS_VALID(obj) qt_noop()
-#       define REQUIRE(expression) qt_noop()
-#       define ENSURE(expression) qt_noop()
+#define IS_VALID(obj) qt_noop()
+#define REQUIRE(expression) qt_noop()
+#define ENSURE(expression) qt_noop()
 #endif
 
 class QObject;
 
 namespace Banana
 {
-
 struct BaseObject
 {
 	virtual ~BaseObject() {}
@@ -113,13 +112,12 @@ template <typename TYPE, typename BASE_TYPE>
 void RegisterType()
 {
 	qRegisterMetaType<TYPE>();
-	QMetaType::registerConverter<BASE_TYPE,
-								 TYPE>(convertImplicit<BASE_TYPE, TYPE>);
+	QMetaType::registerConverter<BASE_TYPE, TYPE>(
+		convertImplicit<BASE_TYPE, TYPE>);
 
-	getConversion()[qMetaTypeId < TYPE > ()] = {
+	getConversion()[qMetaTypeId<TYPE>()] = {
 		&convert_from_user_variant<TYPE, BASE_TYPE>,
 		&convert_to_user_variant<BASE_TYPE, TYPE>
 	};
 }
-
 }

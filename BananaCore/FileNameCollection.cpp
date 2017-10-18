@@ -30,18 +30,13 @@ SOFTWARE.
 
 namespace Banana
 {
+FileNameCollection::FileNameCollection() {}
 
-FileNameCollection::FileNameCollection()
-{
-
-}
-
-FileNameCollection::FileNameCollection(const QDir &dir,
-									   const QString &fileExtension)
+FileNameCollection::FileNameCollection(
+	const QDir &dir, const QString &fileExtension)
 	: mDir(dir)
 	, mFileExtension(fileExtension)
 {
-
 }
 
 bool FileNameCollection::containsName(const QString &name) const
@@ -56,5 +51,4 @@ bool FileNameCollection::isValid() const
 {
 	return mDir.exists() && Utils::FileNameIsValid(mFileExtension);
 }
-
 }

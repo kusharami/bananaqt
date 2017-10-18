@@ -32,12 +32,10 @@ SOFTWARE.
 
 namespace Banana
 {
-
 BaseFileManager::BaseFileManager()
 	: action(Qt::IgnoreAction)
 	, project_dir(nullptr)
 {
-
 }
 
 bool BaseFileManager::processUrls(
@@ -55,8 +53,7 @@ bool BaseFileManager::processUrls(
 }
 
 bool BaseFileManager::processEntries(
-	Qt::DropAction action, const QDir &pasteDir,
-	const QFileInfoList &entries)
+	Qt::DropAction action, const QDir &pasteDir, const QFileInfoList &entries)
 {
 	if (!entries.isEmpty())
 	{
@@ -85,42 +82,24 @@ bool BaseFileManager::processEntries(
 	return false;
 }
 
-void BaseFileManager::setProjectDirectory(
-	AbstractProjectDirectory *projectDir)
+void BaseFileManager::setProjectDirectory(AbstractProjectDirectory *projectDir)
 {
 	this->project_dir = projectDir;
 }
 
-void BaseFileManager::processStarted()
-{
+void BaseFileManager::processStarted() {}
 
+void BaseFileManager::processFinished() {}
+
+void BaseFileManager::processAborted() {}
+
+void BaseFileManager::processFileStarted(const QDir &, const QFileInfo &) {}
+
+void BaseFileManager::processFileFinished(const QFileInfo &, const QFileInfo &)
+{
 }
 
-void BaseFileManager::processFinished()
-{
-
-}
-
-void BaseFileManager::processAborted()
-{
-
-}
-
-void BaseFileManager::processFileStarted(const QDir &, const QFileInfo &)
-{
-
-}
-
-void BaseFileManager::processFileFinished(
-	const QFileInfo &, const QFileInfo &)
-{
-
-}
-
-void BaseFileManager::processFileAborted(const QDir &, const QFileInfo &)
-{
-
-}
+void BaseFileManager::processFileAborted(const QDir &, const QFileInfo &) {}
 
 bool BaseFileManager::wasCanceled() const
 {
@@ -166,16 +145,14 @@ bool BaseFileManager::processEntry(
 			{
 				if (fileSrc.isFile() || fileSrc.isSymLink())
 					unifyPath = true;
-			} else
-			if (fileTarget.isFile() || fileTarget.isSymLink())
+			} else if (fileTarget.isFile() || fileTarget.isSymLink())
 			{
 				int shouldReplace = shouldReplaceFile(fileTarget);
 
 				if (0 != (shouldReplace & ANSWER_ABORT))
 				{
 					abort = true;
-				} else
-				if (0 == (shouldReplace & ANSWER_AGREE))
+				} else if (0 == (shouldReplace & ANSWER_AGREE))
 				{
 					unifyPath = true;
 				}
@@ -190,37 +167,31 @@ bool BaseFileManager::processEntry(
 		{
 			if (unifyPath)
 				fileTarget.setFile(
-					FileNamingPolicy::uniqueFilePath(
-						pasteDir, fileSrc));
+					FileNamingPolicy::uniqueFilePath(pasteDir, fileSrc));
 
 			if (!sameDir || fileSrc != fileTarget)
 			{
 				if (fileSrc.isSymLink())
 				{
-					if (prepareTargetFilePath(fileTarget)
-						&& Utils::CreateSymLink(
-							fileSrc.symLinkTarget(),
-							fileTarget.filePath()))
+					if (prepareTargetFilePath(fileTarget) &&
+						Utils::CreateSymLink(
+							fileSrc.symLinkTarget(), fileTarget.filePath()))
 					{
 						if (cut)
 						{
 							if (!Utils::DeleteFileOrLink(fileSrc))
 							{
-								abort = 0 != (error(
-												  DELETE,
-												  SYMLINK,
-												  fileSrc) & ANSWER_ABORT);
+								abort = 0 !=
+									(error(DELETE, SYMLINK, fileSrc) &
+										ANSWER_ABORT);
 							}
 						}
 					} else
 					{
-						abort = 0 != (error(
-										  CREATE,
-										  SYMLINK,
-										  fileTarget) & ANSWER_ABORT);
+						abort = 0 !=
+							(error(CREATE, SYMLINK, fileTarget) & ANSWER_ABORT);
 					}
-				} else
-				if (fileSrc.isFile())
+				} else if (fileSrc.isFile())
 				{
 					bool ok = false;
 					if (prepareTargetFilePath(fileTarget))
@@ -228,14 +199,12 @@ bool BaseFileManager::processEntry(
 						if (cut)
 						{
 							ok = QFile::rename(
-									fileSrc.filePath(),
-									fileTarget.filePath());
+								fileSrc.filePath(), fileTarget.filePath());
 							if (!ok)
 							{
-								abort = 0 != (error(
-												  DELETE,
-												  FILE,
-												  fileSrc) & ANSWER_ABORT);
+								abort = 0 !=
+									(error(DELETE, FILE, fileSrc) &
+										ANSWER_ABORT);
 							}
 						}
 
@@ -244,61 +213,53 @@ bool BaseFileManager::processEntry(
 							if (action == Qt::LinkAction)
 							{
 								ok = Utils::CreateSymLink(
-										fileSrc.filePath(),
-										fileTarget.filePath());
+									fileSrc.filePath(), fileTarget.filePath());
 							} else
 								ok = QFile::copy(
-										fileSrc.filePath(),
-										fileTarget.filePath());
+									fileSrc.filePath(), fileTarget.filePath());
 						}
 					}
 
 					if (!ok && !abort)
 					{
-						abort = 0 != (error(
-										  CREATE,
-										  (action == Qt::LinkAction)
-										  ? SYMLINK
-										  : FILE,
-										  fileTarget) & ANSWER_ABORT);
+						abort = 0 !=
+							(error(CREATE,
+								 (action == Qt::LinkAction) ? SYMLINK : FILE,
+								 fileTarget) &
+								ANSWER_ABORT);
 					}
-				} else
-				if (fileSrc.isDir())
+				} else if (fileSrc.isDir())
 				{
 					bool ok = false;
 					bool crit = false;
 					if (QDir().mkpath(fileTarget.path()))
 					{
-						if ((QDir::cleanPath(
-								 QFileInfo(fileTarget.path())
-								 .canonicalFilePath()) + "/")
-							.startsWith(
-								QDir::cleanPath(
-									fileSrc.canonicalFilePath()) + "/",
-								Qt::CaseInsensitive))
+						if ((QDir::cleanPath(QFileInfo(fileTarget.path())
+												 .canonicalFilePath()) +
+								"/")
+								.startsWith(QDir::cleanPath(
+												fileSrc.canonicalFilePath()) +
+										"/",
+									Qt::CaseInsensitive))
 						{
 							crit = true;
-							abort = 0 != (error(
-											  COPY_TO_ITSELF,
-											  DIRECTORY,
-											  fileSrc) & ANSWER_ABORT);
+							abort = 0 !=
+								(error(COPY_TO_ITSELF, DIRECTORY, fileSrc) &
+									ANSWER_ABORT);
 						}
 					}
 
-					if (!crit && cut
-						&& !fileTarget.exists()
-						&& !fileTarget.isSymLink())
+					if (!crit && cut && !fileTarget.exists() &&
+						!fileTarget.isSymLink())
 					{
 						ok = QDir().rename(
-								fileSrc.filePath(),
-								fileTarget.filePath());
+							fileSrc.filePath(), fileTarget.filePath());
 
 						if (!ok)
 						{
-							abort = 0 != (error(
-											  DELETE,
-											  DIRECTORY,
-											  fileSrc) & ANSWER_ABORT);
+							abort = 0 !=
+								(error(DELETE, DIRECTORY, fileSrc) &
+									ANSWER_ABORT);
 						}
 					}
 
@@ -307,39 +268,31 @@ bool BaseFileManager::processEntry(
 						if (action == Qt::LinkAction)
 						{
 							ok = Utils::CreateSymLink(
-									fileSrc.filePath(),
-									fileTarget.filePath());
+								fileSrc.filePath(), fileTarget.filePath());
 							if (!ok)
 							{
-								abort = 0 != (error(
-												  CREATE,
-												  SYMLINK,
-												  fileTarget) & ANSWER_ABORT);
+								abort = 0 !=
+									(error(CREATE, SYMLINK, fileTarget) &
+										ANSWER_ABORT);
 							}
-						} else
-						if (!QDir().mkpath(fileTarget.filePath()))
+						} else if (!QDir().mkpath(fileTarget.filePath()))
 						{
-							abort = 0 != (error(
-											  CREATE,
-											  (action == Qt::LinkAction)
-											  ? SYMLINK
-											  : DIRECTORY,
-											  fileTarget) & ANSWER_ABORT);
+							abort = 0 !=
+								(error(CREATE,
+									 (action == Qt::LinkAction) ? SYMLINK
+																: DIRECTORY,
+									 fileTarget) &
+									ANSWER_ABORT);
 						} else
 						{
 							QDir src_dir(fileSrc.filePath());
 							QDir dst_dir(fileTarget.filePath());
 
-							auto entries = src_dir.entryInfoList(
-									QDir::Dirs |
-									QDir::Files |
-									QDir::Readable |
-									QDir::Writable |
-									QDir::Executable |
-									QDir::Modified |
-									QDir::Hidden |
-									QDir::System |
-									QDir::NoDotAndDotDot);
+							auto entries = src_dir.entryInfoList(QDir::Dirs |
+								QDir::Files | QDir::Readable | QDir::Writable |
+								QDir::Executable | QDir::Modified |
+								QDir::Hidden | QDir::System |
+								QDir::NoDotAndDotDot);
 							for (auto &entry : entries)
 							{
 								if (!processEntry(action, dst_dir, entry))
@@ -353,10 +306,9 @@ bool BaseFileManager::processEntry(
 							{
 								if (!src_dir.removeRecursively())
 								{
-									abort = 0 != (error(
-													  DELETE,
-													  DIRECTORY,
-													  fileSrc) & ANSWER_ABORT);
+									abort = 0 !=
+										(error(DELETE, DIRECTORY, fileSrc) &
+											ANSWER_ABORT);
 								}
 							}
 						}
@@ -379,8 +331,6 @@ bool BaseFileManager::processEntry(
 
 bool BaseFileManager::prepareTargetFilePath(const QFileInfo &info)
 {
-	return (Utils::DeleteFileOrLink(info)
-			&& QDir().mkpath(info.path()));
+	return (Utils::DeleteFileOrLink(info) && QDir().mkpath(info.path()));
 }
-
 }

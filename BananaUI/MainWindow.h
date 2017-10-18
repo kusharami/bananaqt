@@ -39,20 +39,19 @@ public:
 	virtual ~MainWindow();
 
 	virtual void openFileOutside(const QString &filePath);
-	virtual void customOutsideCommand(const QString &command,
-									  const QString &params);
+	virtual void customOutsideCommand(
+		const QString &command, const QString &params);
 
 protected:
 	void registerFileType(const QString &documentId,
-						  const QString &fileTypeName,
-						  const QString &fileExtension,
-						  qint32 appIconIndex = 0);
+		const QString &fileTypeName, const QString &fileExtension,
+		qint32 appIconIndex = 0);
 	void registerCommand(const QString &command, const QString &documentId,
-						 const QString cmdLineArg = QString::null,
-						 const QString ddeCommand = QString::null);
+		const QString cmdLineArg = QString::null,
+		const QString ddeCommand = QString::null);
 	void enableOpenOutside();
-	virtual bool nativeEvent(const QByteArray &eventType, void *message,
-							 long *result) override;
+	virtual bool nativeEvent(
+		const QByteArray &eventType, void *message, long *result) override;
 	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 	friend struct MainWindowPrivate;
@@ -60,5 +59,4 @@ protected:
 private:
 	MainWindowPrivate *p;
 };
-
 }

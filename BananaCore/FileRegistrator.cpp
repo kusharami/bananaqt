@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 AbstractFileRegistrator::AbstractFileRegistrator(AbstractFile *thiz)
 	: thiz(thiz)
 	, data(nullptr)
@@ -89,8 +88,7 @@ bool AbstractFileRegistrator::canChangeFilePath(const QString &newFilePath)
 	{
 		if (nullptr != openedFiles)
 			return openedFiles->canChangeFilePath(
-				thiz->canonicalPath,
-				newFilePath);
+				thiz->canonicalPath, newFilePath);
 	}
 
 	return true;
@@ -108,8 +106,8 @@ void AbstractFileRegistrator::deleteData()
 	}
 }
 
-bool AbstractFileRegistrator::updateFilePath(const QString &oldPath,
-											 const QString &newPath)
+bool AbstractFileRegistrator::updateFilePath(
+	const QString &oldPath, const QString &newPath)
 {
 	if (nullptr != data)
 	{
@@ -175,11 +173,8 @@ void AbstractFileRegistrator::connectContext()
 {
 	if (nullptr != openedFiles)
 	{
-		openedFilesConnection = QObject::connect(
-				openedFiles, &QObject::destroyed, [this]()
-			{
-				openedFiles = nullptr;
-			});
+		openedFilesConnection = QObject::connect(openedFiles,
+			&QObject::destroyed, [this]() { openedFiles = nullptr; });
 	}
 }
 
@@ -219,15 +214,10 @@ void AbstractFileRegistrator::connectFileData()
 	if (nullptr != data)
 	{
 		thisDestroyConnection = QObject::connect(
-				thiz, &QObject::destroyed, [this]()
-			{
-				deleteData();
-			});
+			thiz, &QObject::destroyed, [this]() { deleteData(); });
 
 		connections.push_back(
-			QObject::connect(
-				data, &QObject::destroyed, [this]()
-			{
+			QObject::connect(data, &QObject::destroyed, [this]() {
 				QObject::disconnect(thisDestroyConnection);
 				connections.clear();
 				this->data = nullptr;
@@ -237,11 +227,8 @@ void AbstractFileRegistrator::connectFileData()
 		if (nullptr != obj)
 		{
 			connections.push_back(
-				QObject::connect(
-					obj, &Object::modifiedFlagChanged, [this](bool modified)
-				{
-					thiz->setModified(modified);
-				}));
+				QObject::connect(obj, &Object::modifiedFlagChanged,
+					[this](bool modified) { thiz->setModified(modified); }));
 		}
 	}
 }
@@ -255,5 +242,4 @@ void AbstractFileRegistrator::disconnectFileData()
 		clearDataConnections();
 	}
 }
-
 }

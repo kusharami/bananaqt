@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class VariantMapFile : public AbstractFile
 {
 public:
@@ -42,5 +41,4 @@ protected:
 	virtual void saveData(QVariantMap &output);
 	virtual bool loadData(const QVariantMap &input);
 };
-
 }

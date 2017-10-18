@@ -4,7 +4,6 @@
 
 namespace Banana
 {
-
 class UndoStack : public QUndoStack
 {
 	Q_OBJECT
@@ -48,5 +47,4 @@ bool UndoStack::isUpdating() const
 {
 	return updateCounter > 0;
 }
-
 }

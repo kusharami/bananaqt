@@ -29,7 +29,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 namespace UI
 {
 void Register();
@@ -47,5 +46,4 @@ void setCurrentLanguage(QLocale::Language language);
 
 QString getShowInGraphicalShellCommandText(const QString &what = QString());
 QString getShowInGraphicalShellHintText();
-
 }

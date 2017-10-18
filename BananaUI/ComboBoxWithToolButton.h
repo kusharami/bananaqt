@@ -33,7 +33,6 @@ class QLineEdit;
 
 namespace Banana
 {
-
 class ComboBoxWithToolButton : public QWidget
 {
 public:
@@ -59,5 +58,4 @@ QToolButton *ComboBoxWithToolButton::getToolButton() const
 {
 	return toolButton;
 }
-
 }

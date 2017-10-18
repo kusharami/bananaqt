@@ -34,27 +34,19 @@ SOFTWARE.
 
 namespace Banana
 {
-
 const QString AbstractProjectFile::SEARCH_PATHS_KEY =
 	QStringLiteral("SearchPaths");
 const QString AbstractProjectFile::IGNORED_FILES_KEY =
 	QStringLiteral("IgnoredFiles");
-const QString AbstractProjectFile::FILES_KEY =
-	QStringLiteral("Files");
-const QString AbstractProjectFile::TYPE_KEY =
-	QStringLiteral("Type");
-const QString AbstractProjectFile::PATH_KEY =
-	QStringLiteral("Path");
-const QString AbstractProjectFile::TARGET_KEY =
-	QStringLiteral("Target");
-const QString AbstractProjectFile::TYPE_FILE =
-	QStringLiteral("File");
-const QString AbstractProjectFile::TYPE_DIR =
-	QStringLiteral("Directory");
+const QString AbstractProjectFile::FILES_KEY = QStringLiteral("Files");
+const QString AbstractProjectFile::TYPE_KEY = QStringLiteral("Type");
+const QString AbstractProjectFile::PATH_KEY = QStringLiteral("Path");
+const QString AbstractProjectFile::TARGET_KEY = QStringLiteral("Target");
+const QString AbstractProjectFile::TYPE_FILE = QStringLiteral("File");
+const QString AbstractProjectFile::TYPE_DIR = QStringLiteral("Directory");
 const QString AbstractProjectFile::TYPE_DIR_LINK =
 	QStringLiteral("DirectoryLink");
-const QString AbstractProjectFile::TYPE_FILE_LINK =
-	QStringLiteral("FileLink");
+const QString AbstractProjectFile::TYPE_FILE_LINK = QStringLiteral("FileLink");
 
 AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(
 	const QString &str)
@@ -75,26 +67,19 @@ AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(
 }
 
 AbstractProjectFile::AbstractProjectFile(
-	const QString &name,
-	const QString &extension)
+	const QString &name, const QString &extension)
 	: VariantMapFile(extension)
 	, openedFiles(nullptr)
 	, searchPaths(nullptr)
 {
 	setObjectName(name);
 
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractProjectFile");
 	(void) QT_TRANSLATE_NOOP(
-		"ClassName",
-		"Banana::AbstractProjectFile");
+		"Banana::AbstractProjectFile", "mHideIgnoredFiles");
 	(void) QT_TRANSLATE_NOOP(
-		"Banana::AbstractProjectFile",
-		"mHideIgnoredFiles");
-	(void) QT_TRANSLATE_NOOP(
-		"Banana::AbstractProjectFile",
-		"mIgnoredFilesPattern");
-	(void) QT_TRANSLATE_NOOP(
-		"Banana::AbstractProjectFile",
-		"mSearchPaths");
+		"Banana::AbstractProjectFile", "mIgnoredFilesPattern");
+	(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mSearchPaths");
 }
 
 AbstractProjectFile::~AbstractProjectFile()
@@ -121,8 +106,7 @@ void AbstractProjectFile::watchFile()
 QStringList AbstractProjectFile::getIgnoredFilesList() const
 {
 	return mIgnoredFilesPattern.split(
-		QRegExp("[\n\r]+|\\|"),
-		QString::SkipEmptyParts);
+		QRegExp("[\n\r]+|\\|"), QString::SkipEmptyParts);
 }
 
 void AbstractProjectFile::setIgnoredFilesList(const QStringList &value)
@@ -147,8 +131,8 @@ SearchPaths *AbstractProjectFile::getSearchPaths()
 {
 	if (searchPaths == nullptr)
 	{
-		auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
-				getTopDirectory());
+		auto projectDir =
+			dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
 		if (nullptr != projectDir)
 			searchPaths = new SearchPaths(projectDir);
 	}
@@ -183,10 +167,7 @@ void AbstractProjectFile::saveData(QVariantMap &output)
 	QVariantList paths;
 
 	auto root_dir = dynamic_cast<Directory *>(parent());
-	saveProjectDirectory(
-		root_dir,
-		getTopDirectory(),
-		paths);
+	saveProjectDirectory(root_dir, getTopDirectory(), paths);
 
 	output.insert(FILES_KEY, paths);
 
@@ -219,16 +200,15 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 {
 	bool ok = false;
 	beginLoad();
-	auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
-			getTopDirectory());
+	auto projectDir =
+		dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
 	auto rootDir = dynamic_cast<Directory *>(parent());
 
-	if (nullptr != projectDir
-		&& projectDir->getProjectFile() == this
-		&& projectDir == rootDir)
+	if (nullptr != projectDir && projectDir->getProjectFile() == this &&
+		projectDir == rootDir)
 	{
 		auto siblings = projectDir->children();
-		foreach(QObject * sibling, siblings)
+		foreach (QObject *sibling, siblings)
 		{
 			if (sibling != this)
 				delete sibling;
@@ -269,7 +249,7 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 					QString target;
 				};
 
-				std::map<FileObjType, std::vector<FileInfo> > infos;
+				std::map<FileObjType, std::vector<FileInfo>> infos;
 
 				for (auto it = list.begin(); it != list.end(); ++it)
 				{
@@ -327,9 +307,8 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 
 						default:
 						{
-							LOG_WARNING(
-								QStringLiteral("Unknown field type: %1")
-								.arg((int) itValue.type()));
+							LOG_WARNING(QStringLiteral("Unknown field type: %1")
+											.arg((int) itValue.type()));
 							continue;
 						}
 					}
@@ -356,11 +335,9 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 					for (auto &info : it->second)
 					{
 						projectDir->linkDirectory(
-							rootDir->getAbsoluteFilePathFor(
-								info.target),
-							rootDir->getAbsoluteFilePathFor(
-								info.path),
-							false, false);
+							rootDir->getAbsoluteFilePathFor(info.target),
+							rootDir->getAbsoluteFilePathFor(info.path), false,
+							false);
 					}
 
 					infos.erase(it);
@@ -376,8 +353,7 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 								projectDir->linkFile(
 									rootDir->getAbsoluteFilePathFor(
 										info.target),
-									rootDir->getAbsoluteFilePathFor(
-										info.path),
+									rootDir->getAbsoluteFilePathFor(info.path),
 									false, false);
 								break;
 
@@ -409,10 +385,9 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 					auto path = rootDir->getAbsoluteFilePathFor(v.toString());
 					if (nullptr == searchPaths->registerPath(path, order))
 					{
-						LOG_WARNING(
-							QStringLiteral(
-								"Unable to register search path: '%1'")
-							.arg(path));
+						LOG_WARNING(QStringLiteral(
+							"Unable to register search path: '%1'")
+										.arg(path));
 						continue;
 					}
 					order++;
@@ -428,8 +403,8 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 void AbstractProjectFile::doUpdateFilePath(bool check_oldpath)
 {
 	openedFiles = nullptr;
-	auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
-			getTopDirectory());
+	auto projectDir =
+		dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
 	if (nullptr != projectDir)
 	{
 		openedFiles = projectDir->getOpenedFiles();
@@ -448,9 +423,7 @@ void AbstractProjectFile::watch(bool yes)
 }
 
 void AbstractProjectFile::saveProjectDirectory(
-	Directory *rootDir,
-	Directory *dir,
-	QVariantList &output) const
+	Directory *rootDir, Directory *dir, QVariantList &output) const
 {
 	Q_ASSERT(nullptr != rootDir);
 	Q_ASSERT(nullptr != dir);
@@ -470,9 +443,8 @@ void AbstractProjectFile::saveProjectDirectory(
 					QVariantMap map;
 					map.insert(TYPE_KEY, TYPE_DIR_LINK);
 					map.insert(PATH_KEY, relative_path);
-					map.insert(
-						TARGET_KEY, rootDir->getRelativeFilePathFor(
-							info.symLinkTarget()));
+					map.insert(TARGET_KEY,
+						rootDir->getRelativeFilePathFor(info.symLinkTarget()));
 
 					output.push_back(map);
 				}
@@ -490,8 +462,8 @@ void AbstractProjectFile::saveProjectDirectory(
 					QVariantMap map;
 					map.insert(TYPE_KEY, TYPE_FILE_LINK);
 					map.insert(PATH_KEY, relative_filepath);
-					map.insert(
-						TARGET_KEY, rootDir->getRelativeFilePathFor(
+					map.insert(TARGET_KEY,
+						rootDir->getRelativeFilePathFor(
 							file->getSymLinkTarget()));
 
 					output.push_back(map);
@@ -528,5 +500,4 @@ void AbstractProjectFile::resetIgnoredFilesPattern()
 {
 	setIgnoredFilesPattern(QString());
 }
-
 }

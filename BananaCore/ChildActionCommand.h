@@ -77,5 +77,4 @@ private:
 
 	ChildActionCommand *subCommand;
 };
-
 }

@@ -46,7 +46,7 @@ class NewFileDialog : public QDialog
 
 public:
 	explicit NewFileDialog(Banana::AbstractProjectDirectory *project_dir,
-						   const QString &path, QWidget *parent = nullptr);
+		const QString &path, QWidget *parent = nullptr);
 	virtual ~NewFileDialog();
 
 	Banana::AbstractFile *getResultFile() const;
@@ -81,5 +81,4 @@ private:
 
 	std::vector<FileTypeInfo> file_types;
 };
-
 }

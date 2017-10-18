@@ -103,8 +103,7 @@ AbstractProjectDirectory *ProjectGroup::findProject(const QString &path) const
 
 				if (0 ==
 					canonicalPath.compare(
-						dir.canonicalPath(),
-						Qt::CaseInsensitive))
+						dir.canonicalPath(), Qt::CaseInsensitive))
 				{
 					return project_dir;
 				}
@@ -152,9 +151,8 @@ void ProjectGroup::saveAllFiles()
 
 void ProjectGroup::onActiveProjectDirectoryDestroyed()
 {
-	setActiveProjectDirectoryInternal(
-		findChild<AbstractProjectDirectory *>(
-			QString(), Qt::FindDirectChildrenOnly));
+	setActiveProjectDirectoryInternal(findChild<AbstractProjectDirectory *>(
+		QString(), Qt::FindDirectChildrenOnly));
 }
 
 void ProjectGroup::onUndoGroupDestroyed()
@@ -187,9 +185,8 @@ void ProjectGroup::connectActiveProjectDirectory()
 {
 	if (nullptr != activeProjectDir)
 	{
-		QObject::connect(
-			activeProjectDir, &QObject::destroyed,
-			this, &ProjectGroup::onActiveProjectDirectoryDestroyed);
+		QObject::connect(activeProjectDir, &QObject::destroyed, this,
+			&ProjectGroup::onActiveProjectDirectoryDestroyed);
 	}
 }
 
@@ -197,9 +194,8 @@ void ProjectGroup::disconnectActiveProjectDirectory()
 {
 	if (nullptr != activeProjectDir)
 	{
-		QObject::disconnect(
-			activeProjectDir, &QObject::destroyed,
-			this, &ProjectGroup::onActiveProjectDirectoryDestroyed);
+		QObject::disconnect(activeProjectDir, &QObject::destroyed, this,
+			&ProjectGroup::onActiveProjectDirectoryDestroyed);
 
 		activeProjectDir = nullptr;
 	}
@@ -209,9 +205,8 @@ void ProjectGroup::connectUndoGroup()
 {
 	if (nullptr != undoGroup)
 	{
-		QObject::connect(
-			undoGroup, &QObject::destroyed,
-			this, &ProjectGroup::onUndoGroupDestroyed);
+		QObject::connect(undoGroup, &QObject::destroyed, this,
+			&ProjectGroup::onUndoGroupDestroyed);
 	}
 }
 
@@ -219,9 +214,8 @@ void ProjectGroup::disconnectUndoGroup()
 {
 	if (nullptr != undoGroup)
 	{
-		QObject::disconnect(
-			undoGroup, &QObject::destroyed,
-			this, &ProjectGroup::onUndoGroupDestroyed);
+		QObject::disconnect(undoGroup, &QObject::destroyed, this,
+			&ProjectGroup::onUndoGroupDestroyed);
 		undoGroup = nullptr;
 	}
 }
@@ -247,5 +241,4 @@ void ProjectGroup::closeUnboundFiles(Directory *dir)
 		}
 	}
 }
-
 }

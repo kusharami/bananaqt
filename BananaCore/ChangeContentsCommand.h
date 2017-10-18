@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class Object;
 
 class ChangeContentsCommand : public AbstractObjectUndoCommand
@@ -50,5 +49,4 @@ private:
 	QVariantMap oldContents;
 	QVariantMap newContents;
 };
-
 }

@@ -44,7 +44,9 @@ namespace Banana
 class UndoStack;
 class AbstractObjectGroup;
 
-class AbstractObjectTreeModel : public QAbstractItemModel, public ChildFilter
+class AbstractObjectTreeModel
+	: public QAbstractItemModel
+	, public ChildFilter
 {
 	Q_OBJECT
 
@@ -56,27 +58,24 @@ public:
 
 	virtual QVariant data(const QModelIndex &index, int role) const override;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
-	virtual QModelIndex index(
-		int row, int column, const QModelIndex &parent =
-			QModelIndex()) const override;
+	virtual QModelIndex index(int row, int column,
+		const QModelIndex &parent = QModelIndex()) const override;
 	virtual QModelIndex parent(const QModelIndex &index) const override;
 	virtual int rowCount(
-		const QModelIndex &parent =
-			QModelIndex()) const override;
+		const QModelIndex &parent = QModelIndex()) const override;
 	virtual int columnCount(const QModelIndex &) const override;
 	virtual bool setData(const QModelIndex &index, const QVariant &value,
-						 int role = Qt::EditRole) override;
+		int role = Qt::EditRole) override;
 	virtual bool insertColumns(int, int, const QModelIndex &) override;
 	virtual bool removeColumns(int, int, const QModelIndex &) override;
 	virtual bool insertRows(int position, int rows,
-							const QModelIndex &parent = QModelIndex()) override;
+		const QModelIndex &parent = QModelIndex()) override;
 	virtual bool removeRows(int position, int rows,
-							const QModelIndex &parent = QModelIndex()) override;
+		const QModelIndex &parent = QModelIndex()) override;
 	virtual Qt::DropActions supportedDropActions() const override;
 	virtual Qt::DropActions supportedDragActions() const override;
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-							  int row, int column,
-							  const QModelIndex &parent) override;
+		int row, int column, const QModelIndex &parent) override;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 	virtual QStringList mimeTypes() const override;
 
@@ -141,5 +140,4 @@ protected:
 	QObject *rootGroup;
 	IndexMap indexMap;
 };
-
 }

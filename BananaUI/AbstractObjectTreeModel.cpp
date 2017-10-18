@@ -122,8 +122,7 @@ Qt::ItemFlags AbstractObjectTreeModel::flags(const QModelIndex &index) const
 }
 
 QModelIndex AbstractObjectTreeModel::index(
-	int row, int column,
-	const QModelIndex &parent) const
+	int row, int column, const QModelIndex &parent) const
 {
 	if (hasIndex(row, column, parent))
 	{
@@ -166,10 +165,7 @@ QModelIndex AbstractObjectTreeModel::parent(const QModelIndex &index) const
 			if (nullptr != parentParent)
 			{
 				auto index = createIndex(
-						getChildIndex(
-							parentParent,
-							itemParent), 0,
-						itemParent);
+					getChildIndex(parentParent, itemParent), 0, itemParent);
 
 				(*const_cast<IndexMap *>(&indexMap))[itemParent] = index;
 
@@ -199,8 +195,7 @@ int AbstractObjectTreeModel::columnCount(const QModelIndex &) const
 }
 
 bool AbstractObjectTreeModel::setData(
-	const QModelIndex &index,
-	const QVariant &value, int role)
+	const QModelIndex &index, const QVariant &value, int role)
 {
 	if (Qt::EditRole == role)
 	{
@@ -226,17 +221,13 @@ bool AbstractObjectTreeModel::removeColumns(int, int, const QModelIndex &)
 	return false;
 }
 
-bool AbstractObjectTreeModel::insertRows(
-	int, int,
-	const QModelIndex &parent)
+bool AbstractObjectTreeModel::insertRows(int, int, const QModelIndex &parent)
 {
 	// TODO
 	return false;
 }
 
-bool AbstractObjectTreeModel::removeRows(
-	int, int,
-	const QModelIndex &parent)
+bool AbstractObjectTreeModel::removeRows(int, int, const QModelIndex &parent)
 {
 	// TODO
 	return false;
@@ -252,19 +243,16 @@ Qt::DropActions AbstractObjectTreeModel::supportedDragActions() const
 	return Qt::MoveAction;
 }
 
-bool AbstractObjectTreeModel::dropMimeData(
-	const QMimeData *data,
-	Qt::DropAction action, int row,
-	int column,
-	const QModelIndex &parent)
+bool AbstractObjectTreeModel::dropMimeData(const QMimeData *data,
+	Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
 	// TODO
 
 	return false;
 }
 
-QMimeData *AbstractObjectTreeModel::mimeData(const QModelIndexList &indexes)
-const
+QMimeData *AbstractObjectTreeModel::mimeData(
+	const QModelIndexList &indexes) const
 {
 	// TODO
 
@@ -278,8 +266,8 @@ QStringList AbstractObjectTreeModel::mimeTypes() const
 	return QStringList();
 }
 
-bool AbstractObjectTreeModel::canDeleteItems(const QModelIndexList &indexes)
-const
+bool AbstractObjectTreeModel::canDeleteItems(
+	const QModelIndexList &indexes) const
 {
 	for (auto &index : indexes)
 	{
@@ -301,8 +289,7 @@ QModelIndex AbstractObjectTreeModel::findModelIndex(QObject *item) const
 
 		auto itemParent = item->parent();
 
-		if (nullptr != itemParent
-			&& item != rootGroup)
+		if (nullptr != itemParent && item != rootGroup)
 		{
 			auto parentGroup = dynamic_cast<AbstractObjectGroup *>(itemParent);
 
@@ -312,8 +299,7 @@ QModelIndex AbstractObjectTreeModel::findModelIndex(QObject *item) const
 				Q_ASSERT(nullptr != parentGroup);
 				itemParent = dynamic_cast<QObject *>(parentGroup);
 				Q_ASSERT(nullptr != itemParent);
-				return index(
-					getChildIndex(parentGroup, item), 0,
+				return index(getChildIndex(parentGroup, item), 0,
 					findModelIndex(itemParent));
 			}
 		}
@@ -328,28 +314,23 @@ void AbstractObjectTreeModel::doConnectObject(QObject *object)
 
 	if (nullptr != obj)
 	{
-		QObject::connect(
-			obj, &Object::beforeDestroy,
-			this, &AbstractObjectTreeModel::onBeforeObjectDestroy);
+		QObject::connect(obj, &Object::beforeDestroy, this,
+			&AbstractObjectTreeModel::onBeforeObjectDestroy);
 	} else
 	{
-		QObject::connect(
-			object, &QObject::destroyed,
-			this, &AbstractObjectTreeModel::onObjectDestroyed);
+		QObject::connect(object, &QObject::destroyed, this,
+			&AbstractObjectTreeModel::onObjectDestroyed);
 	}
 
-	QObject::connect(
-		object, &QObject::objectNameChanged,
-		this, &AbstractObjectTreeModel::onObjectNameChanged);
+	QObject::connect(object, &QObject::objectNameChanged, this,
+		&AbstractObjectTreeModel::onObjectNameChanged);
 
 	if (nullptr != obj)
 	{
-		QObject::connect(
-			obj, &Object::childAdded,
-			this, &AbstractObjectTreeModel::onChildAdded);
-		QObject::connect(
-			obj, &Object::childRemoved,
-			this, &AbstractObjectTreeModel::onChildRemoved);
+		QObject::connect(obj, &Object::childAdded, this,
+			&AbstractObjectTreeModel::onChildAdded);
+		QObject::connect(obj, &Object::childRemoved, this,
+			&AbstractObjectTreeModel::onChildRemoved);
 	}
 
 	for (auto child : object->children())
@@ -364,28 +345,23 @@ void AbstractObjectTreeModel::doDisconnectObject(QObject *object)
 
 	if (nullptr != obj)
 	{
-		QObject::disconnect(
-			obj, &Object::beforeDestroy,
-			this, &AbstractObjectTreeModel::onBeforeObjectDestroy);
+		QObject::disconnect(obj, &Object::beforeDestroy, this,
+			&AbstractObjectTreeModel::onBeforeObjectDestroy);
 	} else
 	{
-		QObject::disconnect(
-			object, &QObject::destroyed,
-			this, &AbstractObjectTreeModel::onObjectDestroyed);
+		QObject::disconnect(object, &QObject::destroyed, this,
+			&AbstractObjectTreeModel::onObjectDestroyed);
 	}
 
-	QObject::disconnect(
-		object, &QObject::objectNameChanged,
-		this, &AbstractObjectTreeModel::onObjectNameChanged);
+	QObject::disconnect(object, &QObject::objectNameChanged, this,
+		&AbstractObjectTreeModel::onObjectNameChanged);
 
 	if (nullptr != obj)
 	{
-		QObject::disconnect(
-			obj, &Object::childAdded,
-			this, &AbstractObjectTreeModel::onChildAdded);
-		QObject::disconnect(
-			obj, &Object::childRemoved,
-			this, &AbstractObjectTreeModel::onChildRemoved);
+		QObject::disconnect(obj, &Object::childAdded, this,
+			&AbstractObjectTreeModel::onChildAdded);
+		QObject::disconnect(obj, &Object::childRemoved, this,
+			&AbstractObjectTreeModel::onChildRemoved);
 	}
 
 	indexMap[object] = QModelIndex();
@@ -472,8 +448,7 @@ void AbstractObjectTreeModel::connectObject(QObject *object)
 }
 
 void AbstractObjectTreeModel::disconnectObject(
-	QObject *object,
-	bool parent_disconnect)
+	QObject *object, bool parent_disconnect)
 {
 	if (isSupportedItem(object))
 	{
@@ -492,8 +467,7 @@ void AbstractObjectTreeModel::disconnectObject(
 }
 
 int AbstractObjectTreeModel::getChildIndex(
-	AbstractObjectGroup *group,
-	QObject *child) const
+	AbstractObjectGroup *group, QObject *child) const
 {
 	if (0 == getFiltersCount())
 		return group->getChildIndex(child);
@@ -509,8 +483,7 @@ int AbstractObjectTreeModel::getChildIndex(
 }
 
 QObjectList AbstractObjectTreeModel::getGroupChildren(
-	AbstractObjectGroup *group)
-const
+	AbstractObjectGroup *group) const
 {
 	auto no_const = const_cast<AbstractObjectTreeModel *>(this);
 	no_const->noReset++;

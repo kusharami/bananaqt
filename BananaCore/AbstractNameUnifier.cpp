@@ -28,10 +28,8 @@ SOFTWARE.
 
 namespace Banana
 {
-
 bool AbstractNameUnifier::isValid() const
 {
 	return (nullptr != mNameCollection);
 }
-
 }

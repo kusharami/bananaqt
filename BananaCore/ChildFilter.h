@@ -56,5 +56,4 @@ protected:
 
 	std::map<IChildFilter *, FilterPtr> filters;
 };
-
 }

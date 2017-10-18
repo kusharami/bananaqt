@@ -31,7 +31,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class AbstractNameUnifier : public BaseObject
 {
 public:
@@ -54,5 +53,4 @@ void AbstractNameUnifier::setNameCollection(const NameCollectionPtr &ptr)
 {
 	mNameCollection = ptr;
 }
-
 }

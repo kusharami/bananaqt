@@ -44,7 +44,7 @@ static const QString sFilterSeparator =
 #else
 	" "
 #endif
-;
+	;
 
 static const char szFilterFmt[] =
 	QT_TRANSLATE_NOOP("FileTypeFilter", "%1 (%2)");
@@ -128,8 +128,8 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 
 	auto splitted = Utils::SplitPath(relative_dirpath);
 
-	if (QDir::isRelativePath(relative_dirpath)
-		&& (splitted.isEmpty() || splitted.at(0) != ".."))
+	if (QDir::isRelativePath(relative_dirpath) &&
+		(splitted.isEmpty() || splitted.at(0) != ".."))
 	{
 		dir = this;
 
@@ -141,10 +141,9 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 				continue;
 
 			auto found = dir->findChild<Directory *>(
-					dir_name,
-					Qt::FindDirectChildrenOnly);
-			dir = (nullptr !=
-				   found ? found : Object::create<Directory>(dir, dir_name));
+				dir_name, Qt::FindDirectChildrenOnly);
+			dir = (nullptr != found ? found
+									: Object::create<Directory>(dir, dir_name));
 
 			if (nullptr == first_child_dir)
 				first_child_dir = dir;
@@ -153,9 +152,8 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 	{
 		auto found =
 			dynamic_cast<RootDirectory *>(findFileSystemObject(dirpath, false));
-		dir =
-			(nullptr !=
-			 found ? found : Object::create<RootDirectory>(this, dirpath));
+		dir = (nullptr != found ? found
+								: Object::create<RootDirectory>(this, dirpath));
 
 		if (nullptr == first_child_dir)
 			first_child_dir = dir;
@@ -187,9 +185,7 @@ QObject *Directory::initFileSystemObject(QObject *object, const QString &path)
 QString Directory::getFileTypeTitle(const QMetaObject *metaObject, bool plural)
 {
 	return QCoreApplication::translate(
-		plural
-		? "FileTypeTitlePlural"
-		: "FileTypeTitle",
+		plural ? "FileTypeTitlePlural" : "FileTypeTitle",
 		metaObject->className());
 }
 
@@ -202,20 +198,14 @@ QString Directory::getFileFormatName(
 		extension = " ";
 
 	auto result = QCoreApplication::translate(
-			plural
-			? "FileFormatNamePlural"
-			: "FileFormatName",
-			extension);
+		plural ? "FileFormatNamePlural" : "FileFormatName", extension);
 
 	if (result == QString(extension))
 	{
 		result = emptyResult
 			? QString()
 			: QCoreApplication::translate(
-				plural
-				? "FileFormatNamePlural"
-				: "FileFormatName",
-				" ");
+				  plural ? "FileFormatNamePlural" : "FileFormatName", " ");
 	}
 
 	return result;
@@ -239,9 +229,8 @@ const Directory::RegisteredFileTypes &Directory::getRegisteredFileTypes()
 	return registeredFileTypes;
 }
 
-void Directory::registerFileType(
-	const char *extension, const QMetaObject *fileMetaObject,
-	const QMetaObject *dataMetaObject)
+void Directory::registerFileType(const char *extension,
+	const QMetaObject *fileMetaObject, const QMetaObject *dataMetaObject)
 {
 	Q_ASSERT(nullptr != extension);
 	Q_ASSERT(nullptr != fileMetaObject);
@@ -275,8 +264,8 @@ const QMetaObject *Directory::getFileTypeByExtension(
 	{
 		QString extension(item.extension);
 
-		if (!extension.isEmpty()
-			&& filePath.endsWith(extension, Qt::CaseInsensitive))
+		if (!extension.isEmpty() &&
+			filePath.endsWith(extension, Qt::CaseInsensitive))
 		{
 			int extensionLength = extension.length();
 
@@ -346,9 +335,9 @@ const Directory::RegisteredFileType *Directory::findRegisteredFileType(
 {
 	for (auto &item : registeredFileTypes)
 	{
-		if (extension == item.extension
-			|| fileMetaObject == item.fileMetaObject
-			|| dataMetaObject == item.dataMetaObject)
+		if (extension == item.extension ||
+			fileMetaObject == item.fileMetaObject ||
+			dataMetaObject == item.dataMetaObject)
 		{
 			return &item;
 		}
@@ -367,7 +356,7 @@ QString Directory::getFilterForExtension(const char *extension)
 		wildcard = '*' + wildcard;
 
 	return QCoreApplication::translate("FileTypeFilter", szFilterFmt)
-		   .arg(getFileFormatName(extension, true), wildcard);
+		.arg(getFileFormatName(extension, true), wildcard);
 }
 
 QString Directory::getFileExtensionFromFilter(
@@ -403,9 +392,8 @@ QString Directory::getFilterForFileType(const QMetaObject *metaObject)
 		return getFilterForExtension(pNoExtension);
 
 	return QCoreApplication::translate("FileTypeFilter", szFilterFmt)
-		   .arg(
-		getFileTypeTitle(metaObject, true),
-		extensions.join(sFilterSeparator));
+		.arg(getFileTypeTitle(metaObject, true),
+			extensions.join(sFilterSeparator));
 }
 
 QStringList Directory::getPossibleFiltersForFileType(
@@ -459,9 +447,8 @@ QStringList Directory::getAllPossibleFilters()
 
 		result.prepend(
 			QCoreApplication::translate("FileTypeFilter", szFilterFmt)
-			.arg(
-				tr("All supported file types"),
-				extensions.join(sFilterSeparator)));
+				.arg(tr("All supported file types"),
+					extensions.join(sFilterSeparator)));
 	}
 
 	result.push_back(getFilterForExtension(pNoExtension));
@@ -494,9 +481,8 @@ QStringList Directory::getFileSaveAsFilters(AbstractFile *file)
 
 		result.prepend(
 			QCoreApplication::translate("FileTypeFilter", szFilterFmt)
-			.arg(
-				tr("All supported formats"),
-				extensions.join(sFilterSeparator)));
+				.arg(tr("All supported formats"),
+					extensions.join(sFilterSeparator)));
 	}
 
 	return result;
@@ -554,8 +540,7 @@ QString Directory::filePathErrorStr(Error error, const QString &filepath)
 
 		case Error::CannotWriteFile:
 			return errorFormatStr(error).arg(
-				getFileFormatNameFrom(
-					filepath), filepath);
+				getFileFormatNameFrom(filepath), filepath);
 
 		default:
 			break;
@@ -583,8 +568,7 @@ void Directory::getFilesIn(Directory *dir, std::set<AbstractFile *> &files)
 }
 
 void Directory::getDirContents(
-	Directory *dir,
-	std::set<AbstractFileSystemObject *> &output)
+	Directory *dir, std::set<AbstractFileSystemObject *> &output)
 {
 	for (auto child : dir->children())
 	{
@@ -617,13 +601,12 @@ bool Directory::moveTo(Directory *target_dir, const QString &new_name)
 
 	if (metaObject() == &Directory::staticMetaObject)
 	{
-		auto new_dir = new Directory(
-				new_name.isEmpty() ? objectName() : new_name);
+		auto new_dir =
+			new Directory(new_name.isEmpty() ? objectName() : new_name);
 		new_dir->setParent(target_dir);
 
 		QFileInfo dest_info(FileNamingPolicy::uniqueFilePath(
-								QDir(target_dir->getFilePath()),
-								new_dir->objectName()));
+			QDir(target_dir->getFilePath()), new_dir->objectName()));
 
 		delete new_dir;
 
@@ -721,8 +704,7 @@ void Directory::executeUpdateFilePathError(
 }
 
 UniqueNameScope *Directory::createNameScope(
-	const QMetaObject *meta_object,
-	Qt::CaseSensitivity sensitivity) const
+	const QMetaObject *meta_object, Qt::CaseSensitivity sensitivity) const
 {
 	Q_ASSERT(Qt::CaseInsensitive == sensitivity);
 	Q_UNUSED(sensitivity);
@@ -733,9 +715,7 @@ UniqueNameScope *Directory::createNameScope(
 void Directory::sortChildren(QObjectList &children)
 {
 	std::sort(
-		children.begin(), children.end(),
-		[](QObject *a, QObject *b) -> bool
-		{
+		children.begin(), children.end(), [](QObject *a, QObject *b) -> bool {
 			auto ad = dynamic_cast<AbstractDirectory *>(a);
 			auto bd = dynamic_cast<AbstractDirectory *>(b);
 
@@ -751,9 +731,8 @@ void Directory::sortChildren(QObjectList &children)
 			auto bf = dynamic_cast<AbstractFile *>(b);
 
 			if (nullptr != af && nullptr != bf)
-				return QString::compare(
-					af->getFileName(), bf->getFileName(),
-					Qt::CaseInsensitive) < 0;
+				return QString::compare(af->getFileName(), bf->getFileName(),
+						   Qt::CaseInsensitive) < 0;
 
 			return false;
 		});
@@ -764,8 +743,7 @@ void Directory::childEvent(QChildEvent *event)
 	if (event->added())
 	{
 		descendantChanged(event->child(), DescendantState::Added);
-	} else
-	if (event->removed())
+	} else if (event->removed())
 	{
 		descendantChanged(event->child(), DescendantState::Removed);
 	}
@@ -812,8 +790,7 @@ QString RootDirectory::getFixedName(const QString &source) const
 
 	if (nullptr != parent)
 		return QDir::cleanPath(
-			QDir(parent->getFilePath()).absoluteFilePath(
-				source));
+			QDir(parent->getFilePath()).absoluteFilePath(source));
 
 	return QDir(source).path();
 }

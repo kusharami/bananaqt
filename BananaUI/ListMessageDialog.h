@@ -34,7 +34,6 @@ class ListMessageDialog;
 
 namespace Banana
 {
-
 class ListMessageDialog : public QDialog
 {
 	Q_OBJECT
@@ -69,5 +68,4 @@ ListMessageDialog::Type ListMessageDialog::type() const
 {
 	return mType;
 }
-
 }

@@ -61,30 +61,26 @@ protected:
 		QObject *object, const QMetaObject::Connection &connection);
 
 	template <typename FILE_T, typename ObjectType>
-	inline bool updateFileWithObject(
-		FILE_T * &file, QObject *object,
-		QString & pathRef, void (ObjectType::*onFilePathChanged)(),
+	inline bool updateFileWithObject(FILE_T *&file, QObject *object,
+		QString &pathRef, void (ObjectType::*onFilePathChanged)(),
 		const QMetaObject *fileMetaObject = nullptr);
 
 	template <typename FILE_T, typename ObjectType>
-	inline bool setFilePath(
-		FILE_T * &file, QString & pathRef,
-		const QString &newPath,
+	inline bool setFilePath(FILE_T *&file, QString &pathRef,
+		const QString &newPath, void (ObjectType::*onFilePathChanged)(),
+		const QMetaObject *fileMetaObject = nullptr);
+
+	template <typename FILE_T, typename ObjectType>
+	inline void updateFileByRef(FILE_T *&file, QString &pathRef,
 		void (ObjectType::*onFilePathChanged)(),
 		const QMetaObject *fileMetaObject = nullptr);
 
 	template <typename FILE_T, typename ObjectType>
-	inline void updateFileByRef(FILE_T * &file,
-								QString & pathRef,
-								void (ObjectType::*onFilePathChanged)(),
-								const QMetaObject *fileMetaObject = nullptr);
-
-	template <typename FILE_T, typename ObjectType>
-	inline void connectFile(FILE_T * &file,
-							void (ObjectType::*onFilePathChanged)());
+	inline void connectFile(
+		FILE_T *&file, void (ObjectType::*onFilePathChanged)());
 
 	template <typename FILE_T>
-	inline void disconnectFileByRef(FILE_T * &file);
+	inline void disconnectFileByRef(FILE_T *&file);
 
 	QString getRelativeFilePath(const QString &path) const;
 	QString getAbsoluteFilePath(const QString &path) const;
@@ -98,7 +94,7 @@ protected:
 	AbstractProjectDirectory *topDirectory;
 	Directory *directory;
 
-	std::map<QObject *, std::vector<QMetaObject::Connection> > connections;
+	std::map<QObject *, std::vector<QMetaObject::Connection>> connections;
 
 private:
 	template <typename FILE_T>
@@ -115,12 +111,14 @@ private:
 	void objectDestroyed(QObject *object);
 	void connectProjectGroup();
 	void disconnectProjectGroup();
-	void updateDirectories(AbstractProjectDirectory *topDirectory,
-						   Directory *directory);
+	void updateDirectories(
+		AbstractProjectDirectory *topDirectory, Directory *directory);
 };
 
 template <typename OBJECT>
-class DirectoryLinker : public OBJECT, public BaseDirectoryLinker
+class DirectoryLinker
+	: public OBJECT
+	, public BaseDirectoryLinker
 {
 protected:
 	typedef DirectoryLinker Inherited;
@@ -131,20 +129,16 @@ template <typename FILE_T>
 FILE_T *BaseDirectoryLinker::castToFile(
 	QObject *object, const QMetaObject *fileMetaObject)
 {
-	return dynamic_cast<FILE_T *>((nullptr != fileMetaObject)
-								  ? fileMetaObject->cast(object)
-								  : object);
+	return dynamic_cast<FILE_T *>(
+		(nullptr != fileMetaObject) ? fileMetaObject->cast(object) : object);
 }
 
 template <typename FILE_T, typename ObjectType>
-void BaseDirectoryLinker::updateFileByRef(
-	FILE_T * &file, QString &pathRef,
-	void (ObjectType::*onFilePathChanged)(),
-	const QMetaObject *fileMetaObject)
+void BaseDirectoryLinker::updateFileByRef(FILE_T *&file, QString &pathRef,
+	void (ObjectType::*onFilePathChanged)(), const QMetaObject *fileMetaObject)
 {
-	auto newFile = castToFile<FILE_T>(
-			getFileSystemItemForPath(
-				pathRef), fileMetaObject);
+	auto newFile =
+		castToFile<FILE_T>(getFileSystemItemForPath(pathRef), fileMetaObject);
 	if (newFile != file)
 	{
 		disconnectFileByRef(file);
@@ -157,16 +151,15 @@ void BaseDirectoryLinker::updateFileByRef(
 }
 
 template <typename FILE_T>
-void BaseDirectoryLinker::disconnectFileByRef(FILE_T * &file)
+void BaseDirectoryLinker::disconnectFileByRef(FILE_T *&file)
 {
 	disconnectFile(file);
 	file = nullptr;
 }
 
 template <typename FILE_T, typename ObjectType>
-bool BaseDirectoryLinker::setFilePath(
-	FILE_T * &file, QString &pathRef, const QString &newPath,
-	void (ObjectType::*onFilePathChanged)(),
+bool BaseDirectoryLinker::setFilePath(FILE_T *&file, QString &pathRef,
+	const QString &newPath, void (ObjectType::*onFilePathChanged)(),
 	const QMetaObject *fileMetaObject)
 {
 	auto thiz = dynamic_cast<ObjectType *>(this);
@@ -189,8 +182,8 @@ bool BaseDirectoryLinker::setFilePath(
 }
 
 template <typename FILE_T, typename ObjectType>
-void BaseDirectoryLinker::connectFile(FILE_T * &file,
-									  void (ObjectType::*onFilePathChanged)())
+void BaseDirectoryLinker::connectFile(
+	FILE_T *&file, void (ObjectType::*onFilePathChanged)())
 {
 	if (nullptr != file)
 	{
@@ -200,52 +193,39 @@ void BaseDirectoryLinker::connectFile(FILE_T * &file,
 		auto thiz = dynamic_cast<ObjectType *>(this);
 		Q_ASSERT(nullptr != thiz);
 
-		addConnectionFor(
-			file, QObject::connect(
-				file, &QObject::destroyed,
+		addConnectionFor(file,
+			QObject::connect(file, &QObject::destroyed,
 				std::bind(&BaseDirectoryLinker::objectDestroyed, this, file)));
 
-		addConnectionFor(
-			file,
+		addConnectionFor(file,
 			QObject::connect(
-				file, &AbstractFile::pathChanged, thiz,
+				file, &AbstractFile::pathChanged, thiz, onFilePathChanged));
+		addConnectionFor(file,
+			QObject::connect(topDirectory,
+				&AbstractProjectDirectory::changedSearchPaths, thiz,
 				onFilePathChanged));
-		addConnectionFor(
-			file, QObject::connect(
-				topDirectory,
-				&AbstractProjectDirectory::changedSearchPaths,
-				thiz, onFilePathChanged));
 
-		auto updateFileLinksCB = std::bind(
-				&BaseDirectoryLinker::updateFileLinks, thiz, false);
+		auto updateFileLinksCB =
+			std::bind(&BaseDirectoryLinker::updateFileLinks, thiz, false);
 
-		addConnectionFor(
-			file,
+		addConnectionFor(file,
 			QObject::connect(
-				file, &AbstractFile::fileOpened,
-				updateFileLinksCB));
-		addConnectionFor(
-			file,
+				file, &AbstractFile::fileOpened, updateFileLinksCB));
+		addConnectionFor(file,
 			QObject::connect(
-				file, &AbstractFile::fileReloaded,
-				updateFileLinksCB));
-		addConnectionFor(
-			file,
+				file, &AbstractFile::fileReloaded, updateFileLinksCB));
+		addConnectionFor(file,
 			QObject::connect(
-				file, &AbstractFile::fileClosed,
-				updateFileLinksCB));
-		addConnectionFor(
-			file,
+				file, &AbstractFile::fileClosed, updateFileLinksCB));
+		addConnectionFor(file,
 			QObject::connect(
-				file, &AbstractFile::dataChanged,
-				updateFileLinksCB));
+				file, &AbstractFile::dataChanged, updateFileLinksCB));
 	}
 }
 
 template <typename FILE_T, typename ObjectType>
-bool BaseDirectoryLinker::updateFileWithObject(
-	FILE_T * &file, QObject *object, QString &pathPef,
-	void (ObjectType::*onFilePathChanged)(),
+bool BaseDirectoryLinker::updateFileWithObject(FILE_T *&file, QObject *object,
+	QString &pathPef, void (ObjectType::*onFilePathChanged)(),
 	const QMetaObject *fileMetaObject)
 {
 	if (nullptr == file)
@@ -258,9 +238,10 @@ bool BaseDirectoryLinker::updateFileWithObject(
 
 			if (!ok)
 			{
-				ok = (0 == QString::compare(
-						  topDirectory->getAbsoluteFilePathFor(pathPef, true),
-						  newFile->getFilePath(), Qt::CaseInsensitive));
+				ok = (0 ==
+					QString::compare(
+						topDirectory->getAbsoluteFilePathFor(pathPef, true),
+						newFile->getFilePath(), Qt::CaseInsensitive));
 			}
 
 			if (ok)
@@ -298,5 +279,4 @@ bool DirectoryLinker<OBJECT>::assignBegin(QObject *source, bool top)
 
 	return OBJECT::assignBegin(source, top);
 }
-
 }

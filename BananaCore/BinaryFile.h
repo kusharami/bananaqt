@@ -31,8 +31,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
-class BinaryData : public Object, public QByteArray
+class BinaryData
+	: public Object
+	, public QByteArray
 {
 	Q_OBJECT
 };
@@ -51,5 +52,4 @@ protected:
 	virtual bool doSave(QIODevice *device) override;
 	virtual bool doLoad(QIODevice *device) override;
 };
-
 }

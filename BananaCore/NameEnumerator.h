@@ -55,8 +55,8 @@ public:
 	inline void setSeparator(const QString &value);
 
 	void separateNameAndNumber(const QString &fullName,
-							   QString *resultNamePtr = nullptr,
-							   QString *resultNumberPtr = nullptr) const;
+		QString *resultNamePtr = nullptr,
+		QString *resultNumberPtr = nullptr) const;
 
 	virtual QString uniqueNameFor(const QString &name) const override;
 	virtual bool isValid() const override;
@@ -87,7 +87,6 @@ void NameEnumerator::setSeparator(const QString &value)
 {
 	mSeparator = value;
 }
-
 }
 
 Q_DECLARE_METATYPE(Banana::NameEnumerator::Type)

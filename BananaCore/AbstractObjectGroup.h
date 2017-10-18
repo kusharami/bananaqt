@@ -28,7 +28,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 struct IChildFilter;
 class AbstractObjectGroup
 {
@@ -51,5 +50,4 @@ protected:
 	virtual void sortChildren(QObjectList &children);
 	virtual void deleteChild(QObject *child);
 };
-
 }

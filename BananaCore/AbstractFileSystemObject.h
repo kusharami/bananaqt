@@ -31,7 +31,6 @@ class QObject;
 
 namespace Banana
 {
-
 class AbstractDirectory;
 class AbstractFileSystemObject
 {
@@ -77,5 +76,4 @@ QObject *AbstractFileSystemObject::getObject() const
 {
 	return thiz;
 }
-
 }

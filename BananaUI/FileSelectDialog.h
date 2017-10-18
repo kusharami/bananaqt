@@ -44,16 +44,15 @@ class FileSelectDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit FileSelectDialog(Banana::ProjectDirectoryModel *model,
-							  QWidget *parent = nullptr);
+	explicit FileSelectDialog(
+		Banana::ProjectDirectoryModel *model, QWidget *parent = nullptr);
 	virtual ~FileSelectDialog();
 
 	QString getSelectedFilePath() const;
 	QStringList getSelectedFilePathList(bool relative = false) const;
 
 	bool execute(const QMetaObject *filter = nullptr,
-				 const QString &file_path = QString(),
-				 bool multiselect = false);
+		const QString &file_path = QString(), bool multiselect = false);
 	bool executeMultiSelect(const QMetaObject *filter = nullptr);
 
 	virtual void accept() override;
@@ -104,5 +103,4 @@ private:
 	bool dirs;
 	bool popup;
 };
-
 }

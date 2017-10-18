@@ -35,14 +35,12 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class ComboBox : public QComboBox
 {
 public:
 	ComboBox(QWidget *parent)
 		: QComboBox(parent)
 	{
-
 	}
 
 	virtual void showPopup() override
@@ -50,7 +48,6 @@ public:
 		view()->setMinimumWidth(view()->sizeHintForColumn(0));
 		QComboBox::showPopup();
 	}
-
 };
 
 ComboBoxWithToolButton::ComboBoxWithToolButton(QWidget *parent)
@@ -101,5 +98,4 @@ void ComboBoxWithToolButton::applyQtnInplaceInfo(QtnInplaceInfo *inplaceInfo)
 		}
 	}
 }
-
 }

@@ -55,11 +55,9 @@ public:
 	virtual ~SearchPathsTableModel();
 
 	virtual int rowCount(
-		const QModelIndex &index =
-			QModelIndex()) const override;
+		const QModelIndex &index = QModelIndex()) const override;
 	virtual int columnCount(
-		const QModelIndex &index =
-			QModelIndex()) const override;
+		const QModelIndex &index = QModelIndex()) const override;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 	virtual QVariant data(const QModelIndex &index, int role) const override;
 
@@ -69,8 +67,7 @@ public:
 	Banana::Directory *getDirectoryAtIndex(const QModelIndex &index) const;
 
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-							  int row, int column,
-							  const QModelIndex &parent) override;
+		int row, int column, const QModelIndex &parent) override;
 	virtual Qt::DropActions supportedDropActions() const override;
 	virtual Qt::DropActions supportedDragActions() const override;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
@@ -85,8 +82,8 @@ signals:
 	void shouldReselect();
 
 protected:
-	virtual bool removeRows(int row, int count,
-							const QModelIndex &parent) override;
+	virtual bool removeRows(
+		int row, int count, const QModelIndex &parent) override;
 
 private:
 	void load();
@@ -108,7 +105,7 @@ class SearchPathsDialog : public QDialog
 
 public:
 	explicit SearchPathsDialog(Banana::ProjectDirectoryModel *project_dir_model,
-							   QWidget *parent = nullptr);
+		QWidget *parent = nullptr);
 	virtual ~SearchPathsDialog();
 
 	virtual void accept() override;
@@ -141,5 +138,4 @@ private:
 	SearchPathsTableModel *paths_model;
 	bool popup;
 };
-
 }

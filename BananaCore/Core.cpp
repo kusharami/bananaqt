@@ -28,7 +28,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 QVariant ConvertToUserVariant(int user_type, const QVariant &from)
 {
 	auto &conversion = getConversion();
@@ -63,5 +62,4 @@ UserTypeConversionMap &getConversion()
 	static UserTypeConversionMap result;
 	return result;
 }
-
 }

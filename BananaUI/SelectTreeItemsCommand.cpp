@@ -31,17 +31,14 @@ SOFTWARE.
 
 namespace Banana
 {
-
 SelectTreeItemsCommand::SelectTreeItemsCommand(BaseTreeView *tree)
 	: tree(tree)
 	, skipRedoOnPush(true)
 {
-
 }
 
-SelectTreeItemsCommand::SelectTreeItemsCommand(
-	BaseTreeView *tree, const QObjectSet &oldSelected,
-	const QObjectSet &newSelected)
+SelectTreeItemsCommand::SelectTreeItemsCommand(BaseTreeView *tree,
+	const QObjectSet &oldSelected, const QObjectSet &newSelected)
 	: tree(tree)
 	, skipRedoOnPush(true)
 {
@@ -102,10 +99,7 @@ void SelectTreeItemsCommand::toPaths(const QObjectSet &source, Paths &output)
 		if (nullptr != topAncestor)
 		{
 			output.push_back(
-				{
-					topAncestor,
-					Utils::GetNamesChain(topAncestor, object)
-				});
+				{ topAncestor, Utils::GetNamesChain(topAncestor, object) });
 		}
 	}
 }
@@ -122,5 +116,4 @@ void SelectTreeItemsCommand::select(const Paths &toSelect)
 
 	tree->select(toSelectSet);
 }
-
 }

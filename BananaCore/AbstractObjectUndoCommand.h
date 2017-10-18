@@ -29,8 +29,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
-class AbstractObjectUndoCommand : public QObject, public QUndoCommand
+class AbstractObjectUndoCommand
+	: public QObject
+	, public QUndoCommand
 {
 public:
 	AbstractObjectUndoCommand(QObject *object);
@@ -58,5 +59,4 @@ protected:
 	int fetchIndex;
 	bool skipRedoOnPush;
 };
-
 }

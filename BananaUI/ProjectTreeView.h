@@ -92,5 +92,4 @@ private:
 	Banana::ProjectDirectoryModel *projectDirModel;
 	Banana::ProjectDirectoryFilterModel *filterModel;
 };
-
 }

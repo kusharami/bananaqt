@@ -33,7 +33,9 @@ SOFTWARE.
 
 namespace Banana
 {
-class OpenedFilesPathGroup : public QObject, public AbstractObjectGroup
+class OpenedFilesPathGroup
+	: public QObject
+	, public AbstractObjectGroup
 {
 public:
 	OpenedFilesPathGroup(OpenedFiles *parent);
@@ -83,11 +85,8 @@ void OpenedFiles::registerFile(const QString &filePath, QObject *data)
 
 	if (file_map.end() == it)
 	{
-		it =
-			file_map.insert(
-				std::pair<QString, Info>(
-					filePath,
-					{ data, 0 })).first;
+		it = file_map.insert(std::pair<QString, Info>(filePath, { data, 0 }))
+				 .first;
 		addPathInternal(filePath);
 	}
 
@@ -100,9 +99,8 @@ void OpenedFiles::registerFile(const QString &filePath, QObject *data)
 		if (path.isEmpty())
 			path = ".";
 
-		auto pathGroup = findChild<OpenedFilesPathGroup *>(
-				path,
-				Qt::FindDirectChildrenOnly);
+		auto pathGroup =
+			findChild<OpenedFilesPathGroup *>(path, Qt::FindDirectChildrenOnly);
 
 		if (nullptr == pathGroup)
 		{
@@ -116,18 +114,15 @@ void OpenedFiles::registerFile(const QString &filePath, QObject *data)
 
 		if (nullptr != obj)
 		{
-			QObject::connect(
-				obj, &Object::beforeDestroy,
-				this, &OpenedFiles::onBeforeDestroy);
+			QObject::connect(obj, &Object::beforeDestroy, this,
+				&OpenedFiles::onBeforeDestroy);
 
-			QObject::connect(
-				obj, &Object::parentChanged,
-				this, &OpenedFiles::onFileDataParentChanged);
+			QObject::connect(obj, &Object::parentChanged, this,
+				&OpenedFiles::onFileDataParentChanged);
 		} else
 		{
 			QObject::connect(
-				data, &QObject::destroyed,
-				this, &OpenedFiles::onBeforeDestroy);
+				data, &QObject::destroyed, this, &OpenedFiles::onBeforeDestroy);
 		}
 
 		resetChildren();
@@ -159,8 +154,7 @@ QObject *OpenedFiles::unregisterFile(
 		{
 			removePathInternal(filePath);
 			file_map.erase(it);
-		} else
-		if (nullptr != refCountPtr)
+		} else if (nullptr != refCountPtr)
 			*refCountPtr = it->second.ref_count;
 	}
 
@@ -313,8 +307,7 @@ void OpenedFiles::watchFile(AbstractFile *file, bool yes)
 	if (file->isSymLink())
 	{
 		watch(file->getFilePath(), yes);
-	} else
-	if (yes)
+	} else if (yes)
 	{
 		addPathInternal(QFileInfo(file->getFilePath()).canonicalPath());
 	}
@@ -350,17 +343,14 @@ void OpenedFiles::onFileDataParentChanged()
 	if (nullptr != obj)
 	{
 		QObject::disconnect(
-			obj, &Object::beforeDestroy,
-			this, &OpenedFiles::onBeforeDestroy);
+			obj, &Object::beforeDestroy, this, &OpenedFiles::onBeforeDestroy);
 
-		QObject::disconnect(
-			obj, &Object::parentChanged,
-			this, &OpenedFiles::onFileDataParentChanged);
+		QObject::disconnect(obj, &Object::parentChanged, this,
+			&OpenedFiles::onFileDataParentChanged);
 	} else
 	{
 		QObject::disconnect(
-			sender(), &QObject::destroyed,
-			this, &OpenedFiles::onBeforeDestroy);
+			sender(), &QObject::destroyed, this, &OpenedFiles::onBeforeDestroy);
 	}
 }
 
@@ -383,12 +373,10 @@ void OpenedFiles::resetWatcher(bool copy)
 		}
 	}
 
-	QObject::connect(
-		watcher, &QFileSystemWatcher::fileChanged,
-		this, &OpenedFiles::filesChanged);
-	QObject::connect(
-		watcher, &QFileSystemWatcher::directoryChanged,
-		this, &OpenedFiles::filesChanged);
+	QObject::connect(watcher, &QFileSystemWatcher::fileChanged, this,
+		&OpenedFiles::filesChanged);
+	QObject::connect(watcher, &QFileSystemWatcher::directoryChanged, this,
+		&OpenedFiles::filesChanged);
 }
 
 void OpenedFiles::removePathInternal(const QString &path)

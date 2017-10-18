@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 enum class DescendantState
 {
 	Added,
@@ -51,7 +50,7 @@ public:
 	virtual QString getFileName() const override;
 
 	AbstractFileSystemObject *findFileSystemObject(
-			const QString &path, bool linked);
+		const QString &path, bool linked);
 
 	template <typename T>
 	inline T *findFileT(const QString &path, bool linked = false);
@@ -70,5 +69,4 @@ T *AbstractDirectory::findFileT(const QString &path, bool linked)
 {
 	return dynamic_cast<T *>(findFileSystemObject(path, linked));
 }
-
 }

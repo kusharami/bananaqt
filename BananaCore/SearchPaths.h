@@ -36,7 +36,7 @@ class SearchPaths : public QObject
 
 public:
 	explicit SearchPaths(Banana::AbstractProjectDirectory *project_dir,
-						 QObject *parent = nullptr);
+		QObject *parent = nullptr);
 
 	Directory *registerPath(const QString &path, int order) const;
 	void unregisterPath(const QString &path) const;
@@ -59,7 +59,6 @@ Banana::AbstractProjectDirectory *SearchPaths::getProjectDirectory() const
 {
 	return project_dir;
 }
-
 }
 
 Q_DECLARE_METATYPE(Banana::SearchPaths *)

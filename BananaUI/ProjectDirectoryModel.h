@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class AbstractProjectDirectory;
 class Directory;
 class AbstractFile;
@@ -70,16 +69,15 @@ public:
 	virtual QVariant data(const QModelIndex &index, int role) const override;
 
 	virtual bool setData(const QModelIndex &index, const QVariant &value,
-						 int role = Qt::EditRole) override;
+		int role = Qt::EditRole) override;
 
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-							  int row, int column,
-							  const QModelIndex &parent) override;
+		int row, int column, const QModelIndex &parent) override;
 
 	virtual Qt::DropActions supportedDragActions() const override;
 	virtual Qt::DropActions supportedDropActions() const override;
-	virtual Qt::DropAction convertDropAction(const QMimeData *mimeData,
-											 Qt::DropAction action) const;
+	virtual Qt::DropAction convertDropAction(
+		const QMimeData *mimeData, Qt::DropAction action) const;
 
 	void setFileTypeInfo(const QString &extension, const FileTypeInfo &info);
 	void setGraphicsFileMetaObject(const QMetaObject *metaObject);
@@ -118,5 +116,4 @@ AbstractProjectDirectory *ProjectDirectoryModel::getProjectDirectory() const
 {
 	return projectDir;
 }
-
 }

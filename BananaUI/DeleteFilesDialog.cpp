@@ -46,9 +46,8 @@ DeleteFilesDialog::DeleteFilesDialog(QWidget *parent)
 {
 	ui->setupUi(this);
 
-	setWindowFlags(
-		(windowFlags() & ~(Qt::WindowContextHelpButtonHint))
-		| Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
+		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 }
 
 DeleteFilesDialog::~DeleteFilesDialog()
@@ -57,8 +56,7 @@ DeleteFilesDialog::~DeleteFilesDialog()
 }
 
 bool DeleteFilesDialog::execute(
-	const QModelIndexList &to_delete,
-	ProjectDirectoryModel *source_model)
+	const QModelIndexList &to_delete, ProjectDirectoryModel *source_model)
 {
 	ui->listView->setModel(nullptr);
 	delete list_model;
@@ -78,8 +76,7 @@ void DeleteFilesDialog::accept()
 		QDialog::accept();
 }
 
-DeleteFilesListModel::DeleteFilesListModel(
-	ProjectDirectoryModel *source_model,
+DeleteFilesListModel::DeleteFilesListModel(ProjectDirectoryModel *source_model,
 	const QModelIndexList &to_delete, QObject *parent)
 	: QAbstractListModel(parent)
 	, source_model(source_model)
@@ -120,9 +117,9 @@ QVariant DeleteFilesListModel::data(const QModelIndex &index, int role) const
 					to_delete.at(index.row()).file_info.filePath());
 
 			case Qt::CheckStateRole:
-				return QVariant(
-					to_delete.at(
-						index.row()).checked ? Qt::Checked : Qt::Unchecked);
+				return QVariant(to_delete.at(index.row()).checked
+						? Qt::Checked
+						: Qt::Unchecked);
 
 			default:
 				break;
@@ -133,8 +130,7 @@ QVariant DeleteFilesListModel::data(const QModelIndex &index, int role) const
 }
 
 bool DeleteFilesListModel::setData(
-	const QModelIndex &index,
-	const QVariant &value, int role)
+	const QModelIndex &index, const QVariant &value, int role)
 {
 	if (index.isValid() && role == Qt::CheckStateRole)
 	{
@@ -173,18 +169,17 @@ bool DeleteFilesListModel::setData(
 
 				if (entry.file_info.isDir() && !entry.file_info.isSymLink())
 				{
-					QString pfx(QDir::cleanPath(
-									entry.file_info.filePath()) + "/");
+					QString pfx(
+						QDir::cleanPath(entry.file_info.filePath()) + "/");
 
 					if (!entry.checked)
 					{
-						for (auto it = to_delete.begin();
-							 it != to_delete.end();
+						for (auto it = to_delete.begin(); it != to_delete.end();
 							 ++it)
 						{
-							if (&*it != &entry
-								&& QDir::cleanPath(it->file_info.path()).
-								startsWith(pfx, Qt::CaseInsensitive))
+							if (&*it != &entry &&
+								QDir::cleanPath(it->file_info.path())
+									.startsWith(pfx, Qt::CaseInsensitive))
 							{
 								if (!it->checked)
 									return true;
@@ -195,13 +190,12 @@ bool DeleteFilesListModel::setData(
 					int start_index = -1;
 					int end_index = -1;
 
-					for (auto it = to_delete.begin();
-						 it != to_delete.end();
+					for (auto it = to_delete.begin(); it != to_delete.end();
 						 ++it)
 					{
-						if (&*it != &entry
-							&& QDir::cleanPath(it->file_info.filePath()).
-							startsWith(pfx, Qt::CaseInsensitive))
+						if (&*it != &entry &&
+							QDir::cleanPath(it->file_info.filePath())
+								.startsWith(pfx, Qt::CaseInsensitive))
 						{
 							end_index =
 								static_cast<int>(it - to_delete.begin());
@@ -210,20 +204,18 @@ bool DeleteFilesListModel::setData(
 								start_index = end_index;
 
 							it->checked = entry.checked;
-						} else
-						if (start_index >= 0)
+						} else if (start_index >= 0)
 						{
-							emit dataChanged(this->index(
-												 start_index), this->index(
-												 end_index));
+							emit dataChanged(this->index(start_index),
+								this->index(end_index));
 
 							start_index = -1;
 						}
 					}
 
 					if (start_index >= 0)
-						emit dataChanged(this->index(start_index), this->index(
-											 end_index));
+						emit dataChanged(
+							this->index(start_index), this->index(end_index));
 				}
 
 				return true;
@@ -320,7 +312,7 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 		if (deleted)
 		{
 			it = std::vector<EntryToDelete>::reverse_iterator(
-					to_delete.erase(it.base() - 1));
+				to_delete.erase(it.base() - 1));
 			deletedCount++;
 		} else
 			++it;
@@ -330,8 +322,7 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 
 	if (0 == checkedCount)
 	{
-		QMessageBox::warning(
-			nullptr, QCoreApplication::applicationName(),
+		QMessageBox::warning(nullptr, QCoreApplication::applicationName(),
 			tr("Nothing checked!"));
 		return false;
 	}
@@ -351,8 +342,7 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 			{
 				link_entry_ptr = &entry;
 				links_count++;
-			} else
-			if (entry.file_info.isDir())
+			} else if (entry.file_info.isDir())
 			{
 				dir_entry_ptr = &entry;
 				dirs_count++;
@@ -364,8 +354,7 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 		}
 	}
 
-	if (file_entry_ptr == nullptr &&
-		link_entry_ptr == nullptr &&
+	if (file_entry_ptr == nullptr && link_entry_ptr == nullptr &&
 		dir_entry_ptr == nullptr)
 	{
 		return true;
@@ -373,36 +362,33 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 
 	QString message;
 	QString message_fmt1 = tr("Unable to delete %1 '%2'!");
-	QString message_fmt2 = tr(
-			"Unable to delete %1 '%2' and some "
-			"other files and/or directories!");
+	QString message_fmt2 = tr("Unable to delete %1 '%2' and some "
+							  "other files and/or directories!");
 
 	if (nullptr != file_entry_ptr)
 	{
-		auto path = QDir::toNativeSeparators(
-				file_entry_ptr->file_info.filePath());
+		auto path =
+			QDir::toNativeSeparators(file_entry_ptr->file_info.filePath());
 		QString file_str = tr("file", "Unable to delete");
 
 		if (files_count == 1 && links_count == 0 && dirs_count == 0)
 			message = message_fmt1.arg(file_str, path);
 		else
 			message = message_fmt2.arg(file_str, path);
-	} else
-	if (nullptr != link_entry_ptr)
+	} else if (nullptr != link_entry_ptr)
 	{
-		auto path = QDir::toNativeSeparators(
-				link_entry_ptr->file_info.filePath());
+		auto path =
+			QDir::toNativeSeparators(link_entry_ptr->file_info.filePath());
 		QString link_str = tr("link", "Unable to delete");
 
 		if (files_count == 0 && links_count == 1 && dirs_count == 0)
 			message = message_fmt1.arg(link_str, path);
 		else
 			message = message_fmt2.arg(link_str, path);
-	} else
-	if (nullptr != dir_entry_ptr)
+	} else if (nullptr != dir_entry_ptr)
 	{
-		auto path = QDir::toNativeSeparators(
-				dir_entry_ptr->file_info.filePath());
+		auto path =
+			QDir::toNativeSeparators(dir_entry_ptr->file_info.filePath());
 		QString dir_str = tr("directory", "Unable to delete");
 
 		if (files_count == 0 && links_count == 0 && dirs_count == 1)
@@ -412,8 +398,7 @@ bool DeleteFilesListModel::deleteCheckedEntries()
 	}
 
 	QMessageBox::critical(
-		nullptr, QCoreApplication::applicationName(),
-		message);
+		nullptr, QCoreApplication::applicationName(), message);
 
 	return false;
 }
@@ -433,9 +418,8 @@ void DeleteFilesListModel::addEntryToDelete(
 {
 	using namespace std::placeholders;
 
-	auto it = std::find_if(
-			to_delete.begin(), to_delete.end(),
-			std::bind(&DeleteFilesListModel::checkEntryIsAdded, entry, _1));
+	auto it = std::find_if(to_delete.begin(), to_delete.end(),
+		std::bind(&DeleteFilesListModel::checkEntryIsAdded, entry, _1));
 
 	if (it == to_delete.end())
 	{
@@ -443,11 +427,11 @@ void DeleteFilesListModel::addEntryToDelete(
 
 		if (entry.isDir() && !entry.isSymLink())
 		{
-			auto entries = QDir(entry.filePath()).entryInfoList(
-					QDir::Dirs | QDir::Files |
-					QDir::Readable | QDir::Writable | QDir::Executable |
-					QDir::Modified | QDir::Hidden | QDir::System |
-					QDir::NoDotAndDotDot);
+			auto entries =
+				QDir(entry.filePath())
+					.entryInfoList(QDir::Dirs | QDir::Files | QDir::Readable |
+						QDir::Writable | QDir::Executable | QDir::Modified |
+						QDir::Hidden | QDir::System | QDir::NoDotAndDotDot);
 
 			for (auto &entry : entries)
 			{
@@ -461,19 +445,16 @@ void DeleteFilesListModel::finalizeEntries()
 {
 	using namespace std::placeholders;
 
-	std::sort(
-		to_delete.begin(),
-		to_delete.end(), &DeleteFilesListModel::entryLessThan);
+	std::sort(to_delete.begin(), to_delete.end(),
+		&DeleteFilesListModel::entryLessThan);
 
 	for (auto &entry : to_delete)
 	{
 		QFileInfo entryParentInfo(entry.file_info.path());
 
-		auto it = std::find_if(
-				to_delete.begin(), to_delete.end(),
-				std::bind(
-					&DeleteFilesListModel::checkEntryIsAdded,
-					std::cref(entryParentInfo), _1));
+		auto it = std::find_if(to_delete.begin(), to_delete.end(),
+			std::bind(&DeleteFilesListModel::checkEntryIsAdded,
+				std::cref(entryParentInfo), _1));
 
 		if (it != to_delete.end())
 			entry.parent_index = static_cast<int>(it - to_delete.begin());
@@ -536,17 +517,14 @@ bool DeleteFilesListModel::canDeleteDir(QObject *dir)
 bool DeleteFilesListModel::entryLessThan(
 	const EntryToDelete &a, const EntryToDelete &b)
 {
-	return QString::compare(
-		a.file_info.filePath(),
-		b.file_info.filePath(), Qt::CaseInsensitive) < 0;
+	return QString::compare(a.file_info.filePath(), b.file_info.filePath(),
+			   Qt::CaseInsensitive) < 0;
 }
 
 bool DeleteFilesListModel::checkEntryIsAdded(
 	const QFileInfo &entry, const EntryToDelete &check)
 {
-	return (QString::compare(
-				entry.filePath(),
-				check.file_info.filePath(),
+	return (QString::compare(entry.filePath(), check.file_info.filePath(),
 				Qt::CaseInsensitive) == 0);
 }
 

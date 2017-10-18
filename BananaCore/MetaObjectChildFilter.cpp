@@ -28,11 +28,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
 MetaObjectChildFilter::MetaObjectChildFilter(const QMetaObject *meta_object)
 	: meta_object(meta_object)
 {
-
 }
 
 bool MetaObjectChildFilter::filterMatch(QObject *object) const
@@ -54,5 +52,4 @@ void MetaObjectChildFilter::setMetaObject(const QMetaObject *value)
 {
 	meta_object = value;
 }
-
 }

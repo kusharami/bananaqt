@@ -28,10 +28,8 @@ SOFTWARE.
 
 namespace Banana
 {
-
 UniqueNameScope::UniqueNameScope(const QMetaObject *meta_object,
-								 Qt::CaseSensitivity sensitivity,
-								 QObject *parent)
+	Qt::CaseSensitivity sensitivity, QObject *parent)
 	: QObject(parent)
 	, meta_object(meta_object)
 	, sensitivity(sensitivity)
@@ -55,9 +53,8 @@ void UniqueNameScope::setCaseSensitivity(Qt::CaseSensitivity value)
 
 void UniqueNameScope::connectObject(QObject *object)
 {
-	if (nullptr != object
-		&& (nullptr == meta_object
-			|| nullptr != meta_object->cast(object)))
+	if (nullptr != object &&
+		(nullptr == meta_object || nullptr != meta_object->cast(object)))
 	{
 		internalConnectObject(object);
 
@@ -67,16 +64,15 @@ void UniqueNameScope::connectObject(QObject *object)
 
 void UniqueNameScope::disconnectObject(QObject *object)
 {
-	if (nullptr != object
-		&& (nullptr == meta_object
-			|| nullptr != meta_object->cast(object)))
+	if (nullptr != object &&
+		(nullptr == meta_object || nullptr != meta_object->cast(object)))
 	{
 		internalDisconnectObject(object);
 	}
 }
 
-QObject *UniqueNameScope::findSibling(QObject *object,
-									  const QString &find_name) const
+QObject *UniqueNameScope::findSibling(
+	QObject *object, const QString &find_name) const
 {
 	auto parent = object->parent();
 
@@ -84,8 +80,8 @@ QObject *UniqueNameScope::findSibling(QObject *object,
 	{
 		for (auto sibling : parent->children())
 		{
-			if (sibling != object
-				&& checkSiblingNameForObject(sibling, find_name, object))
+			if (sibling != object &&
+				checkSiblingNameForObject(sibling, find_name, object))
 			{
 				return sibling;
 			}
@@ -95,9 +91,8 @@ QObject *UniqueNameScope::findSibling(QObject *object,
 	return nullptr;
 }
 
-bool UniqueNameScope::checkSiblingNameForObject(QObject *sibling,
-												const QString &name,
-												QObject *) const
+bool UniqueNameScope::checkSiblingNameForObject(
+	QObject *sibling, const QString &name, QObject *) const
 {
 	if (nullptr == meta_object || nullptr != meta_object->cast(sibling))
 		return (0 == name.compare(sibling->objectName(), sensitivity));
@@ -180,9 +175,8 @@ void UniqueNameScope::setObjectName(QObject *object, const QString &name)
 					for (int j = len - 1; j >= 0; j--)
 					{
 						bool ok;
-						QString::fromRawData(
-							&new_name.constData()[j],
-							len - j).toUInt(&ok);
+						QString::fromRawData(&new_name.constData()[j], len - j)
+							.toUInt(&ok);
 
 						if (ok)
 							new_len--;
@@ -195,19 +189,18 @@ void UniqueNameScope::setObjectName(QObject *object, const QString &name)
 						auto number_separator = getNumberSeparator(object);
 						auto sep_len = number_separator.length();
 						auto check_index = new_len - sep_len;
-						if (sep_len > 0
-							&& check_index >= 0
-							&& number_separator ==
-							QString::fromRawData(
-								&new_name.constData()[
-									check_index], sep_len))
+						if (sep_len > 0 && check_index >= 0 &&
+							number_separator ==
+								QString::fromRawData(
+									&new_name.constData()[check_index],
+									sep_len))
 						{
 							new_len = check_index;
 						}
 					}
 
-					new_name_without_number = QString(
-							new_name.constData(), new_len);
+					new_name_without_number =
+						QString(new_name.constData(), new_len);
 				} else
 					new_name_without_number = new_name;
 			}
@@ -215,7 +208,7 @@ void UniqueNameScope::setObjectName(QObject *object, const QString &name)
 			if (number > 0)
 			{
 				new_name = getNumberedFormat(object).arg(
-						new_name_without_number, QString::number(number));
+					new_name_without_number, QString::number(number));
 			} else
 				new_name = new_name_without_number;
 
@@ -228,16 +221,13 @@ void UniqueNameScope::setObjectName(QObject *object, const QString &name)
 
 void UniqueNameScope::internalConnectObject(QObject *object)
 {
-	QObject::connect(
-		object, &QObject::objectNameChanged, this,
+	QObject::connect(object, &QObject::objectNameChanged, this,
 		&UniqueNameScope::onObjectNameChanged);
 }
 
 void UniqueNameScope::internalDisconnectObject(QObject *object)
 {
-	QObject::disconnect(
-		object, &QObject::objectNameChanged, this,
+	QObject::disconnect(object, &QObject::objectNameChanged, this,
 		&UniqueNameScope::onObjectNameChanged);
 }
-
 }

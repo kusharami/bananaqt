@@ -76,7 +76,9 @@ protected:
 };
 
 template <typename FILE_CLASS>
-class BaseFileRegistrator : public FILE_CLASS, public AbstractFileRegistrator
+class BaseFileRegistrator
+	: public FILE_CLASS
+	, public AbstractFileRegistrator
 {
 public:
 	typedef BaseFileRegistrator Inherited;
@@ -94,7 +96,10 @@ public:
 protected:
 	virtual void createData(bool *reused) override;
 	virtual void destroyData() override;
-	virtual QObject *doGetData() override { return data; }
+	virtual QObject *doGetData() override
+	{
+		return data;
+	}
 
 	virtual void changeFilePath(const QString &new_path) override;
 	virtual bool tryChangeFilePath(const QString &new_path) override;
@@ -117,12 +122,11 @@ BaseFileRegistrator<FILE_CLASS>::BaseFileRegistrator(const char *extension)
 	: FILE_CLASS(extension)
 	, AbstractFileRegistrator(this)
 {
-
 }
 
 template <typename FILE_CLASS>
-QString BaseFileRegistrator<FILE_CLASS>::getFixedName(const QString &source)
-const
+QString BaseFileRegistrator<FILE_CLASS>::getFixedName(
+	const QString &source) const
 {
 	QString result(source);
 	if (nullptr != namingPolicy)
@@ -180,8 +184,7 @@ void BaseFileRegistrator<FILE_CLASS>::changeFilePath(const QString &new_path)
 		QString oldCanonicalPath(FILE_CLASS::canonicalPath);
 		FILE_CLASS::changeFilePath(new_path);
 		AbstractFileRegistrator::updateFilePath(
-			oldCanonicalPath,
-			FILE_CLASS::canonicalPath);
+			oldCanonicalPath, FILE_CLASS::canonicalPath);
 		data->setObjectName(QFileInfo(FILE_CLASS::canonicalPath).baseName());
 	} else
 	{
@@ -209,7 +212,6 @@ template <typename FILE_CLASS, typename DATA_CLASS>
 FileRegistrator<FILE_CLASS, DATA_CLASS>::FileRegistrator(const char *extension)
 	: BaseFileRegistrator<FILE_CLASS>(extension)
 {
-
 }
 
 template <typename FILE_CLASS, typename DATA_CLASS>
@@ -217,5 +219,4 @@ QObject *FileRegistrator<FILE_CLASS, DATA_CLASS>::doCreateFileData() const
 {
 	return new DATA_CLASS;
 }
-
 }

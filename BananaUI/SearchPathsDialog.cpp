@@ -50,15 +50,10 @@ namespace Banana
 {
 static const QString kDragDropSearchPaths("Banana/DragDropSearchPaths");
 static const QStringList kDragDropMimeTypes(
-	{
-		"text/plain",
-		"text/uri-list",
-		kDragDropSearchPaths
-	});
+	{ "text/plain", "text/uri-list", kDragDropSearchPaths });
 
 SearchPathsDialog::SearchPathsDialog(
-	ProjectDirectoryModel *project_dir_model,
-	QWidget *parent)
+	ProjectDirectoryModel *project_dir_model, QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::SearchPathsDialog)
 	, project_dir_model(project_dir_model)
@@ -67,34 +62,29 @@ SearchPathsDialog::SearchPathsDialog(
 {
 	ui->setupUi(this);
 
-	setWindowFlags(
-		(windowFlags() & ~(Qt::WindowContextHelpButtonHint))
-		| Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
+		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 
-	QObject::connect(
-		project_dir_model, &ProjectDirectoryModel::projectDirectoryChanged,
-		this, &SearchPathsDialog::onProjectDirectoryChanged);
+	QObject::connect(project_dir_model,
+		&ProjectDirectoryModel::projectDirectoryChanged, this,
+		&SearchPathsDialog::onProjectDirectoryChanged);
 
-	QObject::connect(
-		paths_model, &SearchPathsTableModel::shouldReselect,
-		this, &SearchPathsDialog::applySavedPathSelection);
+	QObject::connect(paths_model, &SearchPathsTableModel::shouldReselect, this,
+		&SearchPathsDialog::applySavedPathSelection);
 
 	ui->tableView->horizontalHeader()->setSectionResizeMode(
 		QHeaderView::Stretch);
 	ui->tableView->setModel(paths_model);
 
-	QObject::connect(
-		ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged,
-		this, &SearchPathsDialog::onSelectionChanged);
+	QObject::connect(ui->tableView->selectionModel(),
+		&QItemSelectionModel::selectionChanged, this,
+		&SearchPathsDialog::onSelectionChanged);
 
 #ifdef Q_OS_MAC
 	Utils::addShortcutForAction(
-		this, QKeySequence(
-			Qt::Key_Backspace), ui->actionUnregisterSelected);
+		this, QKeySequence(Qt::Key_Backspace), ui->actionUnregisterSelected);
 #else
-	Utils::addShortcutForAction(
-		this,
-		ui->actionUnregisterSelected->shortcut(),
+	Utils::addShortcutForAction(this, ui->actionUnregisterSelected->shortcut(),
 		ui->actionUnregisterSelected);
 #endif
 }
@@ -254,7 +244,7 @@ void SearchPathsTableModel::registerPaths(const QStringList &paths, int order)
 						info.setFile(info.path());
 
 					auto dir = project_dir->addSearchPath(
-							info.filePath(), order, false);
+						info.filePath(), order, false);
 
 					if (nullptr != dir && dir != project_dir)
 					{
@@ -296,7 +286,7 @@ Qt::ItemFlags SearchPathsTableModel::flags(const QModelIndex &index) const
 		return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
 	return QAbstractTableModel::flags(index) | Qt::ItemIsUserCheckable |
-		   Qt::ItemIsDragEnabled;
+		Qt::ItemIsDragEnabled;
 }
 
 void SearchPathsTableModel::unregisterPaths(const QModelIndexList &indexes)
@@ -332,9 +322,8 @@ Directory *SearchPathsTableModel::getDirectoryAtIndex(
 	return nullptr;
 }
 
-bool SearchPathsTableModel::dropMimeData(
-	const QMimeData *data, Qt::DropAction action, int row, int,
-	const QModelIndex &parent)
+bool SearchPathsTableModel::dropMimeData(const QMimeData *data,
+	Qt::DropAction action, int row, int, const QModelIndex &parent)
 {
 	switch (action)
 	{
@@ -365,9 +354,8 @@ bool SearchPathsTableModel::dropMimeData(
 
 					for (auto ptr = item_ptr; ptr < end_ptr; ptr++, row++)
 					{
-						auto dir =
-							static_cast<Directory *>(reinterpret_cast<void *>(
-														 *ptr));
+						auto dir = static_cast<Directory *>(
+							reinterpret_cast<void *>(*ptr));
 						dirs.insert(dirs.begin() + row, dir);
 					}
 
@@ -386,12 +374,10 @@ bool SearchPathsTableModel::dropMimeData(
 						if (url.isLocalFile())
 							paths.push_back(url.toLocalFile());
 					}
-				} else
-				if (data->hasText())
+				} else if (data->hasText())
 				{
 					paths = data->text().split(
-							QRegExp(
-								"[\n\r]+"), QString::SkipEmptyParts);
+						QRegExp("[\n\r]+"), QString::SkipEmptyParts);
 				}
 
 				if (!paths.isEmpty())
@@ -430,10 +416,8 @@ QMimeData *SearchPathsTableModel::mimeData(const QModelIndexList &indexes) const
 	QByteArray bytes;
 
 	auto sorted_indexes = indexes;
-	std::sort(
-		sorted_indexes.begin(), sorted_indexes.end(),
-		[](const QModelIndex &a, const QModelIndex &b) -> bool
-		{
+	std::sort(sorted_indexes.begin(), sorted_indexes.end(),
+		[](const QModelIndex &a, const QModelIndex &b) -> bool {
 			return a.row() < b.row();
 		});
 
@@ -491,8 +475,7 @@ void SearchPathsTableModel::onDirectoryDestroyed(QObject *dir)
 }
 
 bool SearchPathsTableModel::removeRows(
-	int row, int count,
-	const QModelIndex &parent)
+	int row, int count, const QModelIndex &parent)
 {
 	if (count > 0 && internalDrop)
 	{
@@ -569,8 +552,7 @@ void SearchPathsTableModel::connectDirectory(Directory *dir, int order)
 {
 	Q_ASSERT(nullptr != dir);
 
-	QObject::connect(
-		dir, &QObject::destroyed, this,
+	QObject::connect(dir, &QObject::destroyed, this,
 		&SearchPathsTableModel::onDirectoryDestroyed);
 	dir->setSearchOrder(order);
 }
@@ -579,8 +561,7 @@ void SearchPathsTableModel::disconnectDirectory(Directory *dir)
 {
 	Q_ASSERT(nullptr != dir);
 
-	QObject::disconnect(
-		dir, &QObject::destroyed, this,
+	QObject::disconnect(dir, &QObject::destroyed, this,
 		&SearchPathsTableModel::onDirectoryDestroyed);
 }
 
@@ -625,11 +606,9 @@ void SearchPathsDialog::on_tableView_customContextMenuRequested(
 		} else
 		{
 			ui->actionCopyAbsolutePath->setText(
-				tr(
-					"Copy Selected Absolute Paths"));
+				tr("Copy Selected Absolute Paths"));
 			ui->actionCopyDirName->setText(
-				tr(
-					"Copy Names of Selected Directories"));
+				tr("Copy Names of Selected Directories"));
 		}
 
 		menu.addAction(ui->actionCopyAbsolutePath);
@@ -711,8 +690,7 @@ void SearchPathsDialog::on_actionUnregisterSelected_triggered()
 
 		if (indexes.count() > 0)
 		{
-			if (QMessageBox::question(
-					this, QCoreApplication::applicationName(),
+			if (QMessageBox::question(this, QCoreApplication::applicationName(),
 					tr("Are you sure you want to unregister selected paths?"),
 					QMessageBox::Yes | QMessageBox::No,
 					QMessageBox::Yes) == QMessageBox::Yes)

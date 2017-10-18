@@ -31,11 +31,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
 AbstractDirectory::AbstractDirectory(QObject *thiz)
 	: AbstractFileSystemObject(thiz)
 {
-
 }
 
 QString AbstractDirectory::getAbsoluteFilePathFor(const QString &path) const
@@ -82,8 +80,8 @@ AbstractFileSystemObject *AbstractDirectory::findFileSystemObject(
 				QFileInfo info(absolute_path);
 				if (info.exists())
 				{
-					result = top_dir->internalFind(
-							info.canonicalFilePath(), true);
+					result =
+						top_dir->internalFind(info.canonicalFilePath(), true);
 				}
 			}
 		}
@@ -124,8 +122,8 @@ AbstractFileSystemObject *AbstractDirectory::internalFind(
 		{
 			if (canonical)
 			{
-				if (0 == path.compare(
-						file->getCanonicalFilePath(), Qt::CaseInsensitive))
+				if (path.compare(
+						file->getCanonicalFilePath(), Qt::CaseInsensitive) == 0)
 				{
 					return file;
 				}
@@ -152,5 +150,4 @@ AbstractFileSystemObject *AbstractDirectory::internalFind(
 
 	return nullptr;
 }
-
 }

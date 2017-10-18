@@ -96,8 +96,7 @@ static QScriptValue LoadFromJson(QScriptContext *context, QScriptEngine *engine)
 	{
 		QVariantMap vmap;
 		bool ok = Utils::LoadVariantMapFromFile(
-				vmap, context->argument(
-					0).toString());
+			vmap, context->argument(0).toString());
 		if (ok)
 			return Utils::VariantToScriptValue(vmap, engine);
 	}
@@ -113,7 +112,7 @@ static QScriptValue SaveToJson(QScriptContext *context, QScriptEngine *)
 		if (v.type() == QVariant::Map)
 		{
 			bool ok = Utils::SaveVariantMapToFile(
-					v.toMap(), context->argument(1).toString());
+				v.toMap(), context->argument(1).toString());
 
 			return QScriptValue(ok);
 		}
@@ -122,8 +121,8 @@ static QScriptValue SaveToJson(QScriptContext *context, QScriptEngine *)
 	return QScriptValue();
 }
 
-static QScriptValue LoadTextFromFile(QScriptContext *context,
-									 QScriptEngine *engine)
+static QScriptValue LoadTextFromFile(
+	QScriptContext *context, QScriptEngine *engine)
 {
 	if (context->argumentCount() == 1)
 	{
@@ -137,14 +136,13 @@ static QScriptValue LoadTextFromFile(QScriptContext *context,
 	return QScriptValue();
 }
 
-static QScriptValue SaveTextToFile(QScriptContext *context,
-								   QScriptEngine *engine)
+static QScriptValue SaveTextToFile(
+	QScriptContext *context, QScriptEngine *engine)
 {
 	if (context->argumentCount() == 2)
 	{
 		bool ok = Utils::SaveTextToFile(
-				context->argument(0).toString(),
-				context->argument(1).toString());
+			context->argument(0).toString(), context->argument(1).toString());
 
 		return QScriptValue(engine, ok);
 	}
@@ -170,8 +168,7 @@ static QScriptValue LoadFileTree(QScriptContext *context, QScriptEngine *engine)
 			}
 
 			lst = Utils::ListDirectoryContents(
-					context->argument(
-						0).toString(), lst);
+				context->argument(0).toString(), lst);
 
 			len = lst.size();
 
@@ -200,36 +197,28 @@ void ScriptRunner::setParentWidget(QWidget *parentWidget)
 	this->parentWidget = parentWidget;
 }
 
-QString ScriptRunner::requestExistingFilePath(const QString &title,
-											  const QString &dir,
-											  const QString &filters) const
+QString ScriptRunner::requestExistingFilePath(
+	const QString &title, const QString &dir, const QString &filters) const
 {
 	QString selected_filter;
-	return QFileDialog::getOpenFileName(
-		parentWidget, title, dir, filters, &selected_filter,
-		FILE_DIALOG_FLAGS |
-		QFileDialog::DontResolveSymlinks);
+	return QFileDialog::getOpenFileName(parentWidget, title, dir, filters,
+		&selected_filter, FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
 }
 
-QString ScriptRunner::requestNewFilePath(const QString &title,
-										 const QString &dir,
-										 const QString &filters) const
+QString ScriptRunner::requestNewFilePath(
+	const QString &title, const QString &dir, const QString &filters) const
 {
 	QString selected_filter;
-	return QFileDialog::getSaveFileName(
-		parentWidget, title, dir, filters, &selected_filter,
-		FILE_DIALOG_FLAGS |
-		QFileDialog::DontResolveSymlinks);
+	return QFileDialog::getSaveFileName(parentWidget, title, dir, filters,
+		&selected_filter, FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
 }
 
-QString ScriptRunner::requestDirectoryPath(const QString &title,
-										   const QString &dir) const
+QString ScriptRunner::requestDirectoryPath(
+	const QString &title, const QString &dir) const
 {
-	return QFileDialog::getExistingDirectory(
-		parentWidget, title, dir,
-		QFileDialog::ShowDirsOnly |
-		FILE_DIALOG_FLAGS |
-		QFileDialog::DontResolveSymlinks);
+	return QFileDialog::getExistingDirectory(parentWidget, title, dir,
+		QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
+			QFileDialog::DontResolveSymlinks);
 }
 
 void ScriptRunner::log(const QString &text)
@@ -237,8 +226,8 @@ void ScriptRunner::log(const QString &text)
 	emit logPrint(text);
 }
 
-bool ScriptRunner::executeScript(QScriptEngine *engine, const QString &script,
-								 const QString &filePath)
+bool ScriptRunner::executeScript(
+	QScriptEngine *engine, const QString &script, const QString &filePath)
 {
 	QScriptValue result;
 	try
@@ -253,9 +242,9 @@ bool ScriptRunner::executeScript(QScriptEngine *engine, const QString &script,
 	if (result.isError())
 	{
 		savedErrorMessage = QString::fromLatin1("(%1:%2) %3")
-			.arg(filePath)
-			.arg(result.property("lineNumber").toInt32())
-			.arg(result.toString());
+								.arg(filePath)
+								.arg(result.property("lineNumber").toInt32())
+								.arg(result.toString());
 		log(savedErrorMessage);
 		for (auto &backTraceLine : engine->uncaughtExceptionBacktrace())
 		{
@@ -267,8 +256,8 @@ bool ScriptRunner::executeScript(QScriptEngine *engine, const QString &script,
 	return true;
 }
 
-bool ScriptRunner::execute(const QString &filePath,
-						   const QString &prepareScript)
+bool ScriptRunner::execute(
+	const QString &filePath, const QString &prepareScript)
 {
 	QScriptEngine engine;
 
@@ -310,79 +299,47 @@ const QString &ScriptRunner::getErrorMessage() const
 
 void ScriptRunner::initializeEngine(QScriptEngine *engine)
 {
-	qScriptRegisterMetaType(
-		engine,
-		QObjectToScriptValue<Banana::AbstractFile>,
+	qScriptRegisterMetaType(engine, QObjectToScriptValue<Banana::AbstractFile>,
 		QObjectFromScriptValue<Banana::AbstractFile>);
 
-	qScriptRegisterMetaType(
-		engine,
-		QObjectToScriptValue<Banana::Directory>,
+	qScriptRegisterMetaType(engine, QObjectToScriptValue<Banana::Directory>,
 		QObjectFromScriptValue<Banana::Directory>);
 
-	qScriptRegisterMetaType(
-		engine,
-		DescendantToScriptValue<Point, QPoint>,
+	qScriptRegisterMetaType(engine, DescendantToScriptValue<Point, QPoint>,
 		DescendantFromScriptValue<Point, QPoint>);
 
-	qScriptRegisterMetaType(
-		engine,
-		DescendantToScriptValue<Point, QPointF>,
+	qScriptRegisterMetaType(engine, DescendantToScriptValue<Point, QPointF>,
 		DescendantFromScriptValue<Point, QPointF>);
 
-	qScriptRegisterMetaType(
-		engine,
-		DescendantToScriptValue<Size, QSize>,
+	qScriptRegisterMetaType(engine, DescendantToScriptValue<Size, QSize>,
 		DescendantFromScriptValue<Size, QSize>);
 
-	qScriptRegisterMetaType(
-		engine,
-		DescendantToScriptValue<Size, QSizeF>,
+	qScriptRegisterMetaType(engine, DescendantToScriptValue<Size, QSizeF>,
 		DescendantFromScriptValue<Size, QSizeF>);
 
-	qScriptRegisterMetaType(
-		engine,
-		DescendantToScriptValue<Rect, QRect>,
+	qScriptRegisterMetaType(engine, DescendantToScriptValue<Rect, QRect>,
 		DescendantFromScriptValue<Rect, QRect>);
 
-	qScriptRegisterMetaType(
-		engine,
-		DescendantToScriptValue<Rect, QRectF>,
+	qScriptRegisterMetaType(engine, DescendantToScriptValue<Rect, QRectF>,
 		DescendantFromScriptValue<Rect, QRectF>);
 
-	qScriptRegisterMetaType(
-		engine,
-		Font::ToScriptValue,
-		Font::FromScriptValue);
+	qScriptRegisterMetaType(engine, Font::ToScriptValue, Font::FromScriptValue);
+
+	qScriptRegisterMetaType(engine, Dir::ToScriptValue, Dir::FromScriptValue);
 
 	qScriptRegisterMetaType(
-		engine,
-		Dir::ToScriptValue,
-		Dir::FromScriptValue);
+		engine, FileInfo::ToScriptValue, FileInfo::FromScriptValue);
 
 	qScriptRegisterMetaType(
-		engine,
-		FileInfo::ToScriptValue,
-		FileInfo::FromScriptValue);
+		engine, Color::ToScriptValue, Color::FromScriptValue);
 
-	qScriptRegisterMetaType(
-		engine,
-		Color::ToScriptValue,
-		Color::FromScriptValue);
-
-	qScriptRegisterMetaType(
-		engine,
-		EnumToScriptValue<QFont::Style>,
+	qScriptRegisterMetaType(engine, EnumToScriptValue<QFont::Style>,
 		EnumFromScriptValue<QFont::Style>);
 
-	qScriptRegisterMetaType(
-		engine,
-		EnumToScriptValue<QDir::Filters>,
+	qScriptRegisterMetaType(engine, EnumToScriptValue<QDir::Filters>,
 		EnumFromScriptValue<QDir::Filters>);
 
-	qScriptRegisterMetaType(
-		engine,
-		EnumToScriptValue<QDir::SortFlags>,
+	qScriptRegisterMetaType(engine, EnumToScriptValue<QDir::SortFlags>,
 		EnumFromScriptValue<QDir::SortFlags>);
 
 	QMetaType::registerConverter<QFont::Style, qint32>();
@@ -393,15 +350,13 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 
 	globalObject.setProperty("QPoint", engine->newFunction(Point::Constructor));
 	globalObject.setProperty(
-		"QPointF",
-		engine->newFunction(Point::ConstructorF));
+		"QPointF", engine->newFunction(Point::ConstructorF));
 	globalObject.setProperty("QSize", engine->newFunction(Size::Constructor));
 	globalObject.setProperty("QSizeF", engine->newFunction(Size::ConstructorF));
 	globalObject.setProperty("QRect", engine->newFunction(Rect::Constructor));
 	globalObject.setProperty("QRectF", engine->newFunction(Rect::ConstructorF));
 	globalObject.setProperty(
-		"QFileInfo",
-		engine->newFunction(FileInfo::Constructor));
+		"QFileInfo", engine->newFunction(FileInfo::Constructor));
 	globalObject.setProperty("QColor", engine->newFunction(Color::Constructor));
 
 	auto qdirObject = engine->newFunction(Dir::Constructor);
@@ -411,96 +366,70 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	qdirObject.setProperty("Files", (int) QDir::Files, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("Drives", (int) QDir::Drives, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"NoSymLinks", (int) QDir::NoSymLinks,
-		STATIC_SCRIPT_VALUE);
+		"NoSymLinks", (int) QDir::NoSymLinks, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"Readable", (int) QDir::Readable,
-		STATIC_SCRIPT_VALUE);
+		"Readable", (int) QDir::Readable, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"Writable", (int) QDir::Writable,
-		STATIC_SCRIPT_VALUE);
+		"Writable", (int) QDir::Writable, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"Executable", (int) QDir::Executable,
-		STATIC_SCRIPT_VALUE);
+		"Executable", (int) QDir::Executable, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"Modified", (int) QDir::Modified,
-		STATIC_SCRIPT_VALUE);
+		"Modified", (int) QDir::Modified, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("Hidden", (int) QDir::Hidden, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("System", (int) QDir::System, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"AllEntries", (int) QDir::AllEntries,
-		STATIC_SCRIPT_VALUE);
+		"AllEntries", (int) QDir::AllEntries, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("AllDirs", (int) QDir::AllDirs, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"CaseSensitive", (int) QDir::CaseSensitive,
-		STATIC_SCRIPT_VALUE);
+		"CaseSensitive", (int) QDir::CaseSensitive, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"NoDots", (int) QDir::NoDotAndDotDot,
-		STATIC_SCRIPT_VALUE);
+		"NoDots", (int) QDir::NoDotAndDotDot, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"NoFilter", (int) QDir::NoFilter,
-		STATIC_SCRIPT_VALUE);
+		"NoFilter", (int) QDir::NoFilter, STATIC_SCRIPT_VALUE);
 
 	qdirObject.setProperty("Name", (int) QDir::Name, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("Time", (int) QDir::Time, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("Size", (int) QDir::Size, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"Unsorted", (int) QDir::Unsorted,
-		STATIC_SCRIPT_VALUE);
+		"Unsorted", (int) QDir::Unsorted, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"DirsFirst", (int) QDir::DirsFirst,
-		STATIC_SCRIPT_VALUE);
+		"DirsFirst", (int) QDir::DirsFirst, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"Reversed", (int) QDir::Reversed,
-		STATIC_SCRIPT_VALUE);
+		"Reversed", (int) QDir::Reversed, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"IgnoreCase", (int) QDir::IgnoreCase,
-		STATIC_SCRIPT_VALUE);
+		"IgnoreCase", (int) QDir::IgnoreCase, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"DirsLast", (int) QDir::DirsLast,
-		STATIC_SCRIPT_VALUE);
+		"DirsLast", (int) QDir::DirsLast, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty(
-		"LocaleAware", (int) QDir::LocaleAware,
-		STATIC_SCRIPT_VALUE);
+		"LocaleAware", (int) QDir::LocaleAware, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("Type", (int) QDir::Type, STATIC_SCRIPT_VALUE);
 	qdirObject.setProperty("NoSort", (int) QDir::NoSort, STATIC_SCRIPT_VALUE);
 
 	auto qfontObject = engine->newFunction(Font::Constructor);
 	globalObject.setProperty("QFont", qfontObject);
 	qfontObject.setProperty(
-		"StyleNormal", (int) QFont::StyleNormal,
-		STATIC_SCRIPT_VALUE);
+		"StyleNormal", (int) QFont::StyleNormal, STATIC_SCRIPT_VALUE);
 	qfontObject.setProperty(
-		"StyleItalic", (int) QFont::StyleItalic,
-		STATIC_SCRIPT_VALUE);
+		"StyleItalic", (int) QFont::StyleItalic, STATIC_SCRIPT_VALUE);
 	qfontObject.setProperty(
-		"StyleOblique", (int) QFont::StyleOblique,
-		STATIC_SCRIPT_VALUE);
+		"StyleOblique", (int) QFont::StyleOblique, STATIC_SCRIPT_VALUE);
 
 	auto systemOobject = engine->newQObject(this);
 	globalObject.setProperty("system", systemOobject, STATIC_SCRIPT_VALUE);
 	globalObject.setProperty(
-		"print",
-		engine->newFunction(Print, systemOobject));
+		"print", engine->newFunction(Print, systemOobject));
 
-	systemOobject.setProperty(
-		"loadTextFromFile",
+	systemOobject.setProperty("loadTextFromFile",
 		engine->newFunction(LoadTextFromFile, systemOobject));
 	systemOobject.setProperty(
-		"saveTextToFile",
-		engine->newFunction(SaveTextToFile, systemOobject));
+		"saveTextToFile", engine->newFunction(SaveTextToFile, systemOobject));
 	systemOobject.setProperty(
-		"loadFromJson",
-		engine->newFunction(LoadFromJson, systemOobject));
+		"loadFromJson", engine->newFunction(LoadFromJson, systemOobject));
 	systemOobject.setProperty(
-		"saveToJson",
-		engine->newFunction(SaveToJson, systemOobject));
+		"saveToJson", engine->newFunction(SaveToJson, systemOobject));
 	systemOobject.setProperty(
-		"loadFileTree",
-		engine->newFunction(LoadFileTree, systemOobject));
+		"loadFileTree", engine->newFunction(LoadFileTree, systemOobject));
 	systemOobject.setProperty(
-		"stringFormat",
-		engine->newFunction(Format, systemOobject));
+		"stringFormat", engine->newFunction(Format, systemOobject));
 }
-
 }

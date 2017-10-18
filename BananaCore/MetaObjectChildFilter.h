@@ -30,7 +30,6 @@ struct QMetaObject;
 
 namespace Banana
 {
-
 class MetaObjectChildFilter : public IChildFilter
 {
 public:
@@ -45,5 +44,4 @@ public:
 private:
 	const QMetaObject *meta_object;
 };
-
 }

@@ -29,7 +29,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ChildActionCommand::ChildActionCommand(Object *object, Action action)
 	: AbstractObjectUndoCommand(object->parent())
 {
@@ -62,8 +61,7 @@ ChildActionCommand::ChildActionCommand(Object *object, Object *oldParent)
 
 ChildActionCommand::~ChildActionCommand()
 {
-	if (nullptr != subCommand
-		&& savedContents == subCommand->savedContents)
+	if (nullptr != subCommand && savedContents == subCommand->savedContents)
 	{
 		subCommand->savedContents = nullptr;
 	}
@@ -184,13 +182,11 @@ void ChildActionCommand::del()
 	object->beginReload();
 
 	auto toDelete = object->findChild<Object *>(
-			childObjectName,
-			Qt::FindDirectChildrenOnly);
+		childObjectName, Qt::FindDirectChildrenOnly);
 	Q_ASSERT(nullptr != toDelete);
 	delete toDelete;
 
 	object->endReload();
 	object->endUndoStackUpdate();
 }
-
 }

@@ -35,8 +35,8 @@ const char pY[] = "y";
 const char pWidth[] = "width";
 const char pHeight[] = "height";
 const char pNoExtension[] = "";
-const char pUntitledFileName[] = QT_TRANSLATE_NOOP(
-		"FileNamingPolicy", "Untitled");
+const char pUntitledFileName[] =
+	QT_TRANSLATE_NOOP("FileNamingPolicy", "Untitled");
 const char pFalse[] = QT_TRANSLATE_NOOP("Boolean", "False");
 const char pTrue[] = QT_TRANSLATE_NOOP("Boolean", "True");
 
@@ -55,5 +55,4 @@ QString getBoolString(bool value)
 
 	return QCoreApplication::translate("Boolean", pFalse);
 }
-
 }

@@ -29,7 +29,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ChangeContentsCommand::ChangeContentsCommand(
 	Object *object, const QVariantMap &oldContents)
 	: AbstractObjectUndoCommand(object)
@@ -70,5 +69,4 @@ void ChangeContentsCommand::applyContents(const QVariantMap &contents)
 	object->unblockMacro();
 	object->endUndoStackUpdate();
 }
-
 }

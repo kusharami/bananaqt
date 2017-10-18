@@ -29,11 +29,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
 VariantMapFile::VariantMapFile(const QString &extension)
 	: AbstractFile(extension)
 {
-
 }
 
 bool VariantMapFile::doSave(QIODevice *device)
@@ -83,5 +81,4 @@ bool VariantMapFile::loadData(const QVariantMap &input)
 	endLoad();
 	return ok;
 }
-
 }

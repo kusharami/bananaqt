@@ -57,8 +57,7 @@ Object::Object()
 	, deleted(false)
 {
 	QObject::connect(
-		this, &QObject::objectNameChanged,
-		this, &Object::onObjectNameChanged);
+		this, &QObject::objectNameChanged, this, &Object::onObjectNameChanged);
 }
 
 Object::~Object()
@@ -157,9 +156,7 @@ bool Object::setPropertyModified(int propertyId, bool modified)
 
 		if (canPushUndoCommand())
 			undoStack->push(
-				new ChangeValueCommand(
-					this, propertyId,
-					oldModified));
+				new ChangeValueCommand(this, propertyId, oldModified));
 
 		emit modifiedSetChanged();
 
@@ -224,8 +221,8 @@ void Object::setPrototype(Object *prototype)
 	}
 }
 
-bool Object::loadContents(const QVariantMap &source, QObject *destination,
-						  bool skipObjectName)
+bool Object::loadContents(
+	const QVariantMap &source, QObject *destination, bool skipObjectName)
 {
 	if (nullptr != destination)
 	{
@@ -233,9 +230,8 @@ bool Object::loadContents(const QVariantMap &source, QObject *destination,
 		auto it = source.find(szCLASS_NAME_KEY);
 		if (it != source.end() &&
 			0 ==
-			strcmp(
-				metaObject->className(),
-				it.value().toString().toLatin1().data()))
+				strcmp(metaObject->className(),
+					it.value().toString().toLatin1().data()))
 		{
 			int count = metaObject->propertyCount();
 
@@ -257,8 +253,8 @@ bool Object::loadContents(const QVariantMap &source, QObject *destination,
 					{
 						if (property.type() == QVariant::UserType)
 						{
-							property.write(
-								destination, Banana::ConvertToUserVariant(
+							property.write(destination,
+								Banana::ConvertToUserVariant(
 									property.userType(), it.value()));
 							setDefault = false;
 						} else
@@ -266,8 +262,8 @@ bool Object::loadContents(const QVariantMap &source, QObject *destination,
 							QVariant value(it.value());
 
 							if (property.type() ==
-								(QVariant::Type) QMetaType::QVariant
-								|| value.canConvert((int) property.type()))
+									(QVariant::Type) QMetaType::QVariant ||
+								value.canConvert((int) property.type()))
 							{
 								property.write(destination, value);
 								setDefault = false;
@@ -279,15 +275,13 @@ bool Object::loadContents(const QVariantMap &source, QObject *destination,
 					{
 						if (property.isResettable())
 							property.reset(destination);
-						else
-						if (property.type() == QVariant::UserType)
-							property.write(
-								destination, Banana::ConvertToUserVariant(
+						else if (property.type() == QVariant::UserType)
+							property.write(destination,
+								Banana::ConvertToUserVariant(
 									property.userType(), QVariant()));
 						else
 							property.write(
-								destination, QVariant(
-									property.type()));
+								destination, QVariant(property.type()));
 					}
 				}
 			}
@@ -299,8 +293,8 @@ bool Object::loadContents(const QVariantMap &source, QObject *destination,
 	return false;
 }
 
-void Object::saveContents(const QObject *source, QVariantMap &destination,
-						  QObject *prototype)
+void Object::saveContents(
+	const QObject *source, QVariantMap &destination, QObject *prototype)
 {
 	if (nullptr != source)
 	{
@@ -314,17 +308,16 @@ void Object::saveContents(const QObject *source, QVariantMap &destination,
 		{
 			QMetaProperty property = metaObject->property(i);
 
-			if (property.isStored(source)
-				&& property.isReadable()
-				&& property.isWritable()
-				&& !property.isConstant())
+			if (property.isStored(source) && property.isReadable() &&
+				property.isWritable() && !property.isConstant())
 			{
-				auto value = Banana::ConvertFromUserVariant(
-						property.read(source));
+				auto value =
+					Banana::ConvertFromUserVariant(property.read(source));
 				if (nullptr != prototype &&
 					0 != strcmp(property.name(), szOBJECT_NAME_KEY))
 				{
-					if (value == Banana::ConvertFromUserVariant(
+					if (value ==
+						Banana::ConvertFromUserVariant(
 							property.read(prototype)))
 						continue;
 				}
@@ -361,10 +354,8 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 			if (it->type() == QVariant::Map)
 			{
 				QVariantMap childSource(it->toMap());
-				auto classNameValue = Utils::ValueFrom(
-						childSource,
-						szCLASS_NAME_KEY,
-						QString());
+				auto classNameValue =
+					Utils::ValueFrom(childSource, szCLASS_NAME_KEY, QString());
 				if (classNameValue.type() == QVariant::String)
 				{
 					QString className(classNameValue.toString());
@@ -380,23 +371,22 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 						auto newChild = dynamic_cast<Object *>(newObject);
 
 						if ((nullptr != newChild &&
-							 newChild->loadContents(childSource, false))
-							|| (nullptr == newChild &&
+								newChild->loadContents(childSource, false)) ||
+							(nullptr == newChild &&
 								loadContents(childSource, newChild, false)))
 						{
 							ok = true;
 						} else
-							qDebug() <<
-								"Object::loadContents - Child object load failed";
-
+							qDebug() << "Object::loadContents - Child object "
+										"load failed";
 
 					} else
 						qDebug() << QString(
 							"Object::loadContents - Unknown class name '%1'")
-							.arg(className);
+										.arg(className);
 				} else
-					qDebug() <<
-						"Object::loadContents - Bad child object format";
+					qDebug()
+						<< "Object::loadContents - Bad child object format";
 			} else
 				qDebug() << "Object::loadContents - Bad child object type";
 
@@ -633,8 +623,8 @@ void Object::setModified(bool value)
 	}
 }
 
-void Object::modifyObject(QObject *object, bool modified, bool signalize,
-						  bool children)
+void Object::modifyObject(
+	QObject *object, bool modified, bool signalize, bool children)
 {
 	if (nullptr != object)
 	{
@@ -649,7 +639,7 @@ void Object::modifyObject(QObject *object, bool modified, bool signalize,
 
 		if (children)
 		{
-			foreach(QObject * child, object->children())
+			foreach (QObject *child, object->children())
 			{
 				modifyObject(child, modified, signalize, true);
 			}
@@ -665,7 +655,7 @@ void Object::onPrototypeChildAdded(QObject *protoChild)
 void Object::onPrototypeChildRemoved(QObject *protoChild)
 {
 	auto child = findChild<Object *>(
-			protoChild->objectName(), Qt::FindDirectChildrenOnly);
+		protoChild->objectName(), Qt::FindDirectChildrenOnly);
 	if (nullptr != child)
 		child->onPrototypeDestroyed(protoChild);
 }
@@ -693,7 +683,6 @@ bool Object::isAncestorOf(const QObject *object) const
 
 			if (object == this)
 				return true;
-
 		}
 	}
 
@@ -702,11 +691,8 @@ bool Object::isAncestorOf(const QObject *object) const
 
 bool Object::canBeUsedAsPrototype(Object *object) const
 {
-	return (nullptr != object
-			&& this != object
-			&& !isDescendantOf(object)
-			&& !isAncestorOf(object)
-			&& !object->checkPrototypeCycling(this));
+	return (nullptr != object && this != object && !isDescendantOf(object) &&
+		!isAncestorOf(object) && !object->checkPrototypeCycling(this));
 }
 
 void Object::onPrototypeDestroyed(QObject *object)
@@ -797,7 +783,7 @@ void Object::onUndoStackCleanChanged(bool clean)
 bool Object::canPushUndoCommand() const
 {
 	return (0 == reloadCounter && nullptr != undoStack &&
-			undoStack->canPushForMacro());
+		undoStack->canPushForMacro());
 }
 
 void Object::addChildCommand(QObject *child)
@@ -807,9 +793,7 @@ void Object::addChildCommand(QObject *child)
 	{
 		if (canPushUndoCommand())
 			undoStack->push(
-				new ChildActionCommand(
-					object,
-					ChildActionCommand::Add));
+				new ChildActionCommand(object, ChildActionCommand::Add));
 	}
 }
 
@@ -819,10 +803,8 @@ void Object::moveChildCommand(QObject *child, QObject *oldParent)
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChildActionCommand(
-					object,
-					dynamic_cast<Object *>(oldParent)));
+			undoStack->push(new ChildActionCommand(
+				object, dynamic_cast<Object *>(oldParent)));
 	}
 }
 
@@ -833,20 +815,15 @@ void Object::deleteChildCommand(QObject *child)
 	{
 		if (canPushUndoCommand())
 			undoStack->push(
-				new ChildActionCommand(
-					object,
-					ChildActionCommand::Delete));
+				new ChildActionCommand(object, ChildActionCommand::Delete));
 	}
 }
 
-void Object::pushUndoCommandInternal(const char *propertyName,
-									 const QVariant &oldValue)
+void Object::pushUndoCommandInternal(
+	const char *propertyName, const QVariant &oldValue)
 {
-	undoStack->push(
-		new ChangeValueCommand(
-			this,
-			Utils::GetMetaPropertyByName(metaObject(), propertyName),
-			oldValue));
+	undoStack->push(new ChangeValueCommand(this,
+		Utils::GetMetaPropertyByName(metaObject(), propertyName), oldValue));
 }
 
 Object *Object::getMainPrototype() const
@@ -904,9 +881,8 @@ void Object::connectChildPrototypeDestroy()
 {
 	if (nullptr != childPrototype && childPrototype != prototype)
 	{
-		QObject::connect(
-			childPrototype, &QObject::destroyed,
-			this, &Object::onPrototypeDestroyed);
+		QObject::connect(childPrototype, &QObject::destroyed, this,
+			&Object::onPrototypeDestroyed);
 	}
 }
 
@@ -914,9 +890,8 @@ void Object::disconnectChildPrototypeDestroy()
 {
 	if (nullptr != childPrototype && childPrototype != prototype)
 	{
-		QObject::disconnect(
-			childPrototype, &QObject::destroyed,
-			this, &Object::onPrototypeDestroyed);
+		QObject::disconnect(childPrototype, &QObject::destroyed, this,
+			&Object::onPrototypeDestroyed);
 	}
 }
 
@@ -924,12 +899,10 @@ void Object::connectPrototypeChildLifeCycle()
 {
 	if (nullptr != prototype)
 	{
-		QObject::connect(
-			prototype, &Object::childAdded,
-			this, &Object::onPrototypeChildAdded);
-		QObject::connect(
-			prototype, &Object::childRemoved,
-			this, &Object::onPrototypeChildRemoved);
+		QObject::connect(prototype, &Object::childAdded, this,
+			&Object::onPrototypeChildAdded);
+		QObject::connect(prototype, &Object::childRemoved, this,
+			&Object::onPrototypeChildRemoved);
 	}
 }
 
@@ -937,12 +910,10 @@ void Object::disconnectPrototypeChildLifeCycle()
 {
 	if (nullptr != prototype)
 	{
-		QObject::disconnect(
-			prototype, &Object::childAdded,
-			this, &Object::onPrototypeChildAdded);
-		QObject::disconnect(
-			prototype, &Object::childRemoved,
-			this, &Object::onPrototypeChildRemoved);
+		QObject::disconnect(prototype, &Object::childAdded, this,
+			&Object::onPrototypeChildAdded);
+		QObject::disconnect(prototype, &Object::childRemoved, this,
+			&Object::onPrototypeChildRemoved);
 	}
 }
 
@@ -974,12 +945,10 @@ void Object::connectChildPrototype()
 	if (nullptr != childPrototype)
 	{
 		setObjectName(childPrototype->objectName());
-		QObject::connect(
-			childPrototype, &QObject::objectNameChanged,
-			this, &Object::onLinkedObjectNameChanged);
-		QObject::connect(
-			this, &QObject::objectNameChanged,
-			childPrototype, &Object::onLinkedObjectNameChanged);
+		QObject::connect(childPrototype, &QObject::objectNameChanged, this,
+			&Object::onLinkedObjectNameChanged);
+		QObject::connect(this, &QObject::objectNameChanged, childPrototype,
+			&Object::onLinkedObjectNameChanged);
 	}
 }
 
@@ -987,12 +956,10 @@ void Object::disconnectChildPrototype()
 {
 	if (nullptr != childPrototype)
 	{
-		QObject::disconnect(
-			childPrototype, &QObject::objectNameChanged,
-			this, &Object::onLinkedObjectNameChanged);
-		QObject::disconnect(
-			this, &QObject::objectNameChanged,
-			childPrototype, &Object::onLinkedObjectNameChanged);
+		QObject::disconnect(childPrototype, &QObject::objectNameChanged, this,
+			&Object::onLinkedObjectNameChanged);
+		QObject::disconnect(this, &QObject::objectNameChanged, childPrototype,
+			&Object::onLinkedObjectNameChanged);
 		childPrototype = nullptr;
 	}
 }
@@ -1002,7 +969,7 @@ bool Object::checkPrototypeCycling(const Object *object) const
 	if (prototype == object)
 		return true;
 
-	foreach(QObject * child, children())
+	foreach (QObject *child, children())
 	{
 		auto childObject = dynamic_cast<Object *>(child);
 
@@ -1023,7 +990,7 @@ bool Object::isDescendantOf(const QObject *ancestor, const QObject *object)
 
 		if (nullptr != ancestor)
 		{
-			foreach(QObject * child, ancestor->children())
+			foreach (QObject *child, ancestor->children())
 			{
 				if (isDescendantOf(child, object))
 					return true;
@@ -1037,15 +1004,14 @@ bool Object::isDescendantOf(const QObject *ancestor, const QObject *object)
 bool Object::assignChild(QObject *sourceChild, bool isPrototype)
 {
 	auto child = findChild<Object *>(
-			sourceChild->objectName(), Qt::FindDirectChildrenOnly);
+		sourceChild->objectName(), Qt::FindDirectChildrenOnly);
 	if (nullptr != child)
 	{
 		if (isPrototype && nullptr != prototype)
 		{
 			if (child->prototype != sourceChild)
 				child->internalSetPrototype(
-					dynamic_cast<Object *>(sourceChild),
-					true, isLoading());
+					dynamic_cast<Object *>(sourceChild), true, isLoading());
 		} else
 		{
 			child->internalAssign(sourceChild, isLoading(), false);
@@ -1082,40 +1048,33 @@ void Object::beforeChildPrototypeReloadStarted()
 
 bool Object::canAssignPropertyFrom(QObject *source, int propertyId) const
 {
-	return (nullptr == prototype
-			|| (source != prototype && !isLoading())
-			|| !isPropertyModified(propertyId));
+	return (nullptr == prototype || (source != prototype && !isLoading()) ||
+		!isPropertyModified(propertyId));
 }
 
 void Object::doConnectPrototype()
 {
 	QObject::connect(
-		prototype, &QObject::destroyed,
-		this, &Object::onPrototypeDestroyed);
+		prototype, &QObject::destroyed, this, &Object::onPrototypeDestroyed);
 	if (nullptr == childPrototype || prototype == childPrototype)
 	{
-		QObject::connect(
-			prototype, &Object::reloadStarted,
-			this, &Object::onPrototypeReloadStarted);
-		QObject::connect(
-			prototype, &Object::reloadFinished,
-			this, &Object::onPrototypeReloadFinished);
+		QObject::connect(prototype, &Object::reloadStarted, this,
+			&Object::onPrototypeReloadStarted);
+		QObject::connect(prototype, &Object::reloadFinished, this,
+			&Object::onPrototypeReloadFinished);
 	}
 }
 
 void Object::doDisconnectPrototype()
 {
 	QObject::disconnect(
-		prototype, &QObject::destroyed,
-		this, &Object::onPrototypeDestroyed);
+		prototype, &QObject::destroyed, this, &Object::onPrototypeDestroyed);
 	if (nullptr == childPrototype || prototype == childPrototype)
 	{
-		QObject::disconnect(
-			prototype, &Object::reloadStarted,
-			this, &Object::onPrototypeReloadStarted);
-		QObject::disconnect(
-			prototype, &Object::reloadFinished,
-			this, &Object::onPrototypeReloadFinished);
+		QObject::disconnect(prototype, &Object::reloadStarted, this,
+			&Object::onPrototypeReloadStarted);
+		QObject::disconnect(prototype, &Object::reloadFinished, this,
+			&Object::onPrototypeReloadFinished);
 	}
 }
 
@@ -1159,7 +1118,7 @@ void Object::assignChildren(QObject *source)
 			for (auto protoChild : prototype->children())
 			{
 				auto child = findChild<Object *>(
-						protoChild->objectName(), Qt::FindDirectChildrenOnly);
+					protoChild->objectName(), Qt::FindDirectChildrenOnly);
 				if (nullptr == child)
 					newChildFrom(protoChild, true);
 			}
@@ -1183,10 +1142,7 @@ void Object::assignChildren(QObject *source)
 	}
 }
 
-void Object::assignProperties(QObject *)
-{
-
-}
+void Object::assignProperties(QObject *) {}
 
 void Object::newChildFrom(QObject *source, bool childProto)
 {
@@ -1203,8 +1159,7 @@ void Object::newChildFrom(QObject *source, bool childProto)
 		} else
 		{
 			newChildObject->internalSetPrototype(
-				dynamic_cast<Object *>(source),
-				true, true);
+				dynamic_cast<Object *>(source), true, true);
 		}
 
 		newChildObject->loadCounter++;
@@ -1256,8 +1211,7 @@ void Object::childEvent(QChildEvent *event)
 
 		if (event->added())
 			doAddChild(event->child());
-		else
-		if (event->removed())
+		else if (event->removed())
 			doRemoveChild(event->child());
 	}
 }
@@ -1293,9 +1247,8 @@ void Object::connectUndoStack()
 {
 	if (nullptr != undoStack && ownUndoStack)
 	{
-		QObject::connect(
-			undoStack, &QUndoStack::cleanChanged,
-			this, &Object::onUndoStackCleanChanged);
+		QObject::connect(undoStack, &QUndoStack::cleanChanged, this,
+			&Object::onUndoStackCleanChanged);
 	}
 }
 
@@ -1303,9 +1256,8 @@ void Object::disconnectUndoStack()
 {
 	if (nullptr != undoStack && ownUndoStack)
 	{
-		QObject::disconnect(
-			undoStack, &QUndoStack::cleanChanged,
-			this, &Object::onUndoStackCleanChanged);
+		QObject::disconnect(undoStack, &QUndoStack::cleanChanged, this,
+			&Object::onUndoStackCleanChanged);
 	}
 }
 
@@ -1318,5 +1270,4 @@ void Object::getDescendants(QObject *obj, QObjectList &out)
 		getDescendants(child, out);
 	}
 }
-
 }

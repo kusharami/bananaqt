@@ -35,9 +35,7 @@ public:
 	CleanCancelEvent()
 		: QEvent(User)
 	{
-
 	}
-
 };
 
 UndoStack::UndoStack(QObject *parent)
@@ -48,8 +46,7 @@ UndoStack::UndoStack(QObject *parent)
 	, firstClean(true)
 {
 	QObject::connect(
-		this, &QUndoStack::cleanChanged,
-		this, &UndoStack::onCleanChanged);
+		this, &QUndoStack::cleanChanged, this, &UndoStack::onCleanChanged);
 }
 
 void UndoStack::beginUpdate()
@@ -156,5 +153,4 @@ void UndoStack::onCleanChanged(bool clean)
 		QApplication::postEvent(this, new CleanCancelEvent);
 	}
 }
-
 }

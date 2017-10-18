@@ -42,7 +42,6 @@ static void InitResources()
 
 namespace Banana
 {
-
 static const char szDefaultProjectLocationKey[] = "DefaultProjectLocation";
 static const char szLastNewFileExtensionKey[] = "LastNewFileExtension";
 static const char szCurrentLanguageKey[] = "CurrentLanguage";
@@ -57,9 +56,8 @@ static const char szShowInExplorer[] =
 	QT_TRANSLATE_NOOP("Config", "Show in Explorer");
 static const char szShowInExplorerFmt[] =
 	QT_TRANSLATE_NOOP("Config", "Show '%1' in Explorer");
-static const char szShowInExplorerHint[] =
-	QT_TRANSLATE_NOOP(
-		"Config", "Shows a selected file or directory in Explorer");
+static const char szShowInExplorerHint[] = QT_TRANSLATE_NOOP(
+	"Config", "Shows a selected file or directory in Explorer");
 
 namespace UI
 {
@@ -76,19 +74,18 @@ void InstallTranslations(const QLocale &locale)
 	if (translator.load(locale, "BananaUI.qm", "", ":/Translations"))
 		QCoreApplication::installTranslator(&translator);
 }
-
 }
 
 QString getDefaultProjectLocation()
 {
 	QSettings settings;
 
-	return settings.value(
-		szDefaultProjectLocationKey,
-		QDir(
-			QStandardPaths::writableLocation(
-				QStandardPaths::DocumentsLocation))
-		.absoluteFilePath(QCoreApplication::applicationName())).toString();
+	return settings
+		.value(szDefaultProjectLocationKey,
+			QDir(QStandardPaths::writableLocation(
+					 QStandardPaths::DocumentsLocation))
+				.absoluteFilePath(QCoreApplication::applicationName()))
+		.toString();
 }
 
 void setDefaultProjectLocation(const QString &path)
@@ -119,10 +116,9 @@ QLocale::Language getCurrentLanguage()
 
 	QSettings settings;
 	return QLocale(
-		settings.value(
-			szCurrentLanguageKey,
-			QLocale(defaultLang).name())
-		.toString()).language();
+		settings.value(szCurrentLanguageKey, QLocale(defaultLang).name())
+			.toString())
+		.language();
 }
 
 void setCurrentLanguage(QLocale::Language language)
@@ -153,13 +149,12 @@ QString getShowInGraphicalShellCommandText(const QString &what)
 		{
 			case OS_WINDOWS:
 				return QCoreApplication::translate(
-					szConfig,
-					szShowInExplorerFmt).arg(what);
+					szConfig, szShowInExplorerFmt)
+					.arg(what);
 
 			case OS_MAC:
-				return QCoreApplication::translate(
-					szConfig,
-					szShowInFinderFmt).arg(what);
+				return QCoreApplication::translate(szConfig, szShowInFinderFmt)
+					.arg(what);
 
 			case OS_UNKNOWN:
 				break;
@@ -185,5 +180,4 @@ QString getShowInGraphicalShellHintText()
 
 	return QString();
 }
-
 }

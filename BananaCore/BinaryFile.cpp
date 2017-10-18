@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 BinaryFile::BinaryFile()
 	: Inherited("")
 {
@@ -67,5 +66,4 @@ bool BinaryFile::doLoad(QIODevice *device)
 	auto binary = dynamic_cast<BinaryData *>(data);
 	return Utils::LoadBinaryFromIODevice(*binary, device);
 }
-
 }

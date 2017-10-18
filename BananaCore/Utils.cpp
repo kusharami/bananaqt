@@ -60,7 +60,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 namespace Utils
 {
 static const QString sTypeKey("__type");
@@ -91,8 +90,8 @@ bool LoadVariantMapFromIODevice(QVariantMap &vmap, QIODevice *device)
 				QJsonParseError parse_result;
 				auto doc = QJsonDocument::fromJson(binary, &parse_result);
 
-				if (QJsonParseError::NoError == parse_result.error
-					&& doc.isObject())
+				if (QJsonParseError::NoError == parse_result.error &&
+					doc.isObject())
 				{
 					binary.clear();
 					vmap = ConvertJsonValueToVariant(doc.object()).toMap();
@@ -169,10 +168,8 @@ QString ConvertToIdentifierName(const QString &source)
 	{
 		char c = name_data[i];
 
-		if ((c >= '0' && c <= '9')
-			|| (c >= 'A' && c <= 'Z')
-			|| (c >= 'a' && c <= 'z')
-			|| c == '_')
+		if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
+			(c >= 'a' && c <= 'z') || c == '_')
 			continue;
 
 		name_data[i] = '_';
@@ -193,9 +190,7 @@ QString ConvertToFileName(const QString &source, int max_size)
 {
 	QString result(source);
 
-	result.replace(
-		QRegExp("[\\x00-\\x1F\\\\\\/\\|\\?\\:\\*\\\"\\<\\>]"),
-		"_");
+	result.replace(QRegExp("[\\x00-\\x1F\\\\\\/\\|\\?\\:\\*\\\"\\<\\>]"), "_");
 
 	result.resize(std::min(max_size, result.length()));
 
@@ -247,9 +242,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 
 			for (auto it = map.begin(); it != map.end(); ++it)
 			{
-				object.insert(
-					it.key(),
-					ConvertVariantToJsonValue(it.value()));
+				object.insert(it.key(), ConvertVariantToJsonValue(it.value()));
 			}
 
 			return QJsonValue(object);
@@ -275,18 +268,15 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 
 			object.insert(sTypeKey, "QUrl");
 			object.insert(
-				sValueKey,
-				variant.toUrl().toString(QUrl::FullyEncoded));
+				sValueKey, variant.toUrl().toString(QUrl::FullyEncoded));
 
 			return QJsonValue(object);
 		}
 
 		case QMetaType::QFont:
 		{
-			return QJsonValue(
-				QJsonObject::fromVariantMap(
-					ConvertQFontToVariantMap(
-						variant.value<QFont>())));
+			return QJsonValue(QJsonObject::fromVariantMap(
+				ConvertQFontToVariantMap(variant.value<QFont>())));
 		}
 
 		case QMetaType::QRect:
@@ -392,7 +382,7 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QPoint")
 				{
 					QPoint point(object.value(sXKey).toInt(),
-								 object.value(sYKey).toInt());
+						object.value(sYKey).toInt());
 
 					return QVariant(point);
 				}
@@ -400,7 +390,7 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QPointF")
 				{
 					QPointF point(object.value(sXKey).toDouble(),
-								  object.value(sYKey).toDouble());
+						object.value(sYKey).toDouble());
 
 					return QVariant(point);
 				}
@@ -408,7 +398,7 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QSize")
 				{
 					QSize size(object.value(sWKey).toInt(),
-							   object.value(sHKey).toInt());
+						object.value(sHKey).toInt());
 
 					return QVariant(size);
 				}
@@ -416,7 +406,7 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QSizeF")
 				{
 					QSizeF size(object.value(sWKey).toDouble(),
-								object.value(sHKey).toDouble());
+						object.value(sHKey).toDouble());
 
 					return QVariant(size);
 				}
@@ -424,9 +414,9 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QRect")
 				{
 					QRect rect(object.value(sXKey).toInt(),
-							   object.value(sYKey).toInt(),
-							   object.value(sWKey).toInt(),
-							   object.value(sHKey).toInt());
+						object.value(sYKey).toInt(),
+						object.value(sWKey).toInt(),
+						object.value(sHKey).toInt());
 
 					return QVariant(rect);
 				}
@@ -434,17 +424,17 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QRectF")
 				{
 					QRectF rect(object.value(sXKey).toDouble(),
-								object.value(sYKey).toDouble(),
-								object.value(sWKey).toDouble(),
-								object.value(sHKey).toDouble());
+						object.value(sYKey).toDouble(),
+						object.value(sWKey).toDouble(),
+						object.value(sHKey).toDouble());
 
 					return QVariant(rect);
 				}
 
 				if (type == "QUrl")
 				{
-					QUrl url(object.value(sValueKey).toString(),
-							 QUrl::StrictMode);
+					QUrl url(
+						object.value(sValueKey).toString(), QUrl::StrictMode);
 
 					return QVariant(url);
 				}
@@ -452,29 +442,23 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 				if (type == "QFont")
 				{
 					return QVariant(
-						ConvertVariantMapToQFont(
-							object.toVariantMap()));
+						ConvertVariantMapToQFont(object.toVariantMap()));
 				}
 			}
-		} else
-		if (object.size() == 4)
+		} else if (object.size() == 4)
 		{
 			auto x_it = object.find(sXKey);
 			auto y_it = object.find(sYKey);
 			auto width_it = object.find(sWKey);
 			auto height_it = object.find(sHKey);
 
-			if (object.end() != x_it && object.end() != y_it
-				&& object.end() != width_it && object.end() != height_it)
+			if (object.end() != x_it && object.end() != y_it &&
+				object.end() != width_it && object.end() != height_it)
 			{
-				return QRectF(
-					x_it.value().toDouble(),
-					y_it.value().toDouble(),
-					width_it.value().toDouble(),
-					height_it.value().toDouble());
+				return QRectF(x_it.value().toDouble(), y_it.value().toDouble(),
+					width_it.value().toDouble(), height_it.value().toDouble());
 			}
-		} else
-		if (object.size() == 2)
+		} else if (object.size() == 2)
 		{
 			auto x_it = object.find(sXKey);
 			auto y_it = object.find(sYKey);
@@ -482,8 +466,7 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 			if (object.end() != x_it && object.end() != y_it)
 			{
 				return QPointF(
-					x_it.value().toDouble(),
-					y_it.value().toDouble());
+					x_it.value().toDouble(), y_it.value().toDouble());
 			}
 
 			x_it = object.find(sWKey);
@@ -491,9 +474,7 @@ QVariant ConvertJsonValueToVariant(const QJsonValue &value)
 
 			if (object.end() != x_it && object.end() != y_it)
 			{
-				return QSizeF(
-					x_it.value().toDouble(),
-					y_it.value().toDouble());
+				return QSizeF(x_it.value().toDouble(), y_it.value().toDouble());
 			}
 		}
 
@@ -546,10 +527,7 @@ bool SaveTextToFile(const QString &text, const QString &filePath)
 
 	QFile file(filePath);
 
-	if (file.open(
-			QIODevice::WriteOnly |
-			QIODevice::Truncate |
-			QIODevice::Text))
+	if (file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
 	{
 		auto utf8 = text.toUtf8();
 		ok = (utf8.size() == file.write(utf8));
@@ -592,7 +570,7 @@ bool CheckFilePath(const QString &path)
 
 	bool first = true;
 
-	foreach(const QString &name, split)
+	foreach (const QString &name, split)
 	{
 		if (first && absolute)
 		{
@@ -605,10 +583,8 @@ bool CheckFilePath(const QString &path)
 				if (check != ConvertToFileName(check))
 					return false;
 			}
-		} else
-		if (name != ConvertToFileName(name))
+		} else if (name != ConvertToFileName(name))
 			return false;
-
 	}
 
 	return true;
@@ -632,9 +608,7 @@ QScriptValue VariantToScriptValue(
 				auto &key = it.key();
 				auto &value = it.value();
 
-				result.setProperty(
-					key,
-					VariantToScriptValue(value, engine));
+				result.setProperty(key, VariantToScriptValue(value, engine));
 			}
 			break;
 		}
@@ -691,7 +665,6 @@ QScriptValue VariantToScriptValue(
 						break;
 				}
 
-
 			break;
 		}
 	}
@@ -734,41 +707,28 @@ bool LoadBinaryFromFile(QByteArray &output, const QString &filepath)
 
 void SortStringList(QStringList &stringList)
 {
-	std::sort(
-		stringList.begin(), stringList.end(),
-		[](const QString &a, const QString &b) -> bool
-			{
-				return QString::compare(a, b, Qt::CaseInsensitive) < 0;
-			});
+	std::sort(stringList.begin(), stringList.end(),
+		[](const QString &a, const QString &b) -> bool {
+			return QString::compare(a, b, Qt::CaseInsensitive) < 0;
+		});
 }
 
 bool CreateSymLink(const QString &target, const QString &linkpath)
 {
 #ifdef Q_OS_WIN
-	DWORD dwFlags = QFileInfo(target).isDir()
-		? SYMBOLIC_LINK_FLAG_DIRECTORY
-		: 0;
-																																																																																																																																# \
-	\
- \
-	ifdef UNICODE
+	DWORD dwFlags =
+		QFileInfo(target).isDir() ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0;
+#ifdef UNICODE
 	wchar_t wcTarget[1024];
 	wcTarget[target.toWCharArray(wcTarget)] = 0;
 	wchar_t wcLink[1024];
 	wcLink[linkpath.toWCharArray(wcLink)] = 0;
 
 	return CreateSymbolicLinkW(wcLink, wcTarget, dwFlags);
-																																																																																																																																# \
-	\
- \
-	else
+#else
 	return CreateSymbolicLinkA(
-		linkpath.toLocal8Bit().data(),
-		target.toLocal8Bit().data(), dwFlags);
-																																																																																																																																# \
-	\
- \
-	endif
+		linkpath.toLocal8Bit().data(), target.toLocal8Bit().data(), dwFlags);
+#endif
 #else
 	return QFile::link(target, linkpath);
 #endif
@@ -786,8 +746,8 @@ QFont ConvertVariantMapToQFont(const QVariantMap &object)
 		auto meta = QMetaEnum::fromType<QFont::StyleStrategy>();
 		auto value = object.value(sStyleStrategyKey).toString().toLatin1();
 		bool ok = false;
-		auto strategy = (QFont::StyleStrategy) meta.keyToValue(
-				value.data(), &ok);
+		auto strategy =
+			(QFont::StyleStrategy) meta.keyToValue(value.data(), &ok);
 		if (ok)
 			font.setStyleStrategy(strategy);
 	}
@@ -835,18 +795,18 @@ void ShowInGraphicalShell(const QString &pathIn)
 	QProcess::startDetached(QLatin1String("explorer.exe"), param);
 #elif defined(Q_OS_MAC)
 	QStringList scriptArgs;
-	scriptArgs	<< QLatin1String("-e")
-				<< QString::fromLatin1(
-		"tell application \"Finder\" "
-		"to reveal POSIX "
-		"file \"%1\"").arg(pathIn);
+	scriptArgs << QLatin1String("-e")
+			   << QString::fromLatin1("tell application \"Finder\" "
+									  "to reveal POSIX "
+									  "file \"%1\"")
+					  .arg(pathIn);
 	QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
 	scriptArgs.clear();
-	scriptArgs	<< QLatin1String("-e")
-				<< QLatin1String("tell application \"Finder\" to activate");
+	scriptArgs << QLatin1String("-e")
+			   << QLatin1String("tell application \"Finder\" to activate");
 	QProcess::execute(QLatin1String("/usr/bin/osascript"), scriptArgs);
 #else
-#       error Unsupported platform
+#error Unsupported platform
 #endif
 }
 
@@ -861,17 +821,13 @@ bool VariantsEqual(const QVariant &a, const QVariant &b)
 	if (emptyB)
 		return emptyA;
 
-	return (a.type() == b.type()
-			&& a.userType() == b.userType()
-			&& a == b);
+	return (a.type() == b.type() && a.userType() == b.userType() && a == b);
 }
 
 bool VariantIsEmpty(const QVariant &value)
 {
-	return (value.isNull()
-			|| !value.isValid()
-			|| (value.type() == QVariant::String
-				&& value.toString().isEmpty()));
+	return (value.isNull() || !value.isValid() ||
+		(value.type() == QVariant::String && value.toString().isEmpty()));
 }
 
 QString QuoteString(const QString &value)
@@ -944,7 +900,6 @@ bool IsAncestorOf(const QObject *descendant, const QObject *object)
 
 			if (object == descendant)
 				return true;
-
 		}
 	}
 
@@ -974,9 +929,8 @@ bool DeleteFileOrLink(const QFileInfo &fileInfo)
 
 const QMetaObject *GetMetaObjectForClass(const QByteArray &className)
 {
-	int typeId = QMetaType::type(
-			className.endsWith('*')
-			? className : className + " *");
+	int typeId =
+		QMetaType::type(className.endsWith('*') ? className : className + " *");
 	return QMetaType::metaObjectForType(typeId);
 }
 
@@ -993,8 +947,7 @@ const QObject *LoadQObjectPointer(
 
 		if (bytes.size() == sizeof(uintptr_t))
 		{
-			auto ptr = reinterpret_cast<const uintptr_t *>(
-					bytes.constData());
+			auto ptr = reinterpret_cast<const uintptr_t *>(bytes.constData());
 			return reinterpret_cast<const QObject *>(*ptr);
 		}
 	}
@@ -1045,8 +998,7 @@ QObject *GetTopAncestor(QObject *object)
 	return nullptr;
 }
 
-QObject *GetDescendant(
-	const QObject *topAncestor, const QStringList &path)
+QObject *GetDescendant(const QObject *topAncestor, const QStringList &path)
 {
 	auto result = const_cast<QObject *>(topAncestor);
 	if (nullptr == result)
@@ -1056,14 +1008,12 @@ QObject *GetDescendant(
 	for (int i = 0; i < count; i++)
 	{
 		result = result->findChild<QObject *>(
-				path.at(i), Qt::FindDirectChildrenOnly);
+			path.at(i), Qt::FindDirectChildrenOnly);
 		if (nullptr == result)
 			break;
 	}
 
 	return result;
 }
-
 }
-
 }

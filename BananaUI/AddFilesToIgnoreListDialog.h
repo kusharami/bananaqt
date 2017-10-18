@@ -44,12 +44,11 @@ class AddFilesToIgnoreListDialog : public QDialog
 
 public:
 	explicit AddFilesToIgnoreListDialog(AbstractProjectFile *file,
-										const QString &path,
-										QWidget *parent = nullptr);
+		const QString &path, QWidget *parent = nullptr);
 	virtual ~AddFilesToIgnoreListDialog();
 
 	static bool execute(const QStringList &pathList, AbstractProjectFile *file,
-						QWidget *parent);
+		QWidget *parent);
 
 public Q_SLOTS:
 	virtual void accept() override;
@@ -82,5 +81,4 @@ private:
 	int ignore_what;
 	AbstractProjectFile *project_file;
 };
-
 }
