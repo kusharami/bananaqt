@@ -144,7 +144,7 @@ void ChangeValueCommand::prepareOrderedEntries(
 			orderedEntries.push_back(&it.second);
 		}
 
-		std::sort(orderedEntries.begin(), orderedEntries.end(),
+		std::stable_sort(orderedEntries.begin(), orderedEntries.end(),
 			ChangeValueCommand::entryIndexLess);
 	}
 }

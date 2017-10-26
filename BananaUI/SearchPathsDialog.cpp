@@ -416,7 +416,7 @@ QMimeData *SearchPathsTableModel::mimeData(const QModelIndexList &indexes) const
 	QByteArray bytes;
 
 	auto sorted_indexes = indexes;
-	std::sort(sorted_indexes.begin(), sorted_indexes.end(),
+	std::stable_sort(sorted_indexes.begin(), sorted_indexes.end(),
 		[](const QModelIndex &a, const QModelIndex &b) -> bool {
 			return a.row() < b.row();
 		});

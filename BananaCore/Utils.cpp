@@ -707,7 +707,7 @@ bool LoadBinaryFromFile(QByteArray &output, const QString &filepath)
 
 void SortStringList(QStringList &stringList)
 {
-	std::sort(stringList.begin(), stringList.end(),
+	std::stable_sort(stringList.begin(), stringList.end(),
 		[](const QString &a, const QString &b) -> bool {
 			return QString::compare(a, b, Qt::CaseInsensitive) < 0;
 		});

@@ -128,7 +128,7 @@ bool AbstractObjectGroup::equals(QObject *groupObject)
 
 void AbstractObjectGroup::sortChildren(QObjectList &children)
 {
-	std::sort(
+	std::stable_sort(
 		children.begin(), children.end(), [](QObject *a, QObject *b) -> bool {
 			return QString::compare(a->objectName(), b->objectName(),
 					   Qt::CaseInsensitive) < 0;
