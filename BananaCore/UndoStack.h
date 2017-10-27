@@ -30,9 +30,6 @@ signals:
 	void macroStarted();
 	void macroFinished();
 
-protected:
-	virtual void customEvent(QEvent *event) override;
-
 private slots:
 	void onCleanChanged(bool clean);
 
