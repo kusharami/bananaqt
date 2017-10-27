@@ -30,8 +30,8 @@ namespace Banana
 {
 static const QString sNumericFormatTag("%u");
 static const QString sStringFormatTag("%s");
-static const int nFormatTagsLength = sNumericFormatTag.length() +
-	sStringFormatTag.length();
+static const int nFormatTagsLength =
+	sNumericFormatTag.length() + sStringFormatTag.length();
 
 NameEnumerator::NameEnumerator()
 	: mType(EndsWithNumber)
@@ -93,8 +93,7 @@ QString NameEnumerator::uniqueNameFor(const QString &name) const
 }
 
 void NameEnumerator::separateNameAndNumber(const QString &fullName,
-										   QString *resultNamePtr,
-										   QString *resultNumberPtr) const
+	QString *resultNamePtr, QString *resultNumberPtr) const
 {
 	int numberLength = 0;
 
@@ -106,17 +105,15 @@ void NameEnumerator::separateNameAndNumber(const QString &fullName,
 		case StartsWithNumber:
 		{
 			for (int i = 0, length = fullName.length();
-				 i < length && fullName.at(i).isDigit();
-				 i++, numberLength++)
+				 i < length && fullName.at(i).isDigit(); i++, numberLength++)
 			{
 			}
 
-			if (numberLength > 0
-				&& fullName.indexOf(mSeparator) == numberLength)
+			if (numberLength > 0 &&
+				fullName.indexOf(mSeparator) == numberLength)
 			{
 				resultName = QString(
-						&fullName.data()
-						[numberLength + mSeparator.length()]);
+					&fullName.data()[numberLength + mSeparator.length()]);
 				resultNumber = QString(fullName.data(), numberLength);
 			}
 
@@ -126,21 +123,20 @@ void NameEnumerator::separateNameAndNumber(const QString &fullName,
 		case EndsWithNumber:
 		{
 			for (int i = fullName.length() - 1;
-				 i >= 0 && fullName.at(i).isDigit();
-				 i--, numberLength++)
+				 i >= 0 && fullName.at(i).isDigit(); i--, numberLength++)
 			{
 			}
 
 			int len = fullName.length() - numberLength - mSeparator.length();
 
-			if (numberLength > 0 && len >= 0
-				&& 0 == memcmp(
-					mSeparator.data(), &fullName.data()[len],
-					mSeparator.length() * sizeof(QChar)))
+			if (numberLength > 0 && len >= 0 &&
+				0 ==
+					memcmp(mSeparator.data(), &fullName.data()[len],
+						mSeparator.length() * sizeof(QChar)))
 			{
 				resultName = QString(fullName.data(), len);
-				resultNumber = QString(
-						&fullName.data()[fullName.length() - numberLength],
+				resultNumber =
+					QString(&fullName.data()[fullName.length() - numberLength],
 						numberLength);
 			}
 
@@ -161,11 +157,10 @@ void NameEnumerator::separateNameAndNumber(const QString &fullName,
 			break;
 	}
 
-	ENSURE(
-		resultNumber.isEmpty()
-		|| resultName.length() + resultNumber.length() == fullName.length()
-		|| resultName.length() ==
-		fullName.length() - resultNumber.length() - mSeparator.length());
+	ENSURE(resultNumber.isEmpty() ||
+		resultName.length() + resultNumber.length() == fullName.length() ||
+		resultName.length() ==
+			fullName.length() - resultNumber.length() - mSeparator.length());
 
 	ENSURE(resultNumber.isEmpty() || Utils::IsDigitString(resultNumber));
 
@@ -208,5 +203,4 @@ bool NameEnumerator::isValid() const
 
 	return false;
 }
-
 }

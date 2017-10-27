@@ -59,23 +59,22 @@ signals:
 
 public slots:
 	QString requestExistingFilePath(const QString &title,
-									const QString &dir = QString(),
-									const QString &filters = QString()) const;
+		const QString &dir = QString(),
+		const QString &filters = QString()) const;
 	QString requestNewFilePath(const QString &title,
-							   const QString &dir = QString(),
-							   const QString &filters = QString()) const;
-	QString requestDirectoryPath(const QString &title,
-								 const QString &dir = QString()) const;
+		const QString &dir = QString(),
+		const QString &filters = QString()) const;
+	QString requestDirectoryPath(
+		const QString &title, const QString &dir = QString()) const;
 
 	void log(const QString &text);
 
 private:
-	bool executeScript(QScriptEngine *engine, const QString &script,
-					   const QString &filePath);
+	bool executeScript(
+		QScriptEngine *engine, const QString &script, const QString &filePath);
 
 	Banana::ProjectGroup *projectGroup;
 	QString savedErrorMessage;
 	QWidget *parentWidget;
 };
-
 }

@@ -47,5 +47,4 @@ private:
 	void connectFile();
 	void disconnectFile();
 };
-
 }

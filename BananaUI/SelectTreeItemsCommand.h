@@ -39,7 +39,7 @@ class SelectTreeItemsCommand : public QUndoCommand
 public:
 	SelectTreeItemsCommand(BaseTreeView *tree);
 	SelectTreeItemsCommand(BaseTreeView *tree, const QObjectSet &oldSelected,
-						   const QObjectSet &newSelected);
+		const QObjectSet &newSelected);
 
 	void setOldSelected(const QObjectSet &set);
 	void setNewSelected(const QObjectSet &set);
@@ -70,5 +70,4 @@ private:
 
 	bool skipRedoOnPush;
 };
-
 }

@@ -28,7 +28,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class CheckBoxHeader : public QHeaderView
 {
 	Q_OBJECT
@@ -43,8 +42,8 @@ signals:
 	void checkBoxStateChanged(bool state);
 
 protected:
-	virtual void paintSection(QPainter *painter, const QRect &rect,
-							  int logicalIndex) const override;
+	virtual void paintSection(
+		QPainter *painter, const QRect &rect, int logicalIndex) const override;
 	virtual void mousePressEvent(QMouseEvent *event) override;
 
 private:
@@ -56,5 +55,4 @@ bool CheckBoxHeader::isChecked() const
 {
 	return checked;
 }
-
 }

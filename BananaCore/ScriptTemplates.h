@@ -37,26 +37,27 @@ SOFTWARE.
 #define GET_SET (QScriptValue::PropertyGetter | QScriptValue::PropertySetter)
 
 #define GETTER_SETTER(Type, CLASS, Name, prototype) \
-	GETTER_SETTER_EX(Type, CLASS, Name, Set ## Name, prototype)
+	GETTER_SETTER_EX(Type, CLASS, Name, Set##Name, prototype)
 
 #define GETTER_SETTER_EX(Type, CLASS, Get, Set, prototype) \
 	engine->newFunction( \
-		Type ## Templates::GetterSetter<CLASS, &CLASS::Get, \
-										&CLASS::Set>, prototype)
+		Type##Templates::GetterSetter<CLASS, &CLASS::Get, &CLASS::Set>, \
+		prototype)
 
 #define DEFINE_SCRIPT_ENUM(Type, TOTAL, enumObject, parent) \
 	enumObject = engine->newObject(); \
 	parent.setProperty(#Type, enumObject, STATIC_SCRIPT_VALUE); \
 	for (int i = 0; i < TOTAL; i++) \
-		enumObject.setProperty(Type ## ToStr((Type) i), i, STATIC_SCRIPT_VALUE)
+	enumObject.setProperty(Type##ToStr((Type) i), i, STATIC_SCRIPT_VALUE)
 
 #define DEFINE_SCRIPT_FLAGS(Name, Type, TOTAL, flagsObject, parent) \
 	flagsObject = engine->newObject(); \
 	parent.setProperty(Name, flagsObject, STATIC_SCRIPT_VALUE); \
-	for (int i = 0; i < TOTAL; i++) { \
+	for (int i = 0; i < TOTAL; i++) \
+	{ \
 		flagsObject.setProperty( \
-			Type ## ToStr( \
-				(Type) i), 1 << i, STATIC_SCRIPT_VALUE);} \
+			Type##ToStr((Type) i), 1 << i, STATIC_SCRIPT_VALUE); \
+	} \
 	flagsObject.setProperty("All", (1 << TOTAL) - 1, STATIC_SCRIPT_VALUE)
 
 Q_DECLARE_METATYPE(QFont::Style)
@@ -68,7 +69,9 @@ Q_DECLARE_METATYPE(QDir::SortFlags)
 
 namespace Scripting
 {
-class Color : public QObject, public QColor
+class Color
+	: public QObject
+	, public QColor
 {
 	Q_OBJECT
 
@@ -96,18 +99,16 @@ public:
 
 	Q_INVOKABLE inline bool equals(const QColor &other) const;
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
 	static QScriptValue ToScriptValue(QScriptEngine *engine, const QColor &in);
 	static void FromScriptValue(const QScriptValue &object, QColor &out);
 
 private:
 	static QScriptValue ConstructWith(QScriptContext *context,
-									  QScriptEngine *engine,
-									  const QScriptValue &red,
-									  const QScriptValue &green,
-									  const QScriptValue &blue,
-									  const QScriptValue &alpha);
+		QScriptEngine *engine, const QScriptValue &red,
+		const QScriptValue &green, const QScriptValue &blue,
+		const QScriptValue &alpha);
 };
 
 QString Color::toString() const
@@ -130,7 +131,9 @@ bool Color::equals(const QColor &other) const
 	return *this == other;
 }
 
-class Dir : public QObject, public QDir
+class Dir
+	: public QObject
+	, public QDir
 {
 	Q_OBJECT
 
@@ -164,19 +167,18 @@ public:
 	Q_INVOKABLE inline QString relativeFilePath(const QString &fileName) const;
 
 	Q_INVOKABLE inline bool remove(const QString &fileName);
-	Q_INVOKABLE inline bool rename(const QString &oldName,
-								   const QString &newName);
+	Q_INVOKABLE inline bool rename(
+		const QString &oldName, const QString &newName);
 
 	Q_INVOKABLE QScriptValue entryList(const QScriptValue &nameFilters,
-									   QDir::Filters filters = NoFilter,
-									   QDir::SortFlags sort = NoSort) const;
+		QDir::Filters filters = NoFilter, QDir::SortFlags sort = NoSort) const;
 
 	Q_INVOKABLE inline void refresh();
 
 	Q_INVOKABLE inline bool equals(const QDir &other) const;
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
 	static QScriptValue ToScriptValue(QScriptEngine *engine, const QDir &in);
 	static void FromScriptValue(const QScriptValue &object, QDir &out);
 };
@@ -261,7 +263,9 @@ bool Dir::rename(const QString &oldName, const QString &newName)
 	return QDir::rename(oldName, newName);
 }
 
-class FileInfo : public QObject, public QFileInfo
+class FileInfo
+	: public QObject
+	, public QFileInfo
 {
 	Q_OBJECT
 
@@ -303,10 +307,10 @@ public:
 	Q_INVOKABLE inline void refresh();
 	Q_INVOKABLE inline bool equals(const QFileInfo &other) const;
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
-	static QScriptValue ToScriptValue(QScriptEngine *engine,
-									  const QFileInfo &in);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
+	static QScriptValue ToScriptValue(
+		QScriptEngine *engine, const QFileInfo &in);
 	static void FromScriptValue(const QScriptValue &object, QFileInfo &out);
 };
 
@@ -325,7 +329,9 @@ bool FileInfo::equals(const QFileInfo &other) const
 	return *this == other;
 }
 
-class Font : public QObject, public QFont
+class Font
+	: public QObject
+	, public QFont
 {
 	Q_OBJECT
 
@@ -346,17 +352,22 @@ class Font : public QObject, public QFont
 public:
 	Font(const QFont &font);
 
-	Q_INVOKABLE inline QString toString() const { return QFont::toString(); }
+	Q_INVOKABLE inline QString toString() const
+	{
+		return QFont::toString();
+	}
 
 	Q_INVOKABLE bool fromString(const QString &str);
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
 	static QScriptValue ToScriptValue(QScriptEngine *engine, const QFont &in);
 	static void FromScriptValue(const QScriptValue &object, QFont &out);
 };
 
-class Rect : public QObject, public QRectF
+class Rect
+	: public QObject
+	, public QRectF
 {
 	Q_OBJECT
 
@@ -396,11 +407,11 @@ public:
 	Q_INVOKABLE inline bool containsPoint(const QPointF &point) const;
 	Q_INVOKABLE bool containsPoint(qreal x, qreal y) const;
 	Q_INVOKABLE inline bool containsRect(const QRectF &rect) const;
-	Q_INVOKABLE bool containsRect(qreal x, qreal y, qreal width,
-								  qreal height) const;
+	Q_INVOKABLE bool containsRect(
+		qreal x, qreal y, qreal width, qreal height) const;
 	Q_INVOKABLE inline bool intersects(const QRectF &rect) const;
-	Q_INVOKABLE bool intersects(qreal x, qreal y, qreal width,
-								qreal height) const;
+	Q_INVOKABLE bool intersects(
+		qreal x, qreal y, qreal width, qreal height) const;
 	Q_INVOKABLE inline QRectF united(const QRectF &other) const;
 	Q_INVOKABLE inline QRectF intersected(const QRectF &other) const;
 	Q_INVOKABLE inline bool equals(const QRectF &other) const;
@@ -411,10 +422,10 @@ public:
 	static void FromScriptValue(const QScriptValue &object, QRect &out);
 	static void FromScriptValue(const QScriptValue &object, QRectF &out);
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
-	static QScriptValue ConstructorF(QScriptContext *context,
-									 QScriptEngine *engine);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
+	static QScriptValue ConstructorF(
+		QScriptContext *context, QScriptEngine *engine);
 
 	static inline void convert(const QRectF &from, QRect &to);
 	static inline void convert(const QRectF &from, QRectF &to);
@@ -480,7 +491,9 @@ void Rect::convert(const QRectF &from, QRectF &to)
 	to = from;
 }
 
-class Point : public QObject, public QPointF
+class Point
+	: public QObject
+	, public QPointF
 {
 	Q_OBJECT
 
@@ -506,10 +519,10 @@ public:
 	static void FromScriptValue(const QScriptValue &object, QPoint &out);
 	static void FromScriptValue(const QScriptValue &object, QPointF &out);
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
-	static QScriptValue ConstructorF(QScriptContext *context,
-									 QScriptEngine *engine);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
+	static QScriptValue ConstructorF(
+		QScriptContext *context, QScriptEngine *engine);
 
 	static inline void convert(const QPointF &from, QPoint &to);
 	static inline void convert(const QPointF &from, QPointF &to);
@@ -555,7 +568,9 @@ void Point::convert(const QPointF &from, QPointF &to)
 	to = from;
 }
 
-class Size : public QObject, public QSizeF
+class Size
+	: public QObject
+	, public QSizeF
 {
 	Q_OBJECT
 	Q_PROPERTY(qreal width READ width WRITE setWidth)
@@ -582,10 +597,10 @@ public:
 	static void FromScriptValue(const QScriptValue &object, QSize &out);
 	static void FromScriptValue(const QScriptValue &object, QSizeF &out);
 
-	static QScriptValue Constructor(QScriptContext *context,
-									QScriptEngine *engine);
-	static QScriptValue ConstructorF(QScriptContext *context,
-									 QScriptEngine *engine);
+	static QScriptValue Constructor(
+		QScriptContext *context, QScriptEngine *engine);
+	static QScriptValue ConstructorF(
+		QScriptContext *context, QScriptEngine *engine);
 
 	static inline void convert(const QSizeF &from, QSize &to);
 	static inline void convert(const QSizeF &from, QSizeF &to);
@@ -627,20 +642,18 @@ void Size::convert(const QSizeF &from, QSizeF &to)
 }
 
 template <typename CLASS, typename DESC_T>
-static QScriptValue DescendantToScriptValue(QScriptEngine *engine,
-											const DESC_T &in)
+static QScriptValue DescendantToScriptValue(
+	QScriptEngine *engine, const DESC_T &in)
 {
 	return engine->newQObject(new CLASS(in), QScriptEngine::ScriptOwnership);
 }
 
 template <typename CLASS, typename DESC_T>
-static QScriptValue ScriptObjectConstructor(QScriptEngine *engine,
-											QScriptContext *context,
-											const DESC_T &in)
+static QScriptValue ScriptObjectConstructor(
+	QScriptEngine *engine, QScriptContext *context, const DESC_T &in)
 {
 	return engine->newQObject(
-		context->thisObject(), new CLASS(
-			in), QScriptEngine::ScriptOwnership);
+		context->thisObject(), new CLASS(in), QScriptEngine::ScriptOwnership);
 }
 
 template <typename CLASS, typename DESC_T>
@@ -654,20 +667,17 @@ static void DescendantFromScriptValue(const QScriptValue &object, DESC_T &out)
 QScriptValue ThrowBadNumberOfArguments(QScriptContext *context);
 QScriptValue IncompatibleArgumentType(QScriptContext *context, int idx);
 
-template <typename AT
-		  , typename RT = AT
-		  , typename CVT_TYPE =
-			  typename std::remove_const<typename std::remove_reference<AT>::
-										 type>::type>
+template <typename AT, typename RT = AT,
+	typename CVT_TYPE = typename std::remove_const<
+		typename std::remove_reference<AT>::type>::type>
 struct Templates
 {
-	template <CVT_TYPE(QScriptValue::*Convert) () const>
+	template <CVT_TYPE (QScriptValue::*Convert)() const>
 	struct In
 	{
-		template <typename T, RT(T::*Get) () const,
-				  void(T::*Set) (AT, bool)>
-		static QScriptValue GetterSetter(QScriptContext *context,
-										 QScriptEngine *)
+		template <typename T, RT (T::*Get)() const, void (T::*Set)(AT, bool)>
+		static QScriptValue GetterSetter(
+			QScriptContext *context, QScriptEngine *)
 		{
 			QScriptValue callee = context->callee();
 			auto prototype = callee.property("prototype");
@@ -682,26 +692,24 @@ struct Templates
 
 			return QScriptValue();
 		}
-
 	};
-
 };
 
 typedef Templates<const QString &>::In<&QScriptValue::toString> StringTemplates;
-typedef Templates<const QString &,
-				  QString>::In<&QScriptValue::toString> String2Templates;
+typedef Templates<const QString &, QString>::In<&QScriptValue::toString>
+	String2Templates;
 typedef Templates<int>::In<&QScriptValue::toInt32> IntTemplates;
 typedef Templates<bool>::In<&QScriptValue::toBool> BoolTemplates;
 typedef Templates<qreal>::In<&QScriptValue::toNumber> DoubleTemplates;
 
 template <typename T>
-static QScriptValue QObjectToScriptValue(QScriptEngine *engine, T * const &in)
+static QScriptValue QObjectToScriptValue(QScriptEngine *engine, T *const &in)
 {
 	return engine->newQObject(in);
 }
 
 template <typename T>
-static void QObjectFromScriptValue(const QScriptValue &object, T * &out)
+static void QObjectFromScriptValue(const QScriptValue &object, T *&out)
 {
 	out = qobject_cast<T *>(object.toQObject());
 }
@@ -719,8 +727,8 @@ static void FlagsFromScriptValue(const QScriptValue &object, FLAGS_T &out)
 }
 
 template <typename STRING_T>
-static QScriptValue StringToScriptValue(QScriptEngine *engine,
-										const STRING_T &in)
+static QScriptValue StringToScriptValue(
+	QScriptEngine *engine, const STRING_T &in)
 {
 	return QScriptValue(engine, QString(in));
 }
@@ -744,8 +752,8 @@ static void EnumFromScriptValue(const QScriptValue &object, ENUM_T &out)
 }
 
 template <typename CLASS, typename DESC_T>
-static QScriptValue ScriptObjectConstructorEx(QScriptEngine *engine,
-											  QScriptContext *context)
+static QScriptValue ScriptObjectConstructorEx(
+	QScriptEngine *engine, QScriptContext *context)
 {
 	DESC_T data;
 	switch (context->argumentCount())
@@ -760,24 +768,19 @@ static QScriptValue ScriptObjectConstructorEx(QScriptEngine *engine,
 					return IncompatibleArgumentType(context, 1);
 
 				data = *source;
-			} else
-			if (!argument.isNull() && !argument.isUndefined())
+			} else if (!argument.isNull() && !argument.isUndefined())
 				data = DESC_T(argument.toString());
 
-		}														// fall through
+		} // fall through
 
 		case 0:
 			return ScriptObjectConstructor<CLASS, DESC_T>(
-				engine, context,
-				data);
+				engine, context, data);
 	}
 
 	return ThrowBadNumberOfArguments(context);
 }
 
-void RegisterQMetaObject(
-	QScriptEngine *engine, const QMetaObject *metaObject, QScriptValue (*constructor)(
-		QScriptContext *,
-		QScriptEngine *));
-
+void RegisterQMetaObject(QScriptEngine *engine, const QMetaObject *metaObject,
+	QScriptValue (*constructor)(QScriptContext *, QScriptEngine *));
 }

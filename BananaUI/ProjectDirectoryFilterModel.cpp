@@ -29,7 +29,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ProjectDirectoryFilterModel::ProjectDirectoryFilterModel(QObject *parent)
 	: QSortFilterProxyModel(parent)
 	, project_tree_model(nullptr)
@@ -62,8 +61,8 @@ void ProjectDirectoryFilterModel::setSourceModel(
 	}
 }
 
-QVariant ProjectDirectoryFilterModel::data(const QModelIndex &index,
-										   int role) const
+QVariant ProjectDirectoryFilterModel::data(
+	const QModelIndex &index, int role) const
 {
 	if (role == Qt::TextColorRole)
 	{
@@ -77,10 +76,9 @@ QVariant ProjectDirectoryFilterModel::data(const QModelIndex &index,
 				auto project_dir = source_model->getProjectDirectory();
 				if (nullptr != project_dir)
 				{
-					if (ignore.exactMatch(
-							project_dir->getRelativeFilePathFor(
-								source_model->fileInfo(mapToSource(index)).
-								filePath())))
+					if (ignore.exactMatch(project_dir->getRelativeFilePathFor(
+							source_model->fileInfo(mapToSource(index))
+								.filePath())))
 					{
 						return QColor(Qt::gray);
 					}
@@ -206,8 +204,11 @@ void ProjectDirectoryFilterModel::applyFilters()
 		for (int i = 0, count = wildcards.count(); i < count; i++)
 		{
 			wildcards[i] = "(.*/)*" +
-				wildcards[i].replace('\\', "\\\\").replace('.', "\\.").replace(
-					'*', ".*").replace('?', ".");
+				wildcards[i]
+					.replace('\\', "\\\\")
+					.replace('.', "\\.")
+					.replace('*', ".*")
+					.replace('?', ".");
 		}
 		QString pattern = "(" + wildcards.join(")|(") + ")";
 
@@ -261,10 +262,10 @@ bool ProjectDirectoryFilterModel::filterAcceptsRow(
 
 			auto filePath = QDir::cleanPath(fileinfo.filePath());
 
-			if (fileinfo.isDir()
-				&& !filePath.startsWith(
-					QDir::cleanPath(project_dir->getFilePath())
-					+ "/", Qt::CaseInsensitive))
+			if (fileinfo.isDir() &&
+				!filePath.startsWith(
+					QDir::cleanPath(project_dir->getFilePath()) + "/",
+					Qt::CaseInsensitive))
 				return true;
 
 			filePath = project_dir->getRelativeFilePathFor(filePath);
@@ -326,11 +327,9 @@ bool ProjectDirectoryFilterModel::lessThan(
 			if (!hideIgnored && ignore.isValid() && !ignore.isEmpty())
 			{
 				bool ignore_left = ignore.exactMatch(
-						project_dir->getRelativeFilePathFor(
-							left_info.filePath()));
+					project_dir->getRelativeFilePathFor(left_info.filePath()));
 				bool ignore_right = ignore.exactMatch(
-						project_dir->getRelativeFilePathFor(
-							right_info.filePath()));
+					project_dir->getRelativeFilePathFor(right_info.filePath()));
 
 				if (ignore_left && !ignore_right)
 					return false;
@@ -341,13 +340,13 @@ bool ProjectDirectoryFilterModel::lessThan(
 		}
 
 		int compare_names = QString::localeAwareCompare(
-				left_info.baseName(), right_info.baseName());
+			left_info.baseName(), right_info.baseName());
 
 		if (compare_names < 0)
 			return true;
 
 		int compare_suffixes = QString::localeAwareCompare(
-				left_info.completeSuffix(), right_info.completeSuffix());
+			left_info.completeSuffix(), right_info.completeSuffix());
 
 		if (compare_names == 0 && compare_suffixes < 0)
 			return true;
@@ -384,12 +383,11 @@ void ProjectDirectoryFilterModel::connectSourceModel()
 {
 	if (nullptr != project_tree_model)
 	{
-		QObject::connect(
-			project_tree_model, &QObject::destroyed,
-			this, &ProjectDirectoryFilterModel::onSourceModelDestroyed);
-		QObject::connect(
-			project_tree_model, &ProjectDirectoryModel::projectDirectoryChanged,
-			this, &ProjectDirectoryFilterModel::applyProjectFile);
+		QObject::connect(project_tree_model, &QObject::destroyed, this,
+			&ProjectDirectoryFilterModel::onSourceModelDestroyed);
+		QObject::connect(project_tree_model,
+			&ProjectDirectoryModel::projectDirectoryChanged, this,
+			&ProjectDirectoryFilterModel::applyProjectFile);
 	}
 }
 
@@ -399,12 +397,11 @@ void ProjectDirectoryFilterModel::disconnectSourceModel()
 	{
 		disconnectProjectFile();
 
-		QObject::disconnect(
-			project_tree_model, &QObject::destroyed,
-			this, &ProjectDirectoryFilterModel::onSourceModelDestroyed);
-		QObject::disconnect(
-			project_tree_model, &ProjectDirectoryModel::projectDirectoryChanged,
-			this, &ProjectDirectoryFilterModel::applyProjectFile);
+		QObject::disconnect(project_tree_model, &QObject::destroyed, this,
+			&ProjectDirectoryFilterModel::onSourceModelDestroyed);
+		QObject::disconnect(project_tree_model,
+			&ProjectDirectoryModel::projectDirectoryChanged, this,
+			&ProjectDirectoryFilterModel::applyProjectFile);
 
 		QSortFilterProxyModel::setSourceModel(nullptr);
 		project_tree_model = nullptr;
@@ -415,15 +412,14 @@ void ProjectDirectoryFilterModel::connectProjectFile()
 {
 	if (nullptr != project_file)
 	{
-		QObject::connect(
-			project_file, &QObject::destroyed,
-			this, &ProjectDirectoryFilterModel::onProjectFileDestroyed);
-		QObject::connect(
-			project_file, &AbstractProjectFile::changedHideIgnoredFiles,
-			this, &ProjectDirectoryFilterModel::applyFilters);
-		QObject::connect(
-			project_file, &AbstractProjectFile::changedIgnoredFilesPattern,
-			this, &ProjectDirectoryFilterModel::applyFilters);
+		QObject::connect(project_file, &QObject::destroyed, this,
+			&ProjectDirectoryFilterModel::onProjectFileDestroyed);
+		QObject::connect(project_file,
+			&AbstractProjectFile::changedHideIgnoredFiles, this,
+			&ProjectDirectoryFilterModel::applyFilters);
+		QObject::connect(project_file,
+			&AbstractProjectFile::changedIgnoredFilesPattern, this,
+			&ProjectDirectoryFilterModel::applyFilters);
 	}
 }
 
@@ -431,18 +427,16 @@ void ProjectDirectoryFilterModel::disconnectProjectFile()
 {
 	if (nullptr != project_file)
 	{
-		QObject::disconnect(
-			project_file, &QObject::destroyed,
-			this, &ProjectDirectoryFilterModel::onProjectFileDestroyed);
-		QObject::disconnect(
-			project_file, &AbstractProjectFile::changedHideIgnoredFiles,
-			this, &ProjectDirectoryFilterModel::applyFilters);
-		QObject::disconnect(
-			project_file, &AbstractProjectFile::changedIgnoredFilesPattern,
-			this, &ProjectDirectoryFilterModel::applyFilters);
+		QObject::disconnect(project_file, &QObject::destroyed, this,
+			&ProjectDirectoryFilterModel::onProjectFileDestroyed);
+		QObject::disconnect(project_file,
+			&AbstractProjectFile::changedHideIgnoredFiles, this,
+			&ProjectDirectoryFilterModel::applyFilters);
+		QObject::disconnect(project_file,
+			&AbstractProjectFile::changedIgnoredFilesPattern, this,
+			&ProjectDirectoryFilterModel::applyFilters);
 
 		project_file = nullptr;
 	}
 }
-
 }

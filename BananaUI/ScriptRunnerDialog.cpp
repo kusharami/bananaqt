@@ -56,13 +56,11 @@ ScriptRunnerDialog::ScriptRunnerDialog(ScriptRunner *runner, QWidget *parent)
 	Q_ASSERT(nullptr != runner);
 
 	ui->setupUi(this);
-	setWindowFlags(
-		(windowFlags() &
-		 ~(Qt::WindowContextHelpButtonHint | Qt::WindowMinMaxButtonsHint)));
+	setWindowFlags((windowFlags() &
+		~(Qt::WindowContextHelpButtonHint | Qt::WindowMinMaxButtonsHint)));
 
 	QObject::connect(
-		runner, &ScriptRunner::logPrint, this,
-		&ScriptRunnerDialog::onLogPrint);
+		runner, &ScriptRunner::logPrint, this, &ScriptRunnerDialog::onLogPrint);
 }
 
 ScriptRunnerDialog::~ScriptRunnerDialog()
@@ -71,8 +69,7 @@ ScriptRunnerDialog::~ScriptRunnerDialog()
 }
 
 void ScriptRunnerDialog::execute(
-	ProjectGroup *group,
-	const QString &script_filepath)
+	ProjectGroup *group, const QString &script_filepath)
 {
 	this->group = group;
 
@@ -93,12 +90,11 @@ void ScriptRunnerDialog::onLogPrint(const QString &text)
 
 void ScriptRunnerDialog::on_buttonBrowse_clicked()
 {
-	QString filter(Directory::getFilterForExtension(
-					   Scripting::szScriptExtension));
+	QString filter(
+		Directory::getFilterForExtension(Scripting::szScriptExtension));
 
-	auto filepath = QFileDialog::getOpenFileName(
-			this, tr("Select Script File"), ui->editScriptFile->text(),
-			filter, &filter, FILE_DIALOG_FLAGS);
+	auto filepath = QFileDialog::getOpenFileName(this, tr("Select Script File"),
+		ui->editScriptFile->text(), filter, &filter, FILE_DIALOG_FLAGS);
 
 	if (!filepath.isEmpty())
 		setScriptFilePath(filepath);
@@ -126,14 +122,11 @@ void ScriptRunnerDialog::apply()
 
 	if (filepath.isEmpty())
 	{
-		QMessageBox::critical(
-			this, QCoreApplication::applicationName(),
+		QMessageBox::critical(this, QCoreApplication::applicationName(),
 			tr("Script file is not selected."));
-	} else
-	if (!QFile::exists(filepath))
+	} else if (!QFile::exists(filepath))
 	{
-		QMessageBox::critical(
-			this, QCoreApplication::applicationName(),
+		QMessageBox::critical(this, QCoreApplication::applicationName(),
 			tr("File '%1' is not found.").arg(filepath));
 	} else
 	{
@@ -146,8 +139,7 @@ void ScriptRunnerDialog::apply()
 		if (!runner->execute(filepath, ui->editArguments->toPlainText()))
 		{
 			QMessageBox::critical(
-				this, tr(
-					"Execute Script Error"), runner->getErrorMessage());
+				this, tr("Execute Script Error"), runner->getErrorMessage());
 		}
 
 		setEnabled(true);
@@ -199,10 +191,9 @@ void ScriptRunnerDialog::registerScript()
 void ScriptRunnerDialog::on_btnInsertFilePath_clicked()
 {
 	QString filter;
-	auto filePaths = QFileDialog::getOpenFileNames(
-			this, tr("Select Files"), lastFilePath, filter, &filter,
-			FILE_DIALOG_FLAGS |
-			QFileDialog::DontResolveSymlinks);
+	auto filePaths = QFileDialog::getOpenFileNames(this, tr("Select Files"),
+		lastFilePath, filter, &filter,
+		FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
 
 	if (!filePaths.isEmpty())
 	{
@@ -214,10 +205,9 @@ void ScriptRunnerDialog::on_btnInsertFilePath_clicked()
 
 void ScriptRunnerDialog::on_btnInsertDirectoryPath_clicked()
 {
-	auto path = QFileDialog::getExistingDirectory(
-			this, tr("Select Directory"), lastFilePath,
-			QFileDialog::ShowDirsOnly |
-			FILE_DIALOG_FLAGS |
+	auto path = QFileDialog::getExistingDirectory(this, tr("Select Directory"),
+		lastFilePath,
+		QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
 			QFileDialog::DontResolveSymlinks);
 
 	if (!path.isEmpty())
@@ -243,8 +233,7 @@ void ScriptRunnerDialog::on_btnInsertProjectItem_clicked()
 		}
 	} else
 	{
-		QMessageBox::critical(
-			this, QCoreApplication::applicationName(),
+		QMessageBox::critical(this, QCoreApplication::applicationName(),
 			tr("There is no active project directory."));
 	}
 }

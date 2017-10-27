@@ -36,7 +36,6 @@ class QLineEdit;
 
 namespace Banana
 {
-
 class ProjectTreeView;
 class ProjectTreeWidget : public QWidget
 {
@@ -71,5 +70,4 @@ private:
 	QString currentFilter;
 	QRegExp::PatternSyntax pattern_syntax;
 };
-
 }

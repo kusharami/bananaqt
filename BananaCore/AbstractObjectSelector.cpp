@@ -26,11 +26,7 @@ SOFTWARE.
 
 namespace Banana
 {
-
-AbstractObjectSelector::~AbstractObjectSelector()
-{
-
-}
+AbstractObjectSelector::~AbstractObjectSelector() {}
 
 bool AbstractObjectSelector::isObjectSelected(QObject *object)
 {
@@ -76,5 +72,4 @@ void AbstractObjectSelector::onSelectedObjectDestroyed(QObject *object)
 	selected.erase(object);
 	doChangeObjectSelection(object, true);
 }
-
 }

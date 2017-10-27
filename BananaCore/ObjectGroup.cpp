@@ -31,9 +31,7 @@ SOFTWARE.
 
 namespace Banana
 {
-ObjectGroup::ObjectGroup()
-{
-}
+ObjectGroup::ObjectGroup() {}
 
 void ObjectGroup::registerChildType(
 	const QMetaObject *metaObject, Qt::CaseSensitivity sensitivity)
@@ -217,18 +215,15 @@ void ObjectGroup::connectChildObject(QObject *object, UniqueNameScope *scope)
 
 	if (obj)
 	{
-		QObject::connect(
-			obj, &Object::beforeDestroy,
-			this, &ObjectGroup::onChildObjectDestroyed);
+		QObject::connect(obj, &Object::beforeDestroy, this,
+			&ObjectGroup::onChildObjectDestroyed);
 	} else
 	{
-		QObject::connect(
-			object, &QObject::destroyed, this,
+		QObject::connect(object, &QObject::destroyed, this,
 			&ObjectGroup::onChildObjectDestroyed);
 	}
 
-	QObject::connect(
-		object, &QObject::objectNameChanged, this,
+	QObject::connect(object, &QObject::objectNameChanged, this,
 		&ObjectGroup::childrenNeedRearrange);
 
 	doConnectChildObject(object);
@@ -244,18 +239,15 @@ void ObjectGroup::disconnectChildObject(QObject *object, UniqueNameScope *scope)
 
 	if (obj)
 	{
-		QObject::disconnect(
-			obj, &Object::beforeDestroy,
-			this, &ObjectGroup::onChildObjectDestroyed);
+		QObject::disconnect(obj, &Object::beforeDestroy, this,
+			&ObjectGroup::onChildObjectDestroyed);
 	} else
 	{
-		QObject::disconnect(
-			object, &QObject::destroyed, this,
+		QObject::disconnect(object, &QObject::destroyed, this,
 			&ObjectGroup::onChildObjectDestroyed);
 	}
 
-	QObject::disconnect(
-		object, &QObject::objectNameChanged, this,
+	QObject::disconnect(object, &QObject::objectNameChanged, this,
 		&ObjectGroup::childrenNeedRearrange);
 
 	doDisconnectChildObject(object);

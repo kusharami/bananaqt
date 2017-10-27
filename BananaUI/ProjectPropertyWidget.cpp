@@ -28,11 +28,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ProjectPropertyWidget::ProjectPropertyWidget(QWidget *parent)
 	: ObjectPropertyWidget(parent)
 {
-
 }
 
 void ProjectPropertyWidget::selectProjectFile(AbstractProjectFile *file)
@@ -63,9 +61,8 @@ void ProjectPropertyWidget::connectFile()
 	auto projectFile = getProjectFile();
 	if (nullptr != projectFile)
 	{
-		QObject::connect(
-			projectFile, &Object::modifiedFlagChanged,
-			this, &ProjectPropertyWidget::projectFileChanged);
+		QObject::connect(projectFile, &Object::modifiedFlagChanged, this,
+			&ProjectPropertyWidget::projectFileChanged);
 	}
 }
 
@@ -74,10 +71,8 @@ void ProjectPropertyWidget::disconnectFile()
 	auto projectFile = getProjectFile();
 	if (nullptr != projectFile)
 	{
-		QObject::disconnect(
-			projectFile, &Object::modifiedFlagChanged,
-			this, &ProjectPropertyWidget::projectFileChanged);
+		QObject::disconnect(projectFile, &Object::modifiedFlagChanged, this,
+			&ProjectPropertyWidget::projectFileChanged);
 	}
 }
-
 }

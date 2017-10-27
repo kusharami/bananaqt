@@ -34,7 +34,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class Object;
 
 class ChangeValueCommand : public AbstractObjectUndoCommand
@@ -68,8 +67,7 @@ public:
 public:
 	ChangeValueCommand(
 		Object *object, const QString &oldName, const QString &newName);
-	ChangeValueCommand(
-		Object *object, const QMetaProperty &metaProperty,
+	ChangeValueCommand(Object *object, const QMetaProperty &metaProperty,
 		const QVariant &oldValue);
 	ChangeValueCommand(Object *object, int propertyId, bool oldState);
 	ChangeValueCommand(Object *object, quint64 oldStateBits);
@@ -109,5 +107,4 @@ private:
 	quint64 oldStateBits;
 	quint64 newStateBits;
 };
-
 }

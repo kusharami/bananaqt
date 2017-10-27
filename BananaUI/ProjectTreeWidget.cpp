@@ -36,7 +36,6 @@ using namespace Banana;
 
 namespace Banana
 {
-
 static const QString sPatternSyntaxKey = "PatternSyntax";
 
 typedef std::map<QRegExp::PatternSyntax, QString> PatternSyntaxMap;
@@ -76,9 +75,8 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 	QSettings settings;
 
 	settings.beginGroup(metaObject()->className());
-	pattern_syntax = stringToPatternSyntax(
-			settings.value(
-				sPatternSyntaxKey).toString());
+	pattern_syntax =
+		stringToPatternSyntax(settings.value(sPatternSyntaxKey).toString());
 	settings.endGroup();
 
 	switch (pattern_syntax)
@@ -99,8 +97,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 			break;
 	}
 
-	QObject::connect(
-		ui->filterEdit, &QLineEdit::textChanged, this,
+	QObject::connect(ui->filterEdit, &QLineEdit::textChanged, this,
 		&ProjectTreeWidget::onFilterTextChanged);
 
 	auto menu = new QMenu(this);
@@ -171,9 +168,7 @@ void ProjectTreeWidget::updateFilter(bool force)
 		}
 
 		model->setFilterRegExp(
-			QRegExp(
-				text, Qt::CaseInsensitive,
-				pattern_syntax));
+			QRegExp(text, Qt::CaseInsensitive, pattern_syntax));
 	}
 }
 
@@ -225,5 +220,4 @@ void ProjectTreeWidget::on_actionOptionsContainingString_toggled(bool checked)
 		ui->actionOptionsWildcard->setChecked(false);
 	}
 }
-
 }

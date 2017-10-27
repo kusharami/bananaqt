@@ -36,19 +36,19 @@ SOFTWARE.
 namespace Banana
 {
 class AbstractFile;
-class Directory : public ObjectGroup, public AbstractDirectory,
-				public FileNamingPolicy
+class Directory
+	: public ObjectGroup
+	, public AbstractDirectory
+	, public FileNamingPolicy
 {
 	Q_OBJECT
 
 	Q_PROPERTY(QString name READ getFileName SCRIPTABLE true STORED false)
 	Q_PROPERTY(QString path READ getFilePath SCRIPTABLE true STORED false)
-	Q_PROPERTY(
-		bool searched READ isSearched WRITE setSearched
-		SCRIPTABLE true STORED false)
-	Q_PROPERTY(
-		int searchOrder READ getSearchOrder WRITE setSearchOrder
-		SCRIPTABLE true STORED false)
+	Q_PROPERTY(bool searched READ isSearched WRITE setSearched
+			SCRIPTABLE true STORED false)
+	Q_PROPERTY(int searchOrder READ getSearchOrder WRITE setSearchOrder
+			SCRIPTABLE true STORED false)
 
 public:
 	Q_INVOKABLE QString getAbsoluteFilePathFor(
@@ -90,14 +90,10 @@ public:
 	typedef std::vector<RegisteredFileType> RegisteredFileTypes;
 
 	static const RegisteredFileTypes &getRegisteredFileTypes();
-	static void registerFileType(
-		const char *extension,
-		const QMetaObject *fileMetaObject,
-		const QMetaObject *dataMetaObject);
+	static void registerFileType(const char *extension,
+		const QMetaObject *fileMetaObject, const QMetaObject *dataMetaObject);
 	static const QMetaObject *getFileTypeByExtension(
-		const QString &filePath,
-		const char **extensionPtr =
-			nullptr);
+		const QString &filePath, const char **extensionPtr = nullptr);
 	static const QMetaObject *getFileTypeByExtensionPtr(const char *extension);
 	static std::vector<const char *> getFileTypeExtensions(
 		const QMetaObject *metaObject);
@@ -109,11 +105,9 @@ public:
 	static QString getFileTypeTitle(
 		const QMetaObject *metaObject, bool plural = false);
 	static QString getFileFormatName(
-		const char *extension, bool plural = false,
-		bool emptyResult = false);
-	static QString getFileFormatName(
-		const QString &extension, bool plural = false,
-		bool emptyResult = false);
+		const char *extension, bool plural = false, bool emptyResult = false);
+	static QString getFileFormatName(const QString &extension,
+		bool plural = false, bool emptyResult = false);
 	static QString getFileFormatNameFrom(
 		const QString &filePath, bool plural = false);
 	static QString getFilterForExtension(const char *extension);
@@ -148,14 +142,11 @@ signals:
 
 protected:
 	virtual void descendantChanged(
-		QObject *descendant,
-		DescendantState state) override;
+		QObject *descendant, DescendantState state) override;
 	virtual void executeUpdateFilePathError(
-		const QString &path,
-		const QString &failed_path) override;
+		const QString &path, const QString &failed_path) override;
 
-	virtual UniqueNameScope *createNameScope(
-		const QMetaObject *meta_object,
+	virtual UniqueNameScope *createNameScope(const QMetaObject *meta_object,
 		Qt::CaseSensitivity sensitivity) const override;
 	virtual void sortChildren(QObjectList &children) override;
 	virtual void childEvent(QChildEvent *event) override;
@@ -204,7 +195,6 @@ public:
 	virtual QString getFileName() const override;
 	virtual QString getFixedName(const QString &source) const override;
 };
-
 }
 
 Q_DECLARE_METATYPE(Banana::Directory *)

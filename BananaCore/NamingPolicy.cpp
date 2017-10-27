@@ -33,14 +33,10 @@ SOFTWARE.
 
 namespace Banana
 {
+AbstractNamingPolicy::~AbstractNamingPolicy() {}
 
-AbstractNamingPolicy::~AbstractNamingPolicy()
-{
-
-}
-
-QString AbstractNamingPolicy::getNameWithoutNumber(const QString &name,
-												   quint32 *number_ptr) const
+QString AbstractNamingPolicy::getNameWithoutNumber(
+	const QString &name, quint32 *number_ptr) const
 {
 	QString result(name);
 
@@ -52,8 +48,8 @@ QString AbstractNamingPolicy::getNameWithoutNumber(const QString &name,
 		for (int j = len - 1; j >= 0; j--)
 		{
 			bool ok;
-			num = QString::fromRawData(&result.constData()[j], len - j).toUInt(
-					&ok);
+			num = QString::fromRawData(&result.constData()[j], len - j)
+					  .toUInt(&ok);
 
 			if (ok)
 				new_len--;
@@ -66,10 +62,10 @@ QString AbstractNamingPolicy::getNameWithoutNumber(const QString &name,
 			auto number_separator = getNumberSeparator();
 			auto sep_len = number_separator.length();
 			auto check_index = new_len - sep_len;
-			if (sep_len > 0
-				&& check_index >= 0
-				&& number_separator ==
-				QString::fromRawData(&result.constData()[check_index], sep_len))
+			if (sep_len > 0 && check_index >= 0 &&
+				number_separator ==
+					QString::fromRawData(
+						&result.constData()[check_index], sep_len))
 			{
 				new_len = check_index;
 			}
@@ -100,9 +96,7 @@ QString FileNamingPolicy::getFixedName(const QString &source) const
 
 	if (result.isEmpty())
 		return QString(
-			QCoreApplication::translate(
-				"FileNamingPolicy",
-				pUntitledFileName));
+			QCoreApplication::translate("FileNamingPolicy", pUntitledFileName));
 
 	return Utils::ConvertToFileName(result);
 }
@@ -112,9 +106,8 @@ QString FileNamingPolicy::getNumberSeparator() const
 	return QString(" ");
 }
 
-QString FileNamingPolicy::getUniqueFilePath(const QDir &parent_dir,
-											const QString &base_name,
-											QString suffix) const
+QString FileNamingPolicy::getUniqueFilePath(
+	const QDir &parent_dir, const QString &base_name, QString suffix) const
 {
 	if (!suffix.isEmpty() && suffix.at(0) != '.')
 	{
@@ -139,8 +132,8 @@ QString FileNamingPolicy::getUniqueFilePath(const QDir &parent_dir,
 
 		if (number > 0)
 		{
-			current_path = without_number + getNumberSeparator() +
-				QString::number(number);
+			current_path =
+				without_number + getNumberSeparator() + QString::number(number);
 		} else
 			current_path = without_number;
 
@@ -150,34 +143,30 @@ QString FileNamingPolicy::getUniqueFilePath(const QDir &parent_dir,
 	return current_path;
 }
 
-QString FileNamingPolicy::uniqueFilePath(const QString &parent_path,
-										 const QString &base_name,
-										 const QString &suffix)
+QString FileNamingPolicy::uniqueFilePath(
+	const QString &parent_path, const QString &base_name, const QString &suffix)
 {
 	return uniqueFilePath(QDir(parent_path), base_name, suffix);
 }
 
-QString FileNamingPolicy::uniqueFilePath(const QString &parent_path,
-										 const QFileInfo &info)
+QString FileNamingPolicy::uniqueFilePath(
+	const QString &parent_path, const QFileInfo &info)
 {
 	return uniqueFilePath(
-		QDir(parent_path),
-		info.baseName(), info.completeSuffix());
+		QDir(parent_path), info.baseName(), info.completeSuffix());
 }
 
-QString FileNamingPolicy::uniqueFilePath(const QDir &parent_dir,
-										 const QString &base_name,
-										 const QString &suffix)
+QString FileNamingPolicy::uniqueFilePath(
+	const QDir &parent_dir, const QString &base_name, const QString &suffix)
 {
 	FileNamingPolicy policy;
 
 	return policy.getUniqueFilePath(parent_dir, base_name, suffix);
 }
 
-QString FileNamingPolicy::uniqueFilePath(const QDir &parent_dir,
-										 const QFileInfo &info)
+QString FileNamingPolicy::uniqueFilePath(
+	const QDir &parent_dir, const QFileInfo &info)
 {
 	return uniqueFilePath(parent_dir, info.baseName(), info.completeSuffix());
 }
-
 }

@@ -37,13 +37,10 @@ namespace Banana
 FileTabBar::FileTabBar(QWidget *parent)
 	: QTabBar(parent)
 {
-	QObject::connect(
-		this, &QTabBar::tabCloseRequested,
-		this, &FileTabBar::onTabCloseRequested);
+	QObject::connect(this, &QTabBar::tabCloseRequested, this,
+		&FileTabBar::onTabCloseRequested);
 
-	QObject::connect(
-		this, &QTabBar::tabMoved,
-		this, &FileTabBar::onTabMoved);
+	QObject::connect(this, &QTabBar::tabMoved, this, &FileTabBar::onTabMoved);
 
 	setDocumentMode(true);
 	setTabsClosable(true);
@@ -119,8 +116,8 @@ bool FileTabBar::fileOpen(AbstractFile *file)
 
 			connectFile(file);
 
-			auto projectDir =
-				dynamic_cast<AbstractProjectDirectory *>(file->getTopDirectory());
+			auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
+				file->getTopDirectory());
 			Q_ASSERT(nullptr != projectDir);
 			auto projectGroup = projectDir->getProjectGroup();
 			Q_ASSERT(nullptr != projectGroup);
@@ -274,20 +271,16 @@ void FileTabBar::connectFile(AbstractFile *file)
 	if (nullptr != file)
 	{
 		QObject::connect(
-			file, &QObject::destroyed,
-			this, &FileTabBar::onFileDestroyed);
+			file, &QObject::destroyed, this, &FileTabBar::onFileDestroyed);
+
+		QObject::connect(file, &AbstractFile::flagsChanged, this,
+			&FileTabBar::onFileFlagsChanged);
 
 		QObject::connect(
-			file, &AbstractFile::flagsChanged,
-			this, &FileTabBar::onFileFlagsChanged);
+			file, &AbstractFile::pathChanged, this, &FileTabBar::updateTabText);
 
 		QObject::connect(
-			file, &AbstractFile::pathChanged,
-			this, &FileTabBar::updateTabText);
-
-		QObject::connect(
-			file, &AbstractFile::fileClosed,
-			this, &FileTabBar::onFileClosed);
+			file, &AbstractFile::fileClosed, this, &FileTabBar::onFileClosed);
 	}
 }
 
@@ -296,28 +289,23 @@ void FileTabBar::disconnectFile(AbstractFile *file)
 	if (nullptr != file)
 	{
 		QObject::disconnect(
-			file, &QObject::destroyed,
-			this, &FileTabBar::onFileDestroyed);
+			file, &QObject::destroyed, this, &FileTabBar::onFileDestroyed);
+
+		QObject::disconnect(file, &AbstractFile::flagsChanged, this,
+			&FileTabBar::onFileFlagsChanged);
 
 		QObject::disconnect(
-			file, &AbstractFile::flagsChanged,
-			this, &FileTabBar::onFileFlagsChanged);
+			file, &AbstractFile::pathChanged, this, &FileTabBar::updateTabText);
 
 		QObject::disconnect(
-			file, &AbstractFile::pathChanged,
-			this, &FileTabBar::updateTabText);
-
-		QObject::disconnect(
-			file, &AbstractFile::fileClosed,
-			this, &FileTabBar::onFileClosed);
+			file, &AbstractFile::fileClosed, this, &FileTabBar::onFileClosed);
 	}
 }
 
 int FileTabBar::getFileIndex(QObject *fileObject, bool valid) const
 {
-	auto file = valid
-		? dynamic_cast<AbstractFile *>(fileObject)
-		: static_cast<AbstractFile *>(fileObject);
+	auto file = valid ? dynamic_cast<AbstractFile *>(fileObject)
+					  : static_cast<AbstractFile *>(fileObject);
 
 	if (nullptr != file)
 	{
@@ -326,14 +314,11 @@ int FileTabBar::getFileIndex(QObject *fileObject, bool valid) const
 		if (valid && openedFiles.end() == it)
 		{
 			QString filePath(file->getFilePath());
-			it = std::find_if(
-					openedFiles.begin(), openedFiles.end(),
-					[&filePath](AbstractFile *a) -> bool
-				{
+			it = std::find_if(openedFiles.begin(), openedFiles.end(),
+				[&filePath](AbstractFile *a) -> bool {
 					return (0 ==
-							filePath.compare(
-								a->getFilePath(),
-								Qt::CaseInsensitive));
+						filePath.compare(
+							a->getFilePath(), Qt::CaseInsensitive));
 				});
 		}
 

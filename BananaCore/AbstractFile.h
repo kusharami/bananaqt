@@ -34,7 +34,6 @@ class QIODevice;
 
 namespace Banana
 {
-
 class Directory;
 class AbstractDirectory;
 class AbstractFileRegistrator;
@@ -46,34 +45,17 @@ class AbstractFile
 {
 	Q_OBJECT
 
-	Q_PROPERTY(
-		QString fileName
-		READ getFileName
-		WRITE setFileName
-		SCRIPTABLE true
-		STORED false
-		DESIGNABLE false)
+	Q_PROPERTY(QString fileName READ getFileName WRITE setFileName
+			SCRIPTABLE true STORED false DESIGNABLE false)
 
-	Q_PROPERTY(
-		QString filePath
-		READ getFilePath
-		SCRIPTABLE true
-		STORED false
-		DESIGNABLE false)
+	Q_PROPERTY(QString filePath READ getFilePath
+			SCRIPTABLE true STORED false DESIGNABLE false)
 
-	Q_PROPERTY(
-		QString shortFilePath
-		READ getFilePathShort
-		SCRIPTABLE true
-		STORED false
-		DESIGNABLE false)
+	Q_PROPERTY(QString shortFilePath READ getFilePathShort
+			SCRIPTABLE true STORED false DESIGNABLE false)
 
-	Q_PROPERTY(
-		QString canonicalFilePath
-		READ getCanonicalFilePath
-		SCRIPTABLE true
-		STORED false
-		DESIGNABLE false)
+	Q_PROPERTY(QString canonicalFilePath READ getCanonicalFilePath
+			SCRIPTABLE true STORED false DESIGNABLE false)
 
 public:
 	explicit AbstractFile(const QString &extension);
@@ -149,11 +131,9 @@ protected:
 	virtual void changeFilePath(const QString &newPath);
 	virtual bool tryChangeFilePath(const QString &newPath);
 	virtual void executeUpdateFilePathError(
-		const QString &path,
-		const QString &failedPath) override;
+		const QString &path, const QString &failedPath) override;
 	virtual bool updateFileExtension(
-		const QString &fileName,
-		QString *outExtension) override;
+		const QString &fileName, QString *outExtension) override;
 	virtual void doUpdateFilePath(bool checkOldPath);
 	virtual void doParentChange() override;
 	virtual QObject *doGetData();
@@ -199,7 +179,6 @@ unsigned AbstractFile::getBindCount() const
 {
 	return bindCount;
 }
-
 }
 
 Q_DECLARE_METATYPE(Banana::AbstractFile *)

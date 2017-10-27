@@ -45,10 +45,8 @@ ProjectDirectoryModel::ProjectDirectoryModel(QObject *parent)
 	setReadOnly(false);
 	setNameFilterDisables(false);
 
-	setFilter(
-		QDir::Dirs | QDir::Files |
-		QDir::Readable | QDir::Writable | QDir::Executable | QDir::Modified |
-		QDir::NoDotAndDotDot);
+	setFilter(QDir::Dirs | QDir::Files | QDir::Readable | QDir::Writable |
+		QDir::Executable | QDir::Modified | QDir::NoDotAndDotDot);
 }
 
 QModelIndex ProjectDirectoryModel::setProjectDirectory(
@@ -137,8 +135,7 @@ QVariant ProjectDirectoryModel::data(const QModelIndex &index, int role) const
 }
 
 bool ProjectDirectoryModel::setData(
-	const QModelIndex &index,
-	const QVariant &value, int role)
+	const QModelIndex &index, const QVariant &value, int role)
 {
 	if (index.isValid() && role == Qt::EditRole)
 	{
@@ -152,9 +149,8 @@ bool ProjectDirectoryModel::setData(
 
 		if (nullptr != dir)
 		{
-			auto connection = QObject::connect(
-					dir, &Directory::updatePathError,
-					this, &ProjectDirectoryModel::changeDirPathError);
+			auto connection = QObject::connect(dir, &Directory::updatePathError,
+				this, &ProjectDirectoryModel::changeDirPathError);
 
 			bool result = dir->rename(value.toString());
 
@@ -173,11 +169,10 @@ bool ProjectDirectoryModel::setData(
 
 				bool error = false;
 
-				auto connection = QObject::connect(
-						file, &AbstractFile::updateFilePathError,
-						[this, file, &error](const QString &path,
-											 const QString &failedPath) mutable
-					{
+				auto connection = QObject::connect(file,
+					&AbstractFile::updateFilePathError,
+					[this, file, &error](const QString &path,
+						const QString &failedPath) mutable {
 						QString extension(file->getFileExtension());
 
 						if (extension.isEmpty() ||
@@ -210,10 +205,8 @@ bool ProjectDirectoryModel::setData(
 	return false;
 }
 
-bool ProjectDirectoryModel::dropMimeData(
-	const QMimeData *data,
-	Qt::DropAction action, int, int,
-	const QModelIndex &parent)
+bool ProjectDirectoryModel::dropMimeData(const QMimeData *data,
+	Qt::DropAction action, int, int, const QModelIndex &parent)
 {
 	if (!parent.isValid() || isReadOnly())
 		return false;
@@ -221,8 +214,7 @@ bool ProjectDirectoryModel::dropMimeData(
 	Q_ASSERT(nullptr != fileManager);
 
 	return fileManager->processUrls(
-		action, QDir(filePath(parent)),
-		data->urls());
+		action, QDir(filePath(parent)), data->urls());
 }
 
 Qt::DropActions ProjectDirectoryModel::supportedDragActions() const
@@ -245,8 +237,7 @@ Qt::DropAction ProjectDirectoryModel::convertDropAction(
 }
 
 void ProjectDirectoryModel::setFileTypeInfo(
-	const QString &extension,
-	const FileTypeInfo &info)
+	const QString &extension, const FileTypeInfo &info)
 {
 	fileTypesInfo[extension] = info;
 }
@@ -318,18 +309,18 @@ QString ProjectDirectoryModel::getToolTipForFile(const QFileInfo &info)
 	{
 		if (info.exists())
 		{
-			tooltip = tr("Links to '%1'").arg(
-					QDir::toNativeSeparators(info.symLinkTarget()));
+			tooltip = tr("Links to '%1'")
+						  .arg(QDir::toNativeSeparators(info.symLinkTarget()));
 		} else
 		{
-			tooltip = tr("Symbolic link target '%1' does not exist").arg(
-					QDir::toNativeSeparators(info.symLinkTarget()));
+			tooltip = tr("Symbolic link target '%1' does not exist")
+						  .arg(QDir::toNativeSeparators(info.symLinkTarget()));
 		}
 	}
 
 	if (info.isFile())
-		return QString("%1<br><img src=\"%2\">").arg(
-			tooltip, canonicalFilePath);
+		return QString("%1<br><img src=\"%2\">")
+			.arg(tooltip, canonicalFilePath);
 
 	return tooltip;
 }
@@ -347,9 +338,8 @@ void ProjectDirectoryModel::connectProjectDirectory()
 {
 	if (nullptr != projectDir)
 	{
-		QObject::connect(
-			projectDir, &QObject::destroyed,
-			this, &ProjectDirectoryModel::onProjectDirectoryDestroyed);
+		QObject::connect(projectDir, &QObject::destroyed, this,
+			&ProjectDirectoryModel::onProjectDirectoryDestroyed);
 	}
 }
 
@@ -357,9 +347,8 @@ void ProjectDirectoryModel::disconnectProjectDirectory()
 {
 	if (nullptr != projectDir)
 	{
-		QObject::disconnect(
-			projectDir, &QObject::destroyed,
-			this, &ProjectDirectoryModel::onProjectDirectoryDestroyed);
+		QObject::disconnect(projectDir, &QObject::destroyed, this,
+			&ProjectDirectoryModel::onProjectDirectoryDestroyed);
 	}
 }
 

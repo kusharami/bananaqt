@@ -28,14 +28,12 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class UniqueNameScope : public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit UniqueNameScope(
-		const QMetaObject *meta_object,
+	explicit UniqueNameScope(const QMetaObject *meta_object,
 		Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive,
 		QObject *parent = nullptr);
 
@@ -48,11 +46,10 @@ public:
 	void disconnectObject(QObject *object);
 
 protected:
-	virtual QObject *findSibling(QObject *object,
-								 const QString &find_name) const;
-	virtual bool checkSiblingNameForObject(QObject *sibling,
-										   const QString &name,
-										   QObject *object) const;
+	virtual QObject *findSibling(
+		QObject *object, const QString &find_name) const;
+	virtual bool checkSiblingNameForObject(
+		QObject *sibling, const QString &name, QObject *object) const;
 
 	const QMetaObject *meta_object;
 	Qt::CaseSensitivity sensitivity;
@@ -69,5 +66,4 @@ private:
 	void internalConnectObject(QObject *object);
 	void internalDisconnectObject(QObject *object);
 };
-
 }

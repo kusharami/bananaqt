@@ -51,5 +51,4 @@ enum
 
 	USER_COMMAND = 1024
 };
-
 }

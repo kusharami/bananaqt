@@ -45,13 +45,11 @@ DetailedMessageDialog::DetailedMessageDialog(QWidget *parent)
 
 	setWindowTitle(QCoreApplication::applicationName());
 
-	setWindowFlags(
-		(windowFlags() & ~(Qt::WindowContextHelpButtonHint))
-		| Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
+		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 
-	QObject::connect(
-		ui->buttonBox, &QDialogButtonBox::clicked,
-		this, &DetailedMessageDialog::onButtonClicked);
+	QObject::connect(ui->buttonBox, &QDialogButtonBox::clicked, this,
+		&DetailedMessageDialog::onButtonClicked);
 }
 
 DetailedMessageDialog::~DetailedMessageDialog()
@@ -89,9 +87,7 @@ void DetailedMessageDialog::setType(Type type)
 			case Error:
 			case Question:
 				ui->iconLabel->setPixmap(
-					QMessageBox::standardIcon(
-						(QMessageBox
-						 ::Icon) type));
+					QMessageBox::standardIcon((QMessageBox ::Icon) type));
 				ui->iconLabel->show();
 				break;
 

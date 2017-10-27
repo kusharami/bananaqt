@@ -62,14 +62,12 @@ private slots:
 	void applyFilters();
 
 protected:
-	virtual bool filterAcceptsColumn(int source_column,
-									 const QModelIndex &source_parent) const
-	override;
-	virtual bool filterAcceptsRow(int source_row,
-								  const QModelIndex &source_parent) const
-	override;
+	virtual bool filterAcceptsColumn(
+		int source_column, const QModelIndex &source_parent) const override;
+	virtual bool filterAcceptsRow(
+		int source_row, const QModelIndex &source_parent) const override;
 	virtual bool lessThan(const QModelIndex &source_left,
-						  const QModelIndex &source_right) const override;
+		const QModelIndex &source_right) const override;
 
 	virtual Qt::DropActions supportedDropActions() const override;
 	virtual Qt::DropActions supportedDragActions() const override;
@@ -88,5 +86,4 @@ private:
 	bool readOnly;
 	bool showDirsOnly;
 };
-
 }

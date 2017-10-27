@@ -62,8 +62,7 @@ public:
 
 	static bool loadContents(
 		const QVariantMap &source, QObject *destination, bool skipObjectName);
-	static void saveContents(
-		const QObject *source, QVariantMap &destination,
+	static void saveContents(const QObject *source, QVariantMap &destination,
 		QObject *prototype = nullptr);
 
 	enum SaveMode
@@ -114,8 +113,7 @@ public:
 	inline bool isModified() const;
 	void setModified(bool value);
 	static void modifyObject(
-		QObject *object, bool modified, bool signalize,
-		bool children);
+		QObject *object, bool modified, bool signalize, bool children);
 
 	inline bool isDeleted() const;
 
@@ -134,7 +132,7 @@ public:
 	void setPropertyModifiedBits(quint64 propertyIdBits);
 
 	QMetaPropertyVec getPropertyListAffectedBy(
-		const QMetaProperty &metaProperty)    const;
+		const QMetaProperty &metaProperty) const;
 
 	void deprototype();
 
@@ -161,8 +159,7 @@ private slots:
 
 private:
 	void pushUndoCommandInternal(
-		const char *propertyName,
-		const QVariant &oldValue);
+		const char *propertyName, const QVariant &oldValue);
 	Object *getMainPrototype() const;
 	void internalAssign(QObject *source, bool fresh, bool top);
 	void internalSetPrototype(Object *prototype, bool child, bool fresh);
@@ -192,8 +189,8 @@ protected:
 	virtual void assignChildren(QObject *source);
 	virtual void assignProperties(QObject *source);
 	void newChildFrom(QObject *source, bool childProto);
-	virtual const QMetaObject *getStorableChildType(const QString &className)
-	const;
+	virtual const QMetaObject *getStorableChildType(
+		const QString &className) const;
 	virtual bool isStorableChildType(const QMetaObject *type) const;
 	virtual void childEvent(QChildEvent *event) override;
 	virtual void doParentChange();

@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ChangeValueCommand::ChangeValueCommand(
 	Object *object, const QString &oldName, const QString &newName)
 	: AbstractObjectUndoCommand(object)
@@ -49,8 +48,7 @@ ChangeValueCommand::ChangeValueCommand(
 }
 
 ChangeValueCommand::ChangeValueCommand(
-	Object *object, const QMetaProperty &metaProperty,
-	const QVariant &oldValue)
+	Object *object, const QMetaProperty &metaProperty, const QVariant &oldValue)
 	: AbstractObjectUndoCommand(object)
 {
 	newStateBits = object->getPropertyModifiedBits();
@@ -146,8 +144,7 @@ void ChangeValueCommand::prepareOrderedEntries(
 			orderedEntries.push_back(&it.second);
 		}
 
-		std::sort(
-			orderedEntries.begin(), orderedEntries.end(),
+		std::stable_sort(orderedEntries.begin(), orderedEntries.end(),
 			ChangeValueCommand::entryIndexLess);
 	}
 }
@@ -177,8 +174,7 @@ void ChangeValueCommand::applyValues(bool redo)
 		}
 	} else
 	{
-		for (auto rit = orderedEntries.rbegin();
-			 rit != orderedEntries.rend();
+		for (auto rit = orderedEntries.rbegin(); rit != orderedEntries.rend();
 			 ++rit)
 		{
 			auto entry = *rit;
@@ -213,12 +209,8 @@ void ChangeValueCommand::pushEntry(const EntryData &entryData)
 	if (it == entries.end())
 	{
 		auto index = entries.size();
-		entries[propertyIndex] = {
-			entryData.metaProperty,
-			entryData.oldValue,
-			entryData.newValue,
-			index
-		};
+		entries[propertyIndex] = { entryData.metaProperty, entryData.oldValue,
+			entryData.newValue, index };
 	} else
 	{
 		it->second.newValue = entryData.newValue;
@@ -233,10 +225,8 @@ QString ChangeValueCommand::getMultipleResetCommandTextFor(
 	Q_ASSERT(nullptr != metaObject);
 	Q_ASSERT(nullptr != propertyName);
 
-	return resetCommandPattern().arg(
-		multipleObjectsStr(),
-		QCoreApplication::translate(
-			metaObject->className(), propertyName));
+	return resetCommandPattern().arg(multipleObjectsStr(),
+		QCoreApplication::translate(metaObject->className(), propertyName));
 }
 
 QString ChangeValueCommand::getMultipleResetCommandTextFor(
@@ -244,8 +234,7 @@ QString ChangeValueCommand::getMultipleResetCommandTextFor(
 {
 	Q_ASSERT(nullptr != metaObject);
 
-	return resetCommandPattern().arg(
-		multipleObjectsStr(),
+	return resetCommandPattern().arg(multipleObjectsStr(),
 		QCoreApplication::translate(
 			metaObject->className(), metaProperty.name()));
 }
@@ -271,11 +260,9 @@ QString ChangeValueCommand::getResetCommandTextFor(
 	auto objectName = object->objectName();
 	if (objectName.isEmpty())
 		objectName = QCoreApplication::translate(
-				"ClassName",
-				object->metaObject()->className());
+			"ClassName", object->metaObject()->className());
 
-	return resetCommandPattern().arg(
-		objectName,
+	return resetCommandPattern().arg(objectName,
 		QCoreApplication::translate(
 			metaObject->className(), metaProperty.name()));
 }
@@ -285,8 +272,8 @@ QString ChangeValueCommand::getMultipleCommandTextFor(
 {
 	Q_ASSERT(nullptr != metaObject);
 
-	QString propertyNameTr(QCoreApplication::translate(
-							   metaObject->className(), propertyName));
+	QString propertyNameTr(
+		QCoreApplication::translate(metaObject->className(), propertyName));
 
 	return changeValueCommandPattern().arg(
 		multipleObjectsStr(), propertyNameTr);
@@ -305,9 +292,7 @@ QString ChangeValueCommand::getCommandTextFor(
 	Q_ASSERT(nullptr != propertyName);
 
 	return getCommandTextFor(
-		object,
-		Utils::GetMetaPropertyByName(
-			object, propertyName));
+		object, Utils::GetMetaPropertyByName(object, propertyName));
 }
 
 QString ChangeValueCommand::getCommandTextFor(
@@ -322,10 +307,10 @@ QString ChangeValueCommand::getCommandTextFor(
 
 	if (objectName.isEmpty())
 		objectName = QCoreApplication::translate(
-				"ClassName", object->metaObject()->className());
+			"ClassName", object->metaObject()->className());
 
 	QString propertyName(QCoreApplication::translate(
-							 metaObject->className(), metaProperty.name()));
+		metaObject->className(), metaProperty.name()));
 
 	return changeValueCommandPattern().arg(objectName, propertyName);
 }
@@ -344,5 +329,4 @@ QString ChangeValueCommand::multipleObjectsStr()
 {
 	return tr("Multiple objects");
 }
-
 }

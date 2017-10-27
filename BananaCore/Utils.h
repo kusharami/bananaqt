@@ -48,7 +48,6 @@ class QMimeData;
 
 namespace Banana
 {
-
 namespace Utils
 {
 extern const QString *pTypeKey;
@@ -98,8 +97,7 @@ bool CheckFilePath(const QString &path);
 
 QVariant ToStandardVariant(const QVariant &variant);
 
-QVariant ValueFrom(
-	const QVariantMap &data, const QString &key,
+QVariant ValueFrom(const QVariantMap &data, const QString &key,
 	const QVariant &default_value = QVariant());
 
 void ShowInGraphicalShell(const QString &pathIn);
@@ -114,8 +112,7 @@ QMetaProperty GetMetaPropertyByName(
 const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property);
 
 bool IsAncestorOf(const QObject *descendant, const QObject *object);
-inline bool IsDescendantOf(
-	const QObject *ancestor, const QObject *object)
+inline bool IsDescendantOf(const QObject *ancestor, const QObject *object)
 {
 	return IsAncestorOf(object, ancestor);
 }
@@ -127,16 +124,14 @@ void StoreQObjectPointer(const QObject *object, QMimeData *data);
 template <typename T>
 static inline const T *LoadObjectPointer(const QMimeData *data)
 {
-	return static_cast<const T *>(LoadQObjectPointer(
-									  &T::staticMetaObject, data));
+	return static_cast<const T *>(
+		LoadQObjectPointer(&T::staticMetaObject, data));
 }
 
 QObject *GetTopAncestor(QObject *object);
-QObject *GetDescendant(
-	const QObject *topAncestor, const QStringList &path);
+QObject *GetDescendant(const QObject *topAncestor, const QStringList &path);
 
 QStringList GetNamesChain(
 	const QObject *topAncestor, const QObject *bottomDescendant);
 }
-
 }

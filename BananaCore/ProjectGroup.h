@@ -39,20 +39,12 @@ class ProjectGroup : public Banana::ObjectGroup
 {
 	Q_OBJECT
 
-	Q_PROPERTY(
-		AbstractProjectDirectory * activeProjectDirectory
-		READ getActiveProjectDirectory
-		WRITE setActiveProjectDirectory
-		NOTIFY activeProjectDirectoryChanged
-		DESIGNABLE false
-		SCRIPTABLE true)
+	Q_PROPERTY(AbstractProjectDirectory *activeProjectDirectory READ
+			getActiveProjectDirectory WRITE setActiveProjectDirectory NOTIFY
+				activeProjectDirectoryChanged DESIGNABLE false SCRIPTABLE true)
 
-	Q_PROPERTY(
-		bool silent
-		READ isSilent
-		WRITE getSilent
-		SCRIPTABLE true
-		DESIGNABLE false)
+	Q_PROPERTY(bool silent READ isSilent WRITE getSilent
+			SCRIPTABLE true DESIGNABLE false)
 
 public:
 	explicit ProjectGroup(const QMetaObject *projectDirType);
@@ -108,5 +100,4 @@ QUndoGroup *ProjectGroup::getUndoGroup() const
 {
 	return undoGroup;
 }
-
 }

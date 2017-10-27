@@ -29,15 +29,14 @@ SOFTWARE.
 
 namespace Banana
 {
-
 CheckBoxHeader::CheckBoxHeader(Qt::Orientation orientation, QWidget *parent)
 	: QHeaderView(orientation, parent)
 	, checked(false)
 {
 }
 
-void CheckBoxHeader::paintSection(QPainter *painter, const QRect &rect,
-								  int logicalIndex) const
+void CheckBoxHeader::paintSection(
+	QPainter *painter, const QRect &rect, int logicalIndex) const
 {
 	painter->save();
 	QHeaderView::paintSection(painter, rect, logicalIndex);
@@ -66,10 +65,8 @@ void CheckBoxHeader::paintSection(QPainter *painter, const QRect &rect,
 
 void CheckBoxHeader::mousePressEvent(QMouseEvent *event)
 {
-	if (event->button() == Qt::LeftButton
-		&& check_rect.contains(
-			event->localPos().x(), event->localPos().y(),
-			true))
+	if (event->button() == Qt::LeftButton &&
+		check_rect.contains(event->localPos().x(), event->localPos().y(), true))
 	{
 		setIsChecked(!isChecked());
 	}
@@ -86,5 +83,4 @@ void CheckBoxHeader::setIsChecked(bool val)
 		emit checkBoxStateChanged(checked);
 	}
 }
-
 }

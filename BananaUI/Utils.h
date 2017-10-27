@@ -32,7 +32,7 @@ namespace Banana
 {
 namespace Utils
 {
-void addShortcutForAction(QWidget *parent, const QKeySequence &sequence,
-						  QAction *action);
+void addShortcutForAction(
+	QWidget *parent, const QKeySequence &sequence, QAction *action);
 }
 }

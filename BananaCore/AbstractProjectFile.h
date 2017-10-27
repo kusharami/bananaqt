@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class SearchPaths;
 class Directory;
 class OpenedFiles;
@@ -41,12 +40,8 @@ class AbstractProjectFile : public VariantMapFile
 {
 	Q_OBJECT
 
-	Q_PROPERTY(
-		Banana::SearchPaths * mSearchPaths
-		READ getSearchPaths
-		RESET resetSearchPaths
-		DESIGNABLE true
-		STORED false)
+	Q_PROPERTY(Banana::SearchPaths *mSearchPaths READ getSearchPaths RESET
+			resetSearchPaths DESIGNABLE true STORED false)
 
 public:
 	CUSTOM_PROPERTY(bool, HideIgnoredFiles)
@@ -103,14 +98,11 @@ private:
 
 	void watch(bool yes);
 	void saveProjectDirectory(
-		Directory *root_dir,
-		Directory *dir,
-		QVariantList &output) const;
+		Directory *root_dir, Directory *dir, QVariantList &output) const;
 
 	OpenedFiles *openedFiles;
 	SearchPaths *searchPaths;
 };
-
 }
 
 Q_DECLARE_METATYPE(Banana::AbstractProjectFile *)

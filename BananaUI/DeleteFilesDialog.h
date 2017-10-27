@@ -49,14 +49,13 @@ class DeleteFilesListModel : public QAbstractListModel
 
 public:
 	explicit DeleteFilesListModel(Banana::ProjectDirectoryModel *source_model,
-								  const QModelIndexList &to_delete,
-								  QObject *parent = nullptr);
+		const QModelIndexList &to_delete, QObject *parent = nullptr);
 
 	virtual int rowCount(const QModelIndex &) const override;
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 	virtual QVariant data(const QModelIndex &index, int role) const override;
-	virtual bool setData(const QModelIndex &index, const QVariant &value,
-						 int role) override;
+	virtual bool setData(
+		const QModelIndex &index, const QVariant &value, int role) override;
 
 	bool deleteCheckedEntries();
 
@@ -80,8 +79,8 @@ private:
 	static bool canDeleteDir(QObject *dir);
 
 	static bool entryLessThan(const EntryToDelete &a, const EntryToDelete &b);
-	static bool checkEntryIsAdded(const QFileInfo &entry,
-								  const EntryToDelete &check);
+	static bool checkEntryIsAdded(
+		const QFileInfo &entry, const EntryToDelete &check);
 
 	std::vector<EntryToDelete> to_delete;
 	Banana::ProjectDirectoryModel *source_model;
@@ -96,7 +95,7 @@ public:
 	virtual ~DeleteFilesDialog();
 
 	bool execute(const QModelIndexList &to_delete,
-				 Banana::ProjectDirectoryModel *source_model);
+		Banana::ProjectDirectoryModel *source_model);
 
 private slots:
 	void on_deleteButton_clicked();
@@ -111,5 +110,4 @@ private:
 
 	DeleteFilesListModel *list_model;
 };
-
 }

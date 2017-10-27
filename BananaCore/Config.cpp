@@ -41,10 +41,8 @@ static void InitResources()
 
 namespace Banana
 {
-
 namespace Core
 {
-
 void Register()
 {
 	(void) QT_TRANSLATE_NOOP("ClassName", "QObject");
@@ -55,9 +53,7 @@ void Register()
 	qRegisterMetaType<QVariantMap>();
 	qRegisterMetaType<SearchPaths *>();
 
-	Directory::registerFileType(
-		pNoExtension,
-		&BinaryFile::staticMetaObject,
+	Directory::registerFileType(pNoExtension, &BinaryFile::staticMetaObject,
 		&BinaryData::staticMetaObject);
 }
 
@@ -69,7 +65,6 @@ void InstallTranslations(const QLocale &locale)
 		QCoreApplication::installTranslator(&translator);
 	}
 }
-
 }
 
 OS getHostOS()
@@ -82,5 +77,4 @@ OS getHostOS()
 	return OS_UNKNOWN;
 #endif
 }
-
 }

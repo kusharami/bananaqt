@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class FileNameCollection : public AbstractNameCollection
 {
 public:
@@ -70,5 +69,4 @@ void FileNameCollection::setFileExtension(const QString &value)
 {
 	mFileExtension = value;
 }
-
 }

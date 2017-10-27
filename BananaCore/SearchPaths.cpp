@@ -28,12 +28,10 @@ SOFTWARE.
 
 namespace Banana
 {
-
 SearchPaths::SearchPaths(AbstractProjectDirectory *project_dir, QObject *parent)
 	: QObject(parent)
 	, project_dir(project_dir)
 {
-
 }
 
 Directory *SearchPaths::registerPath(const QString &path, int order) const
@@ -43,10 +41,8 @@ Directory *SearchPaths::registerPath(const QString &path, int order) const
 
 void SearchPaths::unregisterPath(const QString &path) const
 {
-	auto dir =
-		dynamic_cast<Directory *>(project_dir->findFileSystemObject(
-									  path,
-									  false));
+	auto dir = dynamic_cast<Directory *>(
+		project_dir->findFileSystemObject(path, false));
 	unregisterDirectory(dir);
 }
 
@@ -100,5 +96,4 @@ void SearchPaths::unregisterDirsIn(Directory *dir) const
 		}
 	}
 }
-
 }

@@ -29,17 +29,6 @@ SOFTWARE.
 
 namespace Banana
 {
-class CleanCancelEvent : public QEvent
-{
-public:
-	CleanCancelEvent()
-		: QEvent(User)
-	{
-
-	}
-
-};
-
 UndoStack::UndoStack(QObject *parent)
 	: QUndoStack(parent)
 	, blockCounter(0)
@@ -48,8 +37,7 @@ UndoStack::UndoStack(QObject *parent)
 	, firstClean(true)
 {
 	QObject::connect(
-		this, &QUndoStack::cleanChanged,
-		this, &UndoStack::onCleanChanged);
+		this, &QUndoStack::cleanChanged, this, &UndoStack::onCleanChanged);
 }
 
 void UndoStack::beginUpdate()
@@ -133,28 +121,18 @@ QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
 			return tr("Drag && Drop: Link");
 
 		default:
-			qFatal("Unsupported drop action");
 			break;
 	}
 
+	qFatal("Unsupported drop action");
 	return QString();
-}
-
-void UndoStack::customEvent(QEvent *event)
-{
-	auto cleanCancelEvent = dynamic_cast<CleanCancelEvent *>(event);
-	if (nullptr != cleanCancelEvent)
-	{
-		emit cleanChanged(false);
-	}
 }
 
 void UndoStack::onCleanChanged(bool clean)
 {
 	if (clean && !firstClean && cleanIndex() == 0 && index() == 0)
 	{
-		QApplication::postEvent(this, new CleanCancelEvent);
+		emit cleanChanged(false);
 	}
 }
-
 }

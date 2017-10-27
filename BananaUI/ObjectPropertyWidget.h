@@ -40,8 +40,8 @@ public:
 	explicit ObjectPropertyWidget(QWidget *parent = nullptr);
 
 private slots:
-	void onBeforePropertyEdited(QtnProperty *property,
-								QtnPropertyValuePtr newValue);
+	void onBeforePropertyEdited(
+		QtnProperty *property, QtnPropertyValuePtr newValue);
 	void onPropertyEdited(QtnProperty *property);
 
 private:
@@ -49,5 +49,4 @@ private:
 	static QtnPropertyConnector *getConnectorForProperty(
 		QtnPropertyBase *property);
 };
-
 }

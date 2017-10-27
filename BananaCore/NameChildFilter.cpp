@@ -28,37 +28,31 @@ SOFTWARE.
 
 namespace Banana
 {
-
 NameChildFilter::NameChildFilter()
 	: options(ContainsString)
 {
-
 }
 
 NameChildFilter::NameChildFilter(const QString &str, Options options)
 	: str(str)
 	, options(options)
 {
-
 }
 
 bool NameChildFilter::filterMatch(QObject *object) const
 {
-	auto sensitivity = (0 != (options & CaseInsensitive)
-						? Qt::CaseInsensitive
-						: Qt::CaseSensitive);
+	auto sensitivity = (0 != (options & CaseInsensitive) ? Qt::CaseInsensitive
+														 : Qt::CaseSensitive);
 
 	QString name(object->objectName());
 
 	if (MatchString == (options & MatchString))
 	{
 		return (0 == name.compare(str, sensitivity));
-	} else
-	if (0 != (options & StartsWithString))
+	} else if (0 != (options & StartsWithString))
 	{
 		return name.startsWith(str, sensitivity);
-	} else
-	if (0 != (options & EndsWithString))
+	} else if (0 != (options & EndsWithString))
 	{
 		return name.endsWith(str, sensitivity);
 	}
@@ -90,5 +84,4 @@ const QString &NameChildFilter::getString() const
 {
 	return str;
 }
-
 }

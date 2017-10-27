@@ -54,15 +54,17 @@ struct MainWindowPrivate
 	bool ddeTerminate(MSG *message, long *result);
 
 	// Sets specified value in the registry under HKCU\Software\Classes, which is mapped to HKCR then.
-	bool SetHkcrUserRegKey(
-		QString key, const QString &value,
+	bool SetHkcrUserRegKey(QString key, const QString &value,
 		const QString &valueName = QString::null);
 
 	// ----- members -------------------------------------------------------------------------------
-	QString appAtomName;	/**< the name of the application, without file extension */
-	QString systemTopicAtomName;	/**< the name of the system topic atom, typically "System" */
-	ATOM appAtom;	/**< The windows atom needed for DDE communication */
-	ATOM systemTopicAtom;	/**< The windows system topic atom needed for DDE communication */
+	QString
+		appAtomName; /**< the name of the application, without file extension */
+	QString
+		systemTopicAtomName; /**< the name of the system topic atom, typically "System" */
+	ATOM appAtom; /**< The windows atom needed for DDE communication */
+	ATOM
+		systemTopicAtom; /**< The windows system topic atom needed for DDE communication */
 #endif
 
 	void enableOpenOutside();
@@ -83,19 +85,19 @@ MainWindow::~MainWindow()
 	delete p;
 }
 
-void MainWindow::registerFileType(
-	const QString &documentId, const QString &fileTypeName,
-	const QString &fileExtension, qint32 appIconIndex)
+void MainWindow::registerFileType(const QString &documentId,
+	const QString &fileTypeName, const QString &fileExtension,
+	qint32 appIconIndex)
 {
 #ifdef Q_OS_WIN
 	// first register the type ID of our server
 	if (!p->SetHkcrUserRegKey(documentId, fileTypeName))
 		return;
-	if (!p->SetHkcrUserRegKey(
-			QString("%1\\DefaultIcon").arg(documentId),
-			QString("\"%1\",%2").arg(
-				QDir::toNativeSeparators(
-					QApplication::applicationFilePath())).arg(appIconIndex)))
+	if (!p->SetHkcrUserRegKey(QString("%1\\DefaultIcon").arg(documentId),
+			QString("\"%1\",%2")
+				.arg(QDir::toNativeSeparators(
+					QApplication::applicationFilePath()))
+				.arg(appIconIndex)))
 		return;
 
 	registerCommand("Open", documentId, " %1", "[open(\"%1\")]");
@@ -110,11 +112,8 @@ void MainWindow::registerFileType(
 
 	LONG lSize = _MAX_PATH * 2;
 	TCHAR szTempBuffer[_MAX_PATH * 2];
-	LONG lResult = ::RegQueryValue(
-			HKEY_CLASSES_ROOT,
-			szExtension,
-			szTempBuffer,
-			&lSize);
+	LONG lResult =
+		::RegQueryValue(HKEY_CLASSES_ROOT, szExtension, szTempBuffer, &lSize);
 #ifdef UNICODE
 	QString temp = QString::fromWCharArray(szTempBuffer, lSize);
 #else
@@ -126,8 +125,7 @@ void MainWindow::registerFileType(
 		if (!p->SetHkcrUserRegKey(fileExtension, documentId))
 			return;
 		p->SetHkcrUserRegKey(
-			QString("%1\\ShellNew").arg(fileExtension),
-			QString(), "NullFile");
+			QString("%1\\ShellNew").arg(fileExtension), QString(), "NullFile");
 	}
 #else
 	Q_UNUSED(documentId);
@@ -137,13 +135,13 @@ void MainWindow::registerFileType(
 #endif
 }
 
-void MainWindow::registerCommand(
-	const QString &command, const QString &documentId, const QString cmdLineArg,
+void MainWindow::registerCommand(const QString &command,
+	const QString &documentId, const QString cmdLineArg,
 	const QString ddeCommand)
 {
 #ifdef Q_OS_WIN
-	QString commandLine = QDir::toNativeSeparators(
-			QApplication::applicationFilePath());
+	QString commandLine =
+		QDir::toNativeSeparators(QApplication::applicationFilePath());
 	commandLine.prepend(QLatin1String("\""));
 	commandLine.append(QLatin1String("\""));
 	if (!cmdLineArg.isEmpty())
@@ -152,26 +150,24 @@ void MainWindow::registerCommand(
 		commandLine.append(cmdLineArg);
 	}
 	if (!p->SetHkcrUserRegKey(
-			QString("%1\\shell\\%2\\command")
-			.arg(documentId)
-			.arg(command), commandLine))
-		return;		// just skip it
+			QString("%1\\shell\\%2\\command").arg(documentId).arg(command),
+			commandLine))
+		return; // just skip it
 	if (!ddeCommand.isEmpty())
 	{
 		if (!p->SetHkcrUserRegKey(
-				QString("%1\\shell\\%2\\ddeexec")
-				.arg(documentId)
-				.arg(command), ddeCommand))
+				QString("%1\\shell\\%2\\ddeexec").arg(documentId).arg(command),
+				ddeCommand))
 			return;
-		if (!p->SetHkcrUserRegKey(
-				QString("%1\\shell\\%2\\ddeexec\\application")
-				.arg(documentId)
-				.arg(command), p->appAtomName))
+		if (!p->SetHkcrUserRegKey(QString("%1\\shell\\%2\\ddeexec\\application")
+									  .arg(documentId)
+									  .arg(command),
+				p->appAtomName))
 			return;
-		if (!p->SetHkcrUserRegKey(
-				QString("%1\\shell\\%2\\ddeexec\\topic")
-				.arg(documentId)
-				.arg(command), p->systemTopicAtomName))
+		if (!p->SetHkcrUserRegKey(QString("%1\\shell\\%2\\ddeexec\\topic")
+									  .arg(documentId)
+									  .arg(command),
+				p->systemTopicAtomName))
 			return;
 	}
 #else
@@ -223,30 +219,22 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 	return QMainWindow::eventFilter(watched, event);
 }
 
-void MainWindow::openFileOutside(const QString &)
-{
+void MainWindow::openFileOutside(const QString &) {}
 
-}
-
-void MainWindow::customOutsideCommand(const QString &, const QString &)
-{
-
-}
+void MainWindow::customOutsideCommand(const QString &, const QString &) {}
 
 #ifdef Q_OS_WIN
 bool MainWindowPrivate::ddeInitiate(MSG *message, long *result)
 {
-	if (0 != LOWORD(message->lParam)
-		&& 0 != HIWORD(message->lParam)
-		&& LOWORD(message->lParam) == appAtom
-		&& HIWORD(message->lParam) == systemTopicAtom)
+	if (0 != LOWORD(message->lParam) && 0 != HIWORD(message->lParam) &&
+		LOWORD(message->lParam) == appAtom &&
+		HIWORD(message->lParam) == systemTopicAtom)
 	{
 		// make duplicates of the incoming atoms (really adding a reference)
 		TCHAR atomName[_MAX_PATH];
 
-		auto atomNameHandler = ::GlobalGetAtomName(
-				appAtom, atomName,
-				_MAX_PATH - 1);
+		auto atomNameHandler =
+			::GlobalGetAtomName(appAtom, atomName, _MAX_PATH - 1);
 		Q_ASSERT(atomNameHandler != 0);
 		Q_UNUSED(atomNameHandler);
 
@@ -254,10 +242,8 @@ bool MainWindowPrivate::ddeInitiate(MSG *message, long *result)
 		Q_ASSERT(atomHandler == appAtom);
 		Q_UNUSED(atomHandler);
 
-		auto topicAtomNameHandler = ::GlobalGetAtomName(
-				systemTopicAtom,
-				atomName,
-				_MAX_PATH - 1);
+		auto topicAtomNameHandler =
+			::GlobalGetAtomName(systemTopicAtom, atomName, _MAX_PATH - 1);
 		Q_ASSERT(topicAtomNameHandler != 0);
 		Q_UNUSED(topicAtomNameHandler);
 
@@ -266,9 +252,7 @@ bool MainWindowPrivate::ddeInitiate(MSG *message, long *result)
 		Q_UNUSED(topicAtomHandler);
 
 		// send the WM_DDE_ACK (caller will delete duplicate atoms)
-		::SendMessage(
-			reinterpret_cast<HWND>(message->wParam),
-			WM_DDE_ACK,
+		::SendMessage(reinterpret_cast<HWND>(message->wParam), WM_DDE_ACK,
 			static_cast<WPARAM>(parent->winId()),
 			MAKELPARAM(appAtom, systemTopicAtom));
 	}
@@ -282,22 +266,16 @@ bool MainWindowPrivate::ddeExecute(MSG *message, long *result)
 	UINT_PTR unused;
 	HGLOBAL hData;
 	//IA64: Assume DDE LPARAMs are still 32-bit
-	bool unpackDdeParam = ::UnpackDDElParam(
-			WM_DDE_EXECUTE,
-			message->lParam,
-			&unused,
-			reinterpret_cast<UINT_PTR *>(&hData));
+	bool unpackDdeParam = ::UnpackDDElParam(WM_DDE_EXECUTE, message->lParam,
+		&unused, reinterpret_cast<UINT_PTR *>(&hData));
 	Q_ASSERT(unpackDdeParam);
 	QString command = QString::fromWCharArray((LPCWSTR)::GlobalLock(hData));
 	::GlobalUnlock(hData);
 	// acknowledge now - before attempting to execute
-	::PostMessage(
-		reinterpret_cast<HWND>(message->wParam),
-		WM_DDE_ACK,
+	::PostMessage(reinterpret_cast<HWND>(message->wParam), WM_DDE_ACK,
 		static_cast<WPARAM>(parent->winId()),
 		//IA64: Assume DDE LPARAMs are still 32-bit
-		ReuseDDElParam(
-			message->lParam, WM_DDE_EXECUTE, WM_DDE_ACK, 0x8000,
+		ReuseDDElParam(message->lParam, WM_DDE_EXECUTE, WM_DDE_ACK, 0x8000,
 			reinterpret_cast<UINT_PTR>(hData)));
 	// don't execute the command when the window is disabled
 	if (parent->isEnabled())
@@ -314,11 +292,8 @@ bool MainWindowPrivate::ddeExecute(MSG *message, long *result)
 
 bool MainWindowPrivate::ddeTerminate(MSG *message, long *result)
 {
-	::PostMessage(
-		reinterpret_cast<HWND>(message->wParam),
-		WM_DDE_TERMINATE,
-		static_cast<WPARAM>(parent->winId()),
-		message->lParam);
+	::PostMessage(reinterpret_cast<HWND>(message->wParam), WM_DDE_TERMINATE,
+		static_cast<WPARAM>(parent->winId()), message->lParam);
 	*result = 0;
 	return true;
 }
@@ -346,33 +321,27 @@ bool MainWindowPrivate::SetHkcrUserRegKey(
 		QByteArray sValue = key.toLocal8Bit();
 		auto szValue = sValue.constData();
 #endif
-		LONG lResult = ::RegSetValueEx(
-				hKey,
-				szValue[0] ? nullptr : szValue,
-				0,
-				REG_SZ,
-				(CONST BYTE *) value.utf16(),
-				(value.length() + 1) * sizeof(quint16));
+		LONG lResult = ::RegSetValueEx(hKey, szValue[0] ? nullptr : szValue, 0,
+			REG_SZ, (CONST BYTE *) value.utf16(),
+			(value.length() + 1) * sizeof(quint16));
 		if (::RegCloseKey(hKey) == ERROR_SUCCESS && lResult == ERROR_SUCCESS)
 			return true;
-		QMessageBox::warning(
-			QApplication::activeWindow(), QApplication::applicationName(),
-			MainWindow::tr(
-				"Error in setting Registry values.\n"
-				"Registration database update failed for key '%1'.").arg(key));
+		QMessageBox::warning(QApplication::activeWindow(),
+			QApplication::applicationName(),
+			MainWindow::tr("Error in setting Registry values.\n"
+						   "Registration database update failed for key '%1'.")
+				.arg(key));
 	} else
 	{
 		TCHAR buffer[4096];
 		auto size = ::FormatMessage(
-				FORMAT_MESSAGE_FROM_SYSTEM, 0, lRetVal, 0,
-				buffer, 4096, 0);
+			FORMAT_MESSAGE_FROM_SYSTEM, 0, lRetVal, 0, buffer, 4096, 0);
 #ifdef UNICODE
 		auto errorMessage = QString::fromWCharArray(buffer, size);
 #else
 		auto szText = QString::fromLocal8Bit(buffer, size);
 #endif
-		QMessageBox::warning(
-			QApplication::activeWindow(),
+		QMessageBox::warning(QApplication::activeWindow(),
 			QApplication::applicationName(),
 			MainWindow::tr("Error in setting Registry values.\n%1"),
 			errorMessage);
@@ -448,5 +417,4 @@ MainWindowPrivate::~MainWindowPrivate()
 	}
 #endif
 }
-
 }

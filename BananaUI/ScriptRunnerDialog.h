@@ -43,8 +43,8 @@ class ScriptRunnerDialog : public QDialog
 	Q_OBJECT
 
 public:
-	explicit ScriptRunnerDialog(Banana::ScriptRunner *runner,
-								QWidget *parent = nullptr);
+	explicit ScriptRunnerDialog(
+		Banana::ScriptRunner *runner, QWidget *parent = nullptr);
 	virtual ~ScriptRunnerDialog();
 
 	void execute(ProjectGroup *group, const QString &script_filepath);
@@ -80,5 +80,4 @@ private:
 	ProjectGroup *group;
 	ScriptRunner *runner;
 };
-
 }

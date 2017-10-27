@@ -28,9 +28,9 @@ SOFTWARE.
 
 namespace Banana
 {
-
 namespace Utils
 {
-	QScriptValue VariantToScriptValue(const QVariant &variant, QScriptEngine *engine);
+QScriptValue VariantToScriptValue(
+	const QVariant &variant, QScriptEngine *engine);
 }
 }

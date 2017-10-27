@@ -39,21 +39,19 @@ SOFTWARE.
 
 namespace Banana
 {
-
 QtnPropertySearchPaths::QtnPropertySearchPaths(
 	QObject *object, const QMetaProperty &metaProperty)
 	: QtnProperty(nullptr)
 	, object(object)
 	, metaProperty(metaProperty)
 {
-
 }
 
 SearchPaths *QtnPropertySearchPaths::getSearchPaths() const
 {
 	auto var = metaProperty.read(object);
-	if (var.type() == QVariant::UserType
-		&& var.userType() == qMetaTypeId<SearchPaths *>())
+	if (var.type() == QVariant::UserType &&
+		var.userType() == qMetaTypeId<SearchPaths *>())
 	{
 		return var.value<SearchPaths *>();
 	}
@@ -68,27 +66,25 @@ QString QtnPropertySearchPaths::getPlaceholderStr()
 
 void QtnPropertySearchPaths::Register()
 {
-	qtnRegisterMetaPropertyFactory(
-		qMetaTypeId<SearchPaths *>(),
-		[](QObject *object, const QMetaProperty &metaProperty) -> QtnProperty *
-		{
+	qtnRegisterMetaPropertyFactory(qMetaTypeId<SearchPaths *>(),
+		[](QObject *object,
+			const QMetaProperty &metaProperty) -> QtnProperty * {
 			return new QtnPropertySearchPaths(object, metaProperty);
 		});
 
-	QtnPropertyDelegateFactory::staticInstance()
-	.registerDelegateDefault(
-		&QtnPropertySearchPaths::staticMetaObject
-		, &qtnCreateDelegate<QtnPropertyDelegateSearchPaths,
-							 QtnPropertySearchPaths>);
+	QtnPropertyDelegateFactory::staticInstance().registerDelegateDefault(
+		&QtnPropertySearchPaths::staticMetaObject,
+		&qtnCreateDelegate<QtnPropertyDelegateSearchPaths,
+			QtnPropertySearchPaths>);
 }
 
 class QtnPropertySearchPathsButtonHandler
 	: public QtnPropertyEditorBttnHandler<QtnPropertySearchPaths,
-										  QtnLineEditBttn>
+		  QtnLineEditBttn>
 {
 public:
-	QtnPropertySearchPathsButtonHandler(QtnPropertySearchPaths &property,
-										QtnLineEditBttn &editor)
+	QtnPropertySearchPathsButtonHandler(
+		QtnPropertySearchPaths &property, QtnLineEditBttn &editor)
 		: QtnPropertyEditorHandlerType(property, editor)
 		, m_prop(property)
 	{
@@ -98,14 +94,15 @@ public:
 		updateEditor();
 
 		editor.lineEdit->installEventFilter(this);
-		QObject::connect(
-			editor.toolButton, &QToolButton::clicked,
-			this, &QtnPropertySearchPathsButtonHandler::onToolButtonClicked);
-
+		QObject::connect(editor.toolButton, &QToolButton::clicked, this,
+			&QtnPropertySearchPathsButtonHandler::onToolButtonClicked);
 	}
 
 protected:
-	virtual void onToolButtonClick() override { onToolButtonClicked(false); }
+	virtual void onToolButtonClick() override
+	{
+		onToolButtonClicked(false);
+	}
 
 	virtual void updateEditor() override
 	{
@@ -130,7 +127,7 @@ private:
 		Q_ASSERT(nullptr != delegate);
 
 		auto dialog = new SearchPathsDialog(
-				delegate->getProjectTreeModel(), editorBase());
+			delegate->getProjectTreeModel(), editorBase());
 		auto dialogContainer = connectDialog(dialog);
 
 		dialog->show();
@@ -147,27 +144,21 @@ QtnPropertyDelegateSearchPaths::QtnPropertyDelegateSearchPaths(
 	QtnPropertySearchPaths &owner)
 	: QtnPropertyDelegateTyped<QtnPropertySearchPaths>(owner)
 {
-
 }
 
 void QtnPropertyDelegateSearchPaths::drawValueImpl(QStylePainter &painter,
-												   const QRect &rect,
-												   const QStyle::State &state,
-												   bool *needTooltip) const
+	const QRect &rect, const QStyle::State &state, bool *needTooltip) const
 {
 	QPen oldPen = painter.pen();
 	painter.setPen(Qt::darkGray);
 
 	QtnPropertyDelegateTyped<QtnPropertySearchPaths>::drawValueImpl(
-		painter,
-		rect, state,
-		needTooltip);
+		painter, rect, state, needTooltip);
 	painter.setPen(oldPen);
 }
 
-QWidget *QtnPropertyDelegateSearchPaths::createValueEditorImpl(QWidget *parent,
-															   const QRect &rect,
-															   QtnInplaceInfo *inplaceInfo)
+QWidget *QtnPropertyDelegateSearchPaths::createValueEditorImpl(
+	QWidget *parent, const QRect &rect, QtnInplaceInfo *inplaceInfo)
 {
 	auto editor = new QtnLineEditBttn(parent);
 	editor->setGeometry(rect);
@@ -185,5 +176,4 @@ bool QtnPropertyDelegateSearchPaths::propertyValueToStr(QString &strValue) const
 	strValue = QtnPropertySearchPaths::getPlaceholderStr();
 	return true;
 }
-
 }

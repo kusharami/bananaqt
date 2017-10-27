@@ -26,7 +26,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 bool ChildFilter::filterMatch(QObject *object) const
 {
 	for (auto &item : filters)
@@ -70,8 +69,7 @@ void ChildFilter::addFilter(IChildFilter *filter, bool own)
 		filters[filter] = own ? FilterPtr(filter) : FilterPtr();
 
 		afterChangeFilters();
-	} else
-	if ((it->second != nullptr) != own)
+	} else if ((it->second != nullptr) != own)
 	{
 		if (own)
 		{
@@ -101,14 +99,7 @@ void ChildFilter::clearFilters()
 	filters.clear();
 }
 
-void ChildFilter::beforeChangeFilters()
-{
+void ChildFilter::beforeChangeFilters() {}
 
-}
-
-void ChildFilter::afterChangeFilters()
-{
-
-}
-
+void ChildFilter::afterChangeFilters() {}
 }

@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 AbstractFile::AbstractFile(const QString &extension)
 	: AbstractFileSystemObject(this)
 	, extension(extension)
@@ -63,7 +62,7 @@ const QString &AbstractFile::getFileExtension() const
 Directory *AbstractFile::getTopDirectory() const
 {
 	return dynamic_cast<Directory *>(
-				AbstractFileSystemObject::getTopDirectory());
+		AbstractFileSystemObject::getTopDirectory());
 }
 
 Directory *AbstractFile::getParentDirectory() const
@@ -91,7 +90,9 @@ void AbstractFile::unbind(bool stayOpen)
 	Q_ASSERT(bindCount > 0);
 	bindCount--;
 	if (!stayOpen && bindCount == 0)
+	{
 		close();
+	}
 }
 
 bool AbstractFile::isBound() const
@@ -124,10 +125,9 @@ bool AbstractFile::save()
 			if (ok)
 			{
 				fileInfo.refresh();
-				if (fileInfo.exists()
-				&&	0 != QString::compare(
-						fileInfo.canonicalFilePath(),
-						canonicalPath, Qt::CaseInsensitive))
+				if (fileInfo.exists() &&
+					QString::compare(fileInfo.canonicalFilePath(),
+						canonicalPath, Qt::CaseInsensitive) != 0)
 				{
 					doUpdateFilePath(false);
 				}
@@ -477,8 +477,8 @@ void AbstractFile::recreateSymLinkIfNeeded(bool unwatched)
 			if (unwatched)
 				unwatchFile();
 
-			if (Utils::DeleteFileOrLink(fileInfo)
-			&&	QDir().mkpath(fileInfo.path()))
+			if (Utils::DeleteFileOrLink(fileInfo) &&
+				QDir().mkpath(fileInfo.path()))
 				Utils::CreateSymLink(symLinkTarget, savedPath);
 
 			if (unwatched)
@@ -490,8 +490,10 @@ void AbstractFile::recreateSymLinkIfNeeded(bool unwatched)
 void AbstractFile::disconnectData(QObject *data)
 {
 	if (nullptr != data && data != this)
-		QObject::disconnect(data, &QObject::destroyed,
-							this, &AbstractFile::onDataDestroyed);
+	{
+		QObject::disconnect(
+			data, &QObject::destroyed, this, &AbstractFile::onDataDestroyed);
+	}
 }
 
 void AbstractFile::doUpdateFilePath(bool checkOldPath)
@@ -522,8 +524,8 @@ void AbstractFile::connectData()
 	if (nullptr != data && data != this)
 	{
 		connectedData = data;
-		QObject::connect(data, &QObject::destroyed,
-						 this, &AbstractFile::onDataDestroyed);
+		QObject::connect(
+			data, &QObject::destroyed, this, &AbstractFile::onDataDestroyed);
 	}
 }
 
@@ -567,8 +569,8 @@ bool AbstractFile::tryChangeFilePath(const QString &newPath)
 	if (!QFile::exists(savedPath))
 		return true;
 
-	if (QDir().mkpath(QFileInfo(newPath).path())
-	&&	QFile::rename(savedPath, newPath))
+	if (QDir().mkpath(QFileInfo(newPath).path()) &&
+		QFile::rename(savedPath, newPath))
 	{
 		return true;
 	}
@@ -577,13 +579,13 @@ bool AbstractFile::tryChangeFilePath(const QString &newPath)
 }
 
 void AbstractFile::executeUpdateFilePathError(
-		const QString &path, const QString &failedPath)
+	const QString &path, const QString &failedPath)
 {
 	emit updateFilePathError(path, failedPath);
 }
 
 bool AbstractFile::updateFileExtension(
-		const QString &fileName, QString *outExtension)
+	const QString &fileName, QString *outExtension)
 {
 	QString extension;
 	if (AbstractFileSystemObject::updateFileExtension(fileName, &extension))
@@ -592,8 +594,8 @@ bool AbstractFile::updateFileExtension(
 		{
 			auto directory = dynamic_cast<Directory *>(getParentDirectory());
 
-			if (nullptr != directory
-			&&	metaObject() != Directory::getFileTypeByExtension(fileName))
+			if (nullptr != directory &&
+				metaObject() != Directory::getFileTypeByExtension(fileName))
 			{
 				return false;
 			}
@@ -620,16 +622,16 @@ void AbstractFile::doParentChange()
 		{
 			if (nullptr == newParent)
 			{
-				QObject::disconnect(this, &QObject::objectNameChanged,
-									this, &AbstractFile::onNameChanged);
+				QObject::disconnect(this, &QObject::objectNameChanged, this,
+					&AbstractFile::onNameChanged);
 				signalsConnected = false;
 			}
 		} else
 		{
 			if (nullptr != newParent)
 			{
-				QObject::connect(this, &QObject::objectNameChanged,
-								 this, &AbstractFile::onNameChanged);
+				QObject::connect(this, &QObject::objectNameChanged, this,
+					&AbstractFile::onNameChanged);
 				signalsConnected = true;
 			}
 		}
@@ -647,5 +649,4 @@ void AbstractFile::internalClose()
 	onDataDestroyed();
 	emit fileClosed();
 }
-
 }

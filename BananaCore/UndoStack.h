@@ -4,7 +4,6 @@
 
 namespace Banana
 {
-
 class UndoStack : public QUndoStack
 {
 	Q_OBJECT
@@ -31,9 +30,6 @@ signals:
 	void macroStarted();
 	void macroFinished();
 
-protected:
-	virtual void customEvent(QEvent *event) override;
-
 private slots:
 	void onCleanChanged(bool clean);
 
@@ -48,5 +44,4 @@ bool UndoStack::isUpdating() const
 {
 	return updateCounter > 0;
 }
-
 }

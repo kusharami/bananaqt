@@ -33,20 +33,17 @@ SOFTWARE.
 
 namespace Banana
 {
-
 ObjectPropertyWidget::ObjectPropertyWidget(QWidget *parent)
 	: QObjectPropertyWidget(parent)
 {
-	QObject::connect(
-		propertyView(), &QtnPropertyView::beforePropertyEdited,
+	QObject::connect(propertyView(), &QtnPropertyView::beforePropertyEdited,
 		this, &ObjectPropertyWidget::onBeforePropertyEdited);
-	QObject::connect(
-		propertyView(), &QtnPropertyView::propertyEdited,
-		this, &ObjectPropertyWidget::onPropertyEdited);
+	QObject::connect(propertyView(), &QtnPropertyView::propertyEdited, this,
+		&ObjectPropertyWidget::onPropertyEdited);
 }
 
-void ObjectPropertyWidget::onBeforePropertyEdited(QtnProperty *property,
-												  QtnPropertyValuePtr newValue)
+void ObjectPropertyWidget::onBeforePropertyEdited(
+	QtnProperty *property, QtnPropertyValuePtr newValue)
 {
 	auto rootProperty = property->getRootProperty();
 	Q_ASSERT(nullptr != rootProperty);
@@ -58,15 +55,11 @@ void ObjectPropertyWidget::onBeforePropertyEdited(QtnProperty *property,
 		Q_ASSERT(nullptr != connector);
 
 		if (nullptr != newValue)
-			object->beginMacro(
-				ChangeValueCommand::getCommandTextFor(
-					object,
-					connector->getMetaProperty()));
+			object->beginMacro(ChangeValueCommand::getCommandTextFor(
+				object, connector->getMetaProperty()));
 		else
-			object->beginMacro(
-				ChangeValueCommand::getResetCommandTextFor(
-					object,
-					connector->getMetaProperty()));
+			object->beginMacro(ChangeValueCommand::getResetCommandTextFor(
+				object, connector->getMetaProperty()));
 	} else
 	{
 		auto multiProperty = dynamic_cast<QtnMultiProperty *>(rootProperty);
@@ -80,11 +73,11 @@ void ObjectPropertyWidget::onBeforePropertyEdited(QtnProperty *property,
 		if (nullptr != newValue)
 		{
 			commandText = ChangeValueCommand::getMultipleCommandTextFor(
-					metaObject, metaProperty);
+				metaObject, metaProperty);
 		} else
 		{
 			commandText = ChangeValueCommand::getMultipleResetCommandTextFor(
-					metaObject, metaProperty);
+				metaObject, metaProperty);
 		}
 
 		for (auto property : multiProperty->getProperties())
@@ -138,5 +131,4 @@ QtnPropertyConnector *ObjectPropertyWidget::getConnectorForProperty(
 
 	return rootProperty->getConnector();
 }
-
 }

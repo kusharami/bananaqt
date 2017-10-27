@@ -80,5 +80,4 @@ DetailedMessageDialog::Type DetailedMessageDialog::type() const
 {
 	return mType;
 }
-
 }

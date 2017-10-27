@@ -38,8 +38,8 @@ class QtnPropertySearchPaths : public QtnProperty
 	Q_OBJECT
 
 public:
-	explicit QtnPropertySearchPaths(QObject *object,
-									const QMetaProperty &metaProperty);
+	explicit QtnPropertySearchPaths(
+		QObject *object, const QMetaProperty &metaProperty);
 
 	SearchPaths *getSearchPaths() const;
 
@@ -61,14 +61,11 @@ public:
 
 protected:
 	virtual void drawValueImpl(QStylePainter &painter, const QRect &rect,
-							   const QStyle::State &state,
-							   bool *needTooltip = nullptr) const override;
+		const QStyle::State &state, bool *needTooltip = nullptr) const override;
 
-	virtual QWidget *createValueEditorImpl(
-		QWidget *parent, const QRect &rect, QtnInplaceInfo *inplaceInfo =
-			nullptr) override;
+	virtual QWidget *createValueEditorImpl(QWidget *parent, const QRect &rect,
+		QtnInplaceInfo *inplaceInfo = nullptr) override;
 
 	virtual bool propertyValueToStr(QString &strValue) const override;
 };
-
 }

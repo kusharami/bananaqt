@@ -35,16 +35,17 @@ namespace Banana
 {
 struct IChildFilter;
 enum class ConnectionState;
-class ObjectGroup : public Object, public AbstractObjectGroup
+class ObjectGroup
+	: public Object
+	, public AbstractObjectGroup
 {
 	Q_OBJECT
 
 public:
 	explicit ObjectGroup();
 
-	void registerChildType(
-		const QMetaObject *metaObject, Qt::CaseSensitivity sensitivity =
-			Qt::CaseInsensitive);
+	void registerChildType(const QMetaObject *metaObject,
+		Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive);
 	void unregisterChildType(
 		const QMetaObject *metaObject, bool children = true);
 	void unregisterAllChildTypes(bool children = true);
@@ -59,8 +60,7 @@ signals:
 
 protected:
 	virtual UniqueNameScope *createNameScope(
-		const QMetaObject *metaObject,
-		Qt::CaseSensitivity sensitivity) const;
+		const QMetaObject *metaObject, Qt::CaseSensitivity sensitivity) const;
 	virtual void doAddChild(QObject *object) override;
 	virtual void doRemoveChild(QObject *object) override;
 	virtual void doConnectChildObject(QObject *object);

@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class AbstractObjectSelector
 {
 public:
@@ -57,5 +56,4 @@ const QObjectSet &AbstractObjectSelector::getSelectedObjects() const
 {
 	return selected;
 }
-
 }

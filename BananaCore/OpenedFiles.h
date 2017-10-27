@@ -36,7 +36,9 @@ namespace Banana
 {
 class AbstractFile;
 class ProjectGroup;
-class OpenedFiles : public Object, public AbstractObjectGroup
+class OpenedFiles
+	: public Object
+	, public AbstractObjectGroup
 {
 	Q_OBJECT
 
@@ -72,8 +74,7 @@ public:
 		CLASS *object, void (CLASS::*onFilesChanged)(const QString &))
 	{
 		QObject::connect(
-			this, &OpenedFiles::filesChanged,
-			object, onFilesChanged);
+			this, &OpenedFiles::filesChanged, object, onFilesChanged);
 	}
 
 	template <typename CLASS>
@@ -81,8 +82,7 @@ public:
 		CLASS *object, void (CLASS::*onFilesChanged)(const QString &))
 	{
 		QObject::disconnect(
-			this, &OpenedFiles::filesChanged,
-			object, onFilesChanged);
+			this, &OpenedFiles::filesChanged, object, onFilesChanged);
 	}
 
 	void clearWatcher();

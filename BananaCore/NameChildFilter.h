@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Banana
 {
-
 class NameChildFilter : public IChildFilter
 {
 public:
@@ -59,5 +58,4 @@ private:
 	QString str;
 	Options options;
 };
-
 }

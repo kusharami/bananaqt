@@ -27,9 +27,9 @@ SOFTWARE.
 #include <qsystemdetection.h>
 
 #ifdef Q_OS_MAC
-#       define FILE_DIALOG_FLAGS QFileDialog::DontUseNativeDialog
+#define FILE_DIALOG_FLAGS QFileDialog::DontUseNativeDialog
 #else
-#       define FILE_DIALOG_FLAGS (QFileDialog::Option) 0
+#define FILE_DIALOG_FLAGS (QFileDialog::Option) 0
 #endif
 
 class QLocale;

@@ -52,8 +52,7 @@ using namespace Banana;
 namespace Banana
 {
 FileSelectDialog::FileSelectDialog(
-	ProjectDirectoryModel *model,
-	QWidget *parent)
+	ProjectDirectoryModel *model, QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::FileSelectDialog)
 	, ignoreAccept(false)
@@ -62,9 +61,8 @@ FileSelectDialog::FileSelectDialog(
 {
 	ui->setupUi(this);
 
-	setWindowFlags(
-		(windowFlags() & ~(Qt::WindowContextHelpButtonHint))
-		| Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
+		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 
 	auto tree = ui->treeWidget->getTreeView();
 	tree->setModel(model);
@@ -79,31 +77,25 @@ FileSelectDialog::FileSelectDialog(
 	okBtn->setDefault(false);
 	ui->buttonBox->addButton(okBtn, QDialogButtonBox::AcceptRole);
 
-	QObject::connect(
-		tree, &QWidget::customContextMenuRequested,
-		this, &FileSelectDialog::onTreeViewCustomContextMenuRequested);
-	QObject::connect(
-		tree, &QAbstractItemView::doubleClicked,
-		this, &FileSelectDialog::selectFileAtIndex);
-	QObject::connect(
-		tree, &ProjectTreeView::modelSelectionChanged,
-		this, &FileSelectDialog::updateActions);
+	QObject::connect(tree, &QWidget::customContextMenuRequested, this,
+		&FileSelectDialog::onTreeViewCustomContextMenuRequested);
+	QObject::connect(tree, &QAbstractItemView::doubleClicked, this,
+		&FileSelectDialog::selectFileAtIndex);
+	QObject::connect(tree, &ProjectTreeView::modelSelectionChanged, this,
+		&FileSelectDialog::updateActions);
 
 #ifdef Q_OS_MAC
 	Utils::addShortcutForAction(
-		this, QKeySequence(
-			Qt::Key_Backspace), ui->actionEditDelete);
+		this, QKeySequence(Qt::Key_Backspace), ui->actionEditDelete);
 #endif
 	Utils::addShortcutForAction(this, QKeySequence::Cut, ui->actionEditCut);
 	Utils::addShortcutForAction(this, QKeySequence::Copy, ui->actionEditCopy);
 	Utils::addShortcutForAction(this, QKeySequence::Paste, ui->actionEditPaste);
 
 	auto menu = ui->treeWidget->getButtonOptionsMenu();
-	QObject::connect(
-		menu, &QMenu::aboutToShow, this,
+	QObject::connect(menu, &QMenu::aboutToShow, this,
 		&FileSelectDialog::onContextMenuAboutToShow);
-	QObject::connect(
-		menu, &QMenu::aboutToHide, this,
+	QObject::connect(menu, &QMenu::aboutToHide, this,
 		&FileSelectDialog::onContextMenuAboutToHide);
 
 	ui->actionShowInGraphicalShell->setToolTip(
@@ -142,9 +134,7 @@ bool FileSelectDialog::execute(
 	{
 		dirs = true;
 		setWindowTitle(
-			multiselect
-			? tr("Select Directories")
-			: tr("Select Directory"));
+			multiselect ? tr("Select Directories") : tr("Select Directory"));
 	} else
 	{
 		dirs = false;
@@ -152,25 +142,20 @@ bool FileSelectDialog::execute(
 		if (nullptr != filter)
 		{
 			setWindowTitle(
-				tr("Select %1").arg(
-					Directory::getFileTypeTitle(
-						filter, multiselect)));
+				tr("Select %1")
+					.arg(Directory::getFileTypeTitle(filter, multiselect)));
 		} else
 		{
 			setWindowTitle(
-				multiselect
-				? tr("Select Files")
-				: tr("Select File"));
+				multiselect ? tr("Select Files") : tr("Select File"));
 		}
 	}
 
 	ui->treeWidget->showFilter(!dirs);
 	auto tree = ui->treeWidget->getTreeView();
 
-	tree->setSelectionMode(
-		multiselect
-		? QTreeView::ExtendedSelection
-		: QTreeView::SingleSelection);
+	tree->setSelectionMode(multiselect ? QTreeView::ExtendedSelection
+									   : QTreeView::SingleSelection);
 
 	tree->setFileTypeFilter(filter);
 	tree->select(file_path);
@@ -291,8 +276,7 @@ void FileSelectDialog::on_buttonBox_clicked(QAbstractButton *button)
 			{
 				auto info = model->fileInfo(index);
 
-				if ((dirs && info.isDir())
-					|| (!dirs && info.isFile()))
+				if ((dirs && info.isDir()) || (!dirs && info.isFile()))
 				{
 					accept();
 					return;
@@ -342,8 +326,7 @@ void FileSelectDialog::updateActions()
 	if (exists)
 	{
 		ui->actionLocateFile->setText(
-			tr("Locate '%1' in a Project Tree").arg(
-				fileName));
+			tr("Locate '%1' in a Project Tree").arg(fileName));
 	} else
 	{
 		ui->actionLocateFile->setText(tr("Locate in a Project Tree"));
@@ -357,15 +340,13 @@ void FileSelectDialog::updateActions()
 
 	auto filePaths = getSelectedFilePathList();
 	ui->actionOpenFile->setEnabled(
-		nullptr != model &&
-		model->canOpenFiles(filePaths));
+		nullptr != model && model->canOpenFiles(filePaths));
 
 	if (filePaths.size() > 1)
 	{
 		ui->actionOpenFile->setText(tr("Open Selected Files"));
 		ui->actionEditDelete->setText(tr("Delete Selected..."));
-	} else
-	if (filePaths.size() == 1)
+	} else if (filePaths.size() == 1)
 	{
 		ui->actionOpenFile->setText(tr("Open '%1'").arg(fileName));
 		ui->actionEditDelete->setText(tr("Delete '%1'...").arg(fileName));
@@ -408,8 +389,7 @@ void FileSelectDialog::keyPressEvent(QKeyEvent *e)
 
 void FileSelectDialog::pleaseSelectEntry()
 {
-	QMessageBox::critical(
-		this, QCoreApplication::applicationName(),
+	QMessageBox::critical(this, QCoreApplication::applicationName(),
 		dirs ? tr("Please select a directory.") : tr("Please select a file."));
 }
 

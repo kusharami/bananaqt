@@ -42,8 +42,8 @@ class FileTabBar : public QTabBar
 public:
 	explicit FileTabBar(QWidget *parent = nullptr);
 
-	typedef std::function<bool (AbstractFile *)> CanOpenFunc;
-	typedef std::function<bool (AbstractFile *, bool multiple)> CanCloseFunc;
+	typedef std::function<bool(AbstractFile *)> CanOpenFunc;
+	typedef std::function<bool(AbstractFile *, bool multiple)> CanCloseFunc;
 
 	void setCanOpen(const CanOpenFunc &canOpen);
 	void setCanClose(const CanCloseFunc &canClose);
@@ -91,5 +91,4 @@ private:
 	CanCloseFunc canClose;
 	FileVector openedFiles;
 };
-
 }
