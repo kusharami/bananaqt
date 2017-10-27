@@ -125,6 +125,7 @@ QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
 	}
 
 	qFatal("Unsupported drop action");
+	return QString();
 }
 
 void UndoStack::onCleanChanged(bool clean)
