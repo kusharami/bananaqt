@@ -57,6 +57,9 @@ class AbstractFile
 	Q_PROPERTY(QString canonicalFilePath READ getCanonicalFilePath
 			SCRIPTABLE true STORED false DESIGNABLE false)
 
+	Q_PROPERTY(bool userSpecific READ isUserSpecific WRITE setUserSpecific
+			SCRIPTABLE true STORED false DESIGNABLE false)
+
 public:
 	explicit AbstractFile(const QString &extension);
 	virtual ~AbstractFile();
@@ -84,6 +87,9 @@ public:
 	Q_INVOKABLE virtual bool rename(const QString &newName) override;
 
 	Q_INVOKABLE bool isWritable() const;
+
+	virtual bool isUserSpecific() const override;
+	virtual void setUserSpecific(bool yes) override;
 
 	bool saveTo(QIODevice *device);
 	bool loadFrom(QIODevice *device);
@@ -121,10 +127,6 @@ private slots:
 	void onDataDestroyed();
 
 protected:
-	friend class AbstractFileRegistrator;
-	friend class AbstractDirectory;
-	friend class Directory;
-
 	void connectData();
 	void disconnectData();
 
@@ -144,20 +146,27 @@ protected:
 	virtual void doFlagsChanged() override;
 	virtual void onOpen();
 
-	QString extension;
-	QString canonicalPath;
-	QString symLinkTarget;
-	unsigned bindCount;
-	bool loadError;
-	bool symLink;
-
 private:
 	void recreateSymLinkIfNeeded(bool unwatched);
 	bool saveInternal();
 	void disconnectData(QObject *data);
 	void internalClose();
-	bool opened;
-	bool signalsConnected;
+
+protected:
+	friend class AbstractFileRegistrator;
+	friend class AbstractDirectory;
+	friend class Directory;
+	QString extension;
+	QString canonicalPath;
+	QString symLinkTarget;
+	unsigned bindCount;
+	bool loadError : 1;
+	bool symLink : 1;
+	bool userSpecific : 1;
+
+private:
+	bool opened : 1;
+	bool signalsConnected : 1;
 
 	QObject *oldParent;
 	QString savedPath;

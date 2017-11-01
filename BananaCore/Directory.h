@@ -50,6 +50,9 @@ class Directory
 	Q_PROPERTY(int searchOrder READ getSearchOrder WRITE setSearchOrder
 			SCRIPTABLE true STORED false)
 
+	Q_PROPERTY(bool userSpecific READ isUserSpecific WRITE setUserSpecific
+			SCRIPTABLE true STORED false DESIGNABLE false)
+
 public:
 	Q_INVOKABLE QString getAbsoluteFilePathFor(
 		const QString &path, bool search = false) const;

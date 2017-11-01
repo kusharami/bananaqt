@@ -75,30 +75,11 @@ const QString *pTypeKey = &sTypeKey;
 
 bool LoadVariantMapFromIODevice(QVariantMap &vmap, QIODevice *device)
 {
-	Q_ASSERT(nullptr != device);
-
-	if (device->isOpen())
+	QJsonDocument doc;
+	if (LoadJsonFromIODevice(doc, device))
 	{
-		QByteArray binary;
-		auto size64 = device->size();
-		if (size64 >= 0 && size64 <= 128 * 1024 * 1024)
-		{
-			int size = static_cast<int>(size64);
-			binary.resize(size);
-			if (device->read(binary.data(), size) == size)
-			{
-				QJsonParseError parse_result;
-				auto doc = QJsonDocument::fromJson(binary, &parse_result);
-
-				if (QJsonParseError::NoError == parse_result.error &&
-					doc.isObject())
-				{
-					binary.clear();
-					vmap = ConvertJsonValueToVariant(doc.object()).toMap();
-					return true;
-				}
-			}
-		}
+		vmap = ConvertJsonValueToVariant(doc.object()).toMap();
+		return true;
 	}
 
 	return false;
@@ -106,22 +87,10 @@ bool LoadVariantMapFromIODevice(QVariantMap &vmap, QIODevice *device)
 
 bool SaveVariantMapToIODevice(const QVariantMap &vmap, QIODevice *device)
 {
-	Q_ASSERT(nullptr != device);
+	QJsonDocument doc;
+	doc.setObject(ConvertVariantToJsonValue(vmap).toObject());
 
-	if (device->isOpen())
-	{
-		QJsonDocument doc;
-
-		doc.setObject(ConvertVariantToJsonValue(vmap).toObject());
-
-		auto binary = doc.toJson();
-
-		auto size = binary.size();
-
-		return (device->write(binary.data(), size) == size);
-	}
-
-	return false;
+	return SaveJsonToIODevice(doc, device);
 }
 
 bool LoadVariantMapFromFile(QVariantMap &vmap, const QString &filepath)
@@ -734,10 +703,26 @@ bool CreateSymLink(const QString &target, const QString &linkpath)
 #endif
 }
 
+static QString fixedFontString(QString s)
+{
+	if (s.isEmpty())
+		return s;
+
+	if (s.at(s.length() - 1).isDigit())
+		return s;
+
+	int lastCommaIndex = s.lastIndexOf(',');
+	if (lastCommaIndex < 0)
+		return s;
+
+	s.resize(lastCommaIndex);
+	return s;
+}
+
 QFont ConvertVariantMapToQFont(const QVariantMap &object)
 {
 	QFont font;
-	font.fromString(object.value(sValueKey).toString());
+	font.fromString(fixedFontString(object.value(sValueKey).toString()));
 	font.setStyleStrategy(QFont::PreferAntialias);
 	if (object.contains(sStyleKey))
 		font.setStyleName(object.value(sStyleKey).toString());
@@ -777,7 +762,7 @@ QVariantMap ConvertQFontToVariantMap(const QFont &font)
 {
 	QVariantMap object;
 	object.insert(sTypeKey, "QFont");
-	object.insert(sValueKey, font.toString());
+	object.insert(sValueKey, fixedFontString(font.toString()));
 	object.insert(sStyleKey, font.styleName());
 	auto meta = QMetaEnum::fromType<QFont::StyleStrategy>();
 	object.insert(sStyleStrategyKey, meta.valueToKey(font.styleStrategy()));
@@ -1014,6 +999,85 @@ QObject *GetDescendant(const QObject *topAncestor, const QStringList &path)
 	}
 
 	return result;
+}
+
+bool LoadJsonFromFile(QJsonDocument &doc, const QString &filepath)
+{
+	bool ok = false;
+	QFile file(filepath);
+
+	if (file.open(QIODevice::ReadOnly))
+	{
+		ok = LoadJsonFromIODevice(doc, &file);
+
+		file.close();
+	}
+
+	return ok;
+}
+
+bool SaveJsonToFile(const QJsonDocument &doc, const QString &filepath)
+{
+	bool ok = false;
+	if (QDir().mkpath(QFileInfo(filepath).path()))
+	{
+		QFile::remove(filepath);
+
+		QFile file(filepath);
+		if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+		{
+			ok = SaveJsonToIODevice(doc, &file);
+
+			file.close();
+		}
+	}
+
+	return ok;
+}
+
+bool LoadJsonFromIODevice(QJsonDocument &doc, QIODevice *device)
+{
+	Q_ASSERT(nullptr != device);
+
+	if (device->isOpen())
+	{
+		QByteArray binary;
+		auto size64 = device->size();
+		if (size64 >= 0 && size64 <= 128 * 1024 * 1024)
+		{
+			int size = int(size64);
+			binary.resize(size);
+			if (device->read(binary.data(), size) == size)
+			{
+				QJsonParseError parseResult;
+				doc = QJsonDocument::fromJson(binary, &parseResult);
+
+				if (QJsonParseError::NoError == parseResult.error &&
+					doc.isObject())
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool SaveJsonToIODevice(const QJsonDocument &doc, QIODevice *device)
+{
+	Q_ASSERT(nullptr != device);
+
+	if (device->isOpen())
+	{
+		auto binary = doc.toJson();
+
+		auto size = binary.size();
+
+		return (device->write(binary.data(), size) == size);
+	}
+
+	return false;
 }
 }
 }

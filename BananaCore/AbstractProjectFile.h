@@ -30,6 +30,7 @@ SOFTWARE.
 #include "PropertyDef.h"
 
 #include <set>
+#include <QJsonObject>
 
 namespace Banana
 {
@@ -63,15 +64,23 @@ public:
 
 	QString getAbsoluteFilePathFor(const QString &filepath) const;
 
+	QString getUserSettingsPath() const;
+
+	void setUserSpecificPathFor(AbstractFileSystemObject *file, bool user);
+
 signals:
 	void changedHideIgnoredFiles();
 	void changedIgnoredFilesPattern();
 
 protected:
+	void loadUserSettings();
+	void saveUserSettings();
+	bool fetchUserSpecificPath(
+		bool dir, const QString &relativePath, QString &out);
 	virtual void saveData(QVariantMap &output) override;
 	virtual bool loadData(const QVariantMap &input) override;
 
-	virtual void doUpdateFilePath(bool check_oldpath) override;
+	virtual void doUpdateFilePath(bool checkOldPath) override;
 
 	static const QString SEARCH_PATHS_KEY;
 	static const QString IGNORED_FILES_KEY;
@@ -83,6 +92,8 @@ protected:
 	static const QString TYPE_DIR;
 	static const QString TYPE_DIR_LINK;
 	static const QString TYPE_FILE_LINK;
+	static const QString USER_SPECIFIC_KEY;
+	static const QString USER_PATHS_KEY;
 
 private:
 	enum class FileObjType
@@ -102,6 +113,7 @@ private:
 
 	OpenedFiles *openedFiles;
 	SearchPaths *searchPaths;
+	QJsonObject userPaths;
 };
 }
 

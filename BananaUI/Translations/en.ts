@@ -43,7 +43,7 @@
 <context>
     <name>Banana::AddFilesToIgnoreListDialog</name>
     <message>
-        <location filename="../AddFilesToIgnoreListDialog.cpp" line="118"/>
+        <location filename="../AddFilesToIgnoreListDialog.cpp" line="122"/>
         <source>Empty pattern!</source>
         <translation>Empty pattern!</translation>
     </message>
@@ -51,34 +51,34 @@
 <context>
     <name>Banana::DeleteFilesListModel</name>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="303"/>
+        <location filename="../DeleteFilesDialog.cpp" line="326"/>
         <source>Nothing checked!</source>
         <translation>Nothing checked!</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="339"/>
+        <location filename="../DeleteFilesDialog.cpp" line="364"/>
         <source>Unable to delete %1 &apos;%2&apos;!</source>
         <translation>Unable to delete %1 &quot;%2&quot;!</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="340"/>
+        <location filename="../DeleteFilesDialog.cpp" line="365"/>
         <source>Unable to delete %1 &apos;%2&apos; and some other files and/or directories!</source>
         <translation>Unable to delete %1 &quot;%2&quot; and some other files and/or directories!</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="345"/>
+        <location filename="../DeleteFilesDialog.cpp" line="372"/>
         <source>file</source>
         <comment>Unable to delete</comment>
         <translation>file</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="354"/>
+        <location filename="../DeleteFilesDialog.cpp" line="382"/>
         <source>link</source>
         <comment>Unable to delete</comment>
         <translation>link</translation>
     </message>
     <message>
-        <location filename="../DeleteFilesDialog.cpp" line="363"/>
+        <location filename="../DeleteFilesDialog.cpp" line="392"/>
         <source>directory</source>
         <comment>Unable to delete</comment>
         <translation>directory</translation>
@@ -97,77 +97,77 @@
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="130"/>
+        <location filename="../FileSelectDialog.cpp" line="137"/>
         <source>Select Directories</source>
         <translation>Select Directories</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="130"/>
+        <location filename="../FileSelectDialog.cpp" line="137"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="136"/>
+        <location filename="../FileSelectDialog.cpp" line="145"/>
         <source>Select %1</source>
         <translation>Select %1</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="138"/>
+        <location filename="../FileSelectDialog.cpp" line="150"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="138"/>
+        <location filename="../FileSelectDialog.cpp" line="150"/>
         <source>Select File</source>
         <translation>Select File</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="312"/>
+        <location filename="../FileSelectDialog.cpp" line="329"/>
         <source>Locate &apos;%1&apos; in a Project Tree</source>
         <translation>Locate &quot;%1&quot; in a Project Tree</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="315"/>
+        <location filename="../FileSelectDialog.cpp" line="332"/>
         <source>Locate in a Project Tree</source>
         <translation>Locate in a Project Tree</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="328"/>
+        <location filename="../FileSelectDialog.cpp" line="347"/>
         <source>Open Selected Files</source>
         <translation>Open Selected Files</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="329"/>
+        <location filename="../FileSelectDialog.cpp" line="348"/>
         <source>Delete Selected...</source>
         <translation>Delete Selected...</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="332"/>
+        <location filename="../FileSelectDialog.cpp" line="351"/>
         <source>Open &apos;%1&apos;</source>
         <translation>Open &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="333"/>
+        <location filename="../FileSelectDialog.cpp" line="352"/>
         <source>Delete &apos;%1&apos;...</source>
         <translation>Delete &quot;%1&quot;...</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="336"/>
+        <location filename="../FileSelectDialog.cpp" line="355"/>
         <source>Open File</source>
         <translation>Open File</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="337"/>
+        <location filename="../FileSelectDialog.cpp" line="356"/>
         <source>Delete...</source>
         <translation>Delete...</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="372"/>
+        <location filename="../FileSelectDialog.cpp" line="393"/>
         <source>Please select a directory.</source>
         <translation>You should select a directory.</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="372"/>
+        <location filename="../FileSelectDialog.cpp" line="393"/>
         <source>Please select a file.</source>
         <translation>You should select a file.</translation>
     </message>
@@ -175,7 +175,7 @@
 <context>
     <name>Banana::FileTabBar</name>
     <message>
-        <location filename="../FileTabBar.cpp" line="221"/>
+        <location filename="../FileTabBar.cpp" line="228"/>
         <source>%1[*]</source>
         <comment>File is modified</comment>
         <translation>%1[*]</translation>
@@ -184,14 +184,14 @@
 <context>
     <name>Banana::MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="320"/>
+        <location filename="../MainWindow.cpp" line="331"/>
         <source>Error in setting Registry values.
 Registration database update failed for key &apos;%1&apos;.</source>
         <translation>Error in setting Registry values.
 Registration database update failed for key &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="334"/>
+        <location filename="../MainWindow.cpp" line="346"/>
         <source>Error in setting Registry values.
 %1</source>
         <translation>Error in setting Registry values.
@@ -201,17 +201,17 @@ Registration database update failed for key &quot;%1&quot;.</translation>
 <context>
     <name>Banana::NewFileDialog</name>
     <message>
-        <location filename="../NewFileDialog.cpp" line="145"/>
+        <location filename="../NewFileDialog.cpp" line="150"/>
         <source>Select New File Directory</source>
         <translation>Select New File Directory</translation>
     </message>
     <message>
-        <location filename="../NewFileDialog.cpp" line="170"/>
+        <location filename="../NewFileDialog.cpp" line="174"/>
         <source>%1 name cannot be empty!</source>
         <translation>%1 name cannot be empty!</translation>
     </message>
     <message>
-        <location filename="../NewFileDialog.cpp" line="178"/>
+        <location filename="../NewFileDialog.cpp" line="182"/>
         <source>&apos;%2&apos; is invalid %1 name. Try &apos;%3&apos;.</source>
         <translation>&quot;%2 is invalid %1 name. Try &quot;%3&quot;.</translation>
     </message>
@@ -226,57 +226,57 @@ If no, the enumerated name will be given.</source>
 If no, the enumerated name will be given.</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="109"/>
+        <location filename="../PasteFileManager.cpp" line="110"/>
         <source>Unable to delete file &apos;%1&apos;!</source>
         <translation>Unable to delete file &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="113"/>
+        <location filename="../PasteFileManager.cpp" line="114"/>
         <source>Unable to delete symbolic link &apos;%1&apos;!</source>
         <translation>Unable to delete symbolic link &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="117"/>
+        <location filename="../PasteFileManager.cpp" line="118"/>
         <source>Unable to delete directory &apos;%1&apos;!</source>
         <translation>Unable to delete directory &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="127"/>
+        <location filename="../PasteFileManager.cpp" line="128"/>
         <source>Unable to write file &apos;%1&apos;!</source>
         <translation>Unable to write file &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="131"/>
+        <location filename="../PasteFileManager.cpp" line="132"/>
         <source>Unable to create symbolic link &apos;%1&apos;!</source>
         <translation>Unable to create symbolic link &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="135"/>
+        <location filename="../PasteFileManager.cpp" line="136"/>
         <source>Unable to create directory &apos;%1&apos;!</source>
         <translation>Unable to create directory &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="147"/>
+        <location filename="../PasteFileManager.cpp" line="148"/>
         <source>Unable to copy/move directory &apos;%1&apos; to its descendant directory or to itself!</source>
         <translation>Unable to copy/move directory &quot;%1&quot; to its descendant directory or to itself!</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="189"/>
+        <location filename="../PasteFileManager.cpp" line="191"/>
         <source>Abort</source>
         <translation>Abort</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="226"/>
+        <location filename="../PasteFileManager.cpp" line="231"/>
         <source>Move &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Move &quot;%1&quot; to &quot;%2&quot;</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="230"/>
+        <location filename="../PasteFileManager.cpp" line="237"/>
         <source>Copy &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Copy &quot;%1&quot; to &quot;%2&quot;</translation>
     </message>
     <message>
-        <location filename="../PasteFileManager.cpp" line="234"/>
+        <location filename="../PasteFileManager.cpp" line="243"/>
         <source>Make link to &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Make link to &quot;%1&quot; in &quot;%2&quot;</translation>
     </message>
@@ -284,12 +284,12 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::ProjectDirectoryModel</name>
     <message>
-        <location filename="../ProjectDirectoryModel.cpp" line="300"/>
+        <location filename="../ProjectDirectoryModel.cpp" line="312"/>
         <source>Links to &apos;%1&apos;</source>
         <translation>Links to &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../ProjectDirectoryModel.cpp" line="302"/>
+        <location filename="../ProjectDirectoryModel.cpp" line="316"/>
         <source>Symbolic link target &apos;%1&apos; does not exist</source>
         <translation>Symbolic link target &quot;%1&quot; does not exist</translation>
     </message>
@@ -297,7 +297,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::QtnPropertySearchPaths</name>
     <message>
-        <location filename="../QtnPropertySearchPaths.cpp" line="66"/>
+        <location filename="../QtnPropertySearchPaths.cpp" line="64"/>
         <source>(Search Paths)</source>
         <translation>(Search Paths)</translation>
     </message>
@@ -305,12 +305,12 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="95"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="96"/>
         <source>Select Script File</source>
         <translation>Select Script File</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="125"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="126"/>
         <source>Script file is not selected.</source>
         <translation>Script file is not selected.</translation>
     </message>
@@ -320,22 +320,22 @@ If no, the enumerated name will be given.</translation>
         <translation>File &quot;%1&quot; is not found.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="141"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="142"/>
         <source>Execute Script Error</source>
         <translation>Execute Script Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="193"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="194"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="207"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="208"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="234"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="237"/>
         <source>There is no active project directory.</source>
         <translation>There is no active project directory.</translation>
     </message>
@@ -343,27 +343,27 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::SearchPathsDialog</name>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="572"/>
+        <location filename="../SearchPathsDialog.cpp" line="604"/>
         <source>Copy Absolute Path</source>
         <translation>Copy Absolute Path</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="573"/>
+        <location filename="../SearchPathsDialog.cpp" line="605"/>
         <source>Copy Directory Name</source>
         <translation>Copy Directory Name</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="576"/>
+        <location filename="../SearchPathsDialog.cpp" line="609"/>
         <source>Copy Selected Absolute Paths</source>
         <translation>Copy Selected Absolute Paths</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="577"/>
+        <location filename="../SearchPathsDialog.cpp" line="611"/>
         <source>Copy Names of Selected Directories</source>
         <translation>Copy Names of Selected Directories</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="650"/>
+        <location filename="../SearchPathsDialog.cpp" line="694"/>
         <source>Are you sure you want to unregister selected paths?</source>
         <translation>Are you sure you want to unregister selected paths?</translation>
     </message>
@@ -376,27 +376,27 @@ If no, the enumerated name will be given.</translation>
         <translation>Show in Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="51"/>
+        <location filename="../Config.cpp" line="52"/>
         <source>Show &apos;%1&apos; in Finder</source>
         <translation>Show &quot;%1&quot; in Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="52"/>
+        <location filename="../Config.cpp" line="54"/>
         <source>Shows a selected file or directory in Finder</source>
         <translation>Shows a selected file or directory in Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="53"/>
+        <location filename="../Config.cpp" line="56"/>
         <source>Show in Explorer</source>
         <translation>Show in Explorer</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="54"/>
+        <location filename="../Config.cpp" line="58"/>
         <source>Show &apos;%1&apos; in Explorer</source>
         <translation>Show &quot;%1&quot; in Explorer</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="55"/>
+        <location filename="../Config.cpp" line="59"/>
         <source>Shows a selected file or directory in Explorer</source>
         <translation>Shows a selected file or directory in Explorer</translation>
     </message>

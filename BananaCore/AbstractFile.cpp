@@ -42,6 +42,7 @@ AbstractFile::AbstractFile(const QString &extension)
 	, bindCount(0)
 	, loadError(false)
 	, symLink(false)
+	, userSpecific(false)
 	, opened(false)
 	, signalsConnected(false)
 	, oldParent(nullptr)
@@ -323,6 +324,16 @@ bool AbstractFile::rename(const QString &newName)
 bool AbstractFile::isWritable() const
 {
 	return isWritableFormat(getFileExtension());
+}
+
+bool AbstractFile::isUserSpecific() const
+{
+	return userSpecific;
+}
+
+void AbstractFile::setUserSpecific(bool yes)
+{
+	userSpecific = yes;
 }
 
 bool AbstractFile::saveTo(QIODevice *device)

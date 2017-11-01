@@ -40,6 +40,8 @@ enum class DescendantState
 
 class AbstractDirectory : public AbstractFileSystemObject
 {
+	bool userSpecific;
+
 public:
 	AbstractDirectory(QObject *thiz);
 
@@ -54,6 +56,9 @@ public:
 
 	template <typename T>
 	inline T *findFileT(const QString &path, bool linked = false);
+
+	virtual bool isUserSpecific() const override;
+	virtual void setUserSpecific(bool yes) override;
 
 protected:
 	friend class AbstractFileSystemObject;

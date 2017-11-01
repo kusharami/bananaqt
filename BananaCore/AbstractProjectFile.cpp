@@ -29,8 +29,12 @@ SOFTWARE.
 #include "OpenedFiles.h"
 #include "Directory.h"
 #include "SearchPaths.h"
+#include "Config.h"
 
+#include <QJsonDocument>
 #include <QFileInfo>
+#include <QDir>
+#include <QFileDialog>
 
 namespace Banana
 {
@@ -47,6 +51,9 @@ const QString AbstractProjectFile::TYPE_DIR = QStringLiteral("Directory");
 const QString AbstractProjectFile::TYPE_DIR_LINK =
 	QStringLiteral("DirectoryLink");
 const QString AbstractProjectFile::TYPE_FILE_LINK = QStringLiteral("FileLink");
+const QString AbstractProjectFile::USER_SPECIFIC_KEY =
+	QStringLiteral("UserSpecific");
+const QString AbstractProjectFile::USER_PATHS_KEY = QStringLiteral("UserPaths");
 
 AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(
 	const QString &str)
@@ -155,6 +162,104 @@ QString AbstractProjectFile::getAbsoluteFilePathFor(
 	return QString();
 }
 
+QString AbstractProjectFile::getUserSettingsPath() const
+{
+	return getFilePath() + ".user";
+}
+
+void AbstractProjectFile::setUserSpecificPathFor(
+	AbstractFileSystemObject *file, bool user)
+{
+	Q_ASSERT(nullptr != file);
+	Q_ASSERT(file->isSymLink());
+
+	auto relativePath = file->getFilePath(getParentDirectory());
+
+	if (user)
+		userPaths.insert(relativePath, file->getSymLinkTarget());
+	else
+		userPaths.remove(relativePath);
+
+	file->setUserSpecific(user);
+
+	setModified(true);
+}
+
+void AbstractProjectFile::loadUserSettings()
+{
+	QJsonDocument doc;
+
+	userPaths = QJsonObject();
+
+	if (Utils::LoadJsonFromFile(doc, getUserSettingsPath()))
+	{
+		if (doc.isObject())
+		{
+			auto userSettings = doc.object();
+
+			auto val = userSettings.value(USER_PATHS_KEY);
+
+			if (val.isObject())
+			{
+				userPaths = val.toObject();
+			}
+		}
+	}
+}
+
+void AbstractProjectFile::saveUserSettings()
+{
+	QJsonObject userSettings;
+
+	userSettings.insert(USER_PATHS_KEY, userPaths);
+
+	QJsonDocument doc;
+	doc.setObject(userSettings);
+
+	Utils::SaveJsonToFile(doc, getUserSettingsPath());
+}
+
+bool AbstractProjectFile::fetchUserSpecificPath(
+	bool dir, const QString &relativePath, QString &out)
+{
+	auto val = userPaths.value(relativePath);
+	out = val.isString() ? val.toString() : QString();
+
+	QFileInfo fileInfo(out);
+
+	if (dir)
+	{
+		if (fileInfo.isDir())
+			return true;
+
+		out = QFileDialog::getExistingDirectory(nullptr,
+			tr("Select directory for '%1'")
+				.arg(QDir::toNativeSeparators(relativePath)),
+			out.isEmpty() ? QFileInfo(getFilePath()).path() : out,
+			QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
+				QFileDialog::DontResolveSymlinks);
+
+	} else
+	{
+		if (fileInfo.isFile())
+			return true;
+
+		out = QFileDialog::getOpenFileName(nullptr,
+			tr("Select file for '%1'").arg(relativePath),
+			out.isEmpty() ? QFileInfo(getFilePath()).path() : out,
+			Directory::getFilterForExtension(""), nullptr,
+			QFileDialog::DontResolveSymlinks | FILE_DIALOG_FLAGS);
+	}
+
+	if (not out.isEmpty())
+	{
+		userPaths.insert(relativePath, out);
+		return true;
+	}
+
+	return false;
+}
+
 void AbstractProjectFile::unwatchFile()
 {
 	watch(false);
@@ -194,6 +299,8 @@ void AbstractProjectFile::saveData(QVariantMap &output)
 	}
 
 	output.insert(SEARCH_PATHS_KEY, paths);
+
+	saveUserSettings();
 }
 
 bool AbstractProjectFile::loadData(const QVariantMap &input)
@@ -208,7 +315,7 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 		projectDir == rootDir)
 	{
 		auto siblings = projectDir->children();
-		foreach (QObject *sibling, siblings)
+		for (auto sibling : siblings)
 		{
 			if (sibling != this)
 				delete sibling;
@@ -217,6 +324,8 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 
 		if (VariantMapFile::loadData(input))
 		{
+			loadUserSettings();
+
 			ok = true;
 
 			auto value = Utils::ValueFrom(input, IGNORED_FILES_KEY);
@@ -247,6 +356,7 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 				{
 					QString path;
 					QString target;
+					bool userSpecific = false;
 				};
 
 				std::map<FileObjType, std::vector<FileInfo>> infos;
@@ -279,24 +389,46 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 							}
 							info.path = v.toString();
 
+							v = Utils::ValueFrom(map, USER_SPECIFIC_KEY, false);
+							if (v.type() != QVariant::Bool)
+							{
+								LOG_WARNING("Bad user specific");
+								continue;
+							}
+
+							info.userSpecific = v.toBool();
+
 							switch (type)
 							{
 								case FileObjType::FileLink:
 								case FileObjType::DirectoryLink:
 								{
-									v = Utils::ValueFrom(map, TARGET_KEY);
-									if (v.type() != QVariant::String)
+									if (info.userSpecific)
 									{
-										LOG_WARNING("Bad path");
-										continue;
+										if (not fetchUserSpecificPath(type ==
+													FileObjType::DirectoryLink,
+												info.path, info.target))
+										{
+											ok = false;
+											break;
+										}
+									} else
+									{
+										v = Utils::ValueFrom(map, TARGET_KEY);
+										if (v.type() != QVariant::String)
+										{
+											LOG_WARNING("Bad path");
+											continue;
+										}
+										info.target = v.toString();
 									}
-									info.target = v.toString();
 									break;
 								}
 
 								default:
 									break;
 							}
+
 							break;
 						}
 
@@ -311,6 +443,11 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 											.arg((int) itValue.type()));
 							continue;
 						}
+					}
+
+					if (not ok)
+					{
+						break;
 					}
 
 					switch (type)
@@ -328,79 +465,106 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 					infos[type].push_back(info);
 				}
 
-				auto it = infos.find(FileObjType::DirectoryLink);
-
-				if (infos.end() != it)
+				if (ok)
 				{
-					for (auto &info : it->second)
+					auto it = infos.find(FileObjType::DirectoryLink);
+
+					if (infos.end() != it)
 					{
-						projectDir->linkDirectory(
-							rootDir->getAbsoluteFilePathFor(info.target),
-							rootDir->getAbsoluteFilePathFor(info.path), false,
-							false);
+						for (auto &info : it->second)
+						{
+							auto dir = projectDir->linkDirectory(
+								rootDir->getAbsoluteFilePathFor(info.target),
+								rootDir->getAbsoluteFilePathFor(info.path),
+								false, false);
+
+							if (dir)
+							{
+								dir->setUserSpecific(info.userSpecific);
+							}
+						}
+
+						infos.erase(it);
 					}
 
-					infos.erase(it);
-				}
-
-				for (auto &item : infos)
-				{
-					for (auto &info : item.second)
+					for (auto &item : infos)
 					{
-						switch (item.first)
+						for (auto &info : item.second)
 						{
-							case FileObjType::FileLink:
-								projectDir->linkFile(
-									rootDir->getAbsoluteFilePathFor(
-										info.target),
-									rootDir->getAbsoluteFilePathFor(info.path),
-									false, false);
-								break;
+							switch (item.first)
+							{
+								case FileObjType::FileLink:
+								{
+									auto file = projectDir->linkFile(
+										rootDir->getAbsoluteFilePathFor(
+											info.target),
+										rootDir->getAbsoluteFilePathFor(
+											info.path),
+										false, false);
 
-							default:
-								break;
+									if (file)
+									{
+										file->setUserSpecific(
+											info.userSpecific);
+									}
+									break;
+								}
+
+								default:
+									break;
+							}
 						}
 					}
 				}
 			}
 
-			value = Utils::ValueFrom(input, SEARCH_PATHS_KEY);
-
-			if (value.type() == QVariant::List)
+			if (ok)
 			{
-				auto list = value.toList();
-				value.clear();
+				value = Utils::ValueFrom(input, SEARCH_PATHS_KEY);
 
-				auto searchPaths = getSearchPaths();
-
-				int order = 0;
-				for (auto &v : list)
+				if (value.type() == QVariant::List)
 				{
-					if (v.type() != QVariant::String)
-					{
-						LOG_WARNING(QStringLiteral("Bad search path"));
-						continue;
-					}
+					auto list = value.toList();
+					value.clear();
 
-					auto path = rootDir->getAbsoluteFilePathFor(v.toString());
-					if (nullptr == searchPaths->registerPath(path, order))
+					auto searchPaths = getSearchPaths();
+
+					int order = 0;
+					for (auto &v : list)
 					{
-						LOG_WARNING(QStringLiteral(
-							"Unable to register search path: '%1'")
-										.arg(path));
-						continue;
+						if (v.type() != QVariant::String)
+						{
+							LOG_WARNING(QStringLiteral("Bad search path"));
+							continue;
+						}
+
+						auto path =
+							rootDir->getAbsoluteFilePathFor(v.toString());
+						if (nullptr == searchPaths->registerPath(path, order))
+						{
+							LOG_WARNING(QStringLiteral(
+								"Unable to register search path: '%1'")
+											.arg(path));
+							continue;
+						}
+						order++;
 					}
-					order++;
 				}
 			}
 		}
 	}
 
 	endLoad();
+
+	if (ok)
+	{
+		saveUserSettings();
+	}
+
 	return ok;
 }
 
-void AbstractProjectFile::doUpdateFilePath(bool check_oldpath)
+void AbstractProjectFile::doUpdateFilePath(bool checkOldPath)
 {
 	openedFiles = nullptr;
 	auto projectDir =
@@ -410,7 +574,7 @@ void AbstractProjectFile::doUpdateFilePath(bool check_oldpath)
 		openedFiles = projectDir->getOpenedFiles();
 	}
 
-	VariantMapFile::doUpdateFilePath(check_oldpath);
+	VariantMapFile::doUpdateFilePath(checkOldPath);
 }
 
 void AbstractProjectFile::watch(bool yes)
@@ -443,8 +607,16 @@ void AbstractProjectFile::saveProjectDirectory(
 					QVariantMap map;
 					map.insert(TYPE_KEY, TYPE_DIR_LINK);
 					map.insert(PATH_KEY, relative_path);
-					map.insert(TARGET_KEY,
-						rootDir->getRelativeFilePathFor(info.symLinkTarget()));
+
+					if (dir->isUserSpecific())
+					{
+						map.insert(USER_SPECIFIC_KEY, true);
+					} else
+					{
+						map.insert(TARGET_KEY,
+							rootDir->getRelativeFilePathFor(
+								info.symLinkTarget()));
+					}
 
 					output.push_back(map);
 				}
@@ -462,9 +634,16 @@ void AbstractProjectFile::saveProjectDirectory(
 					QVariantMap map;
 					map.insert(TYPE_KEY, TYPE_FILE_LINK);
 					map.insert(PATH_KEY, relative_filepath);
-					map.insert(TARGET_KEY,
-						rootDir->getRelativeFilePathFor(
-							file->getSymLinkTarget()));
+
+					if (file->isUserSpecific())
+					{
+						map.insert(USER_SPECIFIC_KEY, true);
+					} else
+					{
+						map.insert(TARGET_KEY,
+							rootDir->getRelativeFilePathFor(
+								file->getSymLinkTarget()));
+					}
 
 					output.push_back(map);
 				}
