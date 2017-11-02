@@ -96,6 +96,8 @@ protected:
 	static const QString USER_PATHS_KEY;
 
 private:
+	struct FileInfo;
+
 	enum class FileObjType
 	{
 		None,
@@ -107,6 +109,15 @@ private:
 
 	static FileObjType getFileObjTypeFromString(const QString &str);
 
+	enum FinalizeResult
+	{
+		RET_SUCCESS,
+		RET_CONTINUE,
+		RET_FAIL
+	};
+
+	FinalizeResult finalizeFileInfo(
+		FileObjType type, FileInfo &info, const QVariantMap &map);
 	void watch(bool yes);
 	void saveProjectDirectory(
 		Directory *root_dir, Directory *dir, QVariantList &output) const;

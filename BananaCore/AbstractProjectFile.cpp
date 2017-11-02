@@ -55,6 +55,13 @@ const QString AbstractProjectFile::USER_SPECIFIC_KEY =
 	QStringLiteral("UserSpecific");
 const QString AbstractProjectFile::USER_PATHS_KEY = QStringLiteral("UserPaths");
 
+struct AbstractProjectFile::FileInfo
+{
+	QString path;
+	QString target;
+	bool userSpecific = false;
+};
+
 AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(
 	const QString &str)
 {
@@ -71,6 +78,41 @@ AbstractProjectFile::FileObjType AbstractProjectFile::getFileObjTypeFromString(
 		return FileObjType::FileLink;
 
 	return FileObjType::None;
+}
+
+AbstractProjectFile::FinalizeResult AbstractProjectFile::finalizeFileInfo(
+	FileObjType type, FileInfo &info, const QVariantMap &map)
+{
+	switch (type)
+	{
+		case FileObjType::FileLink:
+		case FileObjType::DirectoryLink:
+		{
+			if (info.userSpecific)
+			{
+				bool dir = (type == FileObjType::DirectoryLink);
+				if (not fetchUserSpecificPath(dir, info.path, info.target))
+				{
+					return RET_FAIL;
+				}
+			} else
+			{
+				auto v = Utils::ValueFrom(map, TARGET_KEY);
+				if (v.type() != QVariant::String)
+				{
+					LOG_WARNING("Bad path");
+					return RET_CONTINUE;
+				}
+				info.target = v.toString();
+			}
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	return RET_SUCCESS;
 }
 
 AbstractProjectFile::AbstractProjectFile(
@@ -352,16 +394,10 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 			{
 				auto list = value.toList();
 				value.clear();
-				struct FileInfo
-				{
-					QString path;
-					QString target;
-					bool userSpecific = false;
-				};
 
 				std::map<FileObjType, std::vector<FileInfo>> infos;
 
-				for (auto it = list.begin(); it != list.end(); ++it)
+				for (auto it = list.constBegin(); it != list.constEnd(); ++it)
 				{
 					const QVariant &itValue = *it;
 
@@ -398,37 +434,18 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 
 							info.userSpecific = v.toBool();
 
-							switch (type)
+							switch (finalizeFileInfo(type, info, map))
 							{
-								case FileObjType::FileLink:
-								case FileObjType::DirectoryLink:
-								{
-									if (info.userSpecific)
-									{
-										if (not fetchUserSpecificPath(type ==
-													FileObjType::DirectoryLink,
-												info.path, info.target))
-										{
-											ok = false;
-											break;
-										}
-									} else
-									{
-										v = Utils::ValueFrom(map, TARGET_KEY);
-										if (v.type() != QVariant::String)
-										{
-											LOG_WARNING("Bad path");
-											continue;
-										}
-										info.target = v.toString();
-									}
+								case RET_SUCCESS:
 									break;
-								}
 
-								default:
+								case RET_CONTINUE:
+									continue;
+
+								case RET_FAIL:
+									ok = false;
 									break;
 							}
-
 							break;
 						}
 
