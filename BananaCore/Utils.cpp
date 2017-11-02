@@ -688,12 +688,12 @@ bool CreateSymLink(const QString &target, const QString &linkpath)
 	DWORD dwFlags =
 		QFileInfo(target).isDir() ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0;
 #ifdef UNICODE
-	static_assert(sizeof(wchar_t) == sizeof(decltype(*target.utf16())),
-		"wchar_t size mismatch");
+	static_assert(sizeof(WCHAR) == sizeof(decltype(*target.utf16())),
+		"WCHAR size mismatch");
 
 	return CreateSymbolicLinkW(
-		reinterpret_cast<const wchar_t *>(linkpath.utf16()),
-		reinterpret_cast<const wchar_t *>(target.utf16()), dwFlags);
+		reinterpret_cast<const WCHAR *>(linkpath.utf16()),
+		reinterpret_cast<const WCHAR *>(target.utf16()), dwFlags);
 #else
 	return CreateSymbolicLinkA(
 		linkpath.toLocal8Bit().data(), target.toLocal8Bit().data(), dwFlags);
