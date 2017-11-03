@@ -48,6 +48,13 @@ public:
 	virtual void accept() override;
 	virtual void reject() override;
 
+private slots:
+	void on_actionNewAction_triggered();
+
+	void on_actionDeleteAction_triggered();
+
+	void on_actionDeleteAll_triggered();
+
 private:
 	Ui::ScriptManagerDialog *ui;
 	Banana::ScriptManager *mManager;

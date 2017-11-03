@@ -40,3 +40,18 @@ ScriptManagerDialog::~ScriptManagerDialog()
 {
 	delete ui;
 }
+
+void ScriptManagerDialog::on_actionNewAction_triggered()
+{
+	//TODO
+}
+
+void ScriptManagerDialog::on_actionDeleteAction_triggered()
+{
+	//TODO
+}
+
+void ScriptManagerDialog::on_actionDeleteAll_triggered()
+{
+	//TODO
+}
