@@ -24,42 +24,47 @@ SOFTWARE.
 
 #pragma once
 
-#include <QObject>
+#include "QtnProperty/Property.h"
+#include "QtnProperty/Delegates/PropertyDelegate.h"
 
-#include <vector>
+#include <QMetaProperty>
 
 namespace Banana
 {
-class ScriptManager : public QObject
+class ScriptManager;
+class QtnPropertyScriptManager : public QtnProperty
 {
 	Q_OBJECT
 
 public:
-	struct Entry
-	{
-		const QMetaObject *metaObject;
-		QString filePath;
-		QString caption;
-	};
+	explicit QtnPropertyScriptManager(
+		QObject *object, const QMetaProperty &metaProperty);
 
-	using Entries = std::vector<Entry>;
+	ScriptManager *getScriptManager() const;
 
-	explicit ScriptManager(QObject *parent = nullptr);
-
-	Q_INVOKABLE void registerScriptFor(const QMetaObject *metaObject,
-		const QString &filePath, const QString &caption);
-	Q_INVOKABLE void clear();
-
-	inline const Entries &scriptEntries() const;
+	static QString getPlaceholderStr();
+	static void Register();
 
 private:
-	Entries mRegisteredScripts;
+	QObject *object;
+	QMetaProperty metaProperty;
 };
 
-const ScriptManager::Entries &ScriptManager::scriptEntries() const
+class QtnPropertyDelegateScriptManager
+	: public QtnPropertyDelegateTyped<QtnPropertyScriptManager>
 {
-	return mRegisteredScripts;
-}
-}
+	Q_DISABLE_COPY(QtnPropertyDelegateScriptManager)
 
-Q_DECLARE_METATYPE(Banana::ScriptManager *)
+public:
+	QtnPropertyDelegateScriptManager(QtnPropertyScriptManager &owner);
+
+protected:
+	virtual void drawValueImpl(QStylePainter &painter, const QRect &rect,
+		const QStyle::State &state, bool *needTooltip = nullptr) const override;
+
+	virtual QWidget *createValueEditorImpl(QWidget *parent, const QRect &rect,
+		QtnInplaceInfo *inplaceInfo = nullptr) override;
+
+	virtual bool propertyValueToStr(QString &strValue) const override;
+};
+}

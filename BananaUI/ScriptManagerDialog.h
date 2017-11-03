@@ -24,42 +24,31 @@ SOFTWARE.
 
 #pragma once
 
-#include <QObject>
+#include <QDialog>
 
-#include <vector>
+namespace Ui
+{
+class ScriptManagerDialog;
+}
 
 namespace Banana
 {
-class ScriptManager : public QObject
+class ScriptManager;
+};
+
+class ScriptManagerDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	struct Entry
-	{
-		const QMetaObject *metaObject;
-		QString filePath;
-		QString caption;
-	};
+	explicit ScriptManagerDialog(
+		Banana::ScriptManager *manager, QWidget *parent = nullptr);
+	virtual ~ScriptManagerDialog() override;
 
-	using Entries = std::vector<Entry>;
-
-	explicit ScriptManager(QObject *parent = nullptr);
-
-	Q_INVOKABLE void registerScriptFor(const QMetaObject *metaObject,
-		const QString &filePath, const QString &caption);
-	Q_INVOKABLE void clear();
-
-	inline const Entries &scriptEntries() const;
+	virtual void accept() override;
+	virtual void reject() override;
 
 private:
-	Entries mRegisteredScripts;
+	Ui::ScriptManagerDialog *ui;
+	Banana::ScriptManager *mManager;
 };
-
-const ScriptManager::Entries &ScriptManager::scriptEntries() const
-{
-	return mRegisteredScripts;
-}
-}
-
-Q_DECLARE_METATYPE(Banana::ScriptManager *)

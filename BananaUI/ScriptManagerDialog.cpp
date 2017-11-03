@@ -22,44 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#pragma once
+#include "ScriptManagerDialog.h"
+#include "ui_ScriptManagerDialog.h"
 
-#include <QObject>
+using namespace Banana;
 
-#include <vector>
-
-namespace Banana
+ScriptManagerDialog::ScriptManagerDialog(
+	ScriptManager *manager, QWidget *parent)
+	: QDialog(parent)
+	, ui(new Ui::ScriptManagerDialog)
+	, mManager(manager)
 {
-class ScriptManager : public QObject
-{
-	Q_OBJECT
-
-public:
-	struct Entry
-	{
-		const QMetaObject *metaObject;
-		QString filePath;
-		QString caption;
-	};
-
-	using Entries = std::vector<Entry>;
-
-	explicit ScriptManager(QObject *parent = nullptr);
-
-	Q_INVOKABLE void registerScriptFor(const QMetaObject *metaObject,
-		const QString &filePath, const QString &caption);
-	Q_INVOKABLE void clear();
-
-	inline const Entries &scriptEntries() const;
-
-private:
-	Entries mRegisteredScripts;
-};
-
-const ScriptManager::Entries &ScriptManager::scriptEntries() const
-{
-	return mRegisteredScripts;
-}
+	ui->setupUi(this);
 }
 
-Q_DECLARE_METATYPE(Banana::ScriptManager *)
+ScriptManagerDialog::~ScriptManagerDialog()
+{
+	delete ui;
+}

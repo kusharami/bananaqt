@@ -106,7 +106,7 @@ class SearchPathsDialog : public QDialog
 public:
 	explicit SearchPathsDialog(Banana::ProjectDirectoryModel *project_dir_model,
 		QWidget *parent = nullptr);
-	virtual ~SearchPathsDialog();
+	virtual ~SearchPathsDialog() override;
 
 	virtual void accept() override;
 	virtual void reject() override;
