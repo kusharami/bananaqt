@@ -53,3 +53,5 @@ protected:
 	virtual bool doLoad(QIODevice *device) override;
 };
 }
+
+Q_DECLARE_METATYPE(Banana::BinaryFile *)

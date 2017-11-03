@@ -34,15 +34,53 @@ SOFTWARE.
 
 namespace Banana
 {
+class ScriptManager;
 class SearchPaths;
 class Directory;
 class OpenedFiles;
+class AbstractProjectDirectory;
+
 class AbstractProjectFile : public VariantMapFile
 {
 	Q_OBJECT
 
 	Q_PROPERTY(Banana::SearchPaths *mSearchPaths READ getSearchPaths RESET
 			resetSearchPaths DESIGNABLE true STORED false)
+	Q_PROPERTY(Banana::ScriptManager *mScriptManager READ getScriptManager RESET
+			resetScriptManager DESIGNABLE true STORED false)
+
+	struct FileInfo;
+
+	enum class FileObjType
+	{
+		None,
+		Directory,
+		DirectoryLink,
+		File,
+		FileLink
+	};
+
+	OpenedFiles *openedFiles;
+	SearchPaths *searchPaths;
+	ScriptManager *scriptManager;
+	QJsonObject userPaths;
+
+protected:
+	static const QString SEARCH_PATHS_KEY;
+	static const QString IGNORED_FILES_KEY;
+	static const QString FILES_KEY;
+	static const QString TYPE_KEY;
+	static const QString PATH_KEY;
+	static const QString TARGET_KEY;
+	static const QString TYPE_FILE;
+	static const QString TYPE_DIR;
+	static const QString TYPE_DIR_LINK;
+	static const QString TYPE_FILE_LINK;
+	static const QString USER_SPECIFIC_KEY;
+	static const QString USER_PATHS_KEY;
+	static const QString SCRIPTS_KEY;
+	static const QString CAPTION_KEY;
+	static const QString OBJECT_TYPE_KEY;
 
 public:
 	CUSTOM_PROPERTY(bool, HideIgnoredFiles)
@@ -61,6 +99,9 @@ public:
 
 	SearchPaths *getSearchPaths();
 	Q_INVOKABLE void resetSearchPaths();
+
+	ScriptManager *getScriptManager();
+	Q_INVOKABLE void resetScriptManager();
 
 	QString getAbsoluteFilePathFor(const QString &filepath) const;
 
@@ -82,49 +123,26 @@ protected:
 
 	virtual void doUpdateFilePath(bool checkOldPath) override;
 
-	static const QString SEARCH_PATHS_KEY;
-	static const QString IGNORED_FILES_KEY;
-	static const QString FILES_KEY;
-	static const QString TYPE_KEY;
-	static const QString PATH_KEY;
-	static const QString TARGET_KEY;
-	static const QString TYPE_FILE;
-	static const QString TYPE_DIR;
-	static const QString TYPE_DIR_LINK;
-	static const QString TYPE_FILE_LINK;
-	static const QString USER_SPECIFIC_KEY;
-	static const QString USER_PATHS_KEY;
-
 private:
-	struct FileInfo;
-
-	enum class FileObjType
-	{
-		None,
-		Directory,
-		DirectoryLink,
-		File,
-		FileLink
-	};
-
 	static FileObjType getFileObjTypeFromString(const QString &str);
 
-	enum FinalizeResult
-	{
-		RET_SUCCESS,
-		RET_CONTINUE,
-		RET_FAIL
-	};
-
-	FinalizeResult finalizeFileInfo(
+	bool finalizeFileInfo(
 		FileObjType type, FileInfo &info, const QVariantMap &map);
 	void watch(bool yes);
 	void saveProjectDirectory(
 		Directory *root_dir, Directory *dir, QVariantList &output) const;
+	bool loadFileEntries(
+		AbstractProjectDirectory *projectDir, const QVariantMap &input);
+	void saveFileEntries(QVariantMap &output);
 
-	OpenedFiles *openedFiles;
-	SearchPaths *searchPaths;
-	QJsonObject userPaths;
+	bool loadIgnoredFileEntries(const QVariantMap &input);
+	void saveIgnoredFileEntries(QVariantMap &output);
+
+	bool loadSearchPathEntries(const QVariantMap &input);
+	void saveSearchPathEntries(QVariantMap &output);
+
+	bool loadScriptEntries(const QVariantMap &input);
+	void saveScriptEntries(QVariantMap &output);
 };
 }
 

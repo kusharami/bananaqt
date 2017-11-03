@@ -38,16 +38,18 @@ public:
 	explicit SearchPaths(Banana::AbstractProjectDirectory *project_dir,
 		QObject *parent = nullptr);
 
-	Directory *registerPath(const QString &path, int order) const;
-	void unregisterPath(const QString &path) const;
-	bool unregisterDirectory(Directory *dir) const;
-	void clear();
+	Q_INVOKABLE Banana::Directory *registerPath(
+		const QString &path, int order) const;
+	Q_INVOKABLE void unregisterPath(const QString &path) const;
+	Q_INVOKABLE bool unregisterDirectory(Banana::Directory *dir) const;
+	Q_INVOKABLE void clear();
 
 	typedef std::vector<Directory *> DirectoryList;
 
 	DirectoryList getDirectoryList() const;
 
-	inline Banana::AbstractProjectDirectory *getProjectDirectory() const;
+	Q_INVOKABLE inline Banana::AbstractProjectDirectory *
+	getProjectDirectory() const;
 
 private:
 	void unregisterDirsIn(Banana::Directory *dir) const;

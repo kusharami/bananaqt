@@ -1079,5 +1079,10 @@ bool SaveJsonToIODevice(const QJsonDocument &doc, QIODevice *device)
 
 	return false;
 }
+
+const QMetaObject *GetMetaObjectForClass(const QString &className)
+{
+	return GetMetaObjectForClass(className.toLatin1());
+}
 }
 }

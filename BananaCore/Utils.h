@@ -109,6 +109,7 @@ QVariant ValueFrom(const QVariantMap &data, const QString &key,
 
 void ShowInGraphicalShell(const QString &pathIn);
 
+const QMetaObject *GetMetaObjectForClass(const QString &className);
 const QMetaObject *GetMetaObjectForClass(const QByteArray &className);
 
 QMetaProperty GetMetaPropertyByName(

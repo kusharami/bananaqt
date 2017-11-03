@@ -51,7 +51,8 @@ SOURCES += \
     UndoStack.cpp \
     AbstractNameUnifier.cpp \
     FileNameCollection.cpp \
-    NameEnumerator.cpp
+    NameEnumerator.cpp \
+    ScriptManager.cpp
 
 HEADERS += \
     Const.h \
@@ -97,7 +98,8 @@ HEADERS += \
     AbstractNameUnifier.h \
     FileNameCollection.h \
     NameEnumerator.h \
-    AbstractNameCollection.h
+    AbstractNameCollection.h \
+    ScriptManager.h
 
 RESOURCES = BananaCore.qrc
 
