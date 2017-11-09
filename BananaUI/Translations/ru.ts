@@ -295,6 +295,14 @@ If no, the enumerated name will be given.</source>
     </message>
 </context>
 <context>
+    <name>Banana::QtnPropertyScriptManager</name>
+    <message>
+        <location filename="../QtnPropertyScriptManager.cpp" line="78"/>
+        <source>(Scripted Actions)</source>
+        <translation>(Скрипт-команды)</translation>
+    </message>
+</context>
+<context>
     <name>Banana::QtnPropertySearchPaths</name>
     <message>
         <location filename="../QtnPropertySearchPaths.cpp" line="64"/>
@@ -307,7 +315,7 @@ If no, the enumerated name will be given.</source>
     <message>
         <location filename="../ScriptRunnerDialog.cpp" line="96"/>
         <source>Select Script File</source>
-        <translation></translation>
+        <translation>Выберите скрипт-файл</translation>
     </message>
     <message>
         <location filename="../ScriptRunnerDialog.cpp" line="126"/>
@@ -343,27 +351,27 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Banana::SearchPathsDialog</name>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="604"/>
+        <location filename="../SearchPathsDialog.cpp" line="601"/>
         <source>Copy Absolute Path</source>
         <translation>Скопировать полный путь</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="605"/>
+        <location filename="../SearchPathsDialog.cpp" line="602"/>
         <source>Copy Directory Name</source>
         <translation>Скопировать имя директории</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="609"/>
+        <location filename="../SearchPathsDialog.cpp" line="606"/>
         <source>Copy Selected Absolute Paths</source>
         <translation>Скопировать полные пути</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="611"/>
+        <location filename="../SearchPathsDialog.cpp" line="608"/>
         <source>Copy Names of Selected Directories</source>
         <translation>Скопировать имена выбранных директорий</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="694"/>
+        <location filename="../SearchPathsDialog.cpp" line="691"/>
         <source>Are you sure you want to unregister selected paths?</source>
         <translation>Вы действительно хотите убрать выбранные пути из списка?</translation>
     </message>
@@ -371,32 +379,32 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Config</name>
     <message>
-        <location filename="../Config.cpp" line="50"/>
+        <location filename="../Config.cpp" line="51"/>
         <source>Show in Finder</source>
         <translation>Показать в Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="52"/>
+        <location filename="../Config.cpp" line="53"/>
         <source>Show &apos;%1&apos; in Finder</source>
         <translation>Показать &quot;%1&quot; в Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="54"/>
+        <location filename="../Config.cpp" line="55"/>
         <source>Shows a selected file or directory in Finder</source>
         <translation>Показать выбранный файл или директорию в Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="56"/>
+        <location filename="../Config.cpp" line="57"/>
         <source>Show in Explorer</source>
         <translation>Показать в Проводнике</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="58"/>
+        <location filename="../Config.cpp" line="59"/>
         <source>Show &apos;%1&apos; in Explorer</source>
         <translation>Показать &quot;%1&quot; в Проводнике</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="59"/>
+        <location filename="../Config.cpp" line="60"/>
         <source>Shows a selected file or directory in Explorer</source>
         <translation>Показать выбранный файл или директорию в Проводнике</translation>
     </message>
@@ -2362,6 +2370,69 @@ If no, the enumerated name will be given.</source>
     <message>
         <source>File &apos;%1&apos; was not deleted!</source>
         <translation type="vanished">Файл &quot;%1&quot; не был удалён!</translation>
+    </message>
+</context>
+<context>
+    <name>ScriptEntriesWidget</name>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="207"/>
+        <source>(Untitled Action)</source>
+        <translation>(Безымянная команда)</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="247"/>
+        <source>Object Type</source>
+        <translation>Тип объекта</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="256"/>
+        <source>Script File Path</source>
+        <translation>Скрипт-файл</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="264"/>
+        <source>Caption</source>
+        <translation>Имя команды</translation>
+    </message>
+</context>
+<context>
+    <name>ScriptManagerDialog</name>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="14"/>
+        <source>Register Script Actions</source>
+        <translation>Зарегистрировать скрипт-команды</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="81"/>
+        <location filename="../ScriptManagerDialog.ui" line="144"/>
+        <source>New Action</source>
+        <translation>Новая команда</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="94"/>
+        <location filename="../ScriptManagerDialog.ui" line="149"/>
+        <source>Delete Action</source>
+        <translation>Удалить команду</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="104"/>
+        <location filename="../ScriptManagerDialog.ui" line="157"/>
+        <source>Delete All</source>
+        <translation>Удалить все команды</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="124"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="134"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Del</source>
+        <translation type="obsolete">Del</translation>
     </message>
 </context>
 <context>

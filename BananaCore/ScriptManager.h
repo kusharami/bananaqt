@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,15 @@ SOFTWARE.
 #pragma once
 
 #include <QObject>
+#include <QVector>
+#include <QAction>
 
-#include <vector>
+#include <unordered_set>
 
 namespace Banana
 {
+class AbstractProjectFile;
+
 class ScriptManager : public QObject
 {
 	Q_OBJECT
@@ -40,21 +44,54 @@ public:
 		const QMetaObject *metaObject;
 		QString filePath;
 		QString caption;
+
+		Entry();
+
+		bool operator==(const Entry &other) const;
+		inline bool operator!=(const Entry &other) const;
+		Entry &operator=(const Entry &other);
 	};
 
-	using Entries = std::vector<Entry>;
+	using Entries = QVector<Entry>;
+	using MetaObjects = std::unordered_set<const QMetaObject *>;
 
-	explicit ScriptManager(QObject *parent = nullptr);
+	explicit ScriptManager(
+		AbstractProjectFile *owner, QObject *parent = nullptr);
+
+	inline AbstractProjectFile *owner() const;
+
+	static inline const MetaObjects &metaObjects();
+	static void registerMetaObject(const QMetaObject *metaObject);
 
 	Q_INVOKABLE void registerScriptFor(const QMetaObject *metaObject,
 		const QString &filePath, const QString &caption);
 	Q_INVOKABLE void clear();
 
 	inline const Entries &scriptEntries() const;
+	void setScriptEntries(const Entries &entries);
 
 private:
+	static MetaObjects &metaObjectsMutable();
+
+private:
+	AbstractProjectFile *mOwner;
 	Entries mRegisteredScripts;
 };
+
+bool ScriptManager::Entry::operator!=(const Entry &other) const
+{
+	return not operator==(other);
+}
+
+AbstractProjectFile *ScriptManager::owner() const
+{
+	return mOwner;
+}
+
+const ScriptManager::MetaObjects &ScriptManager::metaObjects()
+{
+	return metaObjectsMutable();
+}
 
 const ScriptManager::Entries &ScriptManager::scriptEntries() const
 {

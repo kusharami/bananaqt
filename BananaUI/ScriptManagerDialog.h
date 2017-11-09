@@ -40,6 +40,11 @@ class ScriptManagerDialog : public QDialog
 {
 	Q_OBJECT
 
+	Ui::ScriptManagerDialog *ui;
+	Banana::ScriptManager *mManager;
+
+	bool mPopup;
+
 public:
 	explicit ScriptManagerDialog(
 		Banana::ScriptManager *manager, QWidget *parent = nullptr);
@@ -49,13 +54,23 @@ public:
 	virtual void reject() override;
 
 private slots:
+	void updateActions();
+
 	void on_actionNewAction_triggered();
 
 	void on_actionDeleteAction_triggered();
 
 	void on_actionDeleteAll_triggered();
 
-private:
-	Ui::ScriptManagerDialog *ui;
-	Banana::ScriptManager *mManager;
+	void on_cancelButton_clicked();
+
+	void on_okButton_clicked();
+
+	void on_newActionButton_clicked();
+
+	void on_deleteActionButton_clicked();
+
+	void on_deleteAllButton_clicked();
+
+	void on_entriesWidget_customContextMenuRequested(const QPoint &pos);
 };

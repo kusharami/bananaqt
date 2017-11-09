@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -211,7 +211,7 @@ ScriptManager *AbstractProjectFile::getScriptManager()
 {
 	if (scriptManager == nullptr)
 	{
-		scriptManager = new ScriptManager;
+		scriptManager = new ScriptManager(this);
 	}
 
 	return scriptManager;
@@ -701,6 +701,9 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 				delete sibling;
 		}
 		siblings.clear();
+
+		delete scriptManager;
+		scriptManager = nullptr;
 
 		if (VariantMapFile::loadData(input))
 		{

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,22 @@ SOFTWARE.
 
 #include "ScriptManager.h"
 
+#include "AbstractProjectFile.h"
+
 namespace Banana
 {
-ScriptManager::ScriptManager(QObject *parent)
+ScriptManager::ScriptManager(AbstractProjectFile *owner, QObject *parent)
 	: QObject(parent)
+	, mOwner(owner)
 {
+}
+
+void ScriptManager::registerMetaObject(const QMetaObject *metaObject)
+{
+	if (metaObject)
+	{
+		metaObjectsMutable().insert(metaObject);
+	}
 }
 
 void ScriptManager::registerScriptFor(const QMetaObject *metaObject,
@@ -41,10 +52,52 @@ void ScriptManager::registerScriptFor(const QMetaObject *metaObject,
 	entry.caption = caption;
 
 	mRegisteredScripts.push_back(entry);
+	mOwner->setModified(true);
 }
 
 void ScriptManager::clear()
 {
-	mRegisteredScripts.clear();
+	if (!mRegisteredScripts.isEmpty())
+	{
+		mRegisteredScripts.clear();
+
+		mOwner->setModified(true);
+	}
+}
+
+void ScriptManager::setScriptEntries(const Entries &entries)
+{
+	if (entries != mRegisteredScripts)
+	{
+		mRegisteredScripts = entries;
+
+		mOwner->setModified(true);
+	}
+}
+
+ScriptManager::MetaObjects &ScriptManager::metaObjectsMutable()
+{
+	static MetaObjects META_OBJECTS;
+	return META_OBJECTS;
+}
+
+ScriptManager::Entry::Entry()
+	: metaObject(&Object::staticMetaObject)
+{
+}
+
+bool ScriptManager::Entry::operator==(const Entry &other) const
+{
+	return metaObject == other.metaObject && filePath == other.filePath &&
+		caption == other.caption;
+}
+
+ScriptManager::Entry &ScriptManager::Entry::operator=(const Entry &other)
+{
+	metaObject = other.metaObject;
+	filePath = other.filePath;
+	caption = other.caption;
+
+	return *this;
 }
 }

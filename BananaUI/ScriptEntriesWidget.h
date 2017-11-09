@@ -25,9 +25,69 @@ SOFTWARE.
 #pragma once
 
 #include "QtnProperty/PropertyWidgetEx.h"
+#include "QtnProperty/Enum.h"
+
+#include "BananaCore/ScriptManager.h"
 
 class ScriptEntriesWidget : public QtnPropertyWidgetEx
 {
+	Q_OBJECT
+
+	enum
+	{
+		ENTRY_PROPERTY_ID = 1,
+		TYPE_PROPERTY_ID,
+		FILE_PATH_PROPERTY_ID,
+		CAPTION_PROPERTY_ID
+	};
+
+	QtnEnumInfo mObjectTypeEnumInfo;
+	QtnPropertyDelegateInfo mFileDelegateInfo;
+	QtnPropertyDelegateInfo mCaptionDelegateInfo;
+
+	using EnumItems = QVector<QtnEnumValueInfo>;
+
 public:
+	using Entry = Banana::ScriptManager::Entry;
+	using Entries = Banana::ScriptManager::Entries;
+
 	explicit ScriptEntriesWidget(QWidget *parent = nullptr);
+
+	void setRootDirectory(const QString &rootDirectory);
+	Entries entries() const;
+	void setEntries(const Entries &entries);
+	void addEntry(const Entry &entry);
+	void clear();
+
+	QtnPropertySet *getActiveEntryProperty() const;
+
+	virtual bool canDeleteProperty(QtnPropertyBase *property) override;
+	virtual bool canCutToClipboard() override;
+	virtual void deleteProperty(QtnPropertyBase *property) override;
+
+protected:
+	virtual bool dataHasSupportedFormats(const QMimeData *data) override;
+	virtual QMimeData *getPropertyDataForAction(
+		QtnPropertyBase *property, Qt::DropAction dropAction) override;
+	virtual bool applyPropertyData(const QMimeData *data,
+		QtnPropertyBase *destination, QtnApplyPosition position) override;
+
+private:
+	static QString entryDisplayCaption(const QString &caption);
+	static EnumItems objectTypeEnumItems();
+	static bool objectTypeLessThan(
+		const QtnEnumValueInfo &a, const QtnEnumValueInfo &b);
+	QtnPropertySet *newPropertySetForEntry(const Entry &entry) const;
+
+	struct InternalEntry
+	{
+		int objectType;
+		QString filePath;
+		QString caption;
+
+		Entry toEntry() const;
+	};
+
+	InternalEntry internalEntryFrom(QtnPropertySet *set) const;
+	Entry entryFrom(QtnPropertySet *set) const;
 };

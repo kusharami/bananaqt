@@ -39,52 +39,18 @@ class QtnPropertyScriptManagerButtonHandler
 	: public QtnPropertyEditorBttnHandler<QtnPropertyScriptManager,
 		  QtnLineEditBttn>
 {
+	QtnPropertyScriptManager &m_prop;
+
 public:
 	QtnPropertyScriptManagerButtonHandler(
-		QtnPropertyScriptManager &property, QtnLineEditBttn &editor)
-		: QtnPropertyEditorHandlerType(property, editor)
-		, m_prop(property)
-	{
-		editor.lineEdit->setReadOnly(true);
-		editor.toolButton->setEnabled(true);
-
-		updateEditor();
-
-		editor.lineEdit->installEventFilter(this);
-		QObject::connect(editor.toolButton, &QToolButton::clicked, this,
-			&QtnPropertyScriptManagerButtonHandler::onToolButtonClicked);
-	}
+		QtnPropertyScriptManager &property, QtnLineEditBttn &editor);
 
 protected:
-	virtual void onToolButtonClick() override
-	{
-		onToolButtonClicked(false);
-	}
-
-	virtual void updateEditor() override
-	{
-		auto edit = editor().lineEdit;
-		edit->setText(QString());
-		edit->setPlaceholderText(QtnPropertyScriptManager::getPlaceholderStr());
-	}
+	virtual void onToolButtonClick() override;
+	virtual void updateEditor() override;
 
 private:
-	void onToolButtonClicked(bool)
-	{
-		auto scriptManager = m_prop.getScriptManager();
-		Q_ASSERT(nullptr != scriptManager);
-
-		auto dialog = new ScriptManagerDialog(scriptManager, editorBase());
-		auto dialogContainer = connectDialog(dialog);
-
-		dialog->show();
-		dialog->raise();
-		dialog->exec();
-
-		Q_UNUSED(dialogContainer);
-	}
-
-	QtnPropertyScriptManager &m_prop;
+	void onToolButtonClicked(bool);
 };
 
 QtnPropertyScriptManager::QtnPropertyScriptManager(
@@ -162,5 +128,47 @@ bool QtnPropertyDelegateScriptManager::propertyValueToStr(
 {
 	strValue = QtnPropertyScriptManager::getPlaceholderStr();
 	return true;
+}
+
+QtnPropertyScriptManagerButtonHandler::QtnPropertyScriptManagerButtonHandler(
+	QtnPropertyScriptManager &property, QtnLineEditBttn &editor)
+	: QtnPropertyEditorHandlerType(property, editor)
+	, m_prop(property)
+{
+	editor.lineEdit->setReadOnly(true);
+	editor.toolButton->setEnabled(true);
+
+	updateEditor();
+
+	editor.lineEdit->installEventFilter(this);
+	QObject::connect(editor.toolButton, &QToolButton::clicked, this,
+		&QtnPropertyScriptManagerButtonHandler::onToolButtonClicked);
+}
+
+void QtnPropertyScriptManagerButtonHandler::onToolButtonClick()
+{
+	onToolButtonClicked(false);
+}
+
+void QtnPropertyScriptManagerButtonHandler::updateEditor()
+{
+	auto edit = editor().lineEdit;
+	edit->setText(QString());
+	edit->setPlaceholderText(QtnPropertyScriptManager::getPlaceholderStr());
+}
+
+void QtnPropertyScriptManagerButtonHandler::onToolButtonClicked(bool)
+{
+	auto scriptManager = m_prop.getScriptManager();
+	Q_ASSERT(nullptr != scriptManager);
+
+	auto dialog = new ScriptManagerDialog(scriptManager, editorBase());
+	auto dialogContainer = connectDialog(dialog);
+
+	dialog->show();
+	dialog->raise();
+	dialog->exec();
+
+	Q_UNUSED(dialogContainer);
 }
 }

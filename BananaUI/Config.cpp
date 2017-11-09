@@ -25,6 +25,7 @@ SOFTWARE.
 #include "Config.h"
 
 #include "QtnPropertySearchPaths.h"
+#include "QtnPropertyScriptManager.h"
 
 #include "BananaCore/Const.h"
 #include "BananaCore/Config.h"
@@ -66,6 +67,7 @@ void Register()
 	InitResources();
 
 	QtnPropertySearchPaths::Register();
+	QtnPropertyScriptManager::Register();
 }
 
 void InstallTranslations(const QLocale &locale)

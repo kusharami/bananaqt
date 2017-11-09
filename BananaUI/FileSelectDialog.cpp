@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -88,9 +88,23 @@ FileSelectDialog::FileSelectDialog(
 	Utils::addShortcutForAction(
 		this, QKeySequence(Qt::Key_Backspace), ui->actionEditDelete);
 #endif
-	Utils::addShortcutForAction(this, QKeySequence::Cut, ui->actionEditCut);
-	Utils::addShortcutForAction(this, QKeySequence::Copy, ui->actionEditCopy);
-	Utils::addShortcutForAction(this, QKeySequence::Paste, ui->actionEditPaste);
+
+	Utils::addShortcutForAction(
+		this, ui->actionEditDelete->shortcut(), ui->actionEditDelete, true);
+
+#ifdef Q_OS_WIN
+	Utils::addShortcutForAction(
+		this, QKeySequence(Qt::CTRL | Qt::Key_Insert), ui->actionEditCopy);
+	Utils::addShortcutForAction(
+		this, QKeySequence(Qt::SHIFT | Qt::Key_Insert), ui->actionEditPaste);
+#endif
+
+	Utils::addShortcutForAction(
+		this, ui->actionEditCut->shortcut(), ui->actionEditCut, true);
+	Utils::addShortcutForAction(
+		this, ui->actionEditCopy->shortcut(), ui->actionEditCopy, true);
+	Utils::addShortcutForAction(
+		this, ui->actionEditPaste->shortcut(), ui->actionEditPaste, true);
 
 	auto menu = ui->treeWidget->getButtonOptionsMenu();
 	QObject::connect(menu, &QMenu::aboutToShow, this,

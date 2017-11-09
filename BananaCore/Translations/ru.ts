@@ -4,27 +4,32 @@
 <context>
     <name>Banana::AbstractProjectFile</name>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="85"/>
+        <location filename="../AbstractProjectFile.cpp" line="138"/>
         <source>mHideIgnoredFiles</source>
         <translation>Прятать игнорируемые файлы</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="87"/>
+        <location filename="../AbstractProjectFile.cpp" line="140"/>
         <source>mIgnoredFilesPattern</source>
         <translation>Игнорируемые файлы</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="89"/>
+        <location filename="../AbstractProjectFile.cpp" line="142"/>
         <source>mSearchPaths</source>
         <translation>Пути поиска</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="236"/>
+        <location filename="../AbstractProjectFile.cpp" line="143"/>
+        <source>mScriptManager</source>
+        <translation>Скрипт-команды</translation>
+    </message>
+    <message>
+        <location filename="../AbstractProjectFile.cpp" line="306"/>
         <source>Select directory for &apos;%1&apos;</source>
         <translation>Выберите директорию для &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="248"/>
+        <location filename="../AbstractProjectFile.cpp" line="317"/>
         <source>Select file for &apos;%1&apos;</source>
         <translation>Выберите файл для &quot;%1&quot;</translation>
     </message>
@@ -78,57 +83,57 @@
         <translation>Некоторые файлы сохранить не удалось!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="450"/>
+        <location filename="../Directory.cpp" line="454"/>
         <source>All supported file types</source>
         <translation>Все поддерживаемые типы файлов</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="484"/>
+        <location filename="../Directory.cpp" line="488"/>
         <source>All supported formats</source>
         <translation>Все поддерживаемые форматы</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="496"/>
+        <location filename="../Directory.cpp" line="500"/>
         <source>File &apos;%1&apos; is not found!</source>
         <translation>Файл &quot;%1&quot; не найден!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="499"/>
+        <location filename="../Directory.cpp" line="503"/>
         <source>Directory &apos;%1&apos; is not found!</source>
         <translation>Директория &quot;%1&quot; не найдена!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="502"/>
+        <location filename="../Directory.cpp" line="506"/>
         <source>&apos;%1&apos; is invalid file path!</source>
         <translation>&quot;%1&quot; - некорректный путь к файлу!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="505"/>
+        <location filename="../Directory.cpp" line="509"/>
         <source>Cannot replace directory &apos;%1&apos; with a file!</source>
         <translation>Нельзя заменить директорию &quot;%1&quot; файлом!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="508"/>
+        <location filename="../Directory.cpp" line="512"/>
         <source>Unable to write %1 &apos;%2&apos;!</source>
         <translation>%1 &quot;%2&quot;: Ошибка записи!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="511"/>
+        <location filename="../Directory.cpp" line="515"/>
         <source>Unable to create directory &apos;%1&apos;!</source>
         <translation>Не могу создать директорию &quot;%1&quot;!</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="514"/>
+        <location filename="../Directory.cpp" line="518"/>
         <source>%1 cannot be saved in %2 format.</source>
         <translation>%1 не может быть сохранён как %2.</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="517"/>
+        <location filename="../Directory.cpp" line="521"/>
         <source>&apos;%1&apos; cannot be used as %2 name. Try to use &apos;%3&apos;.</source>
         <translation>%2 нельзя назвать как &quot;%1&quot;. Попробуйте &quot;%3&quot;.</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="520"/>
+        <location filename="../Directory.cpp" line="524"/>
         <source>File &apos;%1&apos; cannot be replaced because it is open.</source>
         <translation>Нельзя заменить файл &quot;%1&quot;, так как он открыт.</translation>
     </message>
@@ -189,7 +194,7 @@
         <translation type="vanished">Экран</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="48"/>
+        <location filename="../Config.cpp" line="49"/>
         <source>QObject</source>
         <translation>Объект</translation>
     </message>
@@ -230,9 +235,24 @@
         <translation type="vanished">Проект</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="84"/>
+        <location filename="../AbstractProjectFile.cpp" line="137"/>
         <source>Banana::AbstractProjectFile</source>
         <translation>Проект</translation>
+    </message>
+    <message>
+        <location filename="../BinaryFile.cpp" line="40"/>
+        <source>Banana::BinaryFile</source>
+        <translation>Двоичный файл</translation>
+    </message>
+    <message>
+        <location filename="../Directory.cpp" line="90"/>
+        <source>Banana::Directory</source>
+        <translation>Директория</translation>
+    </message>
+    <message>
+        <location filename="../Object.cpp" line="59"/>
+        <source>Banana::Object</source>
+        <translation>Объект</translation>
     </message>
 </context>
 <context>
@@ -685,7 +705,7 @@
         <translation type="vanished">%1 (*%2)</translation>
     </message>
     <message>
-        <location filename="../Directory.cpp" line="50"/>
+        <location filename="../Directory.cpp" line="51"/>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
@@ -1374,7 +1394,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../Config.cpp" line="49"/>
+        <location filename="../Config.cpp" line="50"/>
         <source>objectName</source>
         <translation>Название</translation>
     </message>
