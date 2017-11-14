@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#pragma once
-
-class QString;
+#include "AbstractScriptRunner.h"
 
 namespace Banana
 {
-class ProjectDirectoryModel;
-
-enum class Answer
+AbstractScriptRunner::AbstractScriptRunner()
+	: mDelegate(nullptr)
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
-};
+}
 
-struct IProjectGroupDelegate
+AbstractScriptRunner::AbstractScriptRunner(IScriptRunner *runner)
+	: mDelegate(runner)
 {
-	virtual ~IProjectGroupDelegate() {}
+}
 
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
+void AbstractScriptRunner::beforeScriptExecution(const QString &filePath)
+{
+	if (mDelegate)
+		mDelegate->beforeScriptExecution(filePath);
+}
 
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
-};
+void AbstractScriptRunner::afterScriptExecution(bool ok, const QString &message)
+{
+	if (mDelegate)
+		mDelegate->afterScriptExecution(ok, message);
+}
+
+void AbstractScriptRunner::initializeEngine(QScriptEngine *engine)
+{
+	if (mDelegate)
+		return mDelegate->initializeEngine(engine);
+}
+
+void AbstractScriptRunner::log(const QString &text)
+{
+	if (mDelegate)
+		return mDelegate->log(text);
+}
 }

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#pragma once
+#include "AbstractScriptMenuBuilder.h"
 
-class QString;
+#include "BananaCore/ScriptManager.h"
+#include "BananaCore/ScriptRunner.h"
+
+#include "ScriptRunnerDialog.h"
+
+#include <QMenu>
 
 namespace Banana
 {
-class ProjectDirectoryModel;
-
-enum class Answer
+AbstractScriptMenuBuilder::AbstractScriptMenuBuilder()
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
-};
+	// do nothing
+}
 
-struct IProjectGroupDelegate
+QMenu *AbstractScriptMenuBuilder::buildMenu(
+	ScriptRunner *runner, QWidget *parent)
 {
-	virtual ~IProjectGroupDelegate() {}
+	auto menu = new QMenu(ScriptManager::scriptedActionsCaption(), parent);
+	QObjectList targets;
+	fetchScriptTargets(targets, parent);
 
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
+	if (not targets.isEmpty())
+	{
+		auto sm = scriptManager();
+		Q_ASSERT(nullptr != sm);
 
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
-};
+		if (sm->hasActionsFor(targets))
+		{
+			auto dialog = new ScriptRunnerDialog(parent);
+			dialog->setAbortDelegate(runner);
+			initRunnerDialog(dialog);
+			runner->setDelegate(dialog);
+			auto actions = sm->createActionsFor(targets, runner, parent);
+
+			menu->addActions(actions);
+		} else
+		{
+			menu->setEnabled(false);
+		}
+	}
+
+	return menu;
+}
+
+void AbstractScriptMenuBuilder::initRunnerDialog(ScriptRunnerDialog *dlg)
+{
+	if (mDelegate)
+		mDelegate->initRunnerDialog(dlg);
+}
 }

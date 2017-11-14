@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#pragma once
+#include "TreeItemsScriptMenuBuilder.h"
 
-class QString;
+#include "BaseTreeView.h"
 
 namespace Banana
 {
-class ProjectDirectoryModel;
-
-enum class Answer
+TreeItemsScriptMenuBuilder::TreeItemsScriptMenuBuilder(
+	BaseTreeView *view, ScriptManager *scriptManager)
+	: mView(view)
+	, mScriptManager(scriptManager)
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
-};
+	Q_ASSERT(nullptr != mView);
+	Q_ASSERT(nullptr != mScriptManager);
+}
 
-struct IProjectGroupDelegate
+ScriptManager *TreeItemsScriptMenuBuilder::scriptManager() const
 {
-	virtual ~IProjectGroupDelegate() {}
+	return mScriptManager;
+}
 
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
+void TreeItemsScriptMenuBuilder::fetchScriptTargets(
+	QObjectList &targets, QObject *owner)
+{
+	Q_UNUSED(owner);
 
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
-};
+	auto &selectedItems = mView->getSelectedItems();
+
+	std::copy(selectedItems.begin(), selectedItems.end(),
+		std::back_inserter(targets));
+}
 }

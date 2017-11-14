@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -74,16 +74,16 @@ public:
 	template <typename CLASS>
 	inline CLASS *getDataAs(bool open = true);
 
-	Q_INVOKABLE bool isOpen() const;
+	Q_INVOKABLE inline bool isOpen() const;
 	Q_INVOKABLE bool canClose();
-	Q_INVOKABLE void bind();
-	Q_INVOKABLE void unbind(bool stayOpen);
-	Q_INVOKABLE bool isBound() const;
+	void bind();
+	void unbind(bool stayOpen);
+	inline bool isBound() const;
 	Q_INVOKABLE bool save();
 	Q_INVOKABLE bool create(bool open = false);
 	Q_INVOKABLE bool open();
 	Q_INVOKABLE bool reload();
-	Q_INVOKABLE void close();
+	Q_INVOKABLE bool close(bool check = true);
 	Q_INVOKABLE virtual bool rename(const QString &newName) override;
 
 	Q_INVOKABLE bool isWritable() const;
@@ -112,6 +112,8 @@ public:
 
 	QString getFilePathShort(Directory *topDirectory = nullptr) const;
 	Directory *getSearchedDirectory(Directory *topDirectory = nullptr) const;
+
+	void tryCloseAndDelete();
 
 signals:
 	void flagsChanged();
@@ -182,6 +184,16 @@ CLASS *AbstractFile::getDataAs(bool open)
 		Q_ASSERT(nullptr != dynamic_cast<CLASS *>(result));
 
 	return static_cast<CLASS *>(result);
+}
+
+bool AbstractFile::isOpen() const
+{
+	return opened;
+}
+
+bool AbstractFile::isBound() const
+{
+	return (bindCount > 0);
 }
 
 unsigned AbstractFile::getBindCount() const

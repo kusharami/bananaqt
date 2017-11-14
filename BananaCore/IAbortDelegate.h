@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,12 @@ SOFTWARE.
 
 #pragma once
 
-class QString;
-
 namespace Banana
 {
-class ProjectDirectoryModel;
-
-enum class Answer
+struct IAbortDelegate
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
-};
+	virtual ~IAbortDelegate() {}
 
-struct IProjectGroupDelegate
-{
-	virtual ~IProjectGroupDelegate() {}
-
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
-
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
+	virtual bool abort() = 0;
 };
 }

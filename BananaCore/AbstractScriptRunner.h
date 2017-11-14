@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,36 @@ SOFTWARE.
 
 #pragma once
 
-class QString;
+#include "IScriptRunner.h"
 
 namespace Banana
 {
-class ProjectDirectoryModel;
-
-enum class Answer
+class AbstractScriptRunner : public IScriptRunner
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
+	IScriptRunner *mDelegate;
+
+public:
+	AbstractScriptRunner();
+	AbstractScriptRunner(IScriptRunner *runner);
+
+	inline IScriptRunner *delegate() const;
+	inline void setDelegate(IScriptRunner *delegate);
+
+	virtual void log(const QString &text) override;
+
+protected:
+	virtual void beforeScriptExecution(const QString &filePath) override;
+	virtual void afterScriptExecution(bool ok, const QString &message) override;
+	virtual void initializeEngine(QScriptEngine *engine) override;
 };
 
-struct IProjectGroupDelegate
+IScriptRunner *AbstractScriptRunner::delegate() const
 {
-	virtual ~IProjectGroupDelegate() {}
+	return mDelegate;
+}
 
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
-
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
-};
+void AbstractScriptRunner::setDelegate(IScriptRunner *delegate)
+{
+	mDelegate = delegate;
+}
 }

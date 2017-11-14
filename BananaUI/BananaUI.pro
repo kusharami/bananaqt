@@ -61,7 +61,12 @@ HEADERS += \
     MainWindow.h \
     QtnPropertyScriptManager.h \
     ScriptManagerDialog.h \
-    ScriptEntriesWidget.h
+    ScriptEntriesWidget.h \
+    FileScriptMenuBuilder.h \
+    IScriptMenuBuilder.h \
+    AbstractScriptMenuBuilder.h \
+    TreeItemsScriptMenuBuilder.h \
+    ProjectTreeScriptMenuBuilder.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -91,4 +96,8 @@ SOURCES += \
     MainWindow.cpp \
     QtnPropertyScriptManager.cpp \
     ScriptManagerDialog.cpp \
-    ScriptEntriesWidget.cpp
+    ScriptEntriesWidget.cpp \
+    FileScriptMenuBuilder.cpp \
+    AbstractScriptMenuBuilder.cpp \
+    TreeItemsScriptMenuBuilder.cpp \
+    ProjectTreeScriptMenuBuilder.cpp

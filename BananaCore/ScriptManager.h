@@ -26,13 +26,15 @@ SOFTWARE.
 
 #include <QObject>
 #include <QVector>
-#include <QAction>
 
 #include <unordered_set>
+
+class QAction;
 
 namespace Banana
 {
 class AbstractProjectFile;
+class ScriptRunner;
 
 class ScriptManager : public QObject
 {
@@ -46,6 +48,7 @@ public:
 		QString caption;
 
 		Entry();
+		bool isValid() const;
 
 		bool operator==(const Entry &other) const;
 		inline bool operator!=(const Entry &other) const;
@@ -70,12 +73,19 @@ public:
 	inline const Entries &scriptEntries() const;
 	void setScriptEntries(const Entries &entries);
 
+	bool hasActionsFor(const QObjectList &targets);
+	QList<QAction *> createActionsFor(const QObjectList &targets,
+		ScriptRunner *scriptRunner, QObject *parent = nullptr);
+
+	static QString scriptedActionsCaption();
+	static QString scriptedActionCaption();
+
 private:
 	static MetaObjects &metaObjectsMutable();
 
 private:
 	AbstractProjectFile *mOwner;
-	Entries mRegisteredScripts;
+	Entries mEntries;
 };
 
 bool ScriptManager::Entry::operator!=(const Entry &other) const
@@ -95,7 +105,7 @@ const ScriptManager::MetaObjects &ScriptManager::metaObjects()
 
 const ScriptManager::Entries &ScriptManager::scriptEntries() const
 {
-	return mRegisteredScripts;
+	return mEntries;
 }
 }
 

@@ -52,7 +52,8 @@ SOURCES += \
     AbstractNameUnifier.cpp \
     FileNameCollection.cpp \
     NameEnumerator.cpp \
-    ScriptManager.cpp
+    ScriptManager.cpp \
+    AbstractScriptRunner.cpp
 
 HEADERS += \
     Const.h \
@@ -99,7 +100,10 @@ HEADERS += \
     FileNameCollection.h \
     NameEnumerator.h \
     AbstractNameCollection.h \
-    ScriptManager.h
+    ScriptManager.h \
+    IScriptRunner.h \
+    AbstractScriptRunner.h \
+    IAbortDelegate.h
 
 RESOURCES = BananaCore.qrc
 

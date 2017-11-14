@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,63 @@ SOFTWARE.
 
 #pragma once
 
+#include "BananaCore/IScriptRunner.h"
+
 #include <QDialog>
+
+#include <set>
 
 namespace Ui
 {
 class ScriptRunnerDialog;
 }
 
-class QAbstractButton;
+class QTimer;
 
 namespace Banana
 {
 class ProjectGroup;
 class ScriptRunner;
-
-class ScriptRunnerDialog : public QDialog
+struct IAbortDelegate;
+struct ScriptSubDialogHandler;
+class ScriptRunnerDialog
+	: public QDialog
+	, public IScriptRunner
 {
 	Q_OBJECT
 
+	Ui::ScriptRunnerDialog *ui;
+
+	QString lastFilePath;
+	ProjectGroup *group;
+	QTimer *timer;
+	ScriptRunner *runner;
+	IAbortDelegate *abortDelegate;
+	unsigned execCount;
+	bool stopShow;
+
 public:
-	explicit ScriptRunnerDialog(
-		Banana::ScriptRunner *runner, QWidget *parent = nullptr);
+	explicit ScriptRunnerDialog(QWidget *parent = nullptr);
 	virtual ~ScriptRunnerDialog();
 
-	void execute(ProjectGroup *group, const QString &script_filepath);
+	inline void setProjectGroup(ProjectGroup *group);
+	void showModal(ScriptRunner *runner, ProjectGroup *group,
+		const QString &scriptFilePath);
+	virtual void beforeScriptExecution(const QString &filePath) override;
+	virtual void afterScriptExecution(bool ok, const QString &message) override;
+	virtual void log(const QString &text) override;
+	bool abort();
+
+	inline void setAbortDelegate(IAbortDelegate *d);
+
+protected:
+	virtual void initializeEngine(QScriptEngine *engine) override;
+	virtual void closeEvent(QCloseEvent *event) override;
 
 private slots:
-	void onLogPrint(const QString &text);
+	void timeout();
 
 	void on_buttonBrowse_clicked();
-
-	void on_buttonBox_clicked(QAbstractButton *button);
 
 	void on_btnInsertFilePath_clicked();
 
@@ -62,22 +88,41 @@ private slots:
 
 	void on_btnInsertProjectItem_clicked();
 
+	void on_closeButton_clicked();
+
+	void on_runButton_clicked();
+
 signals:
 	void registerFilePath(const QString &filepath);
-
-protected:
-	virtual void closeEvent(QCloseEvent *event) override;
+	void shouldDisableParentWindow();
+	void shouldEnableParentWindow();
 
 private:
+	friend struct ScriptSubDialogHandler;
+
+	void startTimer();
+	void endTimer();
+	void showMe();
+	static void beginWait();
+	static void endWait();
+	void showProgressBar();
+	void hideProgressBar();
+	void scriptRuntimeError(const QString &message);
+	void connectLog();
+	void disconnectLog();
 	void insertList(const QStringList &value);
-	void apply();
-	void setScriptFilePath(const QString &filepath);
+	void runScript();
+	void setScriptFilePath(const QString &filepath, bool reg = true);
 	void registerScript();
-
-	Ui::ScriptRunnerDialog *ui;
-
-	QString lastFilePath;
-	ProjectGroup *group;
-	ScriptRunner *runner;
 };
+
+void ScriptRunnerDialog::setProjectGroup(ProjectGroup *group)
+{
+	this->group = group;
+}
+
+void ScriptRunnerDialog::setAbortDelegate(IAbortDelegate *d)
+{
+	abortDelegate = d;
+}
 }

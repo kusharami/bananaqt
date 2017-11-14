@@ -25,6 +25,9 @@ SOFTWARE.
 #include "ScriptManager.h"
 
 #include "AbstractProjectFile.h"
+#include "ScriptRunner.h"
+
+#include <QAction>
 
 namespace Banana
 {
@@ -51,15 +54,15 @@ void ScriptManager::registerScriptFor(const QMetaObject *metaObject,
 	entry.filePath = filePath;
 	entry.caption = caption;
 
-	mRegisteredScripts.push_back(entry);
+	mEntries.push_back(entry);
 	mOwner->setModified(true);
 }
 
 void ScriptManager::clear()
 {
-	if (!mRegisteredScripts.isEmpty())
+	if (!mEntries.isEmpty())
 	{
-		mRegisteredScripts.clear();
+		mEntries.clear();
 
 		mOwner->setModified(true);
 	}
@@ -67,12 +70,77 @@ void ScriptManager::clear()
 
 void ScriptManager::setScriptEntries(const Entries &entries)
 {
-	if (entries != mRegisteredScripts)
+	if (entries != mEntries)
 	{
-		mRegisteredScripts = entries;
+		mEntries = entries;
 
 		mOwner->setModified(true);
 	}
+}
+
+bool ScriptManager::hasActionsFor(const QObjectList &targets)
+{
+	for (const Entry &entry : mEntries)
+	{
+		if (not entry.isValid())
+			continue;
+
+		for (auto target : targets)
+		{
+			if (entry.metaObject->cast(target))
+				return true;
+		}
+	}
+	return false;
+}
+
+QList<QAction *> ScriptManager::createActionsFor(
+	const QObjectList &targets, ScriptRunner *scriptRunner, QObject *parent)
+{
+	Q_ASSERT(nullptr != scriptRunner);
+
+	QList<QAction *> result;
+
+	for (const Entry &entry : mEntries)
+	{
+		if (not entry.isValid())
+			continue;
+
+		QObjectList supportTargets;
+
+		for (auto target : targets)
+		{
+			if (entry.metaObject->cast(target))
+				supportTargets.append(target);
+		}
+
+		if (supportTargets.isEmpty())
+			continue;
+
+		auto action = new QAction(parent);
+
+		action->setText(entry.caption);
+
+		auto filePath = entry.filePath;
+		QObject::connect(action, &QAction::triggered,
+			[filePath, scriptRunner, supportTargets]() {
+				scriptRunner->executeForTargets(filePath, supportTargets);
+			});
+
+		result.append(action);
+	}
+
+	return result;
+}
+
+QString ScriptManager::scriptedActionsCaption()
+{
+	return tr("Scripted Actions");
+}
+
+QString ScriptManager::scriptedActionCaption()
+{
+	return tr("Scripted Action");
 }
 
 ScriptManager::MetaObjects &ScriptManager::metaObjectsMutable()
@@ -84,6 +152,12 @@ ScriptManager::MetaObjects &ScriptManager::metaObjectsMutable()
 ScriptManager::Entry::Entry()
 	: metaObject(&Object::staticMetaObject)
 {
+}
+
+bool ScriptManager::Entry::isValid() const
+{
+	return metaObject != nullptr && not caption.isEmpty() &&
+		not filePath.isEmpty();
 }
 
 bool ScriptManager::Entry::operator==(const Entry &other) const

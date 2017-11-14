@@ -4,32 +4,32 @@
 <context>
     <name>Banana::AbstractProjectFile</name>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="138"/>
+        <location filename="../AbstractProjectFile.cpp" line="139"/>
         <source>mHideIgnoredFiles</source>
         <translation>Прятать игнорируемые файлы</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="140"/>
+        <location filename="../AbstractProjectFile.cpp" line="141"/>
         <source>mIgnoredFilesPattern</source>
         <translation>Игнорируемые файлы</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="142"/>
+        <location filename="../AbstractProjectFile.cpp" line="143"/>
         <source>mSearchPaths</source>
         <translation>Пути поиска</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="143"/>
+        <location filename="../AbstractProjectFile.cpp" line="144"/>
         <source>mScriptManager</source>
         <translation>Скрипт-команды</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="306"/>
+        <location filename="../AbstractProjectFile.cpp" line="321"/>
         <source>Select directory for &apos;%1&apos;</source>
         <translation>Выберите директорию для &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="317"/>
+        <location filename="../AbstractProjectFile.cpp" line="333"/>
         <source>Select file for &apos;%1&apos;</source>
         <translation>Выберите файл для &quot;%1&quot;</translation>
     </message>
@@ -139,11 +139,29 @@
     </message>
 </context>
 <context>
+    <name>Banana::ScriptManager</name>
+    <message>
+        <location filename="../ScriptManager.cpp" line="138"/>
+        <source>Scripted Actions</source>
+        <translation>Скрипт-команды</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManager.cpp" line="143"/>
+        <source>Scripted Action</source>
+        <translation>Скрипт-команда</translation>
+    </message>
+</context>
+<context>
     <name>Banana::ScriptRunner</name>
     <message>
-        <location filename="../ScriptRunner.cpp" line="287"/>
+        <location filename="../ScriptRunner.cpp" line="355"/>
         <source>Unable to load script file &apos;%1&apos;.</source>
         <translation>Ошибка загрузки файла &quot;%1&quot;.</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunner.cpp" line="388"/>
+        <source>Unknown error</source>
+        <translation>Неизвестная ошибка</translation>
     </message>
     <message>
         <location filename="../ScriptTemplates.cpp" line="97"/>
@@ -235,7 +253,7 @@
         <translation type="vanished">Проект</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="137"/>
+        <location filename="../AbstractProjectFile.cpp" line="138"/>
         <source>Banana::AbstractProjectFile</source>
         <translation>Проект</translation>
     </message>

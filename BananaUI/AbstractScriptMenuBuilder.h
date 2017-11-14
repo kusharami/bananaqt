@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,45 @@ SOFTWARE.
 
 #pragma once
 
-class QString;
+#include "IScriptMenuBuilder.h"
+
+#include <QObjectList>
+
+class QMenu;
+class QWidget;
 
 namespace Banana
 {
-class ProjectDirectoryModel;
+struct IScriptRunner;
+class ScriptRunner;
+class ScriptRunnerDialog;
+class ScriptManager;
 
-enum class Answer
+class AbstractScriptMenuBuilder : public IScriptMenuBuilder
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
+	IScriptMenuBuilder *mDelegate;
+
+public:
+	AbstractScriptMenuBuilder();
+
+	inline IScriptMenuBuilder *delegate() const;
+	inline void setDelegate(IScriptMenuBuilder *delegate);
+
+	QMenu *buildMenu(ScriptRunner *runner, QWidget *parent = nullptr);
+
+protected:
+	virtual void initRunnerDialog(ScriptRunnerDialog *dlg) override;
+	virtual ScriptManager *scriptManager() const = 0;
+	virtual void fetchScriptTargets(QObjectList &targets, QObject *owner) = 0;
 };
 
-struct IProjectGroupDelegate
+IScriptMenuBuilder *AbstractScriptMenuBuilder::delegate() const
 {
-	virtual ~IProjectGroupDelegate() {}
+	return mDelegate;
+}
 
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
-
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
-};
+void AbstractScriptMenuBuilder::setDelegate(IScriptMenuBuilder *delegate)
+{
+	mDelegate = delegate;
+}
 }

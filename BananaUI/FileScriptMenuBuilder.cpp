@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#pragma once
+#include "FileScriptMenuBuilder.h"
 
-class QString;
+#include "BananaCore/AbstractFile.h"
+#include "BananaCore/AbstractProjectDirectory.h"
 
 namespace Banana
 {
-class ProjectDirectoryModel;
-
-enum class Answer
+FileScriptMenuBuilder::FileScriptMenuBuilder(AbstractFile *targetFile)
+	: targetFile(targetFile)
 {
-	Unknown,
-	No,
-	NoToAll,
-	Yes,
-	YesToAll,
-	Abort
-};
+	Q_ASSERT(nullptr != targetFile);
+}
 
-struct IProjectGroupDelegate
+ScriptManager *FileScriptMenuBuilder::scriptManager() const
 {
-	virtual ~IProjectGroupDelegate() {}
+	auto projectDir =
+		dynamic_cast<AbstractProjectDirectory *>(targetFile->getTopDirectory());
+	Q_ASSERT(nullptr != projectDir);
 
-	virtual Banana::ProjectDirectoryModel *getProjectTreeModel() const = 0;
+	auto projectFile = projectDir->getProjectFile();
+	Q_ASSERT(nullptr != projectFile);
 
-	virtual Answer shouldReplaceFile(
-		const QString &filepath, Answer *remember_answer) = 0;
-	virtual void errorMessage(const QString &message) = 0;
-	virtual QString fetchFilePath(const QString &title,
-		const QString &currentPath, const QString &filters) = 0;
-	virtual QString fetchDirPath(
-		const QString &title, const QString &currentPath) = 0;
-};
+	return projectFile->getScriptManager();
+}
+
+void FileScriptMenuBuilder::fetchScriptTargets(
+	QObjectList &targets, QObject *owner)
+{
+	Q_UNUSED(owner);
+	targets.append(targetFile);
+}
 }

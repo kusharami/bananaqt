@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -71,11 +71,6 @@ Directory *AbstractFile::getParentDirectory() const
 	return dynamic_cast<Directory *>(parent());
 }
 
-bool AbstractFile::isOpen() const
-{
-	return opened;
-}
-
 bool AbstractFile::canClose()
 {
 	return (!isBound() && isOpen());
@@ -94,11 +89,6 @@ void AbstractFile::unbind(bool stayOpen)
 	{
 		close();
 	}
-}
-
-bool AbstractFile::isBound() const
-{
-	return (bindCount > 0);
 }
 
 QObject *AbstractFile::getData(bool open)
@@ -278,10 +268,18 @@ bool AbstractFile::reload()
 	return open();
 }
 
-void AbstractFile::close()
+bool AbstractFile::close(bool check)
 {
-	if (isOpen())
+	if (not isOpen())
+		return true;
+
+	if (not check || canClose())
+	{
 		internalClose();
+		return true;
+	}
+
+	return false;
 }
 
 void AbstractFile::setLoadError(bool value)
@@ -426,6 +424,12 @@ void AbstractFile::onDataDestroyed()
 	modified = false;
 	emit modifiedFlagChanged(false);
 	emit flagsChanged();
+}
+
+void AbstractFile::tryCloseAndDelete()
+{
+	if (not isBound() && close() && not isUserSpecific())
+		delete this;
 }
 
 QObject *AbstractFile::doGetData()

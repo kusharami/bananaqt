@@ -31,11 +31,12 @@ SOFTWARE.
 #include "SearchPaths.h"
 #include "ScriptManager.h"
 #include "Config.h"
+#include "ProjectGroup.h"
+#include "IProjectGroupDelegate.h"
 
 #include <QJsonDocument>
 #include <QFileInfo>
 #include <QDir>
-#include <QFileDialog>
 
 namespace Banana
 {
@@ -295,6 +296,17 @@ bool AbstractProjectFile::fetchUserSpecificPath(
 	auto val = userPaths.value(relativePath);
 	out = val.isString() ? val.toString() : QString();
 
+	auto projectDir =
+		dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
+	if (nullptr == projectDir)
+		return false;
+
+	auto projectGroup = projectDir->getProjectGroup();
+	if (nullptr == projectGroup)
+		return false;
+
+	auto delegate = projectGroup->getDelegate();
+
 	QFileInfo fileInfo(out);
 
 	if (dir)
@@ -302,22 +314,26 @@ bool AbstractProjectFile::fetchUserSpecificPath(
 		if (fileInfo.isDir())
 			return true;
 
-		out = QFileDialog::getExistingDirectory(nullptr,
+		if (nullptr == delegate)
+			return false;
+
+		out = delegate->fetchDirPath(
 			tr("Select directory for '%1'")
 				.arg(QDir::toNativeSeparators(relativePath)),
-			out.isEmpty() ? QFileInfo(getFilePath()).path() : out,
-			QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
-				QFileDialog::DontResolveSymlinks);
+			out.isEmpty() ? QFileInfo(getFilePath()).path() : out);
 	} else
 	{
 		if (fileInfo.isFile())
 			return true;
 
-		out = QFileDialog::getOpenFileName(nullptr,
-			tr("Select file for '%1'").arg(relativePath),
+		if (nullptr == delegate)
+			return false;
+
+		out = delegate->fetchFilePath(
+			tr("Select file for '%1'")
+				.arg(QDir::toNativeSeparators(relativePath)),
 			out.isEmpty() ? QFileInfo(getFilePath()).path() : out,
-			Directory::getFilterForExtension(""), nullptr,
-			QFileDialog::DontResolveSymlinks | FILE_DIALOG_FLAGS);
+			Directory::getFilterForExtension(""));
 	}
 
 	if (not out.isEmpty())
@@ -791,21 +807,13 @@ void AbstractProjectFile::saveProjectDirectory(
 			if (nullptr != file && file != this)
 			{
 				auto relative_filepath = file->getFilePath(rootDir);
-				if (file->isSymLink())
+				if (file->isSymLink() && file->isUserSpecific())
 				{
 					QVariantMap map;
 					map.insert(TYPE_KEY, TYPE_FILE_LINK);
 					map.insert(PATH_KEY, relative_filepath);
 
-					if (file->isUserSpecific())
-					{
-						map.insert(USER_SPECIFIC_KEY, true);
-					} else
-					{
-						map.insert(TARGET_KEY,
-							rootDir->getRelativeFilePathFor(
-								file->getSymLinkTarget()));
-					}
+					map.insert(USER_SPECIFIC_KEY, true);
 
 					output.push_back(map);
 				}

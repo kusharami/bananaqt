@@ -74,8 +74,9 @@ public:
 
 	virtual bool loadContents(const QVariantMap &source, bool skipObjectName);
 	virtual void saveContents(
-		QVariantMap &destination, SaveMode saveMode = SavePrototyped);
+		QVariantMap &destination, SaveMode saveMode = SavePrototyped) const;
 
+	Q_INVOKABLE QVariantMap backupContents() const;
 	Q_INVOKABLE void applyContents(const QVariantMap &source);
 
 	inline UndoStack *getUndoStack() const;
@@ -84,14 +85,14 @@ public:
 	void endMacro();
 	void blockMacro();
 	void unblockMacro();
-	Q_INVOKABLE bool undoStackIsUpdating() const;
+	bool undoStackIsUpdating() const;
 	template <typename T>
 	inline void pushUndoCommand(const char *propertyName, const T &oldValue);
-	Q_INVOKABLE bool canPushUndoCommand() const;
+	bool canPushUndoCommand() const;
 
-	Q_INVOKABLE void addChildCommand(QObject *child);
-	Q_INVOKABLE void moveChildCommand(QObject *child, QObject *oldParent);
-	Q_INVOKABLE void deleteChildCommand(QObject *child);
+	void addChildCommand(QObject *child);
+	void moveChildCommand(QObject *child, QObject *oldParent);
+	void deleteChildCommand(QObject *child);
 
 	Q_INVOKABLE void assign(QObject *source);
 
@@ -180,6 +181,7 @@ private:
 	void afterPrototypeChange();
 
 protected:
+	void removeAllChildrenInternal();
 	bool shouldSwapModifiedFieldsFor(QObject *source) const;
 	virtual bool canAssignPropertyFrom(QObject *source, int propertyId) const;
 	virtual void doConnectPrototype();

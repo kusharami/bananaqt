@@ -36,7 +36,6 @@ SOFTWARE.
 #include <QChildEvent>
 #include <QDebug>
 #include <QRegExp>
-#include <QUndoGroup>
 
 namespace Banana
 {
