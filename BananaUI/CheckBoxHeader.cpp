@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include <QPainter>
 #include <QMouseEvent>
+#include <QtMath>
 
 namespace Banana
 {
@@ -51,13 +52,7 @@ void CheckBoxHeader::paintSection(
 		option.rect = check_rect;
 
 		option.state = QStyle::State_Enabled | QStyle::State_Active;
-
-		if (checked)
-			option.state |= QStyle::State_On;
-		else
-			option.state |= QStyle::State_Off;
-
-		option.state |= QStyle::State_Off;
+		option.state |= checked ? QStyle::State_On : QStyle::State_Off;
 
 		style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &option, painter);
 	}
@@ -66,7 +61,8 @@ void CheckBoxHeader::paintSection(
 void CheckBoxHeader::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton &&
-		check_rect.contains(event->localPos().x(), event->localPos().y(), true))
+		check_rect.contains(
+			qFloor(event->localPos().x()), qFloor(event->localPos().y()), true))
 	{
 		setIsChecked(!isChecked());
 	}

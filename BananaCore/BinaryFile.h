@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -53,3 +53,5 @@ protected:
 	virtual bool doLoad(QIODevice *device) override;
 };
 }
+
+Q_DECLARE_METATYPE(Banana::BinaryFile *)

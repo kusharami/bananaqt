@@ -97,77 +97,77 @@
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="137"/>
+        <location filename="../FileSelectDialog.cpp" line="151"/>
         <source>Select Directories</source>
         <translation>Select Directories</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="137"/>
+        <location filename="../FileSelectDialog.cpp" line="151"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="145"/>
+        <location filename="../FileSelectDialog.cpp" line="159"/>
         <source>Select %1</source>
         <translation>Select %1</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="150"/>
+        <location filename="../FileSelectDialog.cpp" line="164"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="150"/>
+        <location filename="../FileSelectDialog.cpp" line="164"/>
         <source>Select File</source>
         <translation>Select File</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="329"/>
+        <location filename="../FileSelectDialog.cpp" line="343"/>
         <source>Locate &apos;%1&apos; in a Project Tree</source>
         <translation>Locate &quot;%1&quot; in a Project Tree</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="332"/>
+        <location filename="../FileSelectDialog.cpp" line="346"/>
         <source>Locate in a Project Tree</source>
         <translation>Locate in a Project Tree</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="347"/>
+        <location filename="../FileSelectDialog.cpp" line="361"/>
         <source>Open Selected Files</source>
         <translation>Open Selected Files</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="348"/>
+        <location filename="../FileSelectDialog.cpp" line="362"/>
         <source>Delete Selected...</source>
         <translation>Delete Selected...</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="351"/>
+        <location filename="../FileSelectDialog.cpp" line="365"/>
         <source>Open &apos;%1&apos;</source>
         <translation>Open &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="352"/>
+        <location filename="../FileSelectDialog.cpp" line="366"/>
         <source>Delete &apos;%1&apos;...</source>
         <translation>Delete &quot;%1&quot;...</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="355"/>
+        <location filename="../FileSelectDialog.cpp" line="369"/>
         <source>Open File</source>
         <translation>Open File</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="356"/>
+        <location filename="../FileSelectDialog.cpp" line="370"/>
         <source>Delete...</source>
         <translation>Delete...</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="393"/>
+        <location filename="../FileSelectDialog.cpp" line="407"/>
         <source>Please select a directory.</source>
         <translation>You should select a directory.</translation>
     </message>
     <message>
-        <location filename="../FileSelectDialog.cpp" line="393"/>
+        <location filename="../FileSelectDialog.cpp" line="407"/>
         <source>Please select a file.</source>
         <translation>You should select a file.</translation>
     </message>
@@ -295,6 +295,14 @@ If no, the enumerated name will be given.</translation>
     </message>
 </context>
 <context>
+    <name>Banana::QtnPropertyScriptManager</name>
+    <message>
+        <location filename="../QtnPropertyScriptManager.cpp" line="78"/>
+        <source>(Scripted Actions)</source>
+        <translation>(Scripted Actions)</translation>
+    </message>
+</context>
+<context>
     <name>Banana::QtnPropertySearchPaths</name>
     <message>
         <location filename="../QtnPropertySearchPaths.cpp" line="64"/>
@@ -305,37 +313,50 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="96"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="357"/>
         <source>Select Script File</source>
         <translation>Select Script File</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="126"/>
         <source>Script file is not selected.</source>
-        <translation>Script file is not selected.</translation>
+        <translation type="vanished">Script file is not selected.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="130"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="373"/>
         <source>File &apos;%1&apos; is not found.</source>
         <translation>File &quot;%1&quot; is not found.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="142"/>
         <source>Execute Script Error</source>
-        <translation>Execute Script Error</translation>
+        <translation type="vanished">Execute Script Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="194"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="242"/>
+        <source>Do you want to abort script execution?</source>
+        <translation>Do you want to abort script execution?</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="536"/>
+        <source>Script Runtime Error</source>
+        <translation>Script Runtime Error</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="426"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="208"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="336"/>
+        <source>Not responding more than 5 seconds.</source>
+        <translation>Not responding more than 5 seconds.</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="440"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="237"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="469"/>
         <source>There is no active project directory.</source>
         <translation>There is no active project directory.</translation>
     </message>
@@ -371,32 +392,32 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Config</name>
     <message>
-        <location filename="../Config.cpp" line="50"/>
+        <location filename="../Config.cpp" line="51"/>
         <source>Show in Finder</source>
         <translation>Show in Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="52"/>
+        <location filename="../Config.cpp" line="53"/>
         <source>Show &apos;%1&apos; in Finder</source>
         <translation>Show &quot;%1&quot; in Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="54"/>
+        <location filename="../Config.cpp" line="55"/>
         <source>Shows a selected file or directory in Finder</source>
         <translation>Shows a selected file or directory in Finder</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="56"/>
+        <location filename="../Config.cpp" line="57"/>
         <source>Show in Explorer</source>
         <translation>Show in Explorer</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="58"/>
+        <location filename="../Config.cpp" line="59"/>
         <source>Show &apos;%1&apos; in Explorer</source>
         <translation>Show &quot;%1&quot; in Explorer</translation>
     </message>
     <message>
-        <location filename="../Config.cpp" line="59"/>
+        <location filename="../Config.cpp" line="60"/>
         <source>Shows a selected file or directory in Explorer</source>
         <translation>Shows a selected file or directory in Explorer</translation>
     </message>
@@ -2373,34 +2394,111 @@ If no, the enumerated name will be given.</translation>
     </message>
 </context>
 <context>
-    <name>ScriptRunnerDialog</name>
+    <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="14"/>
-        <source>Execute Script</source>
-        <translation>Execute Script</translation>
+        <location filename="../ScriptEntriesWidget.cpp" line="341"/>
+        <source>(Untitled Action)</source>
+        <translation>(Untitled Action)</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="90"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="381"/>
+        <source>Object Type</source>
+        <translation>Object Type</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="390"/>
+        <source>Script File Path</source>
+        <translation>Script File Path</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="398"/>
+        <source>Caption</source>
+        <translation>Caption</translation>
+    </message>
+</context>
+<context>
+    <name>ScriptManagerDialog</name>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="14"/>
+        <source>Register Script Actions</source>
+        <translation>Register Script Actions</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="81"/>
+        <location filename="../ScriptManagerDialog.ui" line="147"/>
+        <source>New Action</source>
+        <translation>New Action</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="94"/>
+        <location filename="../ScriptManagerDialog.ui" line="152"/>
+        <source>Delete Action</source>
+        <translation>Delete Action</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="104"/>
+        <location filename="../ScriptManagerDialog.ui" line="163"/>
+        <source>Delete All</source>
+        <translation>Delete All Actions</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="124"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
+        <location filename="../ScriptManagerDialog.ui" line="134"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <source>Del</source>
+        <translation type="obsolete">Del</translation>
+    </message>
+</context>
+<context>
+    <name>ScriptRunnerDialog</name>
+    <message>
+        <source>Execute Script</source>
+        <translation type="vanished">Execute Script</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.ui" line="14"/>
+        <source>Run Script</source>
+        <translation>Run Script</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.ui" line="59"/>
+        <source>Run</source>
+        <translation>Run</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.ui" line="69"/>
+        <source>Close</source>
+        <translation>Close</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.ui" line="135"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="149"/>
+        <location filename="../ScriptRunnerDialog.ui" line="194"/>
         <source>Script File:</source>
         <translation>Script File:</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="159"/>
+        <location filename="../ScriptRunnerDialog.ui" line="204"/>
         <source>Browse...</source>
         <translation>Browse...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="242"/>
+        <location filename="../ScriptRunnerDialog.ui" line="287"/>
         <source>Insert File Paths...</source>
         <translation>Insert File Paths...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="275"/>
+        <location filename="../ScriptRunnerDialog.ui" line="320"/>
         <source>Insert Project Entries...</source>
         <translation>Insert Project Entries...</translation>
     </message>
@@ -2409,12 +2507,12 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Insert File Path...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="255"/>
+        <location filename="../ScriptRunnerDialog.ui" line="300"/>
         <source>Arguments</source>
         <translation>Arguments</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="268"/>
+        <location filename="../ScriptRunnerDialog.ui" line="313"/>
         <source>Insert Directory Path...</source>
         <translation>Insert Directory Path...</translation>
     </message>

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,6 +56,8 @@ Object::Object()
 	, modified(false)
 	, deleted(false)
 {
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::Object");
+
 	QObject::connect(
 		this, &QObject::objectNameChanged, this, &Object::onObjectNameChanged);
 }
@@ -84,7 +86,7 @@ void Object::beforePrototypeChange()
 	{
 		beginReload();
 		if (reloadCounter == 1)
-			removeAllChildren();
+			removeAllChildrenInternal();
 	}
 }
 
@@ -443,7 +445,7 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 	return ok;
 }
 
-void Object::saveContents(QVariantMap &destination, SaveMode saveMode)
+void Object::saveContents(QVariantMap &destination, SaveMode saveMode) const
 {
 	bool ignorePrototype;
 	switch (saveMode)
@@ -481,6 +483,15 @@ void Object::saveContents(QVariantMap &destination, SaveMode saveMode)
 		destination.insert(szCHILDREN_KEY, childList);
 
 	saveContents(this, destination, ignorePrototype ? nullptr : prototype);
+}
+
+QVariantMap Object::backupContents() const
+{
+	QVariantMap result;
+
+	saveContents(result, SaveStandalone);
+
+	return result;
 }
 
 void Object::applyContents(const QVariantMap &source)
@@ -593,7 +604,7 @@ void Object::assign(QObject *source)
 		blockMacro();
 		beginReload();
 
-		removeAllChildren();
+		removeAllChildrenInternal();
 		internalAssign(source, true, true);
 
 		endReload();
@@ -603,6 +614,29 @@ void Object::assign(QObject *source)
 		{
 			undoStack->push(new ChangeContentsCommand(this, oldContents));
 		}
+	}
+}
+
+void Object::removeAllChildren()
+{
+	QVariantMap oldContents;
+	bool canPushUndoCommand = this->canPushUndoCommand();
+	if (canPushUndoCommand)
+	{
+		saveContents(oldContents, SaveStandalone);
+	}
+
+	blockMacro();
+	beginReload();
+
+	removeAllChildrenInternal();
+
+	endReload();
+	unblockMacro();
+
+	if (canPushUndoCommand)
+	{
+		undoStack->push(new ChangeContentsCommand(this, oldContents));
 	}
 }
 
@@ -660,7 +694,7 @@ void Object::onPrototypeChildRemoved(QObject *protoChild)
 		child->onPrototypeDestroyed(protoChild);
 }
 
-void Object::removeAllChildren()
+void Object::removeAllChildrenInternal()
 {
 	auto children = this->children();
 

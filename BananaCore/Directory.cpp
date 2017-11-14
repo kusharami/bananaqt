@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Const.h"
 #include "UniqueFileNameScope.h"
 #include "AbstractProjectDirectory.h"
+#include "ScriptManager.h"
 
 #include <set>
 
@@ -86,6 +87,8 @@ Directory::Directory(const QString &name)
 	: AbstractDirectory(this)
 	, searched(false)
 {
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::Directory");
+
 	registerChildType(&Directory::staticMetaObject);
 
 	for (auto &item : registeredFileTypes)
@@ -251,6 +254,7 @@ void Directory::registerFileType(const char *extension,
 	}
 
 	registeredFileTypes.push_back(reg);
+	ScriptManager::registerMetaObject(fileMetaObject);
 }
 
 const QMetaObject *Directory::getFileTypeByExtension(

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -109,6 +109,7 @@ QVariant ValueFrom(const QVariantMap &data, const QString &key,
 
 void ShowInGraphicalShell(const QString &pathIn);
 
+const QMetaObject *GetMetaObjectForClass(const QString &className);
 const QMetaObject *GetMetaObjectForClass(const QByteArray &className);
 
 QMetaProperty GetMetaPropertyByName(

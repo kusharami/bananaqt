@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1078,6 +1078,11 @@ bool SaveJsonToIODevice(const QJsonDocument &doc, QIODevice *device)
 	}
 
 	return false;
+}
+
+const QMetaObject *GetMetaObjectForClass(const QString &className)
+{
+	return GetMetaObjectForClass(className.toLatin1());
 }
 }
 }

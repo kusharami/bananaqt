@@ -1,0 +1,76 @@
+/*******************************************************************************
+Banana Qt Libraries
+
+Copyright (c) 2017 Alexandra Cherdantseva
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*******************************************************************************/
+
+#include "AbstractScriptMenuBuilder.h"
+
+#include "BananaCore/ScriptManager.h"
+#include "BananaCore/ScriptRunner.h"
+
+#include "ScriptRunnerDialog.h"
+
+#include <QMenu>
+
+namespace Banana
+{
+AbstractScriptMenuBuilder::AbstractScriptMenuBuilder()
+{
+	// do nothing
+}
+
+QMenu *AbstractScriptMenuBuilder::buildMenu(
+	ScriptRunner *runner, QWidget *parent)
+{
+	auto menu = new QMenu(ScriptManager::scriptedActionsCaption(), parent);
+	QObjectList targets;
+	fetchScriptTargets(targets, parent);
+
+	if (not targets.isEmpty())
+	{
+		auto sm = scriptManager();
+		Q_ASSERT(nullptr != sm);
+
+		if (sm->hasActionsFor(targets))
+		{
+			auto dialog = new ScriptRunnerDialog(parent);
+			dialog->setAbortDelegate(runner);
+			initRunnerDialog(dialog);
+			runner->setDelegate(dialog);
+			auto actions = sm->createActionsFor(targets, runner, parent);
+
+			menu->addActions(actions);
+		} else
+		{
+			menu->setEnabled(false);
+		}
+	}
+
+	return menu;
+}
+
+void AbstractScriptMenuBuilder::initRunnerDialog(ScriptRunnerDialog *dlg)
+{
+	if (mDelegate)
+		mDelegate->initRunnerDialog(dlg);
+}
+}

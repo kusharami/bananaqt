@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -165,11 +165,11 @@ QStringList ProjectTreeView::getSelectedFilesList(bool relative) const
 
 				if (relative && nullptr != project_dir)
 				{
-					result.push_back(QDir::toNativeSeparators(
-						project_dir->getRelativeFilePathFor(info.filePath())));
+					result.push_back(
+						project_dir->getRelativeFilePathFor(info.filePath()));
 				} else
 				{
-					result.push_back(QDir::toNativeSeparators(info.filePath()));
+					result.push_back(info.filePath());
 				}
 			}
 		}

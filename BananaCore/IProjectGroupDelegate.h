@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,5 +49,9 @@ struct IProjectGroupDelegate
 	virtual Answer shouldReplaceFile(
 		const QString &filepath, Answer *remember_answer) = 0;
 	virtual void errorMessage(const QString &message) = 0;
+	virtual QString fetchFilePath(const QString &title,
+		const QString &currentPath, const QString &filters) = 0;
+	virtual QString fetchDirPath(
+		const QString &title, const QString &currentPath) = 0;
 };
 }
