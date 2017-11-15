@@ -52,9 +52,10 @@ private:
 	OpenedFiles *openedFiles;
 };
 
-OpenedFiles::OpenedFiles(ProjectGroup *owner)
+OpenedFiles::OpenedFiles(ProjectGroup *owner, bool noWatcher)
 	: watcher(nullptr)
 	, owner(owner)
+	, noWatcher(noWatcher)
 {
 	resetWatcher(false);
 }
@@ -278,6 +279,9 @@ void OpenedFiles::resetChildren()
 
 bool OpenedFiles::isFileWatched(const AbstractFile *file) const
 {
+	if (noWatcher)
+		return false;
+
 	Q_ASSERT(nullptr != file);
 
 	if (file->isSymLink())
@@ -288,6 +292,9 @@ bool OpenedFiles::isFileWatched(const AbstractFile *file) const
 
 bool OpenedFiles::isFileWatched(const QString &filePath) const
 {
+	if (noWatcher)
+		return false;
+
 	QFileInfo info(filePath);
 
 	if (info.isFile() || (info.isSymLink() && !info.isDir()))
@@ -304,6 +311,9 @@ bool OpenedFiles::isFileWatched(const QString &filePath) const
 
 void OpenedFiles::watchFile(AbstractFile *file, bool yes)
 {
+	if (noWatcher)
+		return;
+
 	if (file->isSymLink())
 	{
 		watch(file->getFilePath(), yes);
@@ -317,6 +327,9 @@ void OpenedFiles::watchFile(AbstractFile *file, bool yes)
 
 void OpenedFiles::watch(const QString &path, bool yes)
 {
+	if (noWatcher)
+		return;
+
 	if (!path.isEmpty())
 	{
 		if (yes)
@@ -331,6 +344,9 @@ void OpenedFiles::watch(const QString &path, bool yes)
 
 void OpenedFiles::clearWatcher()
 {
+	if (noWatcher)
+		return;
+
 	resetWatcher(false);
 }
 
@@ -356,6 +372,9 @@ void OpenedFiles::onFileDataParentChanged()
 
 void OpenedFiles::resetWatcher(bool copy)
 {
+	if (noWatcher)
+		return;
+
 	QStringList files;
 
 	if (copy)
@@ -381,6 +400,9 @@ void OpenedFiles::resetWatcher(bool copy)
 
 void OpenedFiles::removePathInternal(const QString &path)
 {
+	if (noWatcher)
+		return;
+
 	if (!watcher->removePath(path))
 	{
 		auto files = watcher->files();
@@ -396,6 +418,9 @@ void OpenedFiles::removePathInternal(const QString &path)
 
 void OpenedFiles::addPathInternal(const QString &path)
 {
+	if (noWatcher)
+		return;
+
 	QFileInfo info(path);
 
 	if (info.exists() || info.isSymLink())

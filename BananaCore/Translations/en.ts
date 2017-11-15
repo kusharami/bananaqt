@@ -78,7 +78,7 @@
 <context>
     <name>Banana::Directory</name>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="608"/>
+        <location filename="../AbstractProjectDirectory.cpp" line="607"/>
         <source>Some files were unable to be saved!</source>
         <translation>Some files were unable to be saved!</translation>
     </message>

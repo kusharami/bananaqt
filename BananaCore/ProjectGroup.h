@@ -47,7 +47,8 @@ class ProjectGroup : public Banana::ObjectGroup
 			SCRIPTABLE true DESIGNABLE false)
 
 public:
-	explicit ProjectGroup(const QMetaObject *projectDirType);
+	explicit ProjectGroup(
+		const QMetaObject *projectDirType, bool noWatcher = false);
 	virtual ~ProjectGroup();
 
 	inline QUndoGroup *getUndoGroup() const;

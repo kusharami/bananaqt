@@ -43,7 +43,7 @@ class OpenedFiles
 	Q_OBJECT
 
 public:
-	explicit OpenedFiles(ProjectGroup *owner);
+	explicit OpenedFiles(ProjectGroup *owner, bool noWatcher = false);
 	virtual ~OpenedFiles();
 
 	inline ProjectGroup *getOwner() const;
@@ -112,6 +112,7 @@ private:
 	QObjectList m_children;
 	QFileSystemWatcher *watcher;
 	ProjectGroup *owner;
+	bool noWatcher;
 
 	friend class OpenedFilesPathGroup;
 };

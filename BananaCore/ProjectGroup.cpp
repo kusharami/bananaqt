@@ -31,8 +31,8 @@ SOFTWARE.
 
 namespace Banana
 {
-ProjectGroup::ProjectGroup(const QMetaObject *projectDirType)
-	: openedFiles(new OpenedFiles(this))
+ProjectGroup::ProjectGroup(const QMetaObject *projectDirType, bool noWatcher)
+	: openedFiles(new OpenedFiles(this, noWatcher))
 	, activeProjectDir(nullptr)
 	, delegate(nullptr)
 	, undoGroup(nullptr)
@@ -43,6 +43,7 @@ ProjectGroup::ProjectGroup(const QMetaObject *projectDirType)
 
 ProjectGroup::~ProjectGroup()
 {
+	removeAllGroupChildren();
 	delete openedFiles;
 }
 
