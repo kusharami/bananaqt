@@ -38,7 +38,7 @@ extern const char pUntitledFileName[];
 extern const char pFalse[];
 extern const char pTrue[];
 
-QFont getDefaultFont();
+const QFont &getDefaultFont();
 QString getBoolString(bool value);
 
 enum

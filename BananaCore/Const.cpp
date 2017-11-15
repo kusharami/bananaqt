@@ -40,11 +40,16 @@ const char pUntitledFileName[] =
 const char pFalse[] = QT_TRANSLATE_NOOP("Boolean", "False");
 const char pTrue[] = QT_TRANSLATE_NOOP("Boolean", "True");
 
-QFont getDefaultFont()
+const QFont &getDefaultFont()
 {
-	QFont result;
-	result.setStyleStrategy(QFont::PreferAntialias);
-	result.setPixelSize(result.pointSize());
+	static QFont result;
+	static bool initOnce = false;
+	if (not initOnce)
+	{
+		initOnce = true;
+		result.setStyleStrategy(QFont::PreferAntialias);
+		result.setPixelSize(result.pointSize());
+	}
 	return result;
 }
 
