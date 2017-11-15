@@ -424,7 +424,8 @@ bool ScriptRunner::execute(
 
 	auto globalObject = engine.globalObject();
 
-	globalObject.setProperty("projects", engine.newQObject(projectGroup));
+	globalObject.setProperty(
+		QSTRKEY(projects), engine.newQObject(projectGroup));
 
 	savedErrorMessage.clear();
 
@@ -469,70 +470,71 @@ bool ScriptRunner::executeForTargets(
 	beforeScriptExecution(filePath);
 	savedErrorMessage.clear();
 
+	bool ok = false;
 	QString scriptText;
-	if (not loadScriptFile(filePath, scriptText))
+	if (loadScriptFile(filePath, scriptText))
 	{
-		return false;
-	}
+		ok = true;
 
-	QScriptEngine engine;
+		QScriptEngine engine;
 
-	initializeEngine(&engine);
+		initializeEngine(&engine);
 
-	bool ok = true;
+		auto globalObject = engine.globalObject();
 
-	auto globalObject = engine.globalObject();
+		globalObject.setProperty(
+			QSTRKEY(projects), engine.newQObject(projectGroup));
 
-	globalObject.setProperty(
-		QStringLiteral("projects"), engine.newQObject(projectGroup));
-
-	do
-	{
-		if (activeEngine == nullptr)
-			break;
-
-		if (not executeScript(scriptText, filePath))
+		do
 		{
-			ok = false;
-			break;
-		}
+			if (activeEngine == nullptr)
+				break;
 
-		QScriptValue exec = globalObject.property(QSTRKEY(exec));
-
-		if (not exec.isFunction())
-		{
-			break;
-		}
-
-		auto execPtr = &exec;
-
-		for (auto target : targets)
-		{
-			if (activeEngine == nullptr ||
-				activeEngine->hasUncaughtException() ||
-				not executeCustom([this, target, execPtr]() -> QScriptValue //
-					{
-						if (activeEngine == nullptr)
-						{
-							return QScriptValue();
-						}
-
-						auto args = activeEngine->newArray(1);
-						args.setProperty(0, activeEngine->newQObject(target));
-
-						return execPtr->call(QScriptValue(), args);
-					}))
+			if (not executeScript(scriptText, filePath))
 			{
 				ok = false;
 				break;
 			}
-		}
-	} while (false);
 
-	if (activeEngine == nullptr)
-		ok = true;
-	else
-		activeEngine = nullptr;
+			QScriptValue exec = globalObject.property(QSTRKEY(exec));
+
+			if (not exec.isFunction())
+			{
+				break;
+			}
+
+			auto execPtr = &exec;
+
+			for (auto target : targets)
+			{
+				if (activeEngine == nullptr ||
+					activeEngine->hasUncaughtException() ||
+					not executeCustom(
+						[this, target, execPtr]() -> QScriptValue //
+						{
+							if (activeEngine == nullptr)
+							{
+								return QScriptValue();
+							}
+
+							auto args = activeEngine->newArray(1);
+							args.setProperty(
+								0, activeEngine->newQObject(target));
+
+							return execPtr->call(QScriptValue(), args);
+						}))
+				{
+					ok = false;
+					break;
+				}
+			}
+		} while (false);
+
+		if (activeEngine == nullptr)
+			ok = true;
+		else
+			activeEngine = nullptr;
+	}
 	afterScriptExecution(ok, savedErrorMessage);
 	return ok;
 }
