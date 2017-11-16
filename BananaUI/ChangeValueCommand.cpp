@@ -24,10 +24,10 @@ SOFTWARE.
 
 #include "ChangeValueCommand.h"
 
-#include "Utils.h"
-#include "Const.h"
-#include "Object.h"
-#include "PropertyDef.h"
+#include "BananaCore/Utils.h"
+#include "BananaCore/Const.h"
+#include "BananaCore/Object.h"
+#include "BananaCore/PropertyDef.h"
 
 #include <QCoreApplication>
 
@@ -44,7 +44,7 @@ ChangeValueCommand::ChangeValueCommand(
 
 	auto metaProperty = Utils::GetMetaPropertyByName(this, "objectName");
 
-	pushEntry({ metaProperty, oldName, newName });
+	pushEntry({ metaProperty, oldName, newName, 0 });
 }
 
 ChangeValueCommand::ChangeValueCommand(
@@ -199,7 +199,7 @@ void ChangeValueCommand::applyStateBits(quint64 bits)
 void ChangeValueCommand::pushEntry(
 	const QMetaProperty &metaProperty, const QVariant &oldValue)
 {
-	pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()) });
+	pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()), 0 });
 }
 
 void ChangeValueCommand::pushEntry(const EntryData &entryData)

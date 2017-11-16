@@ -41,7 +41,7 @@ class QItemSelection;
 
 namespace Banana
 {
-class UndoStack;
+struct IUndoStack;
 class AbstractObjectGroup;
 
 class AbstractObjectTreeModel
@@ -92,7 +92,7 @@ public:
 	virtual void beginResetModel();
 	virtual void endResetModel();
 
-	virtual UndoStack *getUndoStack() const;
+	virtual IUndoStack *getUndoStack() const;
 
 protected:
 	virtual void beforeChangeFilters() override;

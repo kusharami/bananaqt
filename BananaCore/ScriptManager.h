@@ -29,8 +29,6 @@ SOFTWARE.
 
 #include <unordered_set>
 
-class QAction;
-
 namespace Banana
 {
 class AbstractProjectFile;
@@ -74,8 +72,6 @@ public:
 	void setScriptEntries(const Entries &entries);
 
 	bool hasActionsFor(const QObjectList &targets);
-	QList<QAction *> createActionsFor(const QObjectList &targets,
-		ScriptRunner *scriptRunner, QObject *parent = nullptr);
 
 	static QString scriptedActionsCaption();
 	static QString scriptedActionCaption();

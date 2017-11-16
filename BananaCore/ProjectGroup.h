@@ -28,8 +28,6 @@ SOFTWARE.
 
 #include "AbstractProjectDirectory.h"
 
-class QUndoGroup;
-
 namespace Banana
 {
 class OpenedFiles;
@@ -51,9 +49,6 @@ public:
 		const QMetaObject *projectDirType, bool noWatcher = false);
 	virtual ~ProjectGroup();
 
-	inline QUndoGroup *getUndoGroup() const;
-	void setUndoGroup(QUndoGroup *undoGroup);
-
 	AbstractProjectDirectory *getActiveProjectDirectory() const;
 	void setActiveProjectDirectory(AbstractProjectDirectory *value);
 
@@ -74,7 +69,6 @@ signals:
 
 private slots:
 	void onActiveProjectDirectoryDestroyed();
-	void onUndoGroupDestroyed();
 
 protected:
 	virtual void sortChildren(QObjectList &) override;
@@ -85,20 +79,12 @@ private:
 
 	void connectActiveProjectDirectory();
 	void disconnectActiveProjectDirectory();
-	void connectUndoGroup();
-	void disconnectUndoGroup();
 
 	static void closeUnboundFiles(Directory *dir);
 
 	Banana::OpenedFiles *openedFiles;
 	AbstractProjectDirectory *activeProjectDir;
 	IProjectGroupDelegate *delegate;
-	QUndoGroup *undoGroup;
 	bool silent;
 };
-
-QUndoGroup *ProjectGroup::getUndoGroup() const
-{
-	return undoGroup;
-}
 }

@@ -28,8 +28,6 @@ SOFTWARE.
 #include "Utils.h"
 #include "ProjectGroup.h"
 
-#include "BananaCore/UndoStack.h"
-
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -660,8 +658,8 @@ void AbstractFile::doParentChange()
 void AbstractFile::internalClose()
 {
 	opened = false;
+	emit fileClosed();
 	destroyData();
 	onDataDestroyed();
-	emit fileClosed();
 }
 }

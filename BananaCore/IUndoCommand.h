@@ -24,48 +24,12 @@ SOFTWARE.
 
 #pragma once
 
-#include "IScriptMenuBuilder.h"
-
-#include <QObjectList>
-
-class QMenu;
-class QWidget;
-class QAction;
+class QUndoCommand;
 namespace Banana
 {
-struct IScriptRunner;
-class ScriptRunner;
-class ScriptRunnerDialog;
-class ScriptManager;
-
-class AbstractScriptMenuBuilder : public IScriptMenuBuilder
+struct IUndoCommand
 {
-	IScriptMenuBuilder *mDelegate;
-
-public:
-	AbstractScriptMenuBuilder();
-
-	inline IScriptMenuBuilder *delegate() const;
-	inline void setDelegate(IScriptMenuBuilder *delegate);
-
-	QMenu *buildMenu(ScriptRunner *runner, QWidget *parent = nullptr);
-	QList<QAction *> createActionsFor(ScriptManager *mgr,
-		const QObjectList &targets, ScriptRunner *scriptRunner,
-		QObject *parent = nullptr);
-
-protected:
-	virtual void initRunnerDialog(ScriptRunnerDialog *dlg) override;
-	virtual ScriptManager *scriptManager() const = 0;
-	virtual void fetchScriptTargets(QObjectList &targets, QObject *owner) = 0;
+	virtual ~IUndoCommand() {}
+	virtual QUndoCommand *qundoCommand() = 0;
 };
-
-IScriptMenuBuilder *AbstractScriptMenuBuilder::delegate() const
-{
-	return mDelegate;
-}
-
-void AbstractScriptMenuBuilder::setDelegate(IScriptMenuBuilder *delegate)
-{
-	mDelegate = delegate;
-}
 }

@@ -34,7 +34,7 @@ class QMimeData;
 
 namespace Banana
 {
-class UndoStack;
+struct IUndoStack;
 
 extern const char szOBJECT_NAME_KEY[];
 extern const char szCLASS_NAME_KEY[];
@@ -79,8 +79,9 @@ public:
 	Q_INVOKABLE QVariantMap backupContents() const;
 	Q_INVOKABLE void applyContents(const QVariantMap &source);
 
-	inline UndoStack *getUndoStack() const;
-	void setUndoStack(UndoStack *undoStack, bool own = false);
+	inline bool ownsUndoStack() const;
+	inline IUndoStack *getUndoStack() const;
+	void setUndoStack(IUndoStack *undoStack, bool own = false);
 	void beginMacro(const QString &text);
 	void endMacro();
 	void blockMacro();
@@ -213,10 +214,10 @@ protected:
 	unsigned macroCounter;
 	unsigned blockCounter;
 	unsigned undoStackUpdate;
-	UndoStack *undoStack;
-	bool ownUndoStack;
-	bool modified;
-	bool deleted;
+	IUndoStack *undoStack;
+	bool ownUndoStack : 1;
+	bool modified : 1;
+	bool deleted : 1;
 
 private:
 	typedef std::bitset<64> ModifiedSet;
@@ -228,7 +229,12 @@ QObject *Object::getPrototype() const
 	return prototype;
 }
 
-UndoStack *Object::getUndoStack() const
+bool Object::ownsUndoStack() const
+{
+	return ownUndoStack;
+}
+
+IUndoStack *Object::getUndoStack() const
 {
 	return undoStack;
 }

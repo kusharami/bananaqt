@@ -90,6 +90,11 @@ bool SelectTreeItemsCommand::mergeWith(const QUndoCommand *other)
 	return false;
 }
 
+QUndoCommand *SelectTreeItemsCommand::qundoCommand()
+{
+	return this;
+}
+
 void SelectTreeItemsCommand::toPaths(const QObjectSet &source, Paths &output)
 {
 	output.clear();

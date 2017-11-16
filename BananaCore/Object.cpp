@@ -26,11 +26,8 @@ SOFTWARE.
 
 #include "Core.h"
 #include "Utils.h"
-#include "ChangeValueCommand.h"
-#include "ChangeContentsCommand.h"
-#include "ChildActionCommand.h"
 #include "PropertyDef.h"
-#include "UndoStack.h"
+#include "IUndoStack.h"
 
 #include <QChildEvent>
 #include <QMetaProperty>
@@ -157,8 +154,9 @@ bool Object::setPropertyModified(int propertyId, bool modified)
 		modifiedSet.set(propertyId, modified);
 
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChangeValueCommand(this, propertyId, oldModified));
+		{
+			undoStack->pushPropertyChange(this, propertyId, oldModified);
+		}
 
 		emit modifiedSetChanged();
 
@@ -175,7 +173,9 @@ void Object::setPropertyModifiedBits(quint64 propertyIdBits)
 	{
 		modifiedSet = ModifiedSet(propertyIdBits);
 		if (canPushUndoCommand())
-			undoStack->push(new ChangeValueCommand(this, oldBits));
+		{
+			undoStack->pushMultiPropertyChange(this, oldBits);
+		}
 
 		emit modifiedSetChanged();
 	}
@@ -218,7 +218,7 @@ void Object::setPrototype(Object *prototype)
 
 		if (canPushUndoCommand)
 		{
-			undoStack->push(new ChangeContentsCommand(this, oldContents));
+			undoStack->pushContentsChange(this, oldContents);
 		}
 	}
 }
@@ -513,11 +513,11 @@ void Object::applyContents(const QVariantMap &source)
 
 	if (canPushUndoCommand)
 	{
-		undoStack->push(new ChangeContentsCommand(this, oldContents));
+		undoStack->pushContentsChange(this, oldContents);
 	}
 }
 
-void Object::setUndoStack(UndoStack *undoStack, bool own)
+void Object::setUndoStack(IUndoStack *undoStack, bool own)
 {
 	if (this->undoStack != undoStack)
 	{
@@ -612,7 +612,8 @@ void Object::assign(QObject *source)
 
 		if (canPushUndoCommand)
 		{
-			undoStack->push(new ChangeContentsCommand(this, oldContents));
+			undoStack->pushContentsChange(this, oldContents);
+			//undoStack->push(new ChangeContentsCommand(this, oldContents));
 		}
 	}
 }
@@ -636,7 +637,8 @@ void Object::removeAllChildren()
 
 	if (canPushUndoCommand)
 	{
-		undoStack->push(new ChangeContentsCommand(this, oldContents));
+		undoStack->pushContentsChange(this, oldContents);
+		//undoStack->push(new ChangeContentsCommand(this, oldContents));
 	}
 }
 
@@ -803,7 +805,9 @@ void Object::onLinkedObjectNameChanged(const QString &name)
 void Object::onObjectNameChanged(const QString &newName)
 {
 	if (canPushUndoCommand())
-		undoStack->push(new ChangeValueCommand(this, oldName, newName));
+	{
+		undoStack->pushChangeName(this, oldName, newName);
+	}
 
 	oldName = newName;
 	setModified(true);
@@ -826,8 +830,9 @@ void Object::addChildCommand(QObject *child)
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChildActionCommand(object, ChildActionCommand::Add));
+		{
+			undoStack->pushAddChild(object);
+		}
 	}
 }
 
@@ -837,8 +842,9 @@ void Object::moveChildCommand(QObject *child, QObject *oldParent)
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(new ChildActionCommand(
-				object, dynamic_cast<Object *>(oldParent)));
+		{
+			undoStack->pushMoveChild(object, dynamic_cast<Object *>(oldParent));
+		}
 	}
 }
 
@@ -848,16 +854,17 @@ void Object::deleteChildCommand(QObject *child)
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChildActionCommand(object, ChildActionCommand::Delete));
+		{
+			undoStack->pushDeleteChild(object);
+		}
 	}
 }
 
 void Object::pushUndoCommandInternal(
 	const char *propertyName, const QVariant &oldValue)
 {
-	undoStack->push(new ChangeValueCommand(this,
-		Utils::GetMetaPropertyByName(metaObject(), propertyName), oldValue));
+	undoStack->pushValueChange(this,
+		Utils::GetMetaPropertyByName(metaObject(), propertyName), oldValue);
 }
 
 Object *Object::getMainPrototype() const
@@ -1281,8 +1288,7 @@ void Object::connectUndoStack()
 {
 	if (nullptr != undoStack && ownUndoStack)
 	{
-		QObject::connect(undoStack, &QUndoStack::cleanChanged, this,
-			&Object::onUndoStackCleanChanged);
+		undoStack->connectCleanChanged(this, &Object::onUndoStackCleanChanged);
 	}
 }
 
@@ -1290,8 +1296,8 @@ void Object::disconnectUndoStack()
 {
 	if (nullptr != undoStack && ownUndoStack)
 	{
-		QObject::disconnect(undoStack, &QUndoStack::cleanChanged, this,
-			&Object::onUndoStackCleanChanged);
+		undoStack->disconnectCleanChanged(
+			this, &Object::onUndoStackCleanChanged);
 	}
 }
 

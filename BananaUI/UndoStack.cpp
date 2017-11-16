@@ -24,6 +24,12 @@ SOFTWARE.
 
 #include "UndoStack.h"
 
+#include "ChangeValueCommand.h"
+#include "ChangeContentsCommand.h"
+#include "ChildActionCommand.h"
+
+#include "BananaCore/Object.h"
+
 #include <QApplication>
 #include <QEvent>
 
@@ -34,10 +40,12 @@ UndoStack::UndoStack(QObject *parent)
 	, blockCounter(0)
 	, macroCounter(0)
 	, updateCounter(0)
-	, firstClean(true)
 {
-	QObject::connect(
-		this, &QUndoStack::cleanChanged, this, &UndoStack::onCleanChanged);
+}
+
+UndoStack *UndoStack::qundoStack()
+{
+	return this;
 }
 
 void UndoStack::beginUpdate()
@@ -82,14 +90,20 @@ void UndoStack::unblockMacro()
 	blockCounter--;
 }
 
-void UndoStack::clear(bool force)
+void UndoStack::clear()
 {
-	if (force || (updateCounter == 0 && macroCounter == 0))
+	if (updateCounter == 0 && macroCounter == 0 && count() > 0)
 	{
-		updateCounter = 0;
-		macroCounter = 0;
-		firstClean = isClean();
+		bool wasClean = isClean();
+		blockSignals(true);
 		QUndoStack::clear();
+		blockSignals(false);
+		emit indexChanged(index());
+		emit cleanChanged(wasClean);
+		emit canUndoChanged(canUndo());
+		emit canRedoChanged(canRedo());
+		emit undoTextChanged(undoText());
+		emit redoTextChanged(redoText());
 	}
 }
 
@@ -97,14 +111,84 @@ void UndoStack::setClean()
 {
 	if (!isClean())
 	{
-		firstClean = (index() == 0);
 		QUndoStack::setClean();
 	}
+}
+
+bool UndoStack::isUpdating() const
+{
+	return updateCounter > 0;
 }
 
 bool UndoStack::canPushForMacro() const
 {
 	return macroCounter > 0 && blockCounter == 0;
+}
+
+void UndoStack::connectCleanChanged(Object *object, CleanChanged cb)
+{
+	Q_ASSERT(nullptr != object);
+	Q_ASSERT(nullptr != cb);
+
+	QObject::connect(this, &QUndoStack::cleanChanged, object, cb);
+}
+
+void UndoStack::disconnectCleanChanged(Object *object, CleanChanged cb)
+{
+	Q_ASSERT(nullptr != object);
+	Q_ASSERT(nullptr != cb);
+
+	QObject::disconnect(this, &QUndoStack::cleanChanged, object, cb);
+}
+
+void UndoStack::pushCommand(IUndoCommand *command)
+{
+	Q_ASSERT(command != nullptr);
+	push(command->qundoCommand());
+}
+
+void UndoStack::pushChangeName(
+	Object *object, const QString &oldName, const QString &newName)
+{
+	push(new ChangeValueCommand(object, oldName, newName));
+}
+
+void UndoStack::pushAddChild(Object *child)
+{
+	push(new ChildActionCommand(child, ChildActionCommand::Add));
+}
+
+void UndoStack::pushMoveChild(Object *child, Object *oldParent)
+{
+	push(new ChildActionCommand(child, oldParent));
+}
+
+void UndoStack::pushDeleteChild(Object *child)
+{
+	push(new ChildActionCommand(child, ChildActionCommand::Delete));
+}
+
+void UndoStack::pushValueChange(
+	Object *object, const QMetaProperty &metaProperty, const QVariant &oldValue)
+{
+	push(new ChangeValueCommand(object, metaProperty, oldValue));
+}
+
+void UndoStack::pushPropertyChange(
+	Object *object, int propertyId, bool oldState)
+{
+	push(new ChangeValueCommand(object, propertyId, oldState));
+}
+
+void UndoStack::pushMultiPropertyChange(Object *object, quint64 oldStateBits)
+{
+	push(new ChangeValueCommand(object, oldStateBits));
+}
+
+void UndoStack::pushContentsChange(
+	Object *object, const QVariantMap &oldContents)
+{
+	push(new ChangeContentsCommand(object, oldContents));
 }
 
 QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
@@ -126,13 +210,5 @@ QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)
 
 	qFatal("Unsupported drop action");
 	return QString();
-}
-
-void UndoStack::onCleanChanged(bool clean)
-{
-	if (clean && !firstClean && cleanIndex() == 0 && index() == 0)
-	{
-		emit cleanChanged(false);
-	}
 }
 }

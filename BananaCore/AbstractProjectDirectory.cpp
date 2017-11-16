@@ -29,7 +29,6 @@ SOFTWARE.
 #include "IProjectGroupDelegate.h"
 #include "OpenedFiles.h"
 #include "Utils.h"
-#include "UndoStack.h"
 
 #include <QDir>
 #include <QFileInfo>

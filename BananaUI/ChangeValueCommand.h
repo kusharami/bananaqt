@@ -26,8 +26,8 @@ SOFTWARE.
 
 #include "AbstractObjectUndoCommand.h"
 
-#include <QVariant>
 #include <QMetaProperty>
+#include <QVariant>
 
 #include <vector>
 #include <map>

@@ -37,48 +37,41 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="320"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
-        <translation>Reset value of &lt;%2&gt; [%1]</translation>
+        <translation type="vanished">Reset value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="325"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
-        <translation>Change value of &lt;%2&gt; [%1]</translation>
+        <translation type="vanished">Change value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="330"/>
         <source>Multiple objects</source>
-        <translation>Multiple objects</translation>
+        <translation type="vanished">Multiple objects</translation>
     </message>
 </context>
 <context>
     <name>Banana::ChildActionCommand</name>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="94"/>
         <source>Add object [%1]</source>
-        <translation>Add object [%1]</translation>
+        <translation type="vanished">Add object [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="99"/>
         <source>Add multiple objects</source>
-        <translation>Add multiple objects</translation>
+        <translation type="vanished">Add multiple objects</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="105"/>
         <source>Delete object [%1]</source>
-        <translation>Delete object [%1]</translation>
+        <translation type="vanished">Delete object [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="110"/>
         <source>Delete multiple objects</source>
-        <translation>Delete multiple objects</translation>
+        <translation type="vanished">Delete multiple objects</translation>
     </message>
 </context>
 <context>
     <name>Banana::Directory</name>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="607"/>
+        <location filename="../AbstractProjectDirectory.cpp" line="606"/>
         <source>Some files were unable to be saved!</source>
         <translation>Some files were unable to be saved!</translation>
     </message>
@@ -141,12 +134,12 @@
 <context>
     <name>Banana::ScriptManager</name>
     <message>
-        <location filename="../ScriptManager.cpp" line="138"/>
+        <location filename="../ScriptManager.cpp" line="96"/>
         <source>Scripted Actions</source>
         <translation>Scripted Actions</translation>
     </message>
     <message>
-        <location filename="../ScriptManager.cpp" line="143"/>
+        <location filename="../ScriptManager.cpp" line="101"/>
         <source>Scripted Action</source>
         <translation>Scripted Action</translation>
     </message>
@@ -177,19 +170,16 @@
 <context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="115"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
-        <translation>Drag &amp;&amp; Drop: Copy</translation>
+        <translation type="vanished">Drag &amp;&amp; Drop: Copy</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="118"/>
         <source>Drag &amp;&amp; Drop: Move</source>
-        <translation>Drag &amp;&amp; Drop: Move</translation>
+        <translation type="vanished">Drag &amp;&amp; Drop: Move</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="121"/>
         <source>Drag &amp;&amp; Drop: Link</source>
-        <translation>Drag &amp;&amp; Drop: Link</translation>
+        <translation type="vanished">Drag &amp;&amp; Drop: Link</translation>
     </message>
 </context>
 <context>
@@ -268,7 +258,7 @@
         <translation>Directory</translation>
     </message>
     <message>
-        <location filename="../Object.cpp" line="59"/>
+        <location filename="../Object.cpp" line="56"/>
         <source>Banana::Object</source>
         <translation>Object</translation>
     </message>

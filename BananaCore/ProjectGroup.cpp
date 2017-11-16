@@ -27,7 +27,6 @@ SOFTWARE.
 #include "OpenedFiles.h"
 
 #include <QDir>
-#include <QUndoGroup>
 
 namespace Banana
 {
@@ -35,7 +34,6 @@ ProjectGroup::ProjectGroup(const QMetaObject *projectDirType, bool noWatcher)
 	: openedFiles(new OpenedFiles(this, noWatcher))
 	, activeProjectDir(nullptr)
 	, delegate(nullptr)
-	, undoGroup(nullptr)
 	, silent(false)
 {
 	registerChildType(projectDirType);
@@ -45,18 +43,6 @@ ProjectGroup::~ProjectGroup()
 {
 	removeAllGroupChildren();
 	delete openedFiles;
-}
-
-void ProjectGroup::setUndoGroup(QUndoGroup *undoGroup)
-{
-	if (undoGroup != this->undoGroup)
-	{
-		disconnectUndoGroup();
-
-		this->undoGroup = undoGroup;
-
-		connectUndoGroup();
-	}
 }
 
 AbstractProjectDirectory *ProjectGroup::getActiveProjectDirectory() const
@@ -156,11 +142,6 @@ void ProjectGroup::onActiveProjectDirectoryDestroyed()
 		QString(), Qt::FindDirectChildrenOnly));
 }
 
-void ProjectGroup::onUndoGroupDestroyed()
-{
-	undoGroup = nullptr;
-}
-
 void ProjectGroup::sortChildren(QObjectList &)
 {
 	// do nothing
@@ -199,25 +180,6 @@ void ProjectGroup::disconnectActiveProjectDirectory()
 			&ProjectGroup::onActiveProjectDirectoryDestroyed);
 
 		activeProjectDir = nullptr;
-	}
-}
-
-void ProjectGroup::connectUndoGroup()
-{
-	if (nullptr != undoGroup)
-	{
-		QObject::connect(undoGroup, &QObject::destroyed, this,
-			&ProjectGroup::onUndoGroupDestroyed);
-	}
-}
-
-void ProjectGroup::disconnectUndoGroup()
-{
-	if (nullptr != undoGroup)
-	{
-		QObject::disconnect(undoGroup, &QObject::destroyed, this,
-			&ProjectGroup::onUndoGroupDestroyed);
-		undoGroup = nullptr;
 	}
 }
 

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "ScriptRunnerDialog.h"
 
 #include <QMenu>
+#include <QAction>
 
 namespace Banana
 {
@@ -56,7 +57,7 @@ QMenu *AbstractScriptMenuBuilder::buildMenu(
 			dialog->setAbortDelegate(runner);
 			initRunnerDialog(dialog);
 			runner->setDelegate(dialog);
-			auto actions = sm->createActionsFor(targets, runner, parent);
+			auto actions = createActionsFor(sm, targets, runner, parent);
 
 			menu->addActions(actions);
 		} else
@@ -66,6 +67,45 @@ QMenu *AbstractScriptMenuBuilder::buildMenu(
 	}
 
 	return menu;
+}
+
+QList<QAction *> AbstractScriptMenuBuilder::createActionsFor(ScriptManager *mgr,
+	const QObjectList &targets, ScriptRunner *scriptRunner, QObject *parent)
+{
+	Q_ASSERT(nullptr != scriptRunner);
+
+	QList<QAction *> result;
+
+	for (const ScriptManager::Entry &entry : mgr->scriptEntries())
+	{
+		if (not entry.isValid())
+			continue;
+
+		QObjectList supportTargets;
+
+		for (auto target : targets)
+		{
+			if (entry.metaObject->cast(target))
+				supportTargets.append(target);
+		}
+
+		if (supportTargets.isEmpty())
+			continue;
+
+		auto action = new QAction(parent);
+
+		action->setText(entry.caption);
+
+		auto filePath = entry.filePath;
+		QObject::connect(action, &QAction::triggered,
+			[filePath, scriptRunner, supportTargets]() {
+				scriptRunner->executeForTargets(filePath, supportTargets);
+			});
+
+		result.append(action);
+	}
+
+	return result;
 }
 
 void AbstractScriptMenuBuilder::initRunnerDialog(ScriptRunnerDialog *dlg)

@@ -24,9 +24,10 @@ SOFTWARE.
 
 #include "ObjectPropertyWidget.h"
 
+#include "ChangeValueCommand.h"
+
 #include "BananaCore/Object.h"
 #include "BananaCore/Utils.h"
-#include "BananaCore/ChangeValueCommand.h"
 
 #include "QtnProperty/PropertyConnector.h"
 #include "QtnProperty/MultiProperty.h"

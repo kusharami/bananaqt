@@ -24,8 +24,8 @@ SOFTWARE.
 
 #include "ChangeContentsCommand.h"
 
-#include "Object.h"
-#include "Const.h"
+#include "BananaCore/Object.h"
+#include "BananaCore/Const.h"
 
 namespace Banana
 {

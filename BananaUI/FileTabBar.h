@@ -30,6 +30,7 @@ SOFTWARE.
 #include <vector>
 #include <functional>
 
+class QUndoGroup;
 namespace Banana
 {
 class UndoStack;
@@ -41,6 +42,9 @@ class FileTabBar : public QTabBar
 
 public:
 	explicit FileTabBar(QWidget *parent = nullptr);
+
+	inline void setUndoLimit(int limit);
+	inline void setUndoGroup(QUndoGroup *undoGroup);
 
 	typedef std::function<bool(AbstractFile *)> CanOpenFunc;
 	typedef std::function<bool(AbstractFile *, bool multiple)> CanCloseFunc;
@@ -63,18 +67,20 @@ signals:
 	void fileFlagsChanged(AbstractFile *file);
 	void fileClosed(AbstractFile *file);
 
-private slots:
+private:
 	void onTabCloseRequested(int index);
+	void onTabChanged(int index);
 	void onTabMoved(int from, int to);
 	void onFileClosed();
 	void onFileDestroyed(QObject *object);
 	void onFileFlagsChanged();
+	void onFileDataChanged();
 	void updateTabText();
 
-private:
 	static QString getFileIsModifiedFmt();
 	static UndoStack *getFileUndoStack(AbstractFile *file);
 
+	void updateUndoStack(AbstractFile *file);
 	void closeTab(int index, bool multiple);
 	void doFileClose(AbstractFile *file);
 	static QString getTitleForFile(AbstractFile *file);
@@ -87,8 +93,20 @@ private:
 
 	int getFileIndex(QObject *fileObject, bool valid = false) const;
 
+	int mUndoLimit;
+	QUndoGroup *mUndoGroup;
 	CanOpenFunc canOpen;
 	CanCloseFunc canClose;
 	FileVector openedFiles;
 };
+
+void FileTabBar::setUndoLimit(int limit)
+{
+	mUndoLimit = limit;
+}
+
+void FileTabBar::setUndoGroup(QUndoGroup *undoGroup)
+{
+	mUndoGroup = undoGroup;
+}
 }

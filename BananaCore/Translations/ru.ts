@@ -37,48 +37,41 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="320"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
-        <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
+        <translation type="vanished">Сброс значения в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="325"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
-        <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
+        <translation type="vanished">Новое значение в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="330"/>
         <source>Multiple objects</source>
-        <translation>Несколько объектов</translation>
+        <translation type="vanished">Несколько объектов</translation>
     </message>
 </context>
 <context>
     <name>Banana::ChildActionCommand</name>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="94"/>
         <source>Add object [%1]</source>
-        <translation>Новый объект [%1]</translation>
+        <translation type="vanished">Новый объект [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="99"/>
         <source>Add multiple objects</source>
-        <translation>Добавление нескольких объектов</translation>
+        <translation type="vanished">Добавление нескольких объектов</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="105"/>
         <source>Delete object [%1]</source>
-        <translation>Удаление объекта [%1]</translation>
+        <translation type="vanished">Удаление объекта [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="110"/>
         <source>Delete multiple objects</source>
-        <translation>Удаление нескольких объектов</translation>
+        <translation type="vanished">Удаление нескольких объектов</translation>
     </message>
 </context>
 <context>
     <name>Banana::Directory</name>
     <message>
-        <location filename="../AbstractProjectDirectory.cpp" line="607"/>
+        <location filename="../AbstractProjectDirectory.cpp" line="606"/>
         <source>Some files were unable to be saved!</source>
         <translation>Некоторые файлы сохранить не удалось!</translation>
     </message>
@@ -141,12 +134,12 @@
 <context>
     <name>Banana::ScriptManager</name>
     <message>
-        <location filename="../ScriptManager.cpp" line="138"/>
+        <location filename="../ScriptManager.cpp" line="96"/>
         <source>Scripted Actions</source>
         <translation>Скрипт-команды</translation>
     </message>
     <message>
-        <location filename="../ScriptManager.cpp" line="143"/>
+        <location filename="../ScriptManager.cpp" line="101"/>
         <source>Scripted Action</source>
         <translation>Скрипт-команда</translation>
     </message>
@@ -177,19 +170,16 @@
 <context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="115"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
-        <translation>Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+        <translation type="vanished">Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="118"/>
         <source>Drag &amp;&amp; Drop: Move</source>
-        <translation>Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+        <translation type="vanished">Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="121"/>
         <source>Drag &amp;&amp; Drop: Link</source>
-        <translation>Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+        <translation type="vanished">Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
 </context>
 <context>
@@ -268,7 +258,7 @@
         <translation>Директория</translation>
     </message>
     <message>
-        <location filename="../Object.cpp" line="59"/>
+        <location filename="../Object.cpp" line="56"/>
         <source>Banana::Object</source>
         <translation>Объект</translation>
     </message>

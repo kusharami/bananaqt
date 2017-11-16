@@ -66,7 +66,12 @@ HEADERS += \
     IScriptMenuBuilder.h \
     AbstractScriptMenuBuilder.h \
     TreeItemsScriptMenuBuilder.h \
-    ProjectTreeScriptMenuBuilder.h
+    ProjectTreeScriptMenuBuilder.h \
+    AbstractObjectUndoCommand.h \
+    ChangeValueCommand.h \
+    ChangeContentsCommand.h \
+    ChildActionCommand.h \
+    UndoStack.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -100,4 +105,9 @@ SOURCES += \
     FileScriptMenuBuilder.cpp \
     AbstractScriptMenuBuilder.cpp \
     TreeItemsScriptMenuBuilder.cpp \
-    ProjectTreeScriptMenuBuilder.cpp
+    ProjectTreeScriptMenuBuilder.cpp \
+    AbstractObjectUndoCommand.cpp \
+    ChangeValueCommand.cpp \
+    ChangeContentsCommand.cpp \
+    ChildActionCommand.cpp \
+    UndoStack.cpp

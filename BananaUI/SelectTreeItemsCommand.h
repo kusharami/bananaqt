@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include "BananaCore/ContainerTypes.h"
+#include "BananaCore/IUndoCommand.h"
 
 #include <QUndoCommand>
 #include <QStringList>
@@ -34,7 +35,9 @@ namespace Banana
 {
 class BaseTreeView;
 
-class SelectTreeItemsCommand : public QUndoCommand
+class SelectTreeItemsCommand
+	: public QUndoCommand
+	, public IUndoCommand
 {
 public:
 	SelectTreeItemsCommand(BaseTreeView *tree);
@@ -49,6 +52,9 @@ public:
 
 	virtual int id() const override;
 	virtual bool mergeWith(const QUndoCommand *other) override;
+
+protected:
+	virtual QUndoCommand *qundoCommand() override;
 
 private:
 	struct Path

@@ -25,9 +25,6 @@ SOFTWARE.
 #include "ScriptManager.h"
 
 #include "AbstractProjectFile.h"
-#include "ScriptRunner.h"
-
-#include <QAction>
 
 namespace Banana
 {
@@ -92,45 +89,6 @@ bool ScriptManager::hasActionsFor(const QObjectList &targets)
 		}
 	}
 	return false;
-}
-
-QList<QAction *> ScriptManager::createActionsFor(
-	const QObjectList &targets, ScriptRunner *scriptRunner, QObject *parent)
-{
-	Q_ASSERT(nullptr != scriptRunner);
-
-	QList<QAction *> result;
-
-	for (const Entry &entry : mEntries)
-	{
-		if (not entry.isValid())
-			continue;
-
-		QObjectList supportTargets;
-
-		for (auto target : targets)
-		{
-			if (entry.metaObject->cast(target))
-				supportTargets.append(target);
-		}
-
-		if (supportTargets.isEmpty())
-			continue;
-
-		auto action = new QAction(parent);
-
-		action->setText(entry.caption);
-
-		auto filePath = entry.filePath;
-		QObject::connect(action, &QAction::triggered,
-			[filePath, scriptRunner, supportTargets]() {
-				scriptRunner->executeForTargets(filePath, supportTargets);
-			});
-
-		result.append(action);
-	}
-
-	return result;
 }
 
 QString ScriptManager::scriptedActionsCaption()

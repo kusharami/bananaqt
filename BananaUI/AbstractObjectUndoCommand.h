@@ -24,6 +24,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "BananaCore/IUndoCommand.h"
+
 #include <QObject>
 #include <QUndoCommand>
 
@@ -32,6 +34,7 @@ namespace Banana
 class AbstractObjectUndoCommand
 	: public QObject
 	, public QUndoCommand
+	, public IUndoCommand
 {
 public:
 	AbstractObjectUndoCommand(QObject *object);
@@ -39,6 +42,8 @@ public:
 protected:
 	virtual void undo() override;
 	virtual void redo() override;
+
+	virtual QUndoCommand *qundoCommand() override;
 
 	virtual void doUndo() = 0;
 	virtual void doRedo() = 0;

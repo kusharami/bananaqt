@@ -4,7 +4,7 @@ TRANSLATIONS = \
 
 include(../Banana.pri)
 
-QT += core gui widgets script
+QT += core gui script
 
 TARGET = BananaCore
 TEMPLATE = lib
@@ -14,6 +14,7 @@ INCLUDEPATH += $$_PRO_FILE_PWD_/..
 
 SOURCES += \
     UniqueNameScope.cpp \
+    PropertyDef.cpp \
     Utils.cpp \
     AbstractFileSystemObject.cpp \
     ObjectGroup.cpp \
@@ -43,12 +44,6 @@ SOURCES += \
     SearchPaths.cpp \
     Config.cpp \
     DirectoryLinker.cpp \
-    AbstractObjectUndoCommand.cpp \
-    ChangeValueCommand.cpp \
-    ChangeContentsCommand.cpp \
-    PropertyDef.cpp \
-    ChildActionCommand.cpp \
-    UndoStack.cpp \
     AbstractNameUnifier.cpp \
     FileNameCollection.cpp \
     NameEnumerator.cpp \
@@ -90,11 +85,6 @@ HEADERS += \
     Config.h \
     ScriptUtils.h \
     DirectoryLinker.h \
-    AbstractObjectUndoCommand.h \
-    ChangeValueCommand.h \
-    ChangeContentsCommand.h \
-    ChildActionCommand.h \
-    UndoStack.h \
     ContainerTypes.h \
     AbstractNameUnifier.h \
     FileNameCollection.h \
@@ -103,7 +93,9 @@ HEADERS += \
     ScriptManager.h \
     IScriptRunner.h \
     AbstractScriptRunner.h \
-    IAbortDelegate.h
+    IAbortDelegate.h \
+    IUndoStack.h \
+    IUndoCommand.h
 
 RESOURCES = BananaCore.qrc
 

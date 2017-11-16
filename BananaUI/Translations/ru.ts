@@ -49,6 +49,47 @@
     </message>
 </context>
 <context>
+    <name>Banana::ChangeValueCommand</name>
+    <message>
+        <location filename="../ChangeValueCommand.cpp" line="320"/>
+        <source>Reset value of &lt;%2&gt; [%1]</source>
+        <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChangeValueCommand.cpp" line="325"/>
+        <source>Change value of &lt;%2&gt; [%1]</source>
+        <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChangeValueCommand.cpp" line="330"/>
+        <source>Multiple objects</source>
+        <translation>Несколько объектов</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::ChildActionCommand</name>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="94"/>
+        <source>Add object [%1]</source>
+        <translation>Новый объект [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="99"/>
+        <source>Add multiple objects</source>
+        <translation>Добавление нескольких объектов</translation>
+    </message>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="105"/>
+        <source>Delete object [%1]</source>
+        <translation>Удаление объекта [%1]</translation>
+    </message>
+    <message>
+        <location filename="../ChildActionCommand.cpp" line="110"/>
+        <source>Delete multiple objects</source>
+        <translation>Удаление нескольких объектов</translation>
+    </message>
+</context>
+<context>
     <name>Banana::DeleteFilesListModel</name>
     <message>
         <location filename="../DeleteFilesDialog.cpp" line="326"/>
@@ -175,7 +216,7 @@
 <context>
     <name>Banana::FileTabBar</name>
     <message>
-        <location filename="../FileTabBar.cpp" line="228"/>
+        <location filename="../FileTabBar.cpp" line="256"/>
         <source>%1[*]</source>
         <comment>File is modified</comment>
         <translation>%1[*]</translation>
@@ -387,6 +428,24 @@ If no, the enumerated name will be given.</source>
         <location filename="../SearchPathsDialog.cpp" line="694"/>
         <source>Are you sure you want to unregister selected paths?</source>
         <translation>Вы действительно хотите убрать выбранные пути из списка?</translation>
+    </message>
+</context>
+<context>
+    <name>Banana::UndoStack</name>
+    <message>
+        <location filename="../UndoStack.cpp" line="199"/>
+        <source>Drag &amp;&amp; Drop: Copy</source>
+        <translation>Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+    </message>
+    <message>
+        <location filename="../UndoStack.cpp" line="202"/>
+        <source>Drag &amp;&amp; Drop: Move</source>
+        <translation>Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
+    </message>
+    <message>
+        <location filename="../UndoStack.cpp" line="205"/>
+        <source>Drag &amp;&amp; Drop: Link</source>
+        <translation>Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
 </context>
 <context>

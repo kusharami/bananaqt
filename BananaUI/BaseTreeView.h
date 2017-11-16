@@ -30,8 +30,8 @@ SOFTWARE.
 
 namespace Banana
 {
+struct IUndoStack;
 class AbstractObjectTreeModel;
-class UndoStack;
 
 class BaseTreeView : public QTreeView
 {
@@ -84,7 +84,7 @@ private:
 protected:
 	AbstractObjectTreeModel *treeModel;
 
-	UndoStack *undoStack;
+	IUndoStack *undoStack;
 	unsigned preventReselectCounter;
 
 	QObjectSet oldSelected;
