@@ -84,6 +84,7 @@ public:
 	void setUndoStack(IUndoStack *undoStack, bool own = false);
 	void beginMacro(const QString &text);
 	void endMacro();
+	inline unsigned blockMacroCount() const;
 	void blockMacro();
 	void unblockMacro();
 	bool undoStackIsUpdating() const;
@@ -237,6 +238,11 @@ bool Object::ownsUndoStack() const
 IUndoStack *Object::getUndoStack() const
 {
 	return undoStack;
+}
+
+unsigned Object::blockMacroCount() const
+{
+	return blockCounter;
 }
 
 bool Object::isDescendantOf(const QObject *object) const

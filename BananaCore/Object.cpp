@@ -613,7 +613,6 @@ void Object::assign(QObject *source)
 		if (canPushUndoCommand)
 		{
 			undoStack->pushContentsChange(this, oldContents);
-			//undoStack->push(new ChangeContentsCommand(this, oldContents));
 		}
 	}
 }
@@ -638,7 +637,6 @@ void Object::removeAllChildren()
 	if (canPushUndoCommand)
 	{
 		undoStack->pushContentsChange(this, oldContents);
-		//undoStack->push(new ChangeContentsCommand(this, oldContents));
 	}
 }
 
@@ -820,7 +818,7 @@ void Object::onUndoStackCleanChanged(bool clean)
 
 bool Object::canPushUndoCommand() const
 {
-	return (0 == reloadCounter && nullptr != undoStack &&
+	return (0 == blockCounter && 0 == reloadCounter && nullptr != undoStack &&
 		undoStack->canPushForMacro());
 }
 

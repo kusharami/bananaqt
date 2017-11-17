@@ -59,13 +59,13 @@ void ChangeContentsCommand::applyContents(const QVariantMap &contents)
 
 	object->beginUndoStackUpdate();
 	object->blockMacro();
-	object->beginLoad();
 	object->beginReload();
+	object->beginLoad();
 
 	object->loadContents(contents, true);
 
-	object->endReload();
 	object->endLoad();
+	object->endReload();
 	object->unblockMacro();
 	object->endUndoStackUpdate();
 }

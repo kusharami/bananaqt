@@ -163,8 +163,8 @@ void ChangeValueCommand::applyValues(bool redo)
 
 	object->beginUndoStackUpdate();
 	object->blockMacro();
-	object->beginLoad();
 	object->beginReload();
+	object->beginLoad();
 
 	if (redo)
 	{
@@ -182,8 +182,8 @@ void ChangeValueCommand::applyValues(bool redo)
 		}
 	}
 
-	object->endReload();
 	object->endLoad();
+	object->endReload();
 	object->unblockMacro();
 	object->endUndoStackUpdate();
 }
