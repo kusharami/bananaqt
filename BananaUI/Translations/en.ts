@@ -225,14 +225,14 @@
 <context>
     <name>Banana::MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="331"/>
+        <location filename="../MainWindow.cpp" line="328"/>
         <source>Error in setting Registry values.
 Registration database update failed for key &apos;%1&apos;.</source>
         <translation>Error in setting Registry values.
 Registration database update failed for key &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="346"/>
+        <location filename="../MainWindow.cpp" line="343"/>
         <source>Error in setting Registry values.
 %1</source>
         <translation>Error in setting Registry values.

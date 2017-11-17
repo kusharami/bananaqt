@@ -225,14 +225,14 @@
 <context>
     <name>Banana::MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="331"/>
+        <location filename="../MainWindow.cpp" line="328"/>
         <source>Error in setting Registry values.
 Registration database update failed for key &apos;%1&apos;.</source>
         <translation>Ошибка записи данных в реестр.
 Не удалось записать данные по ключу &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="346"/>
+        <location filename="../MainWindow.cpp" line="343"/>
         <source>Error in setting Registry values.
 %1</source>
         <translation>Ошибка записи данных в реестр.
@@ -2516,7 +2516,7 @@ If no, the enumerated name will be given.</source>
     <message>
         <location filename="../ScriptRunnerDialog.ui" line="14"/>
         <source>Run Script</source>
-        <translation>Выполнения скрипта</translation>
+        <translation>Выполнение скрипта</translation>
     </message>
     <message>
         <location filename="../ScriptRunnerDialog.ui" line="59"/>
