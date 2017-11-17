@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "BananaCore/ContainerTypes.h"
+#include "ISelectionDelegate.h"
 
 #include <QTreeView>
 
@@ -33,7 +33,9 @@ namespace Banana
 struct IUndoStack;
 class AbstractObjectTreeModel;
 
-class BaseTreeView : public QTreeView
+class BaseTreeView
+	: public QTreeView
+	, public ISelectionDelegate
 {
 	Q_OBJECT
 
@@ -46,8 +48,10 @@ public:
 	void expandItem(QObject *item);
 
 	QObject *getCurrentItem() const;
-	inline const QObjectSet &getSelectedItems() const;
 	inline const QObjectSet &getExpandedItems() const;
+
+	virtual const QObjectSet &getSelectedItems() const override;
+	virtual void setSelectedItems(const QObjectSet &items) override;
 
 	bool hasItems() const;
 
@@ -91,11 +95,6 @@ protected:
 	QObjectSet expandedItems;
 	QObjectSet selectedItems;
 };
-
-const QObjectSet &BaseTreeView::getSelectedItems() const
-{
-	return selectedItems;
-}
 
 const QObjectSet &BaseTreeView::getExpandedItems() const
 {

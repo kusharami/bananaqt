@@ -101,6 +101,11 @@ void BaseTreeView::select(const QObjectSet &items)
 	}
 }
 
+void BaseTreeView::setSelectedItems(const QObjectSet &items)
+{
+	select(items);
+}
+
 void BaseTreeView::expandItem(QObject *item)
 {
 	auto index = treeModel->findModelIndex(item);
@@ -117,6 +122,11 @@ QObject *BaseTreeView::getCurrentItem() const
 	}
 
 	return nullptr;
+}
+
+const QObjectSet &BaseTreeView::getSelectedItems() const
+{
+	return selectedItems;
 }
 
 bool BaseTreeView::hasItems() const

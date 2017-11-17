@@ -71,7 +71,9 @@ HEADERS += \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
     UndoStack.h \
-    IScriptRunnerDialogInitializer.h
+    IScriptRunnerDialogInitializer.h \
+    SelectionCacheManager.h \
+    ISelectionDelegate.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -110,4 +112,5 @@ SOURCES += \
     ChangeValueCommand.cpp \
     ChangeContentsCommand.cpp \
     ChildActionCommand.cpp \
-    UndoStack.cpp
+    UndoStack.cpp \
+    SelectionCacheManager.cpp
