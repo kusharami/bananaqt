@@ -45,7 +45,8 @@ public:
 	};
 
 	ChildActionCommand(Object *object, Action action);
-	ChildActionCommand(Object *object, Object *oldParent);
+	ChildActionCommand(
+		Object *object, Object *oldParent, const QString &oldName = QString());
 	virtual ~ChildActionCommand();
 
 	virtual int id() const override;
@@ -61,8 +62,9 @@ protected:
 	virtual void doRedo() override;
 
 private:
-	ChildActionCommand(Object *object, Object *parent, Action action);
-	void initFields(Object *object, Action action);
+	ChildActionCommand(
+		Object *object, Object *parent, const QString &name, Action action);
+	void initFields(Object *object, const QString &name, Action action);
 
 	void add();
 	void del();

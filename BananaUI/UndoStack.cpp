@@ -158,9 +158,10 @@ void UndoStack::pushAddChild(Object *child)
 	push(new ChildActionCommand(child, ChildActionCommand::Add));
 }
 
-void UndoStack::pushMoveChild(Object *child, Object *oldParent)
+void UndoStack::pushMoveChild(
+	Object *child, Object *oldParent, const QString &oldName)
 {
-	push(new ChildActionCommand(child, oldParent));
+	push(new ChildActionCommand(child, oldParent, oldName));
 }
 
 void UndoStack::pushDeleteChild(Object *child)

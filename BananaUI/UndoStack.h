@@ -38,7 +38,8 @@ public:
 	virtual void pushChangeName(Object *object, const QString &oldName,
 		const QString &newName) override;
 	virtual void pushAddChild(Object *child) override;
-	virtual void pushMoveChild(Object *child, Object *oldParent) override;
+	virtual void pushMoveChild(
+		Object *child, Object *oldParent, const QString &oldName) override;
 	virtual void pushDeleteChild(Object *child) override;
 	virtual void pushValueChange(Object *object,
 		const QMetaProperty &metaProperty, const QVariant &oldValue) override;

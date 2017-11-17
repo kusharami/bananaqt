@@ -93,7 +93,8 @@ public:
 	bool canPushUndoCommand() const;
 
 	void addChildCommand(QObject *child);
-	void moveChildCommand(QObject *child, QObject *oldParent);
+	void moveChildCommand(
+		QObject *child, QObject *oldParent, const QString &oldName = QString());
 	void deleteChildCommand(QObject *child);
 
 	Q_INVOKABLE void assign(QObject *source);

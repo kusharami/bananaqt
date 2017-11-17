@@ -731,6 +731,11 @@ bool Object::canBeUsedAsPrototype(Object *object) const
 
 void Object::onPrototypeDestroyed(QObject *object)
 {
+	if (undoStack)
+	{
+		undoStack->clear();
+	}
+
 	if (deleted)
 	{
 		if (object == childPrototype)
@@ -834,14 +839,16 @@ void Object::addChildCommand(QObject *child)
 	}
 }
 
-void Object::moveChildCommand(QObject *child, QObject *oldParent)
+void Object::moveChildCommand(
+	QObject *child, QObject *oldParent, const QString &oldName)
 {
 	auto object = dynamic_cast<Object *>(child);
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
 		{
-			undoStack->pushMoveChild(object, dynamic_cast<Object *>(oldParent));
+			undoStack->pushMoveChild(
+				object, dynamic_cast<Object *>(oldParent), oldName);
 		}
 	}
 }

@@ -57,7 +57,8 @@ struct IUndoStack
 	virtual void pushChangeName(
 		Object *object, const QString &oldName, const QString &newName) = 0;
 	virtual void pushAddChild(Object *child) = 0;
-	virtual void pushMoveChild(Object *child, Object *oldParent) = 0;
+	virtual void pushMoveChild(
+		Object *child, Object *oldParent, const QString &oldName) = 0;
 	virtual void pushDeleteChild(Object *child) = 0;
 	virtual void pushValueChange(Object *object,
 		const QMetaProperty &metaProperty, const QVariant &oldValue) = 0;
