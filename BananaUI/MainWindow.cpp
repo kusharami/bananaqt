@@ -103,8 +103,7 @@ void MainWindow::registerFileType(const QString &documentId,
 	registerCommand("Open", documentId, " %1", "[open(\"%1\")]");
 
 #ifdef UNICODE
-	auto sExtension = fileExtension.utf16();
-	auto szExtension = reinterpret_cast<WCHAR *>(sExtension);
+	auto szExtension = reinterpret_cast<const WCHAR *>(fileExtension.utf16());
 #else
 	QByteArray sExtension = fileExtension.toLocal8Bit();
 	auto szExtension = sExtension.constData();
@@ -305,8 +304,7 @@ bool MainWindowPrivate::SetHkcrUserRegKey(
 	key.prepend("Software\\Classes\\");
 
 #ifdef UNICODE
-	auto sKey = key.utf16();
-	auto szKey = reinterpret_cast<WCHAR *>(sKey);
+	auto szKey = reinterpret_cast<const WCHAR *>(key.utf16());
 #else
 	QByteArray sKey = key.toLocal8Bit();
 	auto szKey = sKey.constData();
@@ -315,8 +313,7 @@ bool MainWindowPrivate::SetHkcrUserRegKey(
 	if (ERROR_SUCCESS == lRetVal)
 	{
 #ifdef UNICODE
-		auto sValue = valueName.utf16();
-		auto szValue = reinterpret_cast<WCHAR *>(sValue);
+		auto szValue = reinterpret_cast<const WCHAR *>(valueName.utf16());
 #else
 		QByteArray sValue = key.toLocal8Bit();
 		auto szValue = sValue.constData();
@@ -358,8 +355,7 @@ void MainWindowPrivate::enableOpenOutside()
 		return;
 
 #ifdef UNICODE
-	auto sName = appAtomName.utf16();
-	auto name = reinterpret_cast<WCHAR *>(sName);
+	auto name = reinterpret_cast<const WCHAR *>(appAtomName.utf16());
 #else
 	auto sName = appAtomName.toLocal8Bit();
 	auto name = sName.constData();
@@ -367,8 +363,7 @@ void MainWindowPrivate::enableOpenOutside()
 	appAtom = ::GlobalAddAtom(name);
 
 #ifdef UNICODE
-	sName = systemTopicAtomName.utf16();
-	name = reinterpret_cast<WCHAR *>(sName);
+	name = reinterpret_cast<const WCHAR *>(systemTopicAtomName.utf16());
 #else
 	sName = systemTopicAtomName.toLocal8Bit();
 	name = sName.constData();

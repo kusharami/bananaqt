@@ -32,6 +32,8 @@ SOFTWARE.
 #include <QObject>
 #include <QScriptValue>
 
+#include <functional>
+
 class QWidget;
 
 namespace Scripting

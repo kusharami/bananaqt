@@ -43,6 +43,9 @@ ScriptManagerDialog::ScriptManagerDialog(
 {
 	ui->setupUi(this);
 
+	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
+		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
+
 	auto topDir = manager->owner()->getTopDirectory();
 	if (nullptr != topDir)
 	{
