@@ -27,9 +27,9 @@ SOFTWARE.
 namespace Banana
 {
 class ScriptRunnerDialog;
-struct IScriptMenuBuilder
+struct IScriptRunnerDialogInitializer
 {
-	virtual ~IScriptMenuBuilder() {}
+	virtual ~IScriptRunnerDialogInitializer() {}
 
 	virtual void initRunnerDialog(ScriptRunnerDialog *dlg) = 0;
 };

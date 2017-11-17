@@ -43,7 +43,7 @@ ScriptManager *TreeItemsScriptMenuBuilder::scriptManager() const
 }
 
 void TreeItemsScriptMenuBuilder::fetchScriptTargets(
-	QObjectList &targets, QObject *owner)
+	QObjectList &targets, QObject *owner) const
 {
 	Q_UNUSED(owner);
 

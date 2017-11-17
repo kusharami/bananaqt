@@ -63,7 +63,6 @@ HEADERS += \
     ScriptManagerDialog.h \
     ScriptEntriesWidget.h \
     FileScriptMenuBuilder.h \
-    IScriptMenuBuilder.h \
     AbstractScriptMenuBuilder.h \
     TreeItemsScriptMenuBuilder.h \
     ProjectTreeScriptMenuBuilder.h \
@@ -71,7 +70,8 @@ HEADERS += \
     ChangeValueCommand.h \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
-    UndoStack.h
+    UndoStack.h \
+    IScriptRunnerDialogInitializer.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \

@@ -24,8 +24,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "IScriptMenuBuilder.h"
-
 #include <QObjectList>
 
 class QMenu;
@@ -34,37 +32,44 @@ class QAction;
 namespace Banana
 {
 struct IScriptRunner;
+struct IScriptRunnerDialogInitializer;
 class ScriptRunner;
 class ScriptRunnerDialog;
 class ScriptManager;
 
-class AbstractScriptMenuBuilder : public IScriptMenuBuilder
+class AbstractScriptMenuBuilder
 {
-	IScriptMenuBuilder *mDelegate;
+	IScriptRunnerDialogInitializer *mDelegate;
 
 public:
 	AbstractScriptMenuBuilder();
+	virtual ~AbstractScriptMenuBuilder();
 
-	inline IScriptMenuBuilder *delegate() const;
-	inline void setDelegate(IScriptMenuBuilder *delegate);
+	inline IScriptRunnerDialogInitializer *delegate() const;
+	inline void setDelegate(IScriptRunnerDialogInitializer *delegate);
 
-	QMenu *buildMenu(ScriptRunner *runner, QWidget *parent = nullptr);
-	QList<QAction *> createActionsFor(ScriptManager *mgr,
+	bool buildMenu(
+		ScriptRunner *runner, QMenu *parentMenu, int subMenuLimit = 0) const;
+	static QList<QAction *> createActionsFor(ScriptManager *mgr,
 		const QObjectList &targets, ScriptRunner *scriptRunner,
 		QObject *parent = nullptr);
 
 protected:
-	virtual void initRunnerDialog(ScriptRunnerDialog *dlg) override;
 	virtual ScriptManager *scriptManager() const = 0;
-	virtual void fetchScriptTargets(QObjectList &targets, QObject *owner) = 0;
+	virtual void fetchScriptTargets(
+		QObjectList &targets, QObject *owner) const = 0;
+
+private:
+	void initRunnerDialog(ScriptRunnerDialog *dlg) const;
 };
 
-IScriptMenuBuilder *AbstractScriptMenuBuilder::delegate() const
+IScriptRunnerDialogInitializer *AbstractScriptMenuBuilder::delegate() const
 {
 	return mDelegate;
 }
 
-void AbstractScriptMenuBuilder::setDelegate(IScriptMenuBuilder *delegate)
+void AbstractScriptMenuBuilder::setDelegate(
+	IScriptRunnerDialogInitializer *delegate)
 {
 	mDelegate = delegate;
 }

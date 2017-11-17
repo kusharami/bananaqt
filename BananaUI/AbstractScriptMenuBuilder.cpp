@@ -27,6 +27,7 @@ SOFTWARE.
 #include "BananaCore/ScriptManager.h"
 #include "BananaCore/ScriptRunner.h"
 
+#include "IScriptRunnerDialogInitializer.h"
 #include "ScriptRunnerDialog.h"
 
 #include <QMenu>
@@ -39,12 +40,16 @@ AbstractScriptMenuBuilder::AbstractScriptMenuBuilder()
 	// do nothing
 }
 
-QMenu *AbstractScriptMenuBuilder::buildMenu(
-	ScriptRunner *runner, QWidget *parent)
+AbstractScriptMenuBuilder::~AbstractScriptMenuBuilder()
 {
-	auto menu = new QMenu(ScriptManager::scriptedActionsCaption(), parent);
+	// do nothing
+}
+
+bool AbstractScriptMenuBuilder::buildMenu(
+	ScriptRunner *runner, QMenu *parentMenu, int subMenuLimit) const
+{
 	QObjectList targets;
-	fetchScriptTargets(targets, parent);
+	fetchScriptTargets(targets, parentMenu);
 
 	if (not targets.isEmpty())
 	{
@@ -53,20 +58,28 @@ QMenu *AbstractScriptMenuBuilder::buildMenu(
 
 		if (sm->hasActionsFor(targets))
 		{
-			auto dialog = new ScriptRunnerDialog(parent);
+			auto dialog = new ScriptRunnerDialog(parentMenu);
 			dialog->setAbortDelegate(runner);
 			initRunnerDialog(dialog);
 			runner->setDelegate(dialog);
-			auto actions = createActionsFor(sm, targets, runner, parent);
+			auto actions = createActionsFor(sm, targets, runner, parentMenu);
+			Q_ASSERT(not actions.isEmpty());
 
-			menu->addActions(actions);
-		} else
-		{
-			menu->setEnabled(false);
+			if (actions.count() > subMenuLimit)
+			{
+				auto menu = new QMenu(
+					ScriptManager::scriptedActionsCaption(), parentMenu);
+				menu->addActions(actions);
+			} else
+			{
+				parentMenu->addActions(actions);
+			}
+
+			return true;
 		}
 	}
 
-	return menu;
+	return false;
 }
 
 QList<QAction *> AbstractScriptMenuBuilder::createActionsFor(ScriptManager *mgr,
@@ -108,7 +121,7 @@ QList<QAction *> AbstractScriptMenuBuilder::createActionsFor(ScriptManager *mgr,
 	return result;
 }
 
-void AbstractScriptMenuBuilder::initRunnerDialog(ScriptRunnerDialog *dlg)
+void AbstractScriptMenuBuilder::initRunnerDialog(ScriptRunnerDialog *dlg) const
 {
 	if (mDelegate)
 		mDelegate->initRunnerDialog(dlg);

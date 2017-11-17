@@ -48,7 +48,7 @@ ScriptManager *FileScriptMenuBuilder::scriptManager() const
 }
 
 void FileScriptMenuBuilder::fetchScriptTargets(
-	QObjectList &targets, QObject *owner)
+	QObjectList &targets, QObject *owner) const
 {
 	Q_UNUSED(owner);
 	targets.append(targetFile);

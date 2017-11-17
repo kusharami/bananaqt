@@ -41,7 +41,7 @@ public:
 protected:
 	virtual ScriptManager *scriptManager() const override;
 	virtual void fetchScriptTargets(
-		QObjectList &targets, QObject *owner) override;
+		QObjectList &targets, QObject *owner) const override;
 
 private:
 	AbstractProjectDirectory *getProjectDirectory() const;

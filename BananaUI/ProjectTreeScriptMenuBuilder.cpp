@@ -51,7 +51,7 @@ ScriptManager *ProjectTreeScriptMenuBuilder::scriptManager() const
 }
 
 void ProjectTreeScriptMenuBuilder::fetchScriptTargets(
-	QObjectList &targets, QObject *owner)
+	QObjectList &targets, QObject *owner) const
 {
 	auto projectDir = getProjectDirectory();
 	if (nullptr == projectDir)
