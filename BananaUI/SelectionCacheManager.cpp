@@ -64,9 +64,7 @@ void SelectionCacheManager::retainSelection(Object *keyObject)
 		{
 			disconnectKey(keyObject);
 			mCache.erase(it);
-		} else
-		{
-			it->second.clear();
+			return;
 		}
 	} else
 	{
