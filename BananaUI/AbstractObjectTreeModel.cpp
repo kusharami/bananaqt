@@ -221,13 +221,13 @@ bool AbstractObjectTreeModel::removeColumns(int, int, const QModelIndex &)
 	return false;
 }
 
-bool AbstractObjectTreeModel::insertRows(int, int, const QModelIndex &parent)
+bool AbstractObjectTreeModel::insertRows(int, int, const QModelIndex &)
 {
 	// TODO
 	return false;
 }
 
-bool AbstractObjectTreeModel::removeRows(int, int, const QModelIndex &parent)
+bool AbstractObjectTreeModel::removeRows(int, int, const QModelIndex &)
 {
 	// TODO
 	return false;
@@ -243,16 +243,15 @@ Qt::DropActions AbstractObjectTreeModel::supportedDragActions() const
 	return Qt::MoveAction;
 }
 
-bool AbstractObjectTreeModel::dropMimeData(const QMimeData *data,
-	Qt::DropAction action, int row, int column, const QModelIndex &parent)
+bool AbstractObjectTreeModel::dropMimeData(
+	const QMimeData *, Qt::DropAction, int, int, const QModelIndex &)
 {
 	// TODO
 
 	return false;
 }
 
-QMimeData *AbstractObjectTreeModel::mimeData(
-	const QModelIndexList &indexes) const
+QMimeData *AbstractObjectTreeModel::mimeData(const QModelIndexList &) const
 {
 	// TODO
 
@@ -541,7 +540,7 @@ void AbstractObjectTreeModel::endResetModel()
 	}
 }
 
-UndoStack *AbstractObjectTreeModel::getUndoStack() const
+IUndoStack *AbstractObjectTreeModel::getUndoStack() const
 {
 	return nullptr;
 }

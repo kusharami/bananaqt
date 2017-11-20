@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,17 +34,25 @@ namespace Banana
 namespace Utils
 {
 void addShortcutForAction(
-	QWidget *parent, const QKeySequence &sequence, QAction *action)
+	QWidget *parent, const QKeySequence &sequence, QAction *action, bool force)
 {
+	if (sequence.isEmpty())
+		return;
+
 	Q_ASSERT(nullptr != action);
-	if (QKeySequence::ExactMatch != action->shortcut().matches(sequence))
+
+	if (not force &&
+		QKeySequence::ExactMatch == action->shortcut().matches(sequence))
 	{
-		Q_ASSERT(nullptr != parent);
-		auto shortcut = new QShortcut(
-			sequence, parent, nullptr, nullptr, Qt::ApplicationShortcut);
-		QObject::connect(
-			shortcut, &QShortcut::activated, action, &QAction::trigger);
+		return;
 	}
+
+	Q_ASSERT(nullptr != parent);
+	auto shortcut = new QShortcut(
+		sequence, parent, nullptr, nullptr, Qt::ApplicationShortcut);
+
+	QObject::connect(
+		shortcut, &QShortcut::activated, action, &QAction::trigger);
 }
 }
 }

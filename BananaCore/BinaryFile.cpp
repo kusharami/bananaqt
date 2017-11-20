@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,7 @@ BinaryFile::BinaryFile()
 	(void) QT_TRANSLATE_NOOP("FileTypeTitle", "Banana::BinaryFile");
 	(void) QT_TRANSLATE_NOOP("FileFormatNamePlural", " ");
 	(void) QT_TRANSLATE_NOOP("FileFormatName", " ");
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::BinaryFile");
 }
 
 bool BinaryFile::isWritableFormat(const QString &extension) const

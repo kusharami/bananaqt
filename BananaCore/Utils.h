@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -45,6 +45,7 @@ class QIODevice;
 class QDir;
 class QFileInfo;
 class QMimeData;
+class QJsonDocument;
 
 namespace Banana
 {
@@ -65,6 +66,12 @@ bool SaveVariantMapToFile(const QVariantMap &vmap, const QString &filepath);
 
 bool LoadVariantMapFromIODevice(QVariantMap &vmap, QIODevice *device);
 bool SaveVariantMapToIODevice(const QVariantMap &vmap, QIODevice *device);
+
+bool LoadJsonFromFile(QJsonDocument &doc, const QString &filepath);
+bool SaveJsonToFile(const QJsonDocument &doc, const QString &filepath);
+
+bool LoadJsonFromIODevice(QJsonDocument &doc, QIODevice *device);
+bool SaveJsonToIODevice(const QJsonDocument &doc, QIODevice *device);
 
 bool LoadBinaryFromIODevice(QByteArray &output, QIODevice *device);
 bool LoadBinaryFromFile(QByteArray &output, const QString &filepath);
@@ -102,6 +109,7 @@ QVariant ValueFrom(const QVariantMap &data, const QString &key,
 
 void ShowInGraphicalShell(const QString &pathIn);
 
+const QMetaObject *GetMetaObjectForClass(const QString &className);
 const QMetaObject *GetMetaObjectForClass(const QByteArray &className);
 
 QMetaProperty GetMetaPropertyByName(

@@ -103,8 +103,7 @@ void MainWindow::registerFileType(const QString &documentId,
 	registerCommand("Open", documentId, " %1", "[open(\"%1\")]");
 
 #ifdef UNICODE
-	WCHAR szExtension[_MAX_PATH];
-	szExtension[fileExtension.toWCharArray(szExtension)] = 0;
+	auto szExtension = reinterpret_cast<const WCHAR *>(fileExtension.utf16());
 #else
 	QByteArray sExtension = fileExtension.toLocal8Bit();
 	auto szExtension = sExtension.constData();
@@ -142,11 +141,11 @@ void MainWindow::registerCommand(const QString &command,
 #ifdef Q_OS_WIN
 	QString commandLine =
 		QDir::toNativeSeparators(QApplication::applicationFilePath());
-	commandLine.prepend(QLatin1String("\""));
-	commandLine.append(QLatin1String("\""));
+	commandLine.prepend(QLatin1Char('"'));
+	commandLine.append(QLatin1Char('"'));
 	if (!cmdLineArg.isEmpty())
 	{
-		commandLine.append(QChar(' '));
+		commandLine.append(QLatin1Char(' '));
 		commandLine.append(cmdLineArg);
 	}
 	if (!p->SetHkcrUserRegKey(
@@ -305,8 +304,7 @@ bool MainWindowPrivate::SetHkcrUserRegKey(
 	key.prepend("Software\\Classes\\");
 
 #ifdef UNICODE
-	WCHAR szKey[1024];
-	szKey[key.toWCharArray(szKey)] = 0;
+	auto szKey = reinterpret_cast<const WCHAR *>(key.utf16());
 #else
 	QByteArray sKey = key.toLocal8Bit();
 	auto szKey = sKey.constData();
@@ -315,8 +313,7 @@ bool MainWindowPrivate::SetHkcrUserRegKey(
 	if (ERROR_SUCCESS == lRetVal)
 	{
 #ifdef UNICODE
-		WCHAR szValue[1024];
-		szValue[valueName.toWCharArray(szValue)] = 0;
+		auto szValue = reinterpret_cast<const WCHAR *>(valueName.utf16());
 #else
 		QByteArray sValue = key.toLocal8Bit();
 		auto szValue = sValue.constData();
@@ -358,8 +355,7 @@ void MainWindowPrivate::enableOpenOutside()
 		return;
 
 #ifdef UNICODE
-	WCHAR name[1024];
-	name[appAtomName.toWCharArray(name)] = 0;
+	auto name = reinterpret_cast<const WCHAR *>(appAtomName.utf16());
 #else
 	auto sName = appAtomName.toLocal8Bit();
 	auto name = sName.constData();
@@ -367,7 +363,7 @@ void MainWindowPrivate::enableOpenOutside()
 	appAtom = ::GlobalAddAtom(name);
 
 #ifdef UNICODE
-	name[systemTopicAtomName.toWCharArray(name)] = 0;
+	name = reinterpret_cast<const WCHAR *>(systemTopicAtomName.utf16());
 #else
 	sName = systemTopicAtomName.toLocal8Bit();
 	name = sName.constData();

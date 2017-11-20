@@ -60,6 +60,11 @@ void AbstractObjectUndoCommand::redo()
 	doRedo();
 }
 
+QUndoCommand *AbstractObjectUndoCommand::qundoCommand()
+{
+	return this;
+}
+
 QObject *AbstractObjectUndoCommand::getObject() const
 {
 	if (fetchIndex >= 0)

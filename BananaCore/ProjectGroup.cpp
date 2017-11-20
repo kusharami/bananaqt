@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,15 +27,13 @@ SOFTWARE.
 #include "OpenedFiles.h"
 
 #include <QDir>
-#include <QUndoGroup>
 
 namespace Banana
 {
-ProjectGroup::ProjectGroup(const QMetaObject *projectDirType)
-	: openedFiles(new OpenedFiles(this))
+ProjectGroup::ProjectGroup(const QMetaObject *projectDirType, bool noWatcher)
+	: openedFiles(new OpenedFiles(this, noWatcher))
 	, activeProjectDir(nullptr)
 	, delegate(nullptr)
-	, undoGroup(nullptr)
 	, silent(false)
 {
 	registerChildType(projectDirType);
@@ -43,19 +41,8 @@ ProjectGroup::ProjectGroup(const QMetaObject *projectDirType)
 
 ProjectGroup::~ProjectGroup()
 {
+	removeAllGroupChildren();
 	delete openedFiles;
-}
-
-void ProjectGroup::setUndoGroup(QUndoGroup *undoGroup)
-{
-	if (undoGroup != this->undoGroup)
-	{
-		disconnectUndoGroup();
-
-		this->undoGroup = undoGroup;
-
-		connectUndoGroup();
-	}
 }
 
 AbstractProjectDirectory *ProjectGroup::getActiveProjectDirectory() const
@@ -155,11 +142,6 @@ void ProjectGroup::onActiveProjectDirectoryDestroyed()
 		QString(), Qt::FindDirectChildrenOnly));
 }
 
-void ProjectGroup::onUndoGroupDestroyed()
-{
-	undoGroup = nullptr;
-}
-
 void ProjectGroup::sortChildren(QObjectList &)
 {
 	// do nothing
@@ -201,25 +183,6 @@ void ProjectGroup::disconnectActiveProjectDirectory()
 	}
 }
 
-void ProjectGroup::connectUndoGroup()
-{
-	if (nullptr != undoGroup)
-	{
-		QObject::connect(undoGroup, &QObject::destroyed, this,
-			&ProjectGroup::onUndoGroupDestroyed);
-	}
-}
-
-void ProjectGroup::disconnectUndoGroup()
-{
-	if (nullptr != undoGroup)
-	{
-		QObject::disconnect(undoGroup, &QObject::destroyed, this,
-			&ProjectGroup::onUndoGroupDestroyed);
-		undoGroup = nullptr;
-	}
-}
-
 void ProjectGroup::closeUnboundFiles(Directory *dir)
 {
 	if (nullptr != dir)
@@ -230,10 +193,7 @@ void ProjectGroup::closeUnboundFiles(Directory *dir)
 
 			if (nullptr != file)
 			{
-				if (!file->isBound())
-				{
-					file->close();
-				}
+				file->close();
 				continue;
 			}
 

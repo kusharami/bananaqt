@@ -11,15 +11,19 @@ unix|win32-g++ {
         QMAKE_CXXFLAGS_WARN_OFF -= -W0
         QMAKE_CXXFLAGS += -W3 /wd4244 /wd4573
         DEFINES += _CRT_SECURE_NO_WARNINGS
+
+        DEFINES += "or=\"||\""
+        DEFINES += "and=\"&&\""
+        DEFINES += "not=\"!\""
     }
 }
 
-win32 {
-    DEFINES += _UNICODE _WINDOWS
+CONFIG(debug, debug|release) {
+    DEFINES += DEBUG
+} else {
+    DEFINES += NDEBUG
 }
 
 LIBS += -L$$BIN_DIR
-
-OTHER_FILES += $$_PRO_FILE_PWD_/../uncrustify.cfg
 
 for(tr, TRANSLATIONS):system($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_PWD_/$${tr})

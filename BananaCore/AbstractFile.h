@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -57,6 +57,9 @@ class AbstractFile
 	Q_PROPERTY(QString canonicalFilePath READ getCanonicalFilePath
 			SCRIPTABLE true STORED false DESIGNABLE false)
 
+	Q_PROPERTY(bool userSpecific READ isUserSpecific WRITE setUserSpecific
+			SCRIPTABLE true STORED false DESIGNABLE false)
+
 public:
 	explicit AbstractFile(const QString &extension);
 	virtual ~AbstractFile();
@@ -71,19 +74,22 @@ public:
 	template <typename CLASS>
 	inline CLASS *getDataAs(bool open = true);
 
-	Q_INVOKABLE bool isOpen() const;
+	Q_INVOKABLE inline bool isOpen() const;
 	Q_INVOKABLE bool canClose();
-	Q_INVOKABLE void bind();
-	Q_INVOKABLE void unbind(bool stayOpen);
-	Q_INVOKABLE bool isBound() const;
+	void bind();
+	void unbind(bool stayOpen);
+	inline bool isBound() const;
 	Q_INVOKABLE bool save();
 	Q_INVOKABLE bool create(bool open = false);
 	Q_INVOKABLE bool open();
 	Q_INVOKABLE bool reload();
-	Q_INVOKABLE void close();
+	Q_INVOKABLE bool close(bool check = true);
 	Q_INVOKABLE virtual bool rename(const QString &newName) override;
 
 	Q_INVOKABLE bool isWritable() const;
+
+	virtual bool isUserSpecific() const override;
+	virtual void setUserSpecific(bool yes) override;
 
 	bool saveTo(QIODevice *device);
 	bool loadFrom(QIODevice *device);
@@ -107,6 +113,8 @@ public:
 	QString getFilePathShort(Directory *topDirectory = nullptr) const;
 	Directory *getSearchedDirectory(Directory *topDirectory = nullptr) const;
 
+	void tryCloseAndDelete();
+
 signals:
 	void flagsChanged();
 	void dataChanged();
@@ -121,10 +129,6 @@ private slots:
 	void onDataDestroyed();
 
 protected:
-	friend class AbstractFileRegistrator;
-	friend class AbstractDirectory;
-	friend class Directory;
-
 	void connectData();
 	void disconnectData();
 
@@ -144,20 +148,27 @@ protected:
 	virtual void doFlagsChanged() override;
 	virtual void onOpen();
 
-	QString extension;
-	QString canonicalPath;
-	QString symLinkTarget;
-	unsigned bindCount;
-	bool loadError;
-	bool symLink;
-
 private:
 	void recreateSymLinkIfNeeded(bool unwatched);
 	bool saveInternal();
 	void disconnectData(QObject *data);
 	void internalClose();
-	bool opened;
-	bool signalsConnected;
+
+protected:
+	friend class AbstractFileRegistrator;
+	friend class AbstractDirectory;
+	friend class Directory;
+	QString extension;
+	QString canonicalPath;
+	QString symLinkTarget;
+	unsigned bindCount;
+	bool loadError : 1;
+	bool symLink : 1;
+	bool userSpecific : 1;
+
+private:
+	bool opened : 1;
+	bool signalsConnected : 1;
 
 	QObject *oldParent;
 	QString savedPath;
@@ -173,6 +184,16 @@ CLASS *AbstractFile::getDataAs(bool open)
 		Q_ASSERT(nullptr != dynamic_cast<CLASS *>(result));
 
 	return static_cast<CLASS *>(result);
+}
+
+bool AbstractFile::isOpen() const
+{
+	return opened;
+}
+
+bool AbstractFile::isBound() const
+{
+	return (bindCount > 0);
 }
 
 unsigned AbstractFile::getBindCount() const

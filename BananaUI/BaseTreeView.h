@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,16 +24,18 @@ SOFTWARE.
 
 #pragma once
 
-#include "BananaCore/ContainerTypes.h"
+#include "ISelectionDelegate.h"
 
 #include <QTreeView>
 
 namespace Banana
 {
+struct IUndoStack;
 class AbstractObjectTreeModel;
-class UndoStack;
 
-class BaseTreeView : public QTreeView
+class BaseTreeView
+	: public QTreeView
+	, public ISelectionDelegate
 {
 	Q_OBJECT
 
@@ -46,8 +48,10 @@ public:
 	void expandItem(QObject *item);
 
 	QObject *getCurrentItem() const;
-	inline const QObjectSet &getSelectedItems() const;
 	inline const QObjectSet &getExpandedItems() const;
+
+	virtual const QObjectSet &getSelectedItems() const override;
+	virtual void setSelectedItems(const QObjectSet &items) override;
 
 	bool hasItems() const;
 
@@ -84,18 +88,13 @@ private:
 protected:
 	AbstractObjectTreeModel *treeModel;
 
-	UndoStack *undoStack;
+	IUndoStack *undoStack;
+	unsigned preventReselectCounter;
+
 	QObjectSet oldSelected;
 	QObjectSet expandedItems;
 	QObjectSet selectedItems;
-
-	unsigned preventReselectCounter;
 };
-
-const QObjectSet &BaseTreeView::getSelectedItems() const
-{
-	return selectedItems;
-}
 
 const QObjectSet &BaseTreeView::getExpandedItems() const
 {

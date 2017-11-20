@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ class ProjectTreeView : public QTreeView
 public:
 	explicit ProjectTreeView(QWidget *parent = nullptr);
 
-	void select(Banana::AbstractFileSystemObject *file, bool expand = false);
+	void select(AbstractFileSystemObject *file, bool expand = false);
 	void select(const QString &filepath, bool expand = false);
 
 	QModelIndexList getSelectedFilesIndexList() const;
@@ -61,13 +61,13 @@ public:
 
 	QModelIndex getCurrentFileIndex() const;
 	QModelIndex getCurrentFilterIndex() const;
-	void setProjectDirectory(Banana::AbstractProjectDirectory *dir);
+	void setProjectDirectory(AbstractProjectDirectory *dir);
 	void setFileTypeFilter(const QMetaObject *meta_object);
 
 	void setReadOnly(bool yes);
 	virtual void setModel(QAbstractItemModel *model) override;
-	Banana::ProjectDirectoryModel *getProjectTreeModel() const;
-	Banana::ProjectDirectoryFilterModel *getFilterModel() const;
+	ProjectDirectoryModel *getProjectTreeModel() const;
+	ProjectDirectoryFilterModel *getFilterModel() const;
 
 signals:
 	void modelSelectionChanged();

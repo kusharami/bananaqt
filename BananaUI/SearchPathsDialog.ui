@@ -161,6 +161,9 @@
    <property name="shortcut">
     <string notr="true">Del</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
   </action>
  </widget>
  <resources/>

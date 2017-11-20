@@ -24,57 +24,44 @@ SOFTWARE.
 
 #pragma once
 
-#include "AbstractObjectUndoCommand.h"
+#include "BananaCore/IUndoCommand.h"
 
-#include <QVariantMap>
+#include <QObject>
+#include <QUndoCommand>
 
 namespace Banana
 {
-class Object;
-
-class ChildActionCommand : public AbstractObjectUndoCommand
+class AbstractObjectUndoCommand
+	: public QObject
+	, public QUndoCommand
+	, public IUndoCommand
 {
-	Q_OBJECT
-
 public:
-	enum Action
-	{
-		Add,
-		Move,
-		Delete
-	};
-
-	ChildActionCommand(Object *object, Action action);
-	ChildActionCommand(Object *object, Object *oldParent);
-	virtual ~ChildActionCommand();
-
-	virtual int id() const override;
-
-public:
-	static QString getAddCommandTextFor(Object *object);
-	static QString getMultiAddCommandText();
-	static QString getDeleteCommandTextFor(Object *object);
-	static QString getMultiDeleteCommandText();
+	AbstractObjectUndoCommand(QObject *object);
 
 protected:
-	virtual void doUndo() override;
-	virtual void doRedo() override;
+	virtual void undo() override;
+	virtual void redo() override;
 
-private:
-	ChildActionCommand(Object *object, Object *parent, Action action);
-	void initFields(Object *object, Action action);
+	virtual QUndoCommand *qundoCommand() override;
 
-	void add();
-	void del();
+	virtual void doUndo() = 0;
+	virtual void doRedo() = 0;
 
-	const QMetaObject *childMetaObject;
-	QString childObjectName;
+	QObject *getObject() const;
+	void fetchObject();
 
-	QVariantMap *savedContents;
+private slots:
+	void onObjectDestroyed();
 
-	quint64 stateBits;
-	Action action;
+protected:
+	void connectObject();
+	void disconnectObject();
 
-	ChildActionCommand *subCommand;
+	QObject *object;
+	QStringList objectPath;
+
+	int fetchIndex;
+	bool skipRedoOnPush;
 };
 }

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ class QMimeData;
 
 namespace Banana
 {
-class UndoStack;
+struct IUndoStack;
 
 extern const char szOBJECT_NAME_KEY[];
 extern const char szCLASS_NAME_KEY[];
@@ -74,24 +74,28 @@ public:
 
 	virtual bool loadContents(const QVariantMap &source, bool skipObjectName);
 	virtual void saveContents(
-		QVariantMap &destination, SaveMode saveMode = SavePrototyped);
+		QVariantMap &destination, SaveMode saveMode = SavePrototyped) const;
 
+	Q_INVOKABLE QVariantMap backupContents() const;
 	Q_INVOKABLE void applyContents(const QVariantMap &source);
 
-	inline UndoStack *getUndoStack() const;
-	void setUndoStack(UndoStack *undoStack, bool own = false);
+	inline bool ownsUndoStack() const;
+	inline IUndoStack *getUndoStack() const;
+	void setUndoStack(IUndoStack *undoStack, bool own = false);
 	void beginMacro(const QString &text);
 	void endMacro();
+	inline unsigned blockMacroCount() const;
 	void blockMacro();
 	void unblockMacro();
-	Q_INVOKABLE bool undoStackIsUpdating() const;
+	bool undoStackIsUpdating() const;
 	template <typename T>
 	inline void pushUndoCommand(const char *propertyName, const T &oldValue);
-	Q_INVOKABLE bool canPushUndoCommand() const;
+	bool canPushUndoCommand() const;
 
-	Q_INVOKABLE void addChildCommand(QObject *child);
-	Q_INVOKABLE void moveChildCommand(QObject *child, QObject *oldParent);
-	Q_INVOKABLE void deleteChildCommand(QObject *child);
+	void addChildCommand(QObject *child);
+	void moveChildCommand(
+		QObject *child, QObject *oldParent, const QString &oldName = QString());
+	void deleteChildCommand(QObject *child);
 
 	Q_INVOKABLE void assign(QObject *source);
 
@@ -180,6 +184,7 @@ private:
 	void afterPrototypeChange();
 
 protected:
+	void removeAllChildrenInternal();
 	bool shouldSwapModifiedFieldsFor(QObject *source) const;
 	virtual bool canAssignPropertyFrom(QObject *source, int propertyId) const;
 	virtual void doConnectPrototype();
@@ -211,10 +216,10 @@ protected:
 	unsigned macroCounter;
 	unsigned blockCounter;
 	unsigned undoStackUpdate;
-	UndoStack *undoStack;
-	bool ownUndoStack;
-	bool modified;
-	bool deleted;
+	IUndoStack *undoStack;
+	bool ownUndoStack : 1;
+	bool modified : 1;
+	bool deleted : 1;
 
 private:
 	typedef std::bitset<64> ModifiedSet;
@@ -226,9 +231,19 @@ QObject *Object::getPrototype() const
 	return prototype;
 }
 
-UndoStack *Object::getUndoStack() const
+bool Object::ownsUndoStack() const
+{
+	return ownUndoStack;
+}
+
+IUndoStack *Object::getUndoStack() const
 {
 	return undoStack;
+}
+
+unsigned Object::blockMacroCount() const
+{
+	return blockCounter;
 }
 
 bool Object::isDescendantOf(const QObject *object) const
@@ -313,3 +328,5 @@ CLASS *Object::getPrototypeAs() const
 	return static_cast<CLASS *>(prototype);
 }
 }
+
+Q_DECLARE_METATYPE(Banana::Object *)

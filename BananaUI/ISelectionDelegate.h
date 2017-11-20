@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,39 +24,15 @@ SOFTWARE.
 
 #pragma once
 
-#include <QObject>
-#include <QUndoCommand>
+#include "BananaCore/ContainerTypes.h"
 
 namespace Banana
 {
-class AbstractObjectUndoCommand
-	: public QObject
-	, public QUndoCommand
+struct ISelectionDelegate
 {
-public:
-	AbstractObjectUndoCommand(QObject *object);
+	virtual ~ISelectionDelegate() {}
 
-protected:
-	virtual void undo() override;
-	virtual void redo() override;
-
-	virtual void doUndo() = 0;
-	virtual void doRedo() = 0;
-
-	QObject *getObject() const;
-	void fetchObject();
-
-private slots:
-	void onObjectDestroyed();
-
-protected:
-	void connectObject();
-	void disconnectObject();
-
-	QObject *object;
-	QStringList objectPath;
-
-	int fetchIndex;
-	bool skipRedoOnPush;
+	virtual const QObjectSet &getSelectedItems() const = 0;
+	virtual void setSelectedItems(const QObjectSet &items) = 0;
 };
 }

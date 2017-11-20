@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,11 +26,8 @@ SOFTWARE.
 
 #include "Core.h"
 #include "Utils.h"
-#include "ChangeValueCommand.h"
-#include "ChangeContentsCommand.h"
-#include "ChildActionCommand.h"
 #include "PropertyDef.h"
-#include "UndoStack.h"
+#include "IUndoStack.h"
 
 #include <QChildEvent>
 #include <QMetaProperty>
@@ -56,6 +53,8 @@ Object::Object()
 	, modified(false)
 	, deleted(false)
 {
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::Object");
+
 	QObject::connect(
 		this, &QObject::objectNameChanged, this, &Object::onObjectNameChanged);
 }
@@ -84,7 +83,7 @@ void Object::beforePrototypeChange()
 	{
 		beginReload();
 		if (reloadCounter == 1)
-			removeAllChildren();
+			removeAllChildrenInternal();
 	}
 }
 
@@ -155,8 +154,9 @@ bool Object::setPropertyModified(int propertyId, bool modified)
 		modifiedSet.set(propertyId, modified);
 
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChangeValueCommand(this, propertyId, oldModified));
+		{
+			undoStack->pushPropertyChange(this, propertyId, oldModified);
+		}
 
 		emit modifiedSetChanged();
 
@@ -173,7 +173,9 @@ void Object::setPropertyModifiedBits(quint64 propertyIdBits)
 	{
 		modifiedSet = ModifiedSet(propertyIdBits);
 		if (canPushUndoCommand())
-			undoStack->push(new ChangeValueCommand(this, oldBits));
+		{
+			undoStack->pushMultiPropertyChange(this, oldBits);
+		}
 
 		emit modifiedSetChanged();
 	}
@@ -216,7 +218,7 @@ void Object::setPrototype(Object *prototype)
 
 		if (canPushUndoCommand)
 		{
-			undoStack->push(new ChangeContentsCommand(this, oldContents));
+			undoStack->pushContentsChange(this, oldContents);
 		}
 	}
 }
@@ -443,7 +445,7 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 	return ok;
 }
 
-void Object::saveContents(QVariantMap &destination, SaveMode saveMode)
+void Object::saveContents(QVariantMap &destination, SaveMode saveMode) const
 {
 	bool ignorePrototype;
 	switch (saveMode)
@@ -483,6 +485,15 @@ void Object::saveContents(QVariantMap &destination, SaveMode saveMode)
 	saveContents(this, destination, ignorePrototype ? nullptr : prototype);
 }
 
+QVariantMap Object::backupContents() const
+{
+	QVariantMap result;
+
+	saveContents(result, SaveStandalone);
+
+	return result;
+}
+
 void Object::applyContents(const QVariantMap &source)
 {
 	QVariantMap oldContents;
@@ -502,11 +513,11 @@ void Object::applyContents(const QVariantMap &source)
 
 	if (canPushUndoCommand)
 	{
-		undoStack->push(new ChangeContentsCommand(this, oldContents));
+		undoStack->pushContentsChange(this, oldContents);
 	}
 }
 
-void Object::setUndoStack(UndoStack *undoStack, bool own)
+void Object::setUndoStack(IUndoStack *undoStack, bool own)
 {
 	if (this->undoStack != undoStack)
 	{
@@ -593,7 +604,7 @@ void Object::assign(QObject *source)
 		blockMacro();
 		beginReload();
 
-		removeAllChildren();
+		removeAllChildrenInternal();
 		internalAssign(source, true, true);
 
 		endReload();
@@ -601,8 +612,31 @@ void Object::assign(QObject *source)
 
 		if (canPushUndoCommand)
 		{
-			undoStack->push(new ChangeContentsCommand(this, oldContents));
+			undoStack->pushContentsChange(this, oldContents);
 		}
+	}
+}
+
+void Object::removeAllChildren()
+{
+	QVariantMap oldContents;
+	bool canPushUndoCommand = this->canPushUndoCommand();
+	if (canPushUndoCommand)
+	{
+		saveContents(oldContents, SaveStandalone);
+	}
+
+	blockMacro();
+	beginReload();
+
+	removeAllChildrenInternal();
+
+	endReload();
+	unblockMacro();
+
+	if (canPushUndoCommand)
+	{
+		undoStack->pushContentsChange(this, oldContents);
 	}
 }
 
@@ -660,7 +694,7 @@ void Object::onPrototypeChildRemoved(QObject *protoChild)
 		child->onPrototypeDestroyed(protoChild);
 }
 
-void Object::removeAllChildren()
+void Object::removeAllChildrenInternal()
 {
 	auto children = this->children();
 
@@ -697,6 +731,11 @@ bool Object::canBeUsedAsPrototype(Object *object) const
 
 void Object::onPrototypeDestroyed(QObject *object)
 {
+	if (undoStack)
+	{
+		undoStack->clear();
+	}
+
 	if (deleted)
 	{
 		if (object == childPrototype)
@@ -769,7 +808,9 @@ void Object::onLinkedObjectNameChanged(const QString &name)
 void Object::onObjectNameChanged(const QString &newName)
 {
 	if (canPushUndoCommand())
-		undoStack->push(new ChangeValueCommand(this, oldName, newName));
+	{
+		undoStack->pushChangeName(this, oldName, newName);
+	}
 
 	oldName = newName;
 	setModified(true);
@@ -782,7 +823,7 @@ void Object::onUndoStackCleanChanged(bool clean)
 
 bool Object::canPushUndoCommand() const
 {
-	return (0 == reloadCounter && nullptr != undoStack &&
+	return (0 == blockCounter && 0 == reloadCounter && nullptr != undoStack &&
 		undoStack->canPushForMacro());
 }
 
@@ -792,19 +833,23 @@ void Object::addChildCommand(QObject *child)
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChildActionCommand(object, ChildActionCommand::Add));
+		{
+			undoStack->pushAddChild(object);
+		}
 	}
 }
 
-void Object::moveChildCommand(QObject *child, QObject *oldParent)
+void Object::moveChildCommand(
+	QObject *child, QObject *oldParent, const QString &oldName)
 {
 	auto object = dynamic_cast<Object *>(child);
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(new ChildActionCommand(
-				object, dynamic_cast<Object *>(oldParent)));
+		{
+			undoStack->pushMoveChild(
+				object, dynamic_cast<Object *>(oldParent), oldName);
+		}
 	}
 }
 
@@ -814,16 +859,17 @@ void Object::deleteChildCommand(QObject *child)
 	if (nullptr != object && object->parent() == this)
 	{
 		if (canPushUndoCommand())
-			undoStack->push(
-				new ChildActionCommand(object, ChildActionCommand::Delete));
+		{
+			undoStack->pushDeleteChild(object);
+		}
 	}
 }
 
 void Object::pushUndoCommandInternal(
 	const char *propertyName, const QVariant &oldValue)
 {
-	undoStack->push(new ChangeValueCommand(this,
-		Utils::GetMetaPropertyByName(metaObject(), propertyName), oldValue));
+	undoStack->pushValueChange(this,
+		Utils::GetMetaPropertyByName(metaObject(), propertyName), oldValue);
 }
 
 Object *Object::getMainPrototype() const
@@ -1247,8 +1293,7 @@ void Object::connectUndoStack()
 {
 	if (nullptr != undoStack && ownUndoStack)
 	{
-		QObject::connect(undoStack, &QUndoStack::cleanChanged, this,
-			&Object::onUndoStackCleanChanged);
+		undoStack->connectCleanChanged(this, &Object::onUndoStackCleanChanged);
 	}
 }
 
@@ -1256,8 +1301,8 @@ void Object::disconnectUndoStack()
 {
 	if (nullptr != undoStack && ownUndoStack)
 	{
-		QObject::disconnect(undoStack, &QUndoStack::cleanChanged, this,
-			&Object::onUndoStackCleanChanged);
+		undoStack->disconnectCleanChanged(
+			this, &Object::onUndoStackCleanChanged);
 	}
 }
 

@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,51 +22,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#include "ChangeContentsCommand.h"
+#include "FileScriptMenuBuilder.h"
 
-#include "Object.h"
-#include "Const.h"
+#include "BananaCore/AbstractFile.h"
+#include "BananaCore/AbstractProjectDirectory.h"
 
 namespace Banana
 {
-ChangeContentsCommand::ChangeContentsCommand(
-	Object *object, const QVariantMap &oldContents)
-	: AbstractObjectUndoCommand(object)
-	, oldContents(oldContents)
+FileScriptMenuBuilder::FileScriptMenuBuilder(AbstractFile *targetFile)
+	: targetFile(targetFile)
 {
-	object->saveContents(newContents, Object::SaveStandalone);
+	Q_ASSERT(nullptr != targetFile);
 }
 
-int ChangeContentsCommand::id() const
+ScriptManager *FileScriptMenuBuilder::scriptManager() const
 {
-	return CHANGE_CONTENTS_COMMAND;
+	auto projectDir =
+		dynamic_cast<AbstractProjectDirectory *>(targetFile->getTopDirectory());
+	Q_ASSERT(nullptr != projectDir);
+
+	auto projectFile = projectDir->getProjectFile();
+	Q_ASSERT(nullptr != projectFile);
+
+	return projectFile->getScriptManager();
 }
 
-void ChangeContentsCommand::doUndo()
+void FileScriptMenuBuilder::fetchScriptTargets(
+	QObjectList &targets, QObject *owner) const
 {
-	applyContents(oldContents);
-}
-
-void ChangeContentsCommand::doRedo()
-{
-	applyContents(newContents);
-}
-
-void ChangeContentsCommand::applyContents(const QVariantMap &contents)
-{
-	auto object = dynamic_cast<Object *>(getObject());
-	Q_ASSERT(nullptr != object);
-
-	object->beginUndoStackUpdate();
-	object->blockMacro();
-	object->beginLoad();
-	object->beginReload();
-
-	object->loadContents(contents, true);
-
-	object->endReload();
-	object->endLoad();
-	object->unblockMacro();
-	object->endUndoStackUpdate();
+	Q_UNUSED(owner);
+	targets.append(targetFile);
 }
 }

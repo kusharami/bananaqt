@@ -33,6 +33,7 @@ namespace Banana
 {
 AbstractDirectory::AbstractDirectory(QObject *thiz)
 	: AbstractFileSystemObject(thiz)
+	, userSpecific(false)
 {
 }
 
@@ -88,6 +89,16 @@ AbstractFileSystemObject *AbstractDirectory::findFileSystemObject(
 	}
 
 	return result;
+}
+
+bool AbstractDirectory::isUserSpecific() const
+{
+	return userSpecific;
+}
+
+void AbstractDirectory::setUserSpecific(bool yes)
+{
+	userSpecific = yes;
 }
 
 void AbstractDirectory::descendantChanged(

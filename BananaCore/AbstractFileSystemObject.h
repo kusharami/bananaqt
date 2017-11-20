@@ -54,6 +54,8 @@ public:
 	virtual bool rename(const QString &new_name);
 	virtual bool setFileName(const QString &value);
 
+	virtual bool isUserSpecific() const = 0;
+	virtual void setUserSpecific(bool user) = 0;
 	virtual const QString &getFileExtension() const = 0;
 
 	virtual QStringList getSupportedExtensions() const;

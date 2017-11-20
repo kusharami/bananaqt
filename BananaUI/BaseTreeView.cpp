@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,9 @@ SOFTWARE.
 #include "AbstractObjectTreeModel.h"
 #include "SelectTreeItemsCommand.h"
 
+#include "BananaUI/UndoStack.h"
+
 #include "BananaCore/AbstractObjectGroup.h"
-#include "BananaCore/UndoStack.h"
 
 #include <QFocusEvent>
 
@@ -100,6 +101,11 @@ void BaseTreeView::select(const QObjectSet &items)
 	}
 }
 
+void BaseTreeView::setSelectedItems(const QObjectSet &items)
+{
+	select(items);
+}
+
 void BaseTreeView::expandItem(QObject *item)
 {
 	auto index = treeModel->findModelIndex(item);
@@ -116,6 +122,11 @@ QObject *BaseTreeView::getCurrentItem() const
 	}
 
 	return nullptr;
+}
+
+const QObjectSet &BaseTreeView::getSelectedItems() const
+{
+	return selectedItems;
 }
 
 bool BaseTreeView::hasItems() const
@@ -168,7 +179,7 @@ void BaseTreeView::onBeforeModelReset()
 	{
 		auto reselectCommand = new SelectTreeItemsCommand(this);
 		reselectCommand->setOldSelected(selectedItems);
-		undoStack->push(reselectCommand);
+		undoStack->pushCommand(reselectCommand);
 	}
 }
 
@@ -217,7 +228,7 @@ void BaseTreeView::onAfterModelReset()
 	{
 		auto reselectCommand = new SelectTreeItemsCommand(this);
 		reselectCommand->setNewSelected(selectedItems);
-		undoStack->push(reselectCommand);
+		undoStack->pushCommand(reselectCommand);
 	}
 
 	preventReselectCounter--;
@@ -307,7 +318,7 @@ void BaseTreeView::onSelectionChanged(
 
 	if (canPushCommand)
 	{
-		undoStack->push(
+		undoStack->pushCommand(
 			new SelectTreeItemsCommand(this, oldSelected, selectedItems));
 	} else if (nullptr != undoStack)
 	{
@@ -331,7 +342,7 @@ void BaseTreeView::onUndoStackMacroStarted()
 
 		auto reselectCommand = new SelectTreeItemsCommand(this,
 			oldSelected.empty() ? selectedItems : oldSelected, selectedItems);
-		undoStack->push(reselectCommand);
+		undoStack->pushCommand(reselectCommand);
 		disconnectUndoStack();
 		undoStack = nullptr;
 	}
@@ -346,9 +357,10 @@ void BaseTreeView::connectUndoStack()
 {
 	if (nullptr != undoStack)
 	{
-		QObject::connect(undoStack, &QObject::destroyed, this,
+		auto qundoStack = undoStack->qundoStack();
+		QObject::connect(qundoStack, &QObject::destroyed, this,
 			&BaseTreeView::onUndoStackDestroyed);
-		QObject::connect(undoStack, &UndoStack::macroStarted, this,
+		QObject::connect(qundoStack, &UndoStack::macroStarted, this,
 			&BaseTreeView::onUndoStackMacroStarted);
 	}
 }
@@ -357,9 +369,10 @@ void BaseTreeView::disconnectUndoStack()
 {
 	if (nullptr != undoStack)
 	{
-		QObject::disconnect(undoStack, &QObject::destroyed, this,
+		auto qundoStack = undoStack->qundoStack();
+		QObject::disconnect(qundoStack, &QObject::destroyed, this,
 			&BaseTreeView::onUndoStackDestroyed);
-		QObject::disconnect(undoStack, &UndoStack::macroStarted, this,
+		QObject::disconnect(qundoStack, &UndoStack::macroStarted, this,
 			&BaseTreeView::onUndoStackMacroStarted);
 	}
 }

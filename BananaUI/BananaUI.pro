@@ -29,7 +29,8 @@ FORMS += \
     SearchPathsDialog.ui \
     ProjectTreeWidget.ui \
     NewFileDialog.ui \
-    DetailedMessageDialog.ui
+    DetailedMessageDialog.ui \
+    ScriptManagerDialog.ui
 
 HEADERS += \
     AbstractObjectTreeModel.h \
@@ -57,7 +58,22 @@ HEADERS += \
     SelectTreeItemsCommand.h \
     Const.h \
     DetailedMessageDialog.h \
-    MainWindow.h
+    MainWindow.h \
+    QtnPropertyScriptManager.h \
+    ScriptManagerDialog.h \
+    ScriptEntriesWidget.h \
+    FileScriptMenuBuilder.h \
+    AbstractScriptMenuBuilder.h \
+    TreeItemsScriptMenuBuilder.h \
+    ProjectTreeScriptMenuBuilder.h \
+    AbstractObjectUndoCommand.h \
+    ChangeValueCommand.h \
+    ChangeContentsCommand.h \
+    ChildActionCommand.h \
+    UndoStack.h \
+    IScriptRunnerDialogInitializer.h \
+    SelectionCacheManager.h \
+    ISelectionDelegate.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -84,4 +100,17 @@ SOURCES += \
     NewFileDialog.cpp \
     SelectTreeItemsCommand.cpp \
     DetailedMessageDialog.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    QtnPropertyScriptManager.cpp \
+    ScriptManagerDialog.cpp \
+    ScriptEntriesWidget.cpp \
+    FileScriptMenuBuilder.cpp \
+    AbstractScriptMenuBuilder.cpp \
+    TreeItemsScriptMenuBuilder.cpp \
+    ProjectTreeScriptMenuBuilder.cpp \
+    AbstractObjectUndoCommand.cpp \
+    ChangeValueCommand.cpp \
+    ChangeContentsCommand.cpp \
+    ChildActionCommand.cpp \
+    UndoStack.cpp \
+    SelectionCacheManager.cpp

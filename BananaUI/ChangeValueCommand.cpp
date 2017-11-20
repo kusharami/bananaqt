@@ -24,10 +24,10 @@ SOFTWARE.
 
 #include "ChangeValueCommand.h"
 
-#include "Utils.h"
-#include "Const.h"
-#include "Object.h"
-#include "PropertyDef.h"
+#include "BananaCore/Utils.h"
+#include "BananaCore/Const.h"
+#include "BananaCore/Object.h"
+#include "BananaCore/PropertyDef.h"
 
 #include <QCoreApplication>
 
@@ -44,7 +44,7 @@ ChangeValueCommand::ChangeValueCommand(
 
 	auto metaProperty = Utils::GetMetaPropertyByName(this, "objectName");
 
-	pushEntry({ metaProperty, oldName, newName });
+	pushEntry({ metaProperty, oldName, newName, 0 });
 }
 
 ChangeValueCommand::ChangeValueCommand(
@@ -119,14 +119,12 @@ bool ChangeValueCommand::mergeWith(const QUndoCommand *other)
 
 void ChangeValueCommand::doUndo()
 {
-	applyValues(false);
-	applyStateBits(oldStateBits);
+	applyValues(false, oldStateBits);
 }
 
 void ChangeValueCommand::doRedo()
 {
-	applyValues(true);
-	applyStateBits(newStateBits);
+	applyValues(true, newStateBits);
 }
 
 bool ChangeValueCommand::entryIndexLess(const EntryData *a, const EntryData *b)
@@ -154,7 +152,7 @@ void ChangeValueCommand::prepareOrderedEntries()
 	prepareOrderedEntries(orderedEntries);
 }
 
-void ChangeValueCommand::applyValues(bool redo)
+void ChangeValueCommand::applyValues(bool redo, quint64 bits)
 {
 	auto object = dynamic_cast<Object *>(getObject());
 	Q_ASSERT(nullptr != object);
@@ -182,24 +180,18 @@ void ChangeValueCommand::applyValues(bool redo)
 		}
 	}
 
+	object->setPropertyModifiedBits(bits);
+
 	object->endReload();
 	object->endLoad();
 	object->unblockMacro();
 	object->endUndoStackUpdate();
 }
 
-void ChangeValueCommand::applyStateBits(quint64 bits)
-{
-	auto object = dynamic_cast<Object *>(getObject());
-	Q_ASSERT(nullptr != object);
-
-	object->setPropertyModifiedBits(bits);
-}
-
 void ChangeValueCommand::pushEntry(
 	const QMetaProperty &metaProperty, const QVariant &oldValue)
 {
-	pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()) });
+	pushEntry({ metaProperty, oldValue, metaProperty.read(getObject()), 0 });
 }
 
 void ChangeValueCommand::pushEntry(const EntryData &entryData)

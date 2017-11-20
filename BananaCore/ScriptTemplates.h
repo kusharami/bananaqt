@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2016-2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ SOFTWARE.
 
 #define DEFINE_SCRIPT_ENUM(Type, TOTAL, enumObject, parent) \
 	enumObject = engine->newObject(); \
-	parent.setProperty(#Type, enumObject, STATIC_SCRIPT_VALUE); \
+	parent.setProperty(QSTRKEY(Type), enumObject, STATIC_SCRIPT_VALUE); \
 	for (int i = 0; i < TOTAL; i++) \
 	enumObject.setProperty(Type##ToStr((Type) i), i, STATIC_SCRIPT_VALUE)
 
@@ -58,7 +58,7 @@ SOFTWARE.
 		flagsObject.setProperty( \
 			Type##ToStr((Type) i), 1 << i, STATIC_SCRIPT_VALUE); \
 	} \
-	flagsObject.setProperty("All", (1 << TOTAL) - 1, STATIC_SCRIPT_VALUE)
+	flagsObject.setProperty(QSTRKEY(All), (1 << TOTAL) - 1, STATIC_SCRIPT_VALUE)
 
 Q_DECLARE_METATYPE(QFont::Style)
 Q_DECLARE_METATYPE(QDir)

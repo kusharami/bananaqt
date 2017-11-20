@@ -26,8 +26,8 @@ SOFTWARE.
 
 #include "AbstractObjectUndoCommand.h"
 
-#include <QVariant>
 #include <QMetaProperty>
+#include <QVariant>
 
 #include <vector>
 #include <map>
@@ -80,8 +80,7 @@ protected:
 	virtual void doRedo() override;
 
 private:
-	void applyValues(bool redo);
-	void applyStateBits(quint64 bits);
+	void applyValues(bool redo, quint64 bits);
 
 	struct EntryData
 	{

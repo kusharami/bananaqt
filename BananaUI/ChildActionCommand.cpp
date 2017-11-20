@@ -24,37 +24,39 @@ SOFTWARE.
 
 #include "ChildActionCommand.h"
 
-#include "Object.h"
-#include "Const.h"
+#include "BananaCore/Object.h"
+#include "BananaCore/Const.h"
 
 namespace Banana
 {
 ChildActionCommand::ChildActionCommand(Object *object, Action action)
 	: AbstractObjectUndoCommand(object->parent())
 {
-	initFields(object, action);
+	initFields(object, object->objectName(), action);
 }
 
 ChildActionCommand::ChildActionCommand(
-	Object *object, Object *parent, Action action)
+	Object *object, Object *parent, const QString &name, Action action)
 	: AbstractObjectUndoCommand(parent)
 {
-	initFields(object, action);
+	initFields(object, name, action);
 }
 
-ChildActionCommand::ChildActionCommand(Object *object, Object *oldParent)
+ChildActionCommand::ChildActionCommand(
+	Object *object, Object *oldParent, const QString &oldName)
 	: AbstractObjectUndoCommand(object->parent())
 {
 	if (nullptr == oldParent)
 	{
-		initFields(object, Add);
+		initFields(object, object->objectName(), Add);
 	} else
 	{
 		childMetaObject = object->metaObject();
 		childObjectName = object->objectName();
 		stateBits = object->getPropertyModifiedBits();
 		action = Move;
-		subCommand = new ChildActionCommand(object, oldParent, Delete);
+		subCommand = new ChildActionCommand(object, oldParent, oldName, Delete);
+		subCommand->skipRedoOnPush = false;
 		savedContents = subCommand->savedContents;
 	}
 }
@@ -70,12 +72,13 @@ ChildActionCommand::~ChildActionCommand()
 	delete subCommand;
 }
 
-void ChildActionCommand::initFields(Object *object, Action action)
+void ChildActionCommand::initFields(
+	Object *object, const QString &name, Action action)
 {
 	Q_ASSERT(nullptr != object);
 
 	childMetaObject = object->metaObject();
-	childObjectName = object->objectName();
+	childObjectName = name;
 	stateBits = object->getPropertyModifiedBits();
 	this->action = action;
 	savedContents = new QVariantMap;
@@ -120,7 +123,7 @@ void ChildActionCommand::doUndo()
 
 		case Move:
 			del();
-			subCommand->add();
+			subCommand->undo();
 			break;
 
 		case Delete:
@@ -138,7 +141,7 @@ void ChildActionCommand::doRedo()
 			break;
 
 		case Move:
-			subCommand->del();
+			subCommand->redo();
 			add();
 			break;
 
@@ -163,14 +166,13 @@ void ChildActionCommand::add()
 
 	newChild->loadContents(*savedContents, true);
 	newChild->setObjectName(childObjectName);
+	newChild->setPropertyModifiedBits(stateBits);
 	newChild->setParent(object);
 
 	newChild->endLoad();
 
 	object->endReload();
 	object->endUndoStackUpdate();
-
-	newChild->setPropertyModifiedBits(stateBits);
 }
 
 void ChildActionCommand::del()

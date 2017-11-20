@@ -27,7 +27,8 @@ SOFTWARE.
 #include "BananaCore/AbstractFile.h"
 #include "BananaCore/AbstractProjectDirectory.h"
 #include "BananaCore/ProjectGroup.h"
-#include "BananaCore/UndoStack.h"
+
+#include "BananaUI/UndoStack.h"
 
 #include <QUndoGroup>
 #include <QDir>
@@ -36,11 +37,15 @@ namespace Banana
 {
 FileTabBar::FileTabBar(QWidget *parent)
 	: QTabBar(parent)
+	, mUndoLimit(0)
+	, mUndoGroup(0)
 {
 	QObject::connect(this, &QTabBar::tabCloseRequested, this,
 		&FileTabBar::onTabCloseRequested);
 
 	QObject::connect(this, &QTabBar::tabMoved, this, &FileTabBar::onTabMoved);
+	QObject::connect(
+		this, &QTabBar::currentChanged, this, &FileTabBar::onTabChanged);
 
 	setDocumentMode(true);
 	setTabsClosable(true);
@@ -83,10 +88,38 @@ UndoStack *FileTabBar::getFileUndoStack(AbstractFile *file)
 		auto dataObject = dynamic_cast<Object *>(file->getData(false));
 
 		if (nullptr != dataObject)
-			return dataObject->getUndoStack();
+			return dataObject->getUndoStack()->qundoStack();
 	}
 
 	return nullptr;
+}
+
+void FileTabBar::updateUndoStack(AbstractFile *file)
+{
+	if (mUndoGroup)
+	{
+		mUndoGroup->setActiveStack(nullptr);
+		if (nullptr == file)
+			return;
+
+		auto fileData = dynamic_cast<Object *>(file->getData(false));
+		Q_ASSERT(nullptr != fileData);
+		auto undoStack = fileData->getUndoStack();
+		UndoStack *qundoStack = nullptr;
+		if (undoStack == nullptr || not fileData->ownsUndoStack())
+		{
+			qundoStack = new UndoStack;
+			qundoStack->setUndoLimit(mUndoLimit);
+			fileData->setUndoStack(qundoStack, true);
+		} else
+		{
+			qundoStack = undoStack->qundoStack();
+		}
+
+		Q_ASSERT(nullptr != qundoStack);
+		mUndoGroup->addStack(qundoStack);
+		mUndoGroup->setActiveStack(qundoStack);
+	}
 }
 
 bool FileTabBar::fileOpen(AbstractFile *file)
@@ -110,33 +143,17 @@ bool FileTabBar::fileOpen(AbstractFile *file)
 
 			openedFiles.push_back(file);
 
+			connectFile(file);
+
 			int newIndex = addTab(getTitleForFile(file));
 			setCurrentIndex(newIndex);
 			setTabToolTip(newIndex, getToolTipForFile(file));
 
-			connectFile(file);
-
-			auto projectDir = dynamic_cast<AbstractProjectDirectory *>(
-				file->getTopDirectory());
-			Q_ASSERT(nullptr != projectDir);
-			auto projectGroup = projectDir->getProjectGroup();
-			Q_ASSERT(nullptr != projectGroup);
-			auto undoGroup = projectGroup->getUndoGroup();
-
-			if (nullptr != undoGroup)
-			{
-				auto fileData = dynamic_cast<Object *>(file->getData(false));
-				Q_ASSERT(nullptr != fileData);
-				auto undoStack = fileData->getUndoStack();
-
-				if (nullptr != undoStack)
-					undoGroup->addStack(undoStack);
-			}
-
 			emit fileOpened(file);
 		} else
+		{
 			setCurrentIndex(index);
-
+		}
 		return true;
 	}
 
@@ -161,6 +178,12 @@ bool FileTabBar::isFileOpen(AbstractFile *file) const
 void FileTabBar::onTabCloseRequested(int index)
 {
 	closeTab(index, false);
+}
+
+void FileTabBar::onTabChanged(int index)
+{
+	auto file = getFileAtIndex(index);
+	updateUndoStack(file);
 }
 
 void FileTabBar::closeTab(int index, bool multiple)
@@ -211,6 +234,11 @@ void FileTabBar::onFileFlagsChanged()
 	emit fileFlagsChanged(dynamic_cast<AbstractFile *>(sender()));
 }
 
+void FileTabBar::onFileDataChanged()
+{
+	emit currentChanged(getFileIndex(sender()));
+}
+
 void FileTabBar::updateTabText()
 {
 	auto file = dynamic_cast<AbstractFile *>(sender());
@@ -234,6 +262,21 @@ void FileTabBar::doFileClose(AbstractFile *file)
 
 	if (index >= 0)
 	{
+		Q_ASSERT(nullptr != file);
+		auto fileData = dynamic_cast<Object *>(file->getData(false));
+		Q_ASSERT(nullptr != fileData);
+		auto undoStack = fileData->getUndoStack();
+		if (undoStack && mUndoGroup)
+		{
+			auto qundoStack = undoStack->qundoStack();
+			Q_ASSERT(nullptr != qundoStack);
+
+			if (qundoStack == mUndoGroup->activeStack())
+				mUndoGroup->setActiveStack(nullptr);
+
+			mUndoGroup->removeStack(qundoStack);
+		}
+
 		openedFiles.erase(openedFiles.begin() + index);
 		removeTab(index);
 
@@ -276,6 +319,9 @@ void FileTabBar::connectFile(AbstractFile *file)
 		QObject::connect(file, &AbstractFile::flagsChanged, this,
 			&FileTabBar::onFileFlagsChanged);
 
+		QObject::connect(file, &AbstractFile::dataChanged, this,
+			&FileTabBar::onFileDataChanged);
+
 		QObject::connect(
 			file, &AbstractFile::pathChanged, this, &FileTabBar::updateTabText);
 
@@ -293,6 +339,9 @@ void FileTabBar::disconnectFile(AbstractFile *file)
 
 		QObject::disconnect(file, &AbstractFile::flagsChanged, this,
 			&FileTabBar::onFileFlagsChanged);
+
+		QObject::disconnect(file, &AbstractFile::dataChanged, this,
+			&FileTabBar::onFileDataChanged);
 
 		QObject::disconnect(
 			file, &AbstractFile::pathChanged, this, &FileTabBar::updateTabText);
@@ -323,7 +372,7 @@ int FileTabBar::getFileIndex(QObject *fileObject, bool valid) const
 		}
 
 		if (openedFiles.end() != it)
-			return it - openedFiles.begin();
+			return int(it - openedFiles.begin());
 	}
 
 	return -1;
