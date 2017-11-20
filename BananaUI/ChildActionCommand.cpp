@@ -56,6 +56,7 @@ ChildActionCommand::ChildActionCommand(
 		stateBits = object->getPropertyModifiedBits();
 		action = Move;
 		subCommand = new ChildActionCommand(object, oldParent, oldName, Delete);
+		subCommand->skipRedoOnPush = false;
 		savedContents = subCommand->savedContents;
 	}
 }
@@ -122,7 +123,7 @@ void ChildActionCommand::doUndo()
 
 		case Move:
 			del();
-			subCommand->add();
+			subCommand->undo();
 			break;
 
 		case Delete:
@@ -140,7 +141,7 @@ void ChildActionCommand::doRedo()
 			break;
 
 		case Move:
-			subCommand->del();
+			subCommand->redo();
 			add();
 			break;
 
@@ -165,14 +166,13 @@ void ChildActionCommand::add()
 
 	newChild->loadContents(*savedContents, true);
 	newChild->setObjectName(childObjectName);
+	newChild->setPropertyModifiedBits(stateBits);
 	newChild->setParent(object);
 
 	newChild->endLoad();
 
 	object->endReload();
 	object->endUndoStackUpdate();
-
-	newChild->setPropertyModifiedBits(stateBits);
 }
 
 void ChildActionCommand::del()

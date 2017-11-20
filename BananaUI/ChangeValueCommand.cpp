@@ -119,14 +119,12 @@ bool ChangeValueCommand::mergeWith(const QUndoCommand *other)
 
 void ChangeValueCommand::doUndo()
 {
-	applyValues(false);
-	applyStateBits(oldStateBits);
+	applyValues(false, oldStateBits);
 }
 
 void ChangeValueCommand::doRedo()
 {
-	applyValues(true);
-	applyStateBits(newStateBits);
+	applyValues(true, newStateBits);
 }
 
 bool ChangeValueCommand::entryIndexLess(const EntryData *a, const EntryData *b)
@@ -154,7 +152,7 @@ void ChangeValueCommand::prepareOrderedEntries()
 	prepareOrderedEntries(orderedEntries);
 }
 
-void ChangeValueCommand::applyValues(bool redo)
+void ChangeValueCommand::applyValues(bool redo, quint64 bits)
 {
 	auto object = dynamic_cast<Object *>(getObject());
 	Q_ASSERT(nullptr != object);
@@ -163,8 +161,8 @@ void ChangeValueCommand::applyValues(bool redo)
 
 	object->beginUndoStackUpdate();
 	object->blockMacro();
-	object->beginReload();
 	object->beginLoad();
+	object->beginReload();
 
 	if (redo)
 	{
@@ -182,18 +180,12 @@ void ChangeValueCommand::applyValues(bool redo)
 		}
 	}
 
-	object->endLoad();
+	object->setPropertyModifiedBits(bits);
+
 	object->endReload();
+	object->endLoad();
 	object->unblockMacro();
 	object->endUndoStackUpdate();
-}
-
-void ChangeValueCommand::applyStateBits(quint64 bits)
-{
-	auto object = dynamic_cast<Object *>(getObject());
-	Q_ASSERT(nullptr != object);
-
-	object->setPropertyModifiedBits(bits);
 }
 
 void ChangeValueCommand::pushEntry(
