@@ -806,7 +806,66 @@ bool VariantsEqual(const QVariant &a, const QVariant &b)
 	if (emptyB)
 		return emptyA;
 
-	return (a.type() == b.type() && a.userType() == b.userType() && a == b);
+	if (a.type() != b.type())
+		return false;
+
+	if (a.userType() != b.userType())
+		return false;
+
+	switch (a.type())
+	{
+		case QVariant::Map:
+		{
+			auto aMap = a.toMap();
+			auto bMap = b.toMap();
+
+			if (aMap.size() != bMap.size())
+				return false;
+
+			auto aIt = aMap.constBegin();
+			auto bIt = bMap.constBegin();
+
+			for (; aIt != aMap.constEnd(); ++aIt, ++bIt)
+			{
+				if (aIt.key() != bIt.key())
+					return false;
+			}
+
+			aIt = aMap.constBegin();
+			bIt = bMap.constBegin();
+
+			for (; aIt != aMap.constEnd(); ++aIt, ++bIt)
+			{
+				if (not VariantsEqual(aIt.value(), bIt.value()))
+					return false;
+			}
+
+			return true;
+		}
+
+		case QVariant::List:
+		{
+			auto aList = a.toList();
+			auto bList = b.toList();
+
+			int count = aList.size();
+			if (count != bList.size())
+				return false;
+
+			for (int i = 0; i < count; i++)
+			{
+				if (not VariantsEqual(aList.at(i), bList.at(i)))
+					return false;
+			}
+
+			return true;
+		}
+
+		default:
+			break;
+	}
+
+	return a == b;
 }
 
 bool VariantIsEmpty(const QVariant &value)

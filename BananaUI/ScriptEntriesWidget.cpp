@@ -317,6 +317,7 @@ bool ScriptEntriesWidget::applyPropertyData(const QMimeData *data,
 			index = siblings.indexOf(entryDest);
 			switch (position)
 			{
+				case QtnApplyPosition::None:
 				case QtnApplyPosition::Before:
 				case QtnApplyPosition::Over:
 					break;
