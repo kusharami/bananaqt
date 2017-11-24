@@ -37,6 +37,7 @@ SOFTWARE.
 #include <QJsonDocument>
 #include <QFileInfo>
 #include <QDir>
+#include <QKeySequence>
 
 namespace Banana
 {
@@ -61,6 +62,7 @@ const QString AbstractProjectFile::SCRIPTS_KEY =
 const QString AbstractProjectFile::CAPTION_KEY = QStringLiteral("Caption");
 const QString AbstractProjectFile::OBJECT_TYPE_KEY =
 	QStringLiteral("ObjectType");
+const QString AbstractProjectFile::SHORTCUT_KEY = QStringLiteral("Shortcut");
 
 struct AbstractProjectFile::FileInfo
 {
@@ -213,6 +215,8 @@ ScriptManager *AbstractProjectFile::getScriptManager()
 	if (scriptManager == nullptr)
 	{
 		scriptManager = new ScriptManager(this);
+		QObject::connect(
+			scriptManager, &ScriptManager::changed, this, &Object::modify);
 	}
 
 	return scriptManager;
@@ -453,45 +457,74 @@ bool AbstractProjectFile::loadScriptEntries(const QVariantMap &input)
 		auto vmap = value.toMap();
 
 		auto vCaption = Utils::ValueFrom(vmap, CAPTION_KEY, QString());
-
 		if (vCaption.type() != QVariant::String)
 		{
 			LOG_WARNING(QStringLiteral("Bad script caption entry"));
 			return false;
 		}
 
-		auto vPath = Utils::ValueFrom(vmap, PATH_KEY);
-
-		QString pathStr;
-
-		if (vPath.type() == QVariant::String)
-			pathStr = vPath.toString();
-
-		if (pathStr.isEmpty())
+		auto vPath = Utils::ValueFrom(vmap, PATH_KEY, QString());
+		if (vPath.type() != QVariant::String)
 		{
 			LOG_WARNING(QStringLiteral("Bad script path entry"));
 			return false;
 		}
 
-		auto vType = Utils::ValueFrom(vmap, OBJECT_TYPE_KEY);
-
-		QString typeStr;
-
-		if (vType.type() == QVariant::String)
-			typeStr = vType.toString();
-
-		auto metaObject = Utils::GetMetaObjectForClass(typeStr);
-
-		if (nullptr == metaObject)
+		auto vShortcut = Utils::ValueFrom(vmap, SHORTCUT_KEY, QString());
+		if (vShortcut.type() != QVariant::String)
 		{
-			LOG_WARNING(QStringLiteral("Bad script object type entry"));
+			LOG_WARNING(QStringLiteral("Bad script shortcut entry"));
 			return false;
 		}
 
-		auto filePath = rootDir->getAbsoluteFilePathFor(pathStr);
+		auto vType = Utils::ValueFrom(vmap, OBJECT_TYPE_KEY);
 
-		scriptManager->registerScriptFor(
-			metaObject, filePath, vCaption.toString());
+		QStringList types;
+
+		switch (vType.type())
+		{
+			case QVariant::Invalid:
+				break;
+
+			case QVariant::String:
+				types.append(vType.toString());
+				break;
+
+			case QVariant::List:
+				for (const auto &item : vType.toList())
+				{
+					types.append(item.toString());
+				}
+				break;
+
+			default:
+				LOG_WARNING(QStringLiteral("Bad script object type entry"));
+				return false;
+		}
+
+		ScriptCommand::MetaObjects metaObjects;
+
+		for (const auto &typeStr : types)
+		{
+			auto metaObject = Utils::GetMetaObjectForClass(typeStr);
+
+			if (nullptr == metaObject)
+			{
+				LOG_WARNING(
+					QStringLiteral("Bad script object type: %1").arg(typeStr));
+				return false;
+			}
+			metaObjects.insert(metaObject);
+		}
+
+		auto filePath = vPath.toString();
+		if (not filePath.isEmpty())
+			filePath = rootDir->getAbsoluteFilePathFor(filePath);
+
+		scriptManager->addScriptCommand(metaObjects, filePath,
+			vCaption.toString(),
+			QKeySequence::fromString(
+				vShortcut.toString(), QKeySequence::PortableText));
 	}
 
 	return true;
@@ -510,10 +543,17 @@ void AbstractProjectFile::saveScriptEntries(QVariantMap &output)
 	for (auto &entry : scriptEntries)
 	{
 		QVariantMap vmap;
+		QVariantList objectTypes;
+		for (auto metaObject : entry.metaObjects)
+		{
+			objectTypes.append(QLatin1String(metaObject->className()));
+		}
 
-		vmap.insert(OBJECT_TYPE_KEY, entry.metaObject->className());
+		vmap.insert(OBJECT_TYPE_KEY, objectTypes);
 		vmap.insert(PATH_KEY, rootDir->getRelativeFilePathFor(entry.filePath));
 		vmap.insert(CAPTION_KEY, entry.caption);
+		vmap.insert(
+			SHORTCUT_KEY, entry.keySeq.toString(QKeySequence::PortableText));
 
 		entries.append(vmap);
 	}

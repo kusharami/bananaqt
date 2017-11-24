@@ -51,17 +51,17 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="320"/>
+        <location filename="../ChangeValueCommand.cpp" line="312"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
         <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="325"/>
+        <location filename="../ChangeValueCommand.cpp" line="317"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
         <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="330"/>
+        <location filename="../ChangeValueCommand.cpp" line="322"/>
         <source>Multiple objects</source>
         <translation>Несколько объектов</translation>
     </message>
@@ -69,22 +69,22 @@
 <context>
     <name>Banana::ChildActionCommand</name>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="94"/>
+        <location filename="../ChildActionCommand.cpp" line="97"/>
         <source>Add object [%1]</source>
         <translation>Новый объект [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="99"/>
+        <location filename="../ChildActionCommand.cpp" line="102"/>
         <source>Add multiple objects</source>
         <translation>Добавление нескольких объектов</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="105"/>
+        <location filename="../ChildActionCommand.cpp" line="108"/>
         <source>Delete object [%1]</source>
         <translation>Удаление объекта [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="110"/>
+        <location filename="../ChildActionCommand.cpp" line="113"/>
         <source>Delete multiple objects</source>
         <translation>Удаление нескольких объектов</translation>
     </message>
@@ -354,7 +354,7 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="357"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="388"/>
         <source>Select Script File</source>
         <translation>Выберите скрипт-файл</translation>
     </message>
@@ -363,7 +363,7 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Не указан файл скрипта.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="373"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="404"/>
         <source>File &apos;%1&apos; is not found.</source>
         <translation>Файл &quot;%1&quot; не найден.</translation>
     </message>
@@ -372,32 +372,32 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Ошибка выполнения</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="242"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="271"/>
         <source>Do you want to abort script execution?</source>
         <translation>Хотите прервать выполнения скрипта?</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="536"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="567"/>
         <source>Script Runtime Error</source>
         <translation>Ошибка выполнения скрипта</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="426"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="457"/>
         <source>Select Files</source>
         <translation>Выберите файлы</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="336"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="367"/>
         <source>Not responding more than 5 seconds.</source>
         <translation>Не отвечает более 5 секунд.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="440"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="471"/>
         <source>Select Directory</source>
         <translation>Выберите директорию</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="469"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="500"/>
         <source>There is no active project directory.</source>
         <translation>Нет активного проекта.</translation>
     </message>
@@ -433,17 +433,17 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="199"/>
+        <location filename="../UndoStack.cpp" line="200"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="202"/>
+        <location filename="../UndoStack.cpp" line="203"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="205"/>
+        <location filename="../UndoStack.cpp" line="206"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
@@ -2447,24 +2447,33 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="341"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="371"/>
         <source>(Untitled Action)</source>
         <translation>(Безымянная команда)</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="381"/>
         <source>Object Type</source>
-        <translation>Тип объекта</translation>
+        <translation type="vanished">Тип объекта</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="390"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="444"/>
+        <source>Object Types</source>
+        <translation>Типы объектов</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="452"/>
         <source>Script File Path</source>
         <translation>Скрипт-файл</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="398"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="460"/>
         <source>Caption</source>
         <translation>Имя команды</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="468"/>
+        <source>Shortcut</source>
+        <translation>Сочетание клавиш</translation>
     </message>
 </context>
 <context>
@@ -2529,27 +2538,27 @@ If no, the enumerated name will be given.</source>
         <translation>Закрыть</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="135"/>
+        <location filename="../ScriptRunnerDialog.ui" line="138"/>
         <source>Log</source>
         <translation>Журнал</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="194"/>
+        <location filename="../ScriptRunnerDialog.ui" line="197"/>
         <source>Script File:</source>
         <translation>Скрипт:</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="204"/>
+        <location filename="../ScriptRunnerDialog.ui" line="207"/>
         <source>Browse...</source>
         <translation>Выбрать...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="287"/>
+        <location filename="../ScriptRunnerDialog.ui" line="290"/>
         <source>Insert File Paths...</source>
         <translation>Пути к файлам...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="320"/>
+        <location filename="../ScriptRunnerDialog.ui" line="323"/>
         <source>Insert Project Entries...</source>
         <translation>Пути к файлам проекта...</translation>
     </message>
@@ -2558,12 +2567,12 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Путь к файлу...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="300"/>
+        <location filename="../ScriptRunnerDialog.ui" line="303"/>
         <source>Arguments</source>
         <translation>Аргументы</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="313"/>
+        <location filename="../ScriptRunnerDialog.ui" line="316"/>
         <source>Insert Directory Path...</source>
         <translation>Путь к директории...</translation>
     </message>

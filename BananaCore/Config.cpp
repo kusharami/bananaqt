@@ -53,11 +53,13 @@ void Register()
 
 	qRegisterMetaType<QVariantMap>();
 	qRegisterMetaType<Object *>();
+	qRegisterMetaType<AbstractFile *>();
 	qRegisterMetaType<Directory *>();
 	qRegisterMetaType<BinaryFile *>();
 	qRegisterMetaType<SearchPaths *>();
 	qRegisterMetaType<ScriptManager *>();
 
+	ScriptManager::registerMetaObject(&AbstractFile::staticMetaObject);
 	ScriptManager::registerMetaObject(&Object::staticMetaObject);
 	ScriptManager::registerMetaObject(&Directory::staticMetaObject);
 

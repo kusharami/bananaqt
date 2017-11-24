@@ -116,6 +116,7 @@ public:
 
 	inline bool isModified() const;
 	void setModified(bool value);
+	void modify();
 	static void modifyObject(
 		QObject *object, bool modified, bool signalize, bool children);
 

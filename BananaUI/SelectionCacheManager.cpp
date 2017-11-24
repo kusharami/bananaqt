@@ -52,7 +52,8 @@ void SelectionCacheManager::setSelectionDelegate(ISelectionDelegate *delegate)
 
 void SelectionCacheManager::retainSelection(Object *keyObject)
 {
-	auto &items = getSelectedItems();
+	auto items = getSelectedItems();
+
 	auto it = mCache.find(keyObject);
 	if (it != mCache.end())
 	{
@@ -85,16 +86,24 @@ void SelectionCacheManager::restoreSelection(Object *keyObject)
 	setSelectedItems((it != mCache.end()) ? it->second : QObjectSet());
 }
 
-const QObjectSet &SelectionCacheManager::getSelectedItems() const
+QObjectSet SelectionCacheManager::getSelectedItems() const
 {
 	Q_ASSERT(nullptr != mDelegate);
-	return mDelegate->getSelectedItems();
+	auto items = mDelegate->getSelectedItems();
+
+	QObjectSet result;
+	for (auto item : items)
+		result.insert(item);
+	return result;
 }
 
 void SelectionCacheManager::setSelectedItems(const QObjectSet &items)
 {
 	Q_ASSERT(nullptr != mDelegate);
-	mDelegate->setSelectedItems(items);
+	QObjectList itemList;
+	for (auto item : items)
+		itemList.append(item);
+	mDelegate->setSelectedItems(itemList);
 }
 
 void SelectionCacheManager::clear()

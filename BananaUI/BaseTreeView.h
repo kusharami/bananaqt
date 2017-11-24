@@ -24,6 +24,7 @@ SOFTWARE.
 
 #pragma once
 
+#include "BananaCore/ContainerTypes.h"
 #include "ISelectionDelegate.h"
 
 #include <QTreeView>
@@ -50,8 +51,10 @@ public:
 	QObject *getCurrentItem() const;
 	inline const QObjectSet &getExpandedItems() const;
 
-	virtual const QObjectSet &getSelectedItems() const override;
-	virtual void setSelectedItems(const QObjectSet &items) override;
+	inline const QObjectSet &selectedItems() const;
+
+	virtual QObjectList getSelectedItems() const override;
+	virtual void setSelectedItems(const QObjectList &items) override;
 
 	bool hasItems() const;
 
@@ -93,11 +96,16 @@ protected:
 
 	QObjectSet oldSelected;
 	QObjectSet expandedItems;
-	QObjectSet selectedItems;
+	QObjectSet mSelectedItems;
 };
 
 const QObjectSet &BaseTreeView::getExpandedItems() const
 {
 	return expandedItems;
+}
+
+const QObjectSet &BaseTreeView::selectedItems() const
+{
+	return mSelectedItems;
 }
 }

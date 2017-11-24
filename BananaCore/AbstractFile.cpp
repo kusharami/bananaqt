@@ -46,6 +46,7 @@ AbstractFile::AbstractFile(const QString &extension)
 	, oldParent(nullptr)
 	, connectedData(nullptr)
 {
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractFile");
 }
 
 AbstractFile::~AbstractFile()
@@ -308,6 +309,12 @@ Directory *AbstractFile::getSearchedDirectory(Directory *topDirectory) const
 	return topDirectory;
 }
 
+void AbstractFile::tryClose()
+{
+	if (not isBound())
+		close();
+}
+
 bool AbstractFile::rename(const QString &newName)
 {
 	if (open())
@@ -422,12 +429,6 @@ void AbstractFile::onDataDestroyed()
 	modified = false;
 	emit modifiedFlagChanged(false);
 	emit flagsChanged();
-}
-
-void AbstractFile::tryCloseAndDelete()
-{
-	if (not isBound() && close() && not isUserSpecific())
-		delete this;
 }
 
 QObject *AbstractFile::doGetData()

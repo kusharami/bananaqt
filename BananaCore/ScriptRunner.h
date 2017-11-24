@@ -60,7 +60,8 @@ class ScriptRunner
 public:
 	ScriptRunner(Banana::ProjectGroup *projectGroup, QObject *parent = nullptr);
 
-	bool execute(const QString &filePath, const QString &prepareScript);
+	bool execute(
+		const QString &filePath, const QString &prepareScript = QString());
 	bool executeForTargets(const QString &filePath, const QObjectList &targets);
 
 	virtual bool abort() override;

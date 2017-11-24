@@ -26,11 +26,12 @@ SOFTWARE.
 
 #include "AbstractProjectFile.h"
 
+#include <QFile>
+
 namespace Banana
 {
-ScriptManager::ScriptManager(AbstractProjectFile *owner, QObject *parent)
+ScriptManager::ScriptManager(QObject *parent)
 	: QObject(parent)
-	, mOwner(owner)
 {
 }
 
@@ -42,26 +43,20 @@ void ScriptManager::registerMetaObject(const QMetaObject *metaObject)
 	}
 }
 
-void ScriptManager::registerScriptFor(const QMetaObject *metaObject,
-	const QString &filePath, const QString &caption)
+void ScriptManager::addScriptCommand(const MetaObjects &metaObjects,
+	const QString &filePath, const QString &caption, const QKeySequence &keySeq)
 {
-	Entry entry;
-
-	entry.metaObject = metaObject;
-	entry.filePath = filePath;
-	entry.caption = caption;
-
-	mEntries.push_back(entry);
-	mOwner->setModified(true);
+	mEntries.emplace_back(metaObjects, filePath, caption, keySeq);
+	emit changed();
 }
 
 void ScriptManager::clear()
 {
-	if (!mEntries.isEmpty())
+	if (not mEntries.empty())
 	{
 		mEntries.clear();
 
-		mOwner->setModified(true);
+		emit changed();
 	}
 }
 
@@ -71,7 +66,7 @@ void ScriptManager::setScriptEntries(const Entries &entries)
 	{
 		mEntries = entries;
 
-		mOwner->setModified(true);
+		emit changed();
 	}
 }
 
@@ -79,14 +74,8 @@ bool ScriptManager::hasActionsFor(const QObjectList &targets)
 {
 	for (const Entry &entry : mEntries)
 	{
-		if (not entry.isValid())
-			continue;
-
-		for (auto target : targets)
-		{
-			if (entry.metaObject->cast(target))
-				return true;
-		}
+		if (entry.supportsTargets(targets))
+			return true;
 	}
 	return false;
 }
@@ -105,31 +94,5 @@ ScriptManager::MetaObjects &ScriptManager::metaObjectsMutable()
 {
 	static MetaObjects META_OBJECTS;
 	return META_OBJECTS;
-}
-
-ScriptManager::Entry::Entry()
-	: metaObject(&Object::staticMetaObject)
-{
-}
-
-bool ScriptManager::Entry::isValid() const
-{
-	return metaObject != nullptr && not caption.isEmpty() &&
-		not filePath.isEmpty();
-}
-
-bool ScriptManager::Entry::operator==(const Entry &other) const
-{
-	return metaObject == other.metaObject && filePath == other.filePath &&
-		caption == other.caption;
-}
-
-ScriptManager::Entry &ScriptManager::Entry::operator=(const Entry &other)
-{
-	metaObject = other.metaObject;
-	filePath = other.filePath;
-	caption = other.caption;
-
-	return *this;
 }
 }

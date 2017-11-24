@@ -22,63 +22,57 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#pragma once
-
 #include "ScriptCommand.h"
-
-#include <vector>
 
 namespace Banana
 {
-class ScriptRunner;
+ScriptCommand::ScriptCommand() {}
 
-class ScriptManager : public QObject
+ScriptCommand::ScriptCommand(const MetaObjects &metaObjects,
+	const QString &filePath, const QString &caption, const QKeySequence &keySeq)
+	: metaObjects(metaObjects)
+	, filePath(filePath)
+	, caption(caption)
+	, keySeq(keySeq)
 {
-	Q_OBJECT
-
-public:
-	using MetaObjects = ScriptCommand::MetaObjects;
-	using Entry = ScriptCommand;
-
-	using Entries = std::vector<Entry>;
-
-	explicit ScriptManager(QObject *parent = nullptr);
-
-	static inline const MetaObjects &metaObjects();
-	static void registerMetaObject(const QMetaObject *metaObject);
-
-	Q_INVOKABLE void addScriptCommand(const MetaObjects &metaObjects,
-		const QString &filePath, const QString &caption,
-		const QKeySequence &keySeq);
-	Q_INVOKABLE void clear();
-
-	inline const Entries &scriptEntries() const;
-	void setScriptEntries(const Entries &entries);
-
-	bool hasActionsFor(const QObjectList &targets);
-
-	static QString scriptedActionsCaption();
-	static QString scriptedActionCaption();
-
-signals:
-	void changed();
-
-private:
-	static MetaObjects &metaObjectsMutable();
-
-private:
-	Entries mEntries;
-};
-
-const ScriptManager::MetaObjects &ScriptManager::metaObjects()
-{
-	return metaObjectsMutable();
 }
 
-const ScriptManager::Entries &ScriptManager::scriptEntries() const
+bool ScriptCommand::isValid() const
 {
-	return mEntries;
-}
+	return not caption.isEmpty() && not filePath.isEmpty();
 }
 
-Q_DECLARE_METATYPE(Banana::ScriptManager *)
+bool ScriptCommand::supportsTargets(const QObjectList &targets) const
+{
+	if (metaObjects.empty() || not isValid())
+		return false;
+
+	for (auto target : targets)
+	{
+		for (auto metaObject : metaObjects)
+		{
+			Q_ASSERT(nullptr != metaObject);
+			if (metaObject->cast(target))
+				return true;
+		}
+	}
+
+	return false;
+}
+
+bool ScriptCommand::operator==(const ScriptCommand &other) const
+{
+	return metaObjects == other.metaObjects && filePath == other.filePath &&
+		caption == other.caption && keySeq == other.keySeq;
+}
+
+ScriptCommand &ScriptCommand::operator=(const ScriptCommand &other)
+{
+	metaObjects = other.metaObjects;
+	filePath = other.filePath;
+	caption = other.caption;
+	keySeq = other.keySeq;
+
+	return *this;
+}
+}

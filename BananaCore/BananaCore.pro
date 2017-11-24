@@ -48,7 +48,8 @@ SOURCES += \
     FileNameCollection.cpp \
     NameEnumerator.cpp \
     ScriptManager.cpp \
-    AbstractScriptRunner.cpp
+    AbstractScriptRunner.cpp \
+    ScriptCommand.cpp
 
 HEADERS += \
     Const.h \
@@ -95,7 +96,8 @@ HEADERS += \
     AbstractScriptRunner.h \
     IAbortDelegate.h \
     IUndoStack.h \
-    IUndoCommand.h
+    IUndoCommand.h \
+    ScriptCommand.h
 
 RESOURCES = BananaCore.qrc
 

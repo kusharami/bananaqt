@@ -25,8 +25,9 @@ SOFTWARE.
 #include "ScriptEntriesWidget.h"
 
 #include "QtnProperty/Core/PropertyQString.h"
-#include "QtnProperty/Core/PropertyEnum.h"
+#include "QtnProperty/Core/PropertyEnumFlags.h"
 #include "QtnProperty/PropertyDelegateAttrs.h"
+#include "QtnProperty/PropertyQKeySequence.h"
 
 #include "BananaCore/ScriptRunner.h"
 #include "BananaCore/Directory.h"
@@ -42,8 +43,14 @@ using namespace Banana;
 
 ScriptEntriesWidget::ScriptEntriesWidget(QWidget *parent)
 	: QtnPropertyWidgetEx(parent)
-	, mObjectTypeEnumInfo(QStringLiteral("ObjectType"), objectTypeEnumItems())
+	, mEnumItems(objectTypeEnumItems())
 {
+	QVector<QtnEnumValueInfo> enumItems;
+	for (const auto &item : mEnumItems)
+	{
+		enumItems.append(item.valueInfo);
+	}
+	mObjectTypeEnumInfo = QtnEnumInfo(QStringLiteral("ObjectType"), enumItems);
 	mFileDelegateInfo.name = qtnSelectEditDelegate();
 	mFileDelegateInfo.attributes[qtnShowRelativePathAttr()] = true;
 	mFileDelegateInfo.attributes[qtnFileModeAttr()] = QFileDialog::ExistingFile;
@@ -60,38 +67,47 @@ void ScriptEntriesWidget::setRootDirectory(const QString &rootDirectory)
 	mFileDelegateInfo.attributes[qtnDefaultDirAttr()] = rootDirectory;
 }
 
-ScriptEntriesWidget::InternalEntry ScriptEntriesWidget::internalEntryFrom(
+ScriptEntriesWidget::Entry ScriptEntriesWidget::entryFrom(
 	QtnPropertySet *set) const
 {
-	InternalEntry entry;
+	Entry entry;
 	for (auto p : set->childProperties())
 	{
 		switch (p->id())
 		{
-			case TYPE_PROPERTY_ID:
+			case TYPES_PROPERTY_ID:
 			{
-				auto aEnum = dynamic_cast<QtnPropertyEnum *>(p);
-				Q_ASSERT(nullptr != aEnum);
+				auto typesProp = dynamic_cast<QtnPropertyEnumFlags *>(p);
+				Q_ASSERT(nullptr != typesProp);
 
-				entry.objectType = aEnum->value();
+				entry.metaObjects = metaObjectsFromFlags(typesProp->value());
 				break;
 			}
 
 			case FILE_PATH_PROPERTY_ID:
 			{
-				auto str = dynamic_cast<QtnPropertyQString *>(p);
-				Q_ASSERT(nullptr != str);
+				auto filePathProp = dynamic_cast<QtnPropertyQString *>(p);
+				Q_ASSERT(nullptr != filePathProp);
 
-				entry.filePath = str->value();
+				entry.filePath = filePathProp->value();
 				break;
 			}
 
 			case CAPTION_PROPERTY_ID:
 			{
-				auto str = dynamic_cast<QtnPropertyQString *>(p);
-				Q_ASSERT(nullptr != str);
+				auto captionProp = dynamic_cast<QtnPropertyQString *>(p);
+				Q_ASSERT(nullptr != captionProp);
 
-				entry.caption = str->value();
+				entry.caption = captionProp->value();
+				break;
+			}
+
+			case KEYSEQ_PROPERTY_ID:
+			{
+				auto keySeqProp = dynamic_cast<QtnPropertyQKeySequence *>(p);
+				Q_ASSERT(nullptr != keySeqProp);
+
+				entry.keySeq = keySeqProp->value();
 				break;
 			}
 
@@ -101,12 +117,6 @@ ScriptEntriesWidget::InternalEntry ScriptEntriesWidget::internalEntryFrom(
 	}
 
 	return entry;
-}
-
-ScriptEntriesWidget::Entry ScriptEntriesWidget::entryFrom(
-	QtnPropertySet *set) const
-{
-	return internalEntryFrom(set).toEntry();
 }
 
 ScriptEntriesWidget::Entries ScriptEntriesWidget::entries() const
@@ -144,7 +154,7 @@ void ScriptEntriesWidget::setEntries(const Entries &entries)
 	setPropertySet(set);
 }
 
-void ScriptEntriesWidget::addEntry(const ScriptEntriesWidget::Entry &entry)
+void ScriptEntriesWidget::addEntry(const Entry &entry)
 {
 	auto set = propertySet();
 
@@ -186,7 +196,12 @@ QtnPropertySet *ScriptEntriesWidget::getActiveEntryProperty() const
 	}
 
 	auto result = dynamic_cast<QtnPropertySet *>(active->parent());
-	Q_ASSERT(result != nullptr);
+	if (nullptr == result)
+	{
+		result = dynamic_cast<QtnPropertySet *>(
+			active->getMasterProperty()->parent());
+	}
+	Q_ASSERT(nullptr != result);
 	Q_ASSERT(result->id() == ENTRY_PROPERTY_ID);
 
 	return result;
@@ -249,20 +264,25 @@ QMimeData *ScriptEntriesWidget::getPropertyDataForAction(
 			{
 				auto mime = new QMimeData;
 
-				auto internal = internalEntryFrom(set);
+				auto entry = entryFrom(set);
 
 				QByteArray bytes;
 				{
 					QDataStream stream(&bytes, QIODevice::WriteOnly);
 					stream.setByteOrder(QDataStream::LittleEndian);
 
-					stream << internal.objectType;
-					stream << internal.caption;
-					stream << internal.filePath;
+					stream << metaObjectsToFlags(entry.metaObjects);
+					stream << entry.caption;
+					stream << entry.filePath;
+					stream << entry.keySeq;
 					stream << property->isExpanded();
+
+					auto types = set->findChildProperty(TYPES_PROPERTY_ID);
+					Q_ASSERT(nullptr != types);
+					stream << types->isExpanded();
 				}
 
-				mime->setText(internal.caption);
+				mime->setText(entry.caption);
 				mime->setData(kScriptEntryMimeType, bytes);
 				return mime;
 			}
@@ -280,16 +300,21 @@ bool ScriptEntriesWidget::applyPropertyData(const QMimeData *data,
 {
 	if (data->hasFormat(kScriptEntryMimeType))
 	{
-		bool expanded = true;
-		InternalEntry internal;
+		bool expanded;
+		bool typesExpanded;
+		Entry entry;
 		{
 			QDataStream stream(data->data(kScriptEntryMimeType));
 			stream.setByteOrder(QDataStream::LittleEndian);
 
-			stream >> internal.objectType;
-			stream >> internal.caption;
-			stream >> internal.filePath;
+			qint32 flags;
+			stream >> flags;
+			entry.metaObjects = metaObjectsFromFlags(flags);
+			stream >> entry.caption;
+			stream >> entry.filePath;
+			stream >> entry.keySeq;
 			stream >> expanded;
+			stream >> typesExpanded;
 
 			if (stream.status() != QDataStream::Ok)
 				return false;
@@ -328,9 +353,13 @@ bool ScriptEntriesWidget::applyPropertyData(const QMimeData *data,
 			}
 		}
 
-		auto newProperty = newPropertySetForEntry(internal.toEntry());
-		newProperty->setExpanded(expanded);
-		return set->addChildProperty(newProperty, true, index);
+		auto newSet = newPropertySetForEntry(entry);
+		newSet->setExpanded(expanded);
+
+		auto types = newSet->findChildProperty(TYPES_PROPERTY_ID);
+		Q_ASSERT(nullptr != types);
+		types->setExpanded(typesExpanded);
+		return set->addChildProperty(newSet, true, index);
 	}
 
 	return QtnPropertyWidgetEx::applyPropertyData(data, destination, position);
@@ -353,38 +382,70 @@ ScriptEntriesWidget::EnumItems ScriptEntriesWidget::objectTypeEnumItems()
 		auto displayTypeName =
 			QCoreApplication::translate("ClassName", metaObject->className());
 
-		items.append(QtnEnumValueInfo(
-			QMetaType::type(QByteArray(metaObject->className()) + "*"),
-			displayTypeName));
+		items.push_back({ QtnEnumValueInfo(0, displayTypeName), metaObject });
 	}
 
 	std::sort(
-		items.begin(), items.end(), &ScriptEntriesWidget::objectTypeLessThan);
+		items.begin(), items.end(), &ScriptEntriesWidget::enumItemLessThan);
+
+	for (size_t i = 0, count = items.size(); i < count; i++)
+	{
+		Q_ASSERT(i <= 31);
+		items.at(i).valueInfo.setValue(qint32(1 << i));
+	}
 
 	return items;
 }
 
-bool ScriptEntriesWidget::objectTypeLessThan(
-	const QtnEnumValueInfo &a, const QtnEnumValueInfo &b)
+bool ScriptEntriesWidget::enumItemLessThan(const EnumItem &a, const EnumItem &b)
 {
-	return QString::localeAwareCompare(a.name(), b.name()) < 0;
+	return (QString::localeAwareCompare(
+				a.valueInfo.name(), b.valueInfo.name()) < 0);
+}
+
+qint32 ScriptEntriesWidget::metaObjectsToFlags(
+	const ScriptCommand::MetaObjects &metaObjects) const
+{
+	qint32 result = 0;
+	for (auto &item : mEnumItems)
+	{
+		if (metaObjects.count(item.metaObject))
+			result |= item.valueInfo.value();
+	}
+
+	return result;
+}
+
+ScriptCommand::MetaObjects ScriptEntriesWidget::metaObjectsFromFlags(
+	qint32 flags) const
+{
+	ScriptManager::MetaObjects result;
+
+	for (auto &item : mEnumItems)
+	{
+		auto value = item.valueInfo.value();
+		if ((flags & value) == value)
+			result.insert(item.metaObject);
+	}
+
+	return result;
 }
 
 QtnPropertySet *ScriptEntriesWidget::newPropertySetForEntry(
 	const Entry &entry) const
 {
-	auto result = new QtnPropertySet(nullptr);
-	result->setId(ENTRY_PROPERTY_ID);
-	result->setName(entryDisplayCaption(entry.caption));
+	auto newSet = new QtnPropertySet(nullptr);
+	newSet->setId(ENTRY_PROPERTY_ID);
+	newSet->setName(entryDisplayCaption(entry.caption));
 
-	auto type = new QtnPropertyEnum;
-	type->setId(TYPE_PROPERTY_ID);
-	type->setName(tr("Object Type"));
-	type->setEnumInfo(&mObjectTypeEnumInfo);
-	type->setValue(
-		QMetaType::type(QByteArray(entry.metaObject->className()) + "*"));
+	auto types = new QtnPropertyEnumFlags;
+	types->collapse();
+	types->setId(TYPES_PROPERTY_ID);
+	types->setName(tr("Object Types"));
+	types->setEnumInfo(&mObjectTypeEnumInfo);
+	types->setValue(metaObjectsToFlags(entry.metaObjects));
 
-	result->addChildProperty(type);
+	newSet->addChildProperty(types);
 
 	auto filePath = new QtnPropertyQString;
 	filePath->setId(FILE_PATH_PROPERTY_ID);
@@ -392,7 +453,7 @@ QtnPropertySet *ScriptEntriesWidget::newPropertySetForEntry(
 	filePath->setValue(entry.filePath);
 	filePath->setDelegate(mFileDelegateInfo);
 
-	result->addChildProperty(filePath);
+	newSet->addChildProperty(filePath);
 
 	auto caption = new QtnPropertyQString;
 	caption->setId(CAPTION_PROPERTY_ID);
@@ -400,27 +461,23 @@ QtnPropertySet *ScriptEntriesWidget::newPropertySetForEntry(
 	caption->setValue(entry.caption);
 	caption->setDelegate(mCaptionDelegateInfo);
 
-	result->addChildProperty(caption);
+	newSet->addChildProperty(caption);
+
+	auto keySeq = new QtnPropertyQKeySequence;
+	keySeq->setId(KEYSEQ_PROPERTY_ID);
+	keySeq->setName(tr("Shortcut"));
+	keySeq->setValue(entry.keySeq);
+
+	newSet->addChildProperty(keySeq);
 
 	QObject::connect(caption, &QtnProperty::propertyDidChange,
-		[result, caption](QtnPropertyChangeReason reason) //
+		[newSet, caption](QtnPropertyChangeReason reason) //
 		{
 			if (0 != (reason & QtnPropertyChangeReasonValue))
 			{
-				result->setName(entryDisplayCaption(caption->value()));
+				newSet->setName(entryDisplayCaption(caption->value()));
 			}
 		});
 
-	return result;
-}
-
-ScriptEntriesWidget::Entry ScriptEntriesWidget::InternalEntry::toEntry() const
-{
-	Entry entry;
-
-	entry.filePath = filePath;
-	entry.caption = caption;
-	entry.metaObject = QMetaType::metaObjectForType(objectType);
-
-	return entry;
+	return newSet;
 }

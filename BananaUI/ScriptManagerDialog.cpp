@@ -41,15 +41,20 @@ ScriptManagerDialog::ScriptManagerDialog(
 	, mManager(manager)
 	, mPopup(false)
 {
+	Q_ASSERT(nullptr != mManager);
 	ui->setupUi(this);
 
 	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
 		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 
-	auto topDir = manager->owner()->getTopDirectory();
-	if (nullptr != topDir)
+	auto projectFile = dynamic_cast<AbstractProjectFile *>(manager->parent());
+	if (projectFile)
 	{
-		ui->entriesWidget->setRootDirectory(topDir->getFilePath());
+		auto topDir = projectFile->getTopDirectory();
+		if (nullptr != topDir)
+		{
+			ui->entriesWidget->setRootDirectory(topDir->getFilePath());
+		}
 	}
 
 	ui->entriesWidget->setEntries(manager->scriptEntries());
@@ -74,6 +79,9 @@ ScriptManagerDialog::ScriptManagerDialog(
 
 ScriptManagerDialog::~ScriptManagerDialog()
 {
+	QObject::disconnect(ui->entriesWidget->propertyView(),
+		&QtnPropertyView::activePropertyChanged, this,
+		&ScriptManagerDialog::updateActions);
 	delete ui;
 }
 

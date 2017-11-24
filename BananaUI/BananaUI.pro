@@ -62,18 +62,14 @@ HEADERS += \
     QtnPropertyScriptManager.h \
     ScriptManagerDialog.h \
     ScriptEntriesWidget.h \
-    FileScriptMenuBuilder.h \
-    AbstractScriptMenuBuilder.h \
-    TreeItemsScriptMenuBuilder.h \
-    ProjectTreeScriptMenuBuilder.h \
     AbstractObjectUndoCommand.h \
     ChangeValueCommand.h \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
     UndoStack.h \
-    IScriptRunnerDialogInitializer.h \
     SelectionCacheManager.h \
-    ISelectionDelegate.h
+    ISelectionDelegate.h \
+    ScriptedActionManager.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -104,13 +100,10 @@ SOURCES += \
     QtnPropertyScriptManager.cpp \
     ScriptManagerDialog.cpp \
     ScriptEntriesWidget.cpp \
-    FileScriptMenuBuilder.cpp \
-    AbstractScriptMenuBuilder.cpp \
-    TreeItemsScriptMenuBuilder.cpp \
-    ProjectTreeScriptMenuBuilder.cpp \
     AbstractObjectUndoCommand.cpp \
     ChangeValueCommand.cpp \
     ChangeContentsCommand.cpp \
     ChildActionCommand.cpp \
     UndoStack.cpp \
-    SelectionCacheManager.cpp
+    SelectionCacheManager.cpp \
+    ScriptedActionManager.cpp

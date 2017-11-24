@@ -657,6 +657,11 @@ void Object::setModified(bool value)
 	}
 }
 
+void Object::modify()
+{
+	setModified(true);
+}
+
 void Object::modifyObject(
 	QObject *object, bool modified, bool signalize, bool children)
 {

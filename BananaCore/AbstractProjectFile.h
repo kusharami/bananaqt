@@ -80,6 +80,7 @@ protected:
 	static const QString USER_PATHS_KEY;
 	static const QString SCRIPTS_KEY;
 	static const QString CAPTION_KEY;
+	static const QString SHORTCUT_KEY;
 	static const QString OBJECT_TYPE_KEY;
 
 public:

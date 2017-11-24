@@ -113,7 +113,7 @@ public:
 	QString getFilePathShort(Directory *topDirectory = nullptr) const;
 	Directory *getSearchedDirectory(Directory *topDirectory = nullptr) const;
 
-	void tryCloseAndDelete();
+	void tryClose();
 
 signals:
 	void flagsChanged();

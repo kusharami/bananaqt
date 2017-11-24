@@ -24,61 +24,36 @@ SOFTWARE.
 
 #pragma once
 
-#include "ScriptCommand.h"
+#include <QObject>
+#include <QKeySequence>
 
-#include <vector>
+#include <unordered_set>
 
 namespace Banana
 {
-class ScriptRunner;
-
-class ScriptManager : public QObject
+struct ScriptCommand
 {
-	Q_OBJECT
+	using MetaObjects = std::unordered_set<const QMetaObject *>;
 
-public:
-	using MetaObjects = ScriptCommand::MetaObjects;
-	using Entry = ScriptCommand;
+	MetaObjects metaObjects;
+	QString filePath;
+	QString caption;
+	QKeySequence keySeq;
 
-	using Entries = std::vector<Entry>;
+	ScriptCommand();
+	ScriptCommand(const MetaObjects &metaObjects, const QString &filePath,
+		const QString &caption, const QKeySequence &keySeq);
+	bool isValid() const;
 
-	explicit ScriptManager(QObject *parent = nullptr);
+	bool supportsTargets(const QObjectList &targets) const;
 
-	static inline const MetaObjects &metaObjects();
-	static void registerMetaObject(const QMetaObject *metaObject);
-
-	Q_INVOKABLE void addScriptCommand(const MetaObjects &metaObjects,
-		const QString &filePath, const QString &caption,
-		const QKeySequence &keySeq);
-	Q_INVOKABLE void clear();
-
-	inline const Entries &scriptEntries() const;
-	void setScriptEntries(const Entries &entries);
-
-	bool hasActionsFor(const QObjectList &targets);
-
-	static QString scriptedActionsCaption();
-	static QString scriptedActionCaption();
-
-signals:
-	void changed();
-
-private:
-	static MetaObjects &metaObjectsMutable();
-
-private:
-	Entries mEntries;
+	bool operator==(const ScriptCommand &other) const;
+	inline bool operator!=(const ScriptCommand &other) const;
+	ScriptCommand &operator=(const ScriptCommand &other);
 };
 
-const ScriptManager::MetaObjects &ScriptManager::metaObjects()
+bool ScriptCommand::operator!=(const ScriptCommand &other) const
 {
-	return metaObjectsMutable();
-}
-
-const ScriptManager::Entries &ScriptManager::scriptEntries() const
-{
-	return mEntries;
+	return not operator==(other);
 }
 }
-
-Q_DECLARE_METATYPE(Banana::ScriptManager *)

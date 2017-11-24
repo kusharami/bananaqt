@@ -4,32 +4,32 @@
 <context>
     <name>Banana::AbstractProjectFile</name>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="139"/>
+        <location filename="../AbstractProjectFile.cpp" line="141"/>
         <source>mHideIgnoredFiles</source>
         <translation>Hide ignored files</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="141"/>
+        <location filename="../AbstractProjectFile.cpp" line="143"/>
         <source>mIgnoredFilesPattern</source>
         <translation>Ignored files pattern</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="143"/>
+        <location filename="../AbstractProjectFile.cpp" line="145"/>
         <source>mSearchPaths</source>
         <translation>Search paths</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="144"/>
+        <location filename="../AbstractProjectFile.cpp" line="146"/>
         <source>mScriptManager</source>
         <translation>Scripted Actions</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="321"/>
+        <location filename="../AbstractProjectFile.cpp" line="325"/>
         <source>Select directory for &apos;%1&apos;</source>
         <translation>Select directory for &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="333"/>
+        <location filename="../AbstractProjectFile.cpp" line="337"/>
         <source>Select file for &apos;%1&apos;</source>
         <translation>Select file for &quot;%1&quot;</translation>
     </message>
@@ -134,12 +134,12 @@
 <context>
     <name>Banana::ScriptManager</name>
     <message>
-        <location filename="../ScriptManager.cpp" line="96"/>
+        <location filename="../ScriptManager.cpp" line="85"/>
         <source>Scripted Actions</source>
         <translation>Scripted Actions</translation>
     </message>
     <message>
-        <location filename="../ScriptManager.cpp" line="101"/>
+        <location filename="../ScriptManager.cpp" line="90"/>
         <source>Scripted Action</source>
         <translation>Scripted Action</translation>
     </message>
@@ -243,7 +243,7 @@
         <translation type="vanished">Project</translation>
     </message>
     <message>
-        <location filename="../AbstractProjectFile.cpp" line="138"/>
+        <location filename="../AbstractProjectFile.cpp" line="140"/>
         <source>Banana::AbstractProjectFile</source>
         <translation>Project</translation>
     </message>
@@ -261,6 +261,11 @@
         <location filename="../Object.cpp" line="56"/>
         <source>Banana::Object</source>
         <translation>Object</translation>
+    </message>
+    <message>
+        <location filename="../AbstractFile.cpp" line="49"/>
+        <source>Banana::AbstractFile</source>
+        <translation>Any File</translation>
     </message>
 </context>
 <context>

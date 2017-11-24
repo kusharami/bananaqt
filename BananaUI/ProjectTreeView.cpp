@@ -136,6 +136,48 @@ void ProjectTreeView::select(const QString &filePath, bool expand)
 	}
 }
 
+QObjectList ProjectTreeView::getSelectedItems() const
+{
+	QObjectList result;
+	auto projectDir = projectDirModel->getProjectDirectory();
+	if (projectDir == nullptr)
+		return result;
+
+	auto selectedFiles = getSelectedFilesList(false);
+	if (selectedFiles.isEmpty())
+	{
+		result.append(projectDir);
+	} else
+	{
+		for (const auto &filePath : selectedFiles)
+		{
+			auto file = projectDir->addExistingFile(filePath, false);
+			if (file)
+			{
+				result.append(file);
+
+			} else
+			{
+				auto dir = projectDir->findDirectory(filePath);
+				if (nullptr == dir)
+					dir = projectDir->addDirectory(filePath, true, false);
+				if (dir)
+					result.append(dir);
+			}
+		}
+	}
+
+	return result;
+}
+
+void ProjectTreeView::setSelectedItems(const QObjectList &items)
+{
+	clearSelection();
+
+	if (not items.isEmpty())
+		select(dynamic_cast<AbstractFileSystemObject *>(items.at(0)), false);
+}
+
 QModelIndexList ProjectTreeView::getSelectedFilesIndexList() const
 {
 	auto sel_model = selectionModel();
