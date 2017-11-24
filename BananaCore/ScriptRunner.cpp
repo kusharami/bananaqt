@@ -294,11 +294,11 @@ static QScriptValue loadFileTree(QScriptContext *context, QScriptEngine *engine)
 
 		if (result.isArray())
 		{
-			int len = result.property("length").toInt32();
+			int length = result.property(QSTRKEY(length)).toInt32();
 
 			QStringList lst;
 
-			for (int i = 0; i < len; i++)
+			for (int i = 0; i < length; i++)
 			{
 				lst.push_back(result.property(i).toString());
 			}
@@ -306,11 +306,11 @@ static QScriptValue loadFileTree(QScriptContext *context, QScriptEngine *engine)
 			lst = Utils::ListDirectoryContents(
 				context->argument(0).toString(), lst);
 
-			len = lst.size();
+			length = lst.size();
 
-			result = engine->newArray(len);
+			result = engine->newArray(length);
 
-			for (int i = 0; i < len; i++)
+			for (int i = 0; i < length; i++)
 			{
 				result.setProperty(i, lst.at(i));
 			}
