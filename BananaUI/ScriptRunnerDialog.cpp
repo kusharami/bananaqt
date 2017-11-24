@@ -144,6 +144,35 @@ static QScriptValue requestExistingFilePath(
 			FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks));
 }
 
+static QScriptValue requestExistingFilePaths(
+	QScriptContext *context, QScriptEngine *engine)
+{
+	QScriptValue result;
+	QString title;
+	QString dir;
+	QString filters;
+	if (not resolveTitleDirFilters(context, result, title, dir, filters))
+		return result;
+
+	ScriptSubDialogHandler dialogHandler(context);
+
+	if (dir.isEmpty())
+		dir = dialogHandler.defaultDir();
+
+	auto fileNames = QFileDialog::getOpenFileNames(nullptr, title, dir, filters,
+		nullptr, FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
+
+	auto count = quint32(fileNames.length());
+	result = engine->newArray(count);
+
+	for (quint32 i = 0; i < count; i++)
+	{
+		result.setProperty(i, QScriptValue(engine, fileNames.at(i)));
+	}
+
+	return result;
+}
+
 static QScriptValue requestNewFilePath(
 	QScriptContext *context, QScriptEngine *engine)
 {
@@ -267,6 +296,8 @@ void ScriptRunnerDialog::initializeEngine(QScriptEngine *engine)
 
 	system.setProperty(QSTRKEY(requestExistingFilePath),
 		engine->newFunction(requestExistingFilePath, thiz));
+	system.setProperty(QSTRKEY(requestExistingFilePaths),
+		engine->newFunction(requestExistingFilePaths, thiz));
 	system.setProperty(QSTRKEY(requestNewFilePath),
 		engine->newFunction(requestNewFilePath, thiz));
 	system.setProperty(QSTRKEY(requestDirectoryPath),
