@@ -372,7 +372,7 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Execute Script Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="271"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="272"/>
         <source>Do you want to abort script execution?</source>
         <translation>Do you want to abort script execution?</translation>
     </message>
@@ -387,7 +387,7 @@ If no, the enumerated name will be given.</translation>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="367"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="368"/>
         <source>Not responding more than 5 seconds.</source>
         <translation>Not responding more than 5 seconds.</translation>
     </message>
@@ -2455,7 +2455,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="371"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
         <source>(Untitled Action)</source>
         <translation>(Untitled Action)</translation>
     </message>
@@ -2464,22 +2464,22 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Object Type</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="444"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
         <source>Object Types</source>
         <translation>Object Types</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="452"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
         <source>Script File Path</source>
         <translation>Script File Path</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="460"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
         <source>Caption</source>
         <translation>Caption</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="468"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
         <source>Shortcut</source>
         <translation>Shortcut</translation>
     </message>

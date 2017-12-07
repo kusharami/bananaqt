@@ -24,61 +24,41 @@ SOFTWARE.
 
 #pragma once
 
-#include "ScriptCommand.h"
+#include "ScriptQFile.h"
 
-#include <vector>
+#include <QTemporaryFile>
+
+Q_DECLARE_METATYPE(QTemporaryFile *)
 
 namespace Banana
 {
-class ScriptRunner;
-
-class ScriptManager : public QObject
+class ScriptQTemporaryFile final : public ScriptQFile
 {
 	Q_OBJECT
 
+	Q_PROPERTY(bool autoRemove READ autoRemove WRITE setAutoRemove)
+	Q_PROPERTY(QString fileTemplate READ fileTemplate WRITE setFileTemplate)
+
 public:
-	using MetaObjects = ScriptCommand::MetaObjects;
-	using Entry = ScriptCommand;
+	explicit ScriptQTemporaryFile(QObject *parent);
+	static void Register(QScriptEngine *engine);
 
-	using Entries = std::vector<Entry>;
+	bool autoRemove() const;
+	void setAutoRemove(bool b);
 
-	explicit ScriptManager(QObject *parent = nullptr);
+	QString fileTemplate() const;
+	void setFileTemplate(const QString &name);
 
-	static inline const MetaObjects &metaObjects();
-	static void registerMetaObject(const QMetaObject *metaObject);
+	virtual QString toString() const override;
+	virtual void close() override;
 
-	Q_INVOKABLE void addScriptCommand(const MetaObjects &metaObjects,
-		const QString &filePath, const QString &caption,
-		const QKeySequence &keySeq);
-	Q_INVOKABLE void clear();
-
-	inline const Entries &scriptEntries() const;
-	void setScriptEntries(const Entries &entries);
-
-	bool hasActionsFor(const QObjectList &targets);
-
-	static QString scriptedActionsCaption();
-	static QString scriptedActionCaption();
-
-signals:
-	void changed();
+public slots:
+	bool open();
 
 private:
-	static MetaObjects &metaObjectsMutable();
+	static QScriptValue Construct(
+		QScriptContext *context, QScriptEngine *engine);
 
-private:
-	Entries mEntries;
+	QTemporaryFile *thisFile() const;
 };
-
-const ScriptManager::MetaObjects &ScriptManager::metaObjects()
-{
-	return metaObjectsMutable();
 }
-
-const ScriptManager::Entries &ScriptManager::scriptEntries() const
-{
-	return mEntries;
-}
-}
-
-Q_DECLARE_METATYPE(Banana::ScriptManager *)

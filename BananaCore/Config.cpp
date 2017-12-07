@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include "Core.h"
 #include "SearchPaths.h"
-#include "ScriptManager.h"
 #include "BinaryFile.h"
 #include "Const.h"
 #include "Directory.h"
@@ -57,11 +56,6 @@ void Register()
 	qRegisterMetaType<Directory *>();
 	qRegisterMetaType<BinaryFile *>();
 	qRegisterMetaType<SearchPaths *>();
-	qRegisterMetaType<ScriptManager *>();
-
-	ScriptManager::registerMetaObject(&AbstractFile::staticMetaObject);
-	ScriptManager::registerMetaObject(&Object::staticMetaObject);
-	ScriptManager::registerMetaObject(&Directory::staticMetaObject);
 
 	Directory::registerFileType(pNoExtension, &BinaryFile::staticMetaObject,
 		&BinaryData::staticMetaObject);

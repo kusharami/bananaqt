@@ -372,7 +372,7 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Ошибка выполнения</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="271"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="272"/>
         <source>Do you want to abort script execution?</source>
         <translation>Хотите прервать выполнения скрипта?</translation>
     </message>
@@ -387,7 +387,7 @@ If no, the enumerated name will be given.</source>
         <translation>Выберите файлы</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="367"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="368"/>
         <source>Not responding more than 5 seconds.</source>
         <translation>Не отвечает более 5 секунд.</translation>
     </message>
@@ -2447,7 +2447,7 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="371"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
         <source>(Untitled Action)</source>
         <translation>(Безымянная команда)</translation>
     </message>
@@ -2456,22 +2456,22 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Тип объекта</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="444"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
         <source>Object Types</source>
         <translation>Типы объектов</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="452"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
         <source>Script File Path</source>
         <translation>Скрипт-файл</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="460"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
         <source>Caption</source>
         <translation>Имя команды</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="468"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
         <source>Shortcut</source>
         <translation>Сочетание клавиш</translation>
     </message>

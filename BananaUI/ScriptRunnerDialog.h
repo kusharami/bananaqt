@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "BananaCore/IScriptRunner.h"
+#include "BananaScript/IScriptRunner.h"
 
 #include <QDialog>
 
@@ -53,10 +53,13 @@ class ScriptRunnerDialog
 
 	QString lastFilePath;
 	ProjectGroup *group;
-	QTimer *timer;
 	ScriptRunner *runner;
 	IAbortDelegate *abortDelegate;
-	unsigned execCount;
+	qint64 lastRespondTime;
+	int timerId;
+	bool running;
+	bool checkRespond;
+	bool waiting;
 	bool stopShow;
 
 public:
@@ -76,10 +79,9 @@ public:
 protected:
 	virtual void initializeEngine(QScriptEngine *engine) override;
 	virtual void closeEvent(QCloseEvent *event) override;
+	virtual void timerEvent(QTimerEvent *event) override;
 
 private slots:
-	void timeout();
-
 	void on_buttonBrowse_clicked();
 
 	void on_btnInsertFilePath_clicked();
@@ -100,11 +102,13 @@ signals:
 private:
 	friend struct ScriptSubDialogHandler;
 
-	void startTimer();
-	void endTimer();
+	static QString getRunText();
+	static QString getAbortText();
+
 	void showMe();
-	static void beginWait();
-	static void endWait();
+	static void setWaitCursor();
+	void beginWait();
+	void endWait();
 	void showProgressBar();
 	void hideProgressBar();
 	void scriptRuntimeError(const QString &message);

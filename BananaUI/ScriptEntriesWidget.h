@@ -27,7 +27,7 @@ SOFTWARE.
 #include "QtnProperty/PropertyWidgetEx.h"
 #include "QtnProperty/Enum.h"
 
-#include "BananaCore/ScriptManager.h"
+#include "BananaScript/ScriptManager.h"
 
 #include <QKeySequence>
 

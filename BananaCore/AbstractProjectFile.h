@@ -34,7 +34,6 @@ SOFTWARE.
 
 namespace Banana
 {
-class ScriptManager;
 class SearchPaths;
 class Directory;
 class OpenedFiles;
@@ -46,8 +45,6 @@ class AbstractProjectFile : public VariantMapFile
 
 	Q_PROPERTY(Banana::SearchPaths *mSearchPaths READ getSearchPaths RESET
 			resetSearchPaths DESIGNABLE true STORED false)
-	Q_PROPERTY(Banana::ScriptManager *mScriptManager READ getScriptManager RESET
-			resetScriptManager DESIGNABLE true STORED false)
 
 	struct FileInfo;
 
@@ -62,7 +59,6 @@ class AbstractProjectFile : public VariantMapFile
 
 	OpenedFiles *openedFiles;
 	SearchPaths *searchPaths;
-	ScriptManager *scriptManager;
 	QJsonObject userPaths;
 
 protected:
@@ -78,10 +74,6 @@ protected:
 	static const QString TYPE_FILE_LINK;
 	static const QString USER_SPECIFIC_KEY;
 	static const QString USER_PATHS_KEY;
-	static const QString SCRIPTS_KEY;
-	static const QString CAPTION_KEY;
-	static const QString SHORTCUT_KEY;
-	static const QString OBJECT_TYPE_KEY;
 
 public:
 	CUSTOM_PROPERTY(bool, HideIgnoredFiles)
@@ -101,9 +93,6 @@ public:
 	SearchPaths *getSearchPaths();
 	Q_INVOKABLE void resetSearchPaths();
 
-	ScriptManager *getScriptManager();
-	Q_INVOKABLE void resetScriptManager();
-
 	QString getAbsoluteFilePathFor(const QString &filepath) const;
 
 	QString getUserSettingsPath() const;
@@ -115,6 +104,7 @@ signals:
 	void changedIgnoredFilesPattern();
 
 protected:
+	virtual bool doLoad(QIODevice *device) override;
 	void loadUserSettings();
 	void saveUserSettings();
 	bool fetchUserSpecificPath(
@@ -141,9 +131,6 @@ private:
 
 	bool loadSearchPathEntries(const QVariantMap &input);
 	void saveSearchPathEntries(QVariantMap &output);
-
-	bool loadScriptEntries(const QVariantMap &input);
-	void saveScriptEntries(QVariantMap &output);
 };
 }
 

@@ -22,77 +22,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#include "ScriptManager.h"
+#pragma once
 
-#include "AbstractProjectFile.h"
-
-#include <QFile>
+#include "BananaCore/AbstractProjectFile.h"
 
 namespace Banana
 {
-ScriptManager::ScriptManager(QObject *parent)
-	: QObject(parent)
+class ScriptManager;
+class ScriptableProjectFile : public AbstractProjectFile
 {
-}
+	Q_OBJECT
 
-void ScriptManager::registerMetaObject(const QMetaObject *metaObject)
+	Q_PROPERTY(Banana::ScriptManager *mScriptManager READ getScriptManager RESET
+			resetScriptManager DESIGNABLE true STORED false)
+
+	ScriptManager *mScriptManager;
+
+protected:
+	static const QString SCRIPTS_KEY;
+	static const QString CAPTION_KEY;
+	static const QString SHORTCUT_KEY;
+	static const QString OBJECT_TYPE_KEY;
+
+public:
+	explicit ScriptableProjectFile(
+		const QString &name, const QString &extension);
+	virtual ~ScriptableProjectFile() override;
+
+	inline ScriptManager *getScriptManager() const;
+	Q_INVOKABLE void resetScriptManager();
+
+protected:
+	virtual void saveData(QVariantMap &output) override;
+	virtual bool loadData(const QVariantMap &input) override;
+
+private:
+	bool loadScriptEntries(const QVariantMap &input);
+	void saveScriptEntries(QVariantMap &output);
+};
+
+ScriptManager *ScriptableProjectFile::getScriptManager() const
 {
-	if (metaObject)
-	{
-		metaObjectsMutable().insert(metaObject);
-	}
-}
-
-void ScriptManager::addScriptCommand(const MetaObjects &metaObjects,
-	const QString &filePath, const QString &caption, const QKeySequence &keySeq)
-{
-	mEntries.emplace_back(metaObjects, filePath, caption, keySeq);
-	emit changed();
-}
-
-void ScriptManager::clear()
-{
-	if (not mEntries.empty())
-	{
-		mEntries.clear();
-
-		emit changed();
-	}
-}
-
-void ScriptManager::setScriptEntries(const Entries &entries)
-{
-	if (entries != mEntries)
-	{
-		mEntries = entries;
-
-		emit changed();
-	}
-}
-
-bool ScriptManager::hasActionsFor(const QObjectList &targets)
-{
-	for (const Entry &entry : mEntries)
-	{
-		if (entry.supportsTargets(targets))
-			return true;
-	}
-	return false;
-}
-
-QString ScriptManager::scriptedActionsCaption()
-{
-	return tr("Scripted Actions");
-}
-
-QString ScriptManager::scriptedActionCaption()
-{
-	return tr("Scripted Action");
-}
-
-ScriptManager::MetaObjects &ScriptManager::metaObjectsMutable()
-{
-	static MetaObjects META_OBJECTS;
-	return META_OBJECTS;
+	return mScriptManager;
 }
 }

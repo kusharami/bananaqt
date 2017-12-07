@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,42 @@ SOFTWARE.
 
 #pragma once
 
-#include <QScriptValue>
+#include "ScriptQFileDevice.h"
+
+#include <QSaveFile>
+
+Q_DECLARE_METATYPE(QSaveFile *)
 
 namespace Banana
 {
-namespace Utils
+class ScriptQSaveFile final : public ScriptQFileDevice
 {
-QScriptValue VariantToScriptValue(
-	const QVariant &variant, QScriptEngine *engine);
-}
+	Q_OBJECT
+
+	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
+	Q_PROPERTY(bool directWriteFallback READ directWriteFallback WRITE
+			setDirectWriteFallback)
+
+public:
+	explicit ScriptQSaveFile(QObject *parent);
+	static void Register(QScriptEngine *engine);
+
+	void setFilePath(const QString &value);
+
+	void setDirectWriteFallback(bool enabled);
+	bool directWriteFallback() const;
+
+	virtual QString toString() const override;
+	virtual void close() override;
+
+public slots:
+	bool commit();
+	void cancelWriting();
+
+private:
+	static QScriptValue Construct(
+		QScriptContext *context, QScriptEngine *engine);
+
+	QSaveFile *thisFile() const;
+};
 }

@@ -1,0 +1,116 @@
+﻿function testQFileInfo()
+{
+	assert(QFileInfo.prototype.filePath === "");
+	assert(QFileInfo.prototype.absoluteFilePath === "");
+	assert(QFileInfo.prototype.canonicalFilePath === "");
+	assert(QFileInfo.prototype.fileName === "");
+	assert(QFileInfo.prototype.baseName === "");
+	assert(QFileInfo.prototype.completeBaseName === "");
+	assert(QFileInfo.prototype.suffix === "");
+	assert(QFileInfo.prototype.bundleName === "");
+	assert(QFileInfo.prototype.completeSuffix === "");
+	assert(QFileInfo.prototype.symLinkTarget === "");
+	assert(QFileInfo.prototype.path === "");
+	assert(QFileInfo.prototype.absolutePath === "");
+	assert(QFileInfo.prototype.canonicalPath === "");
+	assert(QFileInfo.prototype.dir.path === ".");
+	assert(QFileInfo.prototype.absoluteDir.path === ".");
+	assert(QFileInfo.prototype.readable === false);
+	assert(QFileInfo.prototype.writable === false);
+	assert(QFileInfo.prototype.executable === false);
+	assert(QFileInfo.prototype.hidden === false);
+	assert(QFileInfo.prototype.relative);
+	assert(QFileInfo.prototype.absolute === false);
+	assert(QFileInfo.prototype.isNativePath === false);
+	assert(QFileInfo.prototype.isFile === false);
+	assert(QFileInfo.prototype.isDir === false);
+	assert(QFileInfo.prototype.isSymLink === false);
+	assert(QFileInfo.prototype.isRoot === false);
+	assert(QFileInfo.prototype.isBundle === false);
+	assert(QFileInfo.prototype.caching === false);
+	assert(QFileInfo.prototype.size === -1);
+	assert(QFileInfo.prototype.owner === "");
+	assert(QFileInfo.prototype.ownerId === 0);
+	assert(QFileInfo.prototype.group === "");
+	assert(QFileInfo.prototype.groupId === 0);
+	assert(isNaN(QFileInfo.prototype.created.valueOf()));
+	assert(isNaN(QFileInfo.prototype.lastModified.valueOf()));
+	assert(isNaN(QFileInfo.prototype.lastRead.valueOf()));
+	assert(QFileInfo.prototype.permissions === 0);
+	assert(!QFileInfo.prototype.exists());
+	assert(!QFileInfo.prototype.makeAbsolute());
+	assert(!QFileInfo.prototype.permission(0xFFFFFFFF));
+	assert(QFileInfo.prototype.toString() === "QFileInfo");
+	QFileInfo.prototype.refresh();
+
+	var baseName = "TestQFileInfo";
+	var tempFile = new QTemporaryFile(baseName);
+	tempFile.open();
+	tempFile.write("444");
+	tempFile.flush();
+	var filePath = tempFile.filePath;
+
+	var info = new QFileInfo();
+	assert(info instanceof QFileInfo);
+	assert(!info.exists());
+	assert(!info.isFile);
+	assert(!info.isDir);
+	assert(info.isRoot);
+	assert(!info.isBundle);
+	assert(!info.isSymLink);
+	assert(!info.readable);
+	assert(!info.writable);
+	assert(!info.executable);
+	assert(!info.hidden);
+	assert(info.relative);
+	assert(info.caching);
+	assert(!info.absolute);
+
+	assert(!info.isNativePath);
+	assert(info.toString() === "");
+	info.filePath = filePath;
+	assert(info.exists());
+	assert(info.isFile);
+	assert(info.toString() === filePath);
+	info = new QFileInfo(filePath);
+	assert(info.filePath === filePath);
+	assert(info.absoluteFilePath === info.absoluteDir.filePath(filePath));
+	assert(info.canonicalFilePath === info.absoluteFilePath);
+	assert(info.fileName.indexOf(baseName) === 0);
+	assert(info.baseName === baseName);
+	var compareName = strf("%1.%2", info.completeBaseName, info.suffix);
+	assert(compareName === strf("%1.%2", baseName, info.completeSuffix));
+	assert(compareName === info.fileName);
+	assert(info.path === info.dir.path);
+	assert(info.absolutePath === info.absoluteDir.path);
+	assert(info.canonicalPath === info.absolutePath);
+	assert(info.exists());
+	assert(info.isFile);
+	assert(!info.isDir);
+	assert(!info.isBundle);
+	assert(!info.isRoot);
+	assert(!info.isSymLink);
+	assert(info.readable);
+	assert(info.writable);
+	assert(!info.executable);
+	assert(info.absolute);
+	assert(info.caching);
+	assert(info.size === 3);
+	assert(info.isNativePath);
+	print("Owner %1 (%2)", info.owner, info.ownerId.toString(16));
+	print("Group %1 (%2)", info.group, info.groupId.toString(16));
+
+	print(info.completeSuffix);
+	print(info.created);
+	print(info.lastModified);
+	print(info.lastRead);
+	print(info.permissions);
+
+	tempFile.close();
+
+	assert(info.exists());
+	info.refresh();
+	assert(!info.exists());
+
+	print("QFileInfo OK");
+}

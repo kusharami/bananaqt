@@ -29,7 +29,7 @@ SOFTWARE.
 #include "QtnProperty/Delegates/PropertyDelegateFactory.h"
 #include "QtnProperty/QObjectPropertySet.h"
 
-#include "BananaCore/ScriptManager.h"
+#include "BananaScript/ScriptManager.h"
 
 #include "ScriptManagerDialog.h"
 
