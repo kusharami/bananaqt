@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "ScriptedActionManager.h"
 
-#include "BananaCore/ScriptManager.h"
+#include "BananaScript/ScriptManager.h"
 
 #include <QAction>
 #include <QMenu>

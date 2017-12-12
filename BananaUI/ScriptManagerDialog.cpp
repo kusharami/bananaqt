@@ -47,7 +47,7 @@ ScriptManagerDialog::ScriptManagerDialog(
 	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
 		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 
-	auto projectFile = dynamic_cast<AbstractProjectFile *>(manager->parent());
+	auto projectFile = dynamic_cast<AbstractProjectFile *>(manager->owner());
 	if (projectFile)
 	{
 		auto topDir = projectFile->getTopDirectory();

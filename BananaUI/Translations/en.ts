@@ -354,7 +354,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="388"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="394"/>
         <source>Select Script File</source>
         <translation>Select Script File</translation>
     </message>
@@ -363,7 +363,7 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Script file is not selected.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="404"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="410"/>
         <source>File &apos;%1&apos; is not found.</source>
         <translation>File &quot;%1&quot; is not found.</translation>
     </message>
@@ -372,32 +372,42 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Execute Script Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="271"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="282"/>
         <source>Do you want to abort script execution?</source>
         <translation>Do you want to abort script execution?</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="567"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="586"/>
         <source>Script Runtime Error</source>
         <translation>Script Runtime Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="457"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="639"/>
+        <source>Run</source>
+        <translation>Run</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="644"/>
+        <source>Abort</source>
+        <translation>Abort</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="463"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="367"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="530"/>
         <source>Not responding more than 5 seconds.</source>
         <translation>Not responding more than 5 seconds.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="471"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="477"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="500"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="506"/>
         <source>There is no active project directory.</source>
         <translation>There is no active project directory.</translation>
     </message>
@@ -2455,7 +2465,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="371"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
         <source>(Untitled Action)</source>
         <translation>(Untitled Action)</translation>
     </message>
@@ -2464,22 +2474,22 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Object Type</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="444"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
         <source>Object Types</source>
         <translation>Object Types</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="452"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
         <source>Script File Path</source>
         <translation>Script File Path</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="460"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
         <source>Caption</source>
         <translation>Caption</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="468"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
         <source>Shortcut</source>
         <translation>Shortcut</translation>
     </message>

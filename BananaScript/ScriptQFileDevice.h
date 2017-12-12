@@ -22,77 +22,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 *******************************************************************************/
 
-#include "ScriptManager.h"
+#pragma once
 
-#include "AbstractProjectFile.h"
+#include "ScriptQIODevice.h"
 
-#include <QFile>
+#include <QFileDevice>
+
+Q_DECLARE_METATYPE(QFileDevice *)
+Q_DECLARE_METATYPE(QFileDevice::Permissions)
+Q_DECLARE_METATYPE(QFileDevice::FileError)
 
 namespace Banana
 {
-ScriptManager::ScriptManager(QObject *parent)
-	: QObject(parent)
+class ScriptQFileDevice : public ScriptQIODevice
 {
-}
+	Q_OBJECT
 
-void ScriptManager::registerMetaObject(const QMetaObject *metaObject)
-{
-	if (metaObject)
-	{
-		metaObjectsMutable().insert(metaObject);
-	}
-}
+	Q_PROPERTY(QFileDevice::FileError error READ error)
+	Q_PROPERTY(QFileDevice::Permissions permissions READ permissions WRITE
+			setPermissions)
 
-void ScriptManager::addScriptCommand(const MetaObjects &metaObjects,
-	const QString &filePath, const QString &caption, const QKeySequence &keySeq)
-{
-	mEntries.emplace_back(metaObjects, filePath, caption, keySeq);
-	emit changed();
-}
+	Q_PROPERTY(qint64 size READ size WRITE setSize)
 
-void ScriptManager::clear()
-{
-	if (not mEntries.empty())
-	{
-		mEntries.clear();
+public:
+	static void Register(QScriptEngine *engine);
 
-		emit changed();
-	}
-}
+	explicit ScriptQFileDevice(QObject *parent);
 
-void ScriptManager::setScriptEntries(const Entries &entries)
-{
-	if (entries != mEntries)
-	{
-		mEntries = entries;
+	QFileDevice::FileError error() const;
 
-		emit changed();
-	}
-}
+	QFileDevice::Permissions permissions() const;
+	void setPermissions(QFileDevice::Permissions value);
 
-bool ScriptManager::hasActionsFor(const QObjectList &targets)
-{
-	for (const Entry &entry : mEntries)
-	{
-		if (entry.supportsTargets(targets))
-			return true;
-	}
-	return false;
-}
+	void setSize(qint64 size);
 
-QString ScriptManager::scriptedActionsCaption()
-{
-	return tr("Scripted Actions");
-}
+	QString filePath() const;
 
-QString ScriptManager::scriptedActionCaption()
-{
-	return tr("Scripted Action");
-}
+	virtual QString toString() const override;
 
-ScriptManager::MetaObjects &ScriptManager::metaObjectsMutable()
-{
-	static MetaObjects META_OBJECTS;
-	return META_OBJECTS;
-}
+public slots:
+	bool resize(qint64 newSize);
+	bool flush();
+	void unsetError();
+
+private:
+	static QString className();
+	QFileDevice *thisDevice() const;
+};
 }

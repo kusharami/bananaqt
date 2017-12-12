@@ -29,7 +29,8 @@ SOFTWARE.
 #include "QtnProperty/PropertyDelegateAttrs.h"
 #include "QtnProperty/PropertyQKeySequence.h"
 
-#include "BananaCore/ScriptRunner.h"
+#include "BananaScript/ScriptRunner.h"
+
 #include "BananaCore/Directory.h"
 
 #include <QFileDialog>
@@ -56,7 +57,7 @@ ScriptEntriesWidget::ScriptEntriesWidget(QWidget *parent)
 	mFileDelegateInfo.attributes[qtnFileModeAttr()] = QFileDialog::ExistingFile;
 	mFileDelegateInfo.attributes[qtnInvalidColorAttr()] = QColor(Qt::red);
 	mFileDelegateInfo.attributes[qtnFileNameFilterAttr()] =
-		Directory::getFilterForExtension(Scripting::szScriptExtension);
+		Directory::getFilterForExtension(Script::szScriptExtension);
 
 	mCaptionDelegateInfo.name = qtnLineEditDelegate();
 	mCaptionDelegateInfo.attributes[qtnMultiLineEditAttr()] = false;

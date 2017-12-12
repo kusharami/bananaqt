@@ -342,7 +342,7 @@ void AbstractFile::setUserSpecific(bool yes)
 bool AbstractFile::saveTo(QIODevice *device)
 {
 	QString filepath(getCanonicalFilePath());
-	bool exists = QFile::exists(filepath);
+	bool exists = QFileInfo(filepath).isFile();
 	if (isOpen())
 	{
 		if (!exists || isModified())
@@ -580,8 +580,12 @@ bool AbstractFile::tryChangeFilePath(const QString &newPath)
 	if (loadError)
 		return true;
 
-	if (!QFile::exists(savedPath))
+	QFileInfo fileInfo(savedPath);
+	if (not fileInfo.exists())
 		return true;
+
+	if (not fileInfo.isFile())
+		return false;
 
 	if (QDir().mkpath(QFileInfo(newPath).path()) &&
 		QFile::rename(savedPath, newPath))

@@ -630,7 +630,8 @@ AbstractProjectFile *AbstractProjectDirectory::createProjectFile()
 bool AbstractProjectDirectory::isFileReplaceAllowed(const QString &absolutePath,
 	Answer *rememberAnswer, const QMetaObject **outFileType)
 {
-	if (QFileInfo(absolutePath).isDir())
+	QFileInfo fileInfo(absolutePath);
+	if (fileInfo.exists() && not fileInfo.isFile())
 		return false;
 
 	auto file_type = getFileTypeByExtension(absolutePath);
@@ -677,7 +678,7 @@ bool AbstractProjectDirectory::isFileReplaceAllowed(const QString &absolutePath,
 		}
 	}
 
-	if (foundSameType || QFile::exists(absolutePath))
+	if (foundSameType || fileInfo.exists())
 	{
 		auto delegate = getProjectGroupDelegate();
 		Q_ASSERT(nullptr != delegate);

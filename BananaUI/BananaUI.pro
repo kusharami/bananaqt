@@ -6,17 +6,14 @@ include(../Banana.pri)
 
 QT += core gui widgets script
 
-LIBS += -lBananaCore
+LIBS += -lBananaCore -lBananaScript
 
 TARGET = BananaUI
 TEMPLATE = lib
 CONFIG += staticlib
 
 INCLUDEPATH += $$_PRO_FILE_PWD_/..
-DEPENDPATH += $$_PRO_FILE_PWD_/../BananaCore
-
 INCLUDEPATH += $$_PRO_FILE_PWD_/../QtnProperty
-DEPENDPATH += $$_PRO_FILE_PWD_/../QtnProperty/QtnProperty
 
 RESOURCES = BananaUI.qrc
 

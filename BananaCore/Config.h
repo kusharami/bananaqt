@@ -29,7 +29,7 @@ SOFTWARE.
 #ifdef Q_OS_MAC
 #define FILE_DIALOG_FLAGS QFileDialog::DontUseNativeDialog
 #else
-#define FILE_DIALOG_FLAGS (QFileDialog::Option) 0
+#define FILE_DIALOG_FLAGS QFileDialog::Options()
 #endif
 
 class QLocale;

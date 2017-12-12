@@ -29,9 +29,6 @@ SOFTWARE.
 #include <QJsonValue>
 #include <QFont>
 
-#define CSTRKEY(key) #key
-#define QSTRKEY(key) QStringLiteral(#key)
-
 #ifdef QT_DEBUG
 #include <QDebug>
 #define LOG_WARNING(text) \

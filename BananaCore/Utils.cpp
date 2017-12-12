@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include "Core.h"
 #include "NamingPolicy.h"
-#include "ScriptUtils.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -46,7 +45,6 @@ SOFTWARE.
 #include <QSize>
 #include <QSizeF>
 #include <QTextStream>
-#include <QScriptEngine>
 #include <QMetaEnum>
 #include <QProcess>
 #include <QMimeData>
@@ -557,88 +555,6 @@ bool CheckFilePath(const QString &path)
 	}
 
 	return true;
-}
-
-QScriptValue VariantToScriptValue(
-	const QVariant &variant, QScriptEngine *engine)
-{
-	QScriptValue result;
-
-	switch (variant.type())
-	{
-		case QVariant::Map:
-		{
-			auto vmap = variant.toMap();
-
-			result = engine->newObject();
-
-			for (auto it = vmap.begin(); it != vmap.end(); ++it)
-			{
-				auto &key = it.key();
-				auto &value = it.value();
-
-				result.setProperty(key, VariantToScriptValue(value, engine));
-			}
-			break;
-		}
-
-		case QVariant::List:
-		case QVariant::StringList:
-		{
-			auto vlist = variant.toList();
-
-			int len = vlist.length();
-			result = engine->newArray(len);
-
-			for (int i = 0; i < len; i++)
-			{
-				auto &value = vlist.at(i);
-
-				result.setProperty(i, VariantToScriptValue(value, engine));
-			}
-			break;
-		}
-
-		default:
-		{
-			if (variant.isNull() || !variant.isValid())
-				result = QScriptValue(engine, QScriptValue::NullValue);
-			else
-				switch (variant.type())
-				{
-					case QVariant::Bool:
-						result = QScriptValue(engine, variant.toBool());
-						break;
-
-					case QVariant::Int:
-						result = QScriptValue(engine, variant.toInt());
-						break;
-
-					case QVariant::UInt:
-						result = QScriptValue(engine, variant.toUInt());
-						break;
-
-					case QVariant::LongLong:
-					case QVariant::ULongLong:
-					case QVariant::Double:
-						result = QScriptValue(engine, variant.toDouble());
-						break;
-
-					case QVariant::Char:
-					case QVariant::String:
-						result = QScriptValue(engine, variant.toString());
-						break;
-
-					default:
-						result = engine->newVariant(variant);
-						break;
-				}
-
-			break;
-		}
-	}
-
-	return result;
 }
 
 bool LoadBinaryFromIODevice(QByteArray &output, QIODevice *device)

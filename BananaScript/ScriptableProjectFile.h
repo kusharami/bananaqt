@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016 Alexandra Cherdantseva
+Copyright (c) 2017 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,45 @@ SOFTWARE.
 
 #pragma once
 
-#include <QScriptValue>
+#include "BananaCore/AbstractProjectFile.h"
 
 namespace Banana
 {
-namespace Utils
+class ScriptManager;
+class ScriptableProjectFile : public AbstractProjectFile
 {
-QScriptValue VariantToScriptValue(
-	const QVariant &variant, QScriptEngine *engine);
+	Q_OBJECT
+
+	Q_PROPERTY(Banana::ScriptManager *mScriptManager READ getScriptManager RESET
+			resetScriptManager DESIGNABLE true STORED false)
+
+	ScriptManager *mScriptManager;
+
+protected:
+	static const QString SCRIPTS_KEY;
+	static const QString CAPTION_KEY;
+	static const QString SHORTCUT_KEY;
+	static const QString OBJECT_TYPE_KEY;
+
+public:
+	explicit ScriptableProjectFile(
+		const QString &name, const QString &extension);
+	virtual ~ScriptableProjectFile() override;
+
+	inline ScriptManager *getScriptManager() const;
+	Q_INVOKABLE void resetScriptManager();
+
+protected:
+	virtual void saveData(QVariantMap &output) override;
+	virtual bool loadData(const QVariantMap &input) override;
+
+private:
+	bool loadScriptEntries(const QVariantMap &input);
+	void saveScriptEntries(QVariantMap &output);
+};
+
+ScriptManager *ScriptableProjectFile::getScriptManager() const
+{
+	return mScriptManager;
 }
 }

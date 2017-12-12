@@ -25,7 +25,8 @@ SOFTWARE.
 #pragma once
 
 #include "AbstractScriptRunner.h"
-#include "IAbortDelegate.h"
+
+#include "BananaCore/IAbortDelegate.h"
 
 #include <QString>
 #include <QVariant>
@@ -33,18 +34,17 @@ SOFTWARE.
 #include <QScriptValue>
 
 #include <functional>
+#include <set>
 
 class QWidget;
-
-namespace Scripting
-{
-extern const char szScriptExtension[];
-}
-
 class QScriptEngine;
 
 namespace Banana
 {
+namespace Script
+{
+extern const char szScriptExtension[];
+}
 class ScriptRunner;
 inline void internalEvalScript(
 	ScriptRunner *runner, const QString &filePath, QScriptValue &out);
@@ -79,8 +79,11 @@ protected:
 
 private:
 	bool loadScriptFile(const QString &filePath, QString &dest);
+	void importScript(const QString &filePath);
 
-	bool executeScript(const QString &script, const QString &filePath);
+	bool executeScript(
+		const QString &script, const QString &filePath = QString());
+	void logError(const QScriptValue &error);
 
 	using Evaluate = std::function<QScriptValue()>;
 
@@ -90,6 +93,7 @@ private:
 	QScriptEngine *activeEngine;
 	int mProcessEventsInterval;
 	QString savedErrorMessage;
+	std::set<QString> importedScripts;
 
 	friend void internalEvalScript(
 		ScriptRunner *runner, const QString &filePath, QScriptValue &out);

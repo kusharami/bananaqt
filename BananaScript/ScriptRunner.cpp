@@ -24,32 +24,63 @@ SOFTWARE.
 
 #include "ScriptRunner.h"
 
-#include "ProjectGroup.h"
-#include "AbstractProjectDirectory.h"
-#include "AbstractProjectFile.h"
-#include "Utils.h"
+#include "BananaCore/ProjectGroup.h"
+#include "BananaCore/AbstractProjectDirectory.h"
+#include "BananaCore/AbstractProjectFile.h"
+#include "BananaCore/Utils.h"
 #include "ScriptUtils.h"
-#include "ScriptTemplates.h"
 #include "ScriptManager.h"
 #include "Config.h"
-
+#include "ScriptQPoint.h"
+#include "ScriptQSize.h"
+#include "ScriptQRect.h"
+#include "ScriptQFont.h"
+#include "ScriptQColor.h"
+#include "ScriptQByteArray.h"
+#include "ScriptQFileInfo.h"
+#include "ScriptQDir.h"
+#include "ScriptQSaveFile.h"
+#include "ScriptQTemporaryFile.h"
+#include "ScriptQUrl.h"
+#include "ScriptQNetworkRequest.h"
+#include "ScriptQNetworkAccessManager.h"
+#include "ScriptQNetworkReply.h"
 #include <QScriptEngine>
 #include <QScriptContextInfo>
-
-namespace Scripting
-{
-void init()
-{
-	(void) QT_TRANSLATE_NOOP("FileFormatNamePlural", ".js");
-}
-
-const char szScriptExtension[] = QT_TRANSLATE_NOOP("FileFormatName", ".js");
-}
-
-using namespace Scripting;
+#include <QCoreApplication>
 
 namespace Banana
 {
+namespace Script
+{
+struct Temp
+{
+	static inline void init()
+	{
+		(void) QT_TRANSLATE_NOOP("FileFormatNamePlural", ".js");
+	}
+};
+
+static const char szScriptAssert[] =
+	QT_TRANSLATE_NOOP("Script", "Assertion failed.");
+const char szScriptExtension[] = QT_TRANSLATE_NOOP("FileFormatName", ".js");
+}
+using namespace Script;
+
+#undef assert
+static QScriptValue assert(QScriptContext *context, QScriptEngine *)
+{
+	if (context->argumentCount() != 1)
+		return ThrowBadNumberOfArguments(context);
+
+	if (not context->argument(0).toBool())
+	{
+		return context->throwError(
+			QCoreApplication::translate("Script", szScriptAssert));
+	}
+	return QScriptValue();
+}
+
 static QScriptValue evaluateFileContent(
 	QScriptEngine *engine, const QString &fileContent, const QString &filePath)
 {
@@ -71,7 +102,7 @@ inline void internalEvalScript(
 	{
 		QScriptContextInfo info(context->parentContext());
 		QFileInfo currentFileInfo(info.fileName());
-		if (currentFileInfo.isFile())
+		if (currentFileInfo.exists())
 		{
 			resolvedFilePath = currentFileInfo.dir().absoluteFilePath(filePath);
 		}
@@ -88,23 +119,9 @@ inline void internalEvalScript(
 		}
 	}
 
-	QString scriptText;
-	bool loadOk = runner->loadScriptFile(resolvedFilePath, scriptText);
-
-	if (not loadOk)
-	{
-		out = context->throwError(
-			QScriptContext::UnknownError, runner->savedErrorMessage);
-
-		return;
-	}
-
-	auto prevActivationObject = context->activationObject();
-	context->setActivationObject(engine->globalObject());
-
-	out = evaluateFileContent(engine, scriptText, resolvedFilePath);
-
-	context->setActivationObject(prevActivationObject);
+	runner->importScript(resolvedFilePath);
+	if (engine->hasUncaughtException())
+		out = engine->uncaughtException();
 }
 
 static QString stringFormat(QScriptContext *context)
@@ -155,22 +172,24 @@ static QScriptValue macro(QScriptContext *context, QScriptEngine *)
 	if (macroName.isEmpty())
 		macroName = ScriptManager::scriptedActionCaption();
 
+	i++;
+
 	if (not arg.isQObject())
-		return IncompatibleArgumentType(context, i);
+		return ThrowIncompatibleArgumentType(context, i);
 
 	auto obj = dynamic_cast<Object *>(arg.toQObject());
 	if (nullptr == obj)
-		return IncompatibleArgumentType(context, i);
-
-	i++;
+		return ThrowIncompatibleArgumentType(context, i);
 
 	if (i >= argc)
 		return ThrowBadNumberOfArguments(context);
 
 	auto callback = context->argument(i);
 
+	i++;
+
 	if (not callback.isFunction())
-		return IncompatibleArgumentType(context, i);
+		return ThrowIncompatibleArgumentType(context, i);
 
 	obj->beginMacro(macroName);
 
@@ -181,7 +200,8 @@ static QScriptValue macro(QScriptContext *context, QScriptEngine *)
 	return arg;
 }
 
-static QScriptValue importScript(QScriptContext *context, QScriptEngine *e)
+static QScriptValue internalImportScript(
+	QScriptContext *context, QScriptEngine *e)
 {
 	if (context->argumentCount() < 1)
 		return ThrowBadNumberOfArguments(context);
@@ -191,16 +211,16 @@ static QScriptValue importScript(QScriptContext *context, QScriptEngine *e)
 	auto callee = context->callee();
 
 	auto prototype = callee.property(QSTRKEY(prototype));
-	auto runner = static_cast<ScriptRunner *>(prototype.toQObject());
+	auto runner = qobject_cast<ScriptRunner *>(prototype.toQObject());
 	if (nullptr == runner)
 	{
-		return IncompatibleArgumentType(context, -1);
+		return ThrowIncompatibleArgumentType(context, 0);
 	}
 
 	auto arg = context->argument(0);
 	if (not arg.isString())
 	{
-		return IncompatibleArgumentType(context, 0);
+		return ThrowIncompatibleArgumentType(context, 1);
 	}
 
 	QScriptValue result;
@@ -213,10 +233,10 @@ static QScriptValue print(QScriptContext *context, QScriptEngine *e)
 {
 	auto callee = context->callee();
 	auto prototype = callee.property(QSTRKEY(prototype));
-	auto runner = static_cast<ScriptRunner *>(prototype.toQObject());
+	auto runner = qobject_cast<ScriptRunner *>(prototype.toQObject());
 	if (nullptr == runner)
 	{
-		return IncompatibleArgumentType(context, -1);
+		return ThrowIncompatibleArgumentType(context, 0);
 	}
 
 	QString text(stringFormat(context));
@@ -234,7 +254,7 @@ static QScriptValue loadFromJson(QScriptContext *context, QScriptEngine *engine)
 		bool ok = Utils::LoadVariantMapFromFile(
 			vmap, context->argument(0).toString());
 		if (ok)
-			return Utils::VariantToScriptValue(vmap, engine);
+			return VariantToScriptValue(vmap, engine);
 	}
 
 	return QScriptValue();
@@ -326,7 +346,7 @@ ScriptRunner::ScriptRunner(ProjectGroup *projectGroup, QObject *parent)
 	: QObject(parent)
 	, projectGroup(projectGroup)
 	, activeEngine(nullptr)
-	, mProcessEventsInterval(20)
+	, mProcessEventsInterval(40)
 {
 }
 
@@ -363,9 +383,35 @@ bool ScriptRunner::loadScriptFile(const QString &filePath, QString &dest)
 
 bool ScriptRunner::executeScript(const QString &script, const QString &filePath)
 {
-	return executeCustom([this, &script, &filePath]() -> QScriptValue {
-		return evaluateFileContent(activeEngine, script, filePath);
+	QString fp = filePath;
+	if (filePath.isEmpty())
+		fp = QStringLiteral("PrepareScript");
+	else
+		importedScripts.insert(QDir::cleanPath(filePath));
+
+	return executeCustom([this, &script, fp]() -> QScriptValue {
+		return evaluateFileContent(activeEngine, script, fp);
 	});
+}
+
+void ScriptRunner::logError(const QScriptValue &error)
+{
+	auto fileName = error.property(QSTRKEY(fileName)).toString();
+	auto lineNumber = error.property(QSTRKEY(lineNumber)).toInt32();
+	savedErrorMessage = QStringLiteral("(%1:%2) %3")
+							.arg(fileName)
+							.arg(lineNumber)
+							.arg(error.toString());
+	log(savedErrorMessage);
+
+	auto global = error.engine()->globalObject();
+	if (global.property(QSTRKEY(__showBacktrace)).toBool())
+	{
+		for (auto &backTraceLine : error.engine()->uncaughtExceptionBacktrace())
+		{
+			log(backTraceLine);
+		}
+	}
 }
 
 bool ScriptRunner::executeCustom(const Evaluate &evaluate)
@@ -384,24 +430,13 @@ bool ScriptRunner::executeCustom(const Evaluate &evaluate)
 			result = engine->uncaughtException();
 		} else
 		{
-			result = engine->currentContext()->throwError(
-				QScriptContext::UnknownError, tr("Unknown error"));
+			result = ThrowUnknownError(engine->currentContext());
 		}
 	}
 
 	if (result.isError())
 	{
-		auto fileName = result.property(QSTRKEY(fileName)).toString();
-		auto lineNumber = result.property(QSTRKEY(lineNumber)).toInt32();
-		savedErrorMessage = QStringLiteral("(%1:%2) %3")
-								.arg(fileName)
-								.arg(lineNumber)
-								.arg(result.toString());
-		log(savedErrorMessage);
-		for (auto &backTraceLine : engine->uncaughtExceptionBacktrace())
-		{
-			log(backTraceLine);
-		}
+		logError(result);
 		return false;
 	} else
 	{
@@ -417,6 +452,7 @@ bool ScriptRunner::executeCustom(const Evaluate &evaluate)
 bool ScriptRunner::execute(
 	const QString &filePath, const QString &prepareScript)
 {
+	importedScripts.clear();
 	beforeScriptExecution(filePath);
 	QScriptEngine engine;
 
@@ -434,8 +470,7 @@ bool ScriptRunner::execute(
 	{
 		if (activeEngine && not prepareScript.isEmpty())
 		{
-			if (not executeScript(
-					prepareScript, QStringLiteral("PrepareScript")))
+			if (not executeScript(prepareScript))
 			{
 				ok = false;
 				break;
@@ -467,6 +502,7 @@ bool ScriptRunner::execute(
 bool ScriptRunner::executeForTargets(
 	const QString &filePath, const QObjectList &targets)
 {
+	importedScripts.clear();
 	beforeScriptExecution(filePath);
 	savedErrorMessage.clear();
 
@@ -497,9 +533,16 @@ bool ScriptRunner::executeForTargets(
 			}
 
 			QScriptValue exec = globalObject.property(QSTRKEY(exec));
+			if (not exec.isValid())
+			{
+				break;
+			}
 
 			if (not exec.isFunction())
 			{
+				logError(engine.currentContext()->throwError(
+					tr("Global property 'exec' is not a function.")));
+				ok = false;
 				break;
 			}
 
@@ -555,6 +598,33 @@ void ScriptRunner::setProcessEventsInterval(int value)
 	}
 }
 
+void ScriptRunner::importScript(const QString &filePath)
+{
+	Q_ASSERT(nullptr != activeEngine);
+	Q_ASSERT(not filePath.isEmpty());
+
+	auto cleanPath = QDir::cleanPath(filePath);
+	if (importedScripts.count(cleanPath))
+		return;
+	importedScripts.insert(cleanPath);
+
+	QString scriptText;
+	bool loadOk = loadScriptFile(cleanPath, scriptText);
+	auto context = activeEngine->currentContext();
+	if (not loadOk)
+	{
+		context->throwError(savedErrorMessage);
+		return;
+	}
+
+	auto prevActivationObject = context->activationObject();
+	context->setActivationObject(activeEngine->globalObject());
+
+	evaluateFileContent(activeEngine, scriptText, cleanPath);
+
+	context->setActivationObject(prevActivationObject);
+}
+
 void ScriptRunner::initializeEngine(QScriptEngine *engine)
 {
 	Q_ASSERT(nullptr != engine);
@@ -566,131 +636,26 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	qScriptRegisterMetaType(engine, QObjectToScriptValue<Banana::Directory>,
 		QObjectFromScriptValue<Banana::Directory>);
 
-	qScriptRegisterMetaType(engine, DescendantToScriptValue<Point, QPoint>,
-		DescendantFromScriptValue<Point, QPoint>);
+	ScriptQPoint::Register(engine);
+	ScriptQSize::Register(engine);
+	ScriptQRect::Register(engine);
+	ScriptQColor::Register(engine);
+	ScriptQFont::Register(engine);
+	ScriptQFileInfo::Register(engine);
+	ScriptQDir::Register(engine);
+	ScriptQByteArray::Register(engine);
+	ScriptQIODevice::Register(engine);
+	ScriptQFileDevice::Register(engine);
+	ScriptQFile::Register(engine);
+	ScriptQSaveFile::Register(engine);
+	ScriptQTemporaryFile::Register(engine);
 
-	qScriptRegisterMetaType(engine, DescendantToScriptValue<Point, QPointF>,
-		DescendantFromScriptValue<Point, QPointF>);
-
-	qScriptRegisterMetaType(engine, DescendantToScriptValue<Size, QSize>,
-		DescendantFromScriptValue<Size, QSize>);
-
-	qScriptRegisterMetaType(engine, DescendantToScriptValue<Size, QSizeF>,
-		DescendantFromScriptValue<Size, QSizeF>);
-
-	qScriptRegisterMetaType(engine, DescendantToScriptValue<Rect, QRect>,
-		DescendantFromScriptValue<Rect, QRect>);
-
-	qScriptRegisterMetaType(engine, DescendantToScriptValue<Rect, QRectF>,
-		DescendantFromScriptValue<Rect, QRectF>);
-
-	qScriptRegisterMetaType(engine, Font::ToScriptValue, Font::FromScriptValue);
-
-	qScriptRegisterMetaType(engine, Dir::ToScriptValue, Dir::FromScriptValue);
-
-	qScriptRegisterMetaType(
-		engine, FileInfo::ToScriptValue, FileInfo::FromScriptValue);
-
-	qScriptRegisterMetaType(
-		engine, Color::ToScriptValue, Color::FromScriptValue);
-
-	qScriptRegisterMetaType(engine, EnumToScriptValue<QFont::Style>,
-		EnumFromScriptValue<QFont::Style>);
-
-	qScriptRegisterMetaType(engine, EnumToScriptValue<QDir::Filters>,
-		EnumFromScriptValue<QDir::Filters>);
-
-	qScriptRegisterMetaType(engine, EnumToScriptValue<QDir::SortFlags>,
-		EnumFromScriptValue<QDir::SortFlags>);
-
-	QMetaType::registerConverter<QFont::Style, qint32>();
-	QMetaType::registerConverter<QDir::Filters, qint32>();
-	QMetaType::registerConverter<QDir::SortFlags, qint32>();
+	ScriptQUrl::Register(engine);
+	ScriptQNetworkRequest::Register(engine);
+	ScriptQNetworkReply::Register(engine);
+	ScriptQNetworkAccessManager::Register(engine);
 
 	auto globalObject = engine->globalObject();
-
-	globalObject.setProperty(
-		QSTRKEY(QPoint), engine->newFunction(Point::Constructor));
-	globalObject.setProperty(
-		QSTRKEY(QPointF), engine->newFunction(Point::ConstructorF));
-	globalObject.setProperty(
-		QSTRKEY(QSize), engine->newFunction(Size::Constructor));
-	globalObject.setProperty(
-		QSTRKEY(QSizeF), engine->newFunction(Size::ConstructorF));
-	globalObject.setProperty(
-		QSTRKEY(QRect), engine->newFunction(Rect::Constructor));
-	globalObject.setProperty(
-		QSTRKEY(QRectF), engine->newFunction(Rect::ConstructorF));
-	globalObject.setProperty(
-		QSTRKEY(QFileInfo), engine->newFunction(FileInfo::Constructor));
-	globalObject.setProperty(
-		QSTRKEY(QColor), engine->newFunction(Color::Constructor));
-
-	auto qdirObject = engine->newFunction(Dir::Constructor);
-	globalObject.setProperty(QSTRKEY(QDir), qdirObject);
-
-	qdirObject.setProperty(
-		QSTRKEY(Dirs), (int) QDir::Dirs, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Files), (int) QDir::Files, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Drives), (int) QDir::Drives, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(NoSymLinks), (int) QDir::NoSymLinks, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Readable), (int) QDir::Readable, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Writable), (int) QDir::Writable, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Executable), (int) QDir::Executable, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Modified), (int) QDir::Modified, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Hidden), (int) QDir::Hidden, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(System), (int) QDir::System, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(AllEntries), (int) QDir::AllEntries, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(AllDirs), (int) QDir::AllDirs, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(CaseSensitive), (int) QDir::CaseSensitive, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(NoDots), (int) QDir::NoDotAndDotDot, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(NoFilter), (int) QDir::NoFilter, STATIC_SCRIPT_VALUE);
-
-	qdirObject.setProperty(
-		QSTRKEY(Name), (int) QDir::Name, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Time), (int) QDir::Time, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Size), (int) QDir::Size, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Unsorted), (int) QDir::Unsorted, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(DirsFirst), (int) QDir::DirsFirst, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Reversed), (int) QDir::Reversed, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(IgnoreCase), (int) QDir::IgnoreCase, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(DirsLast), (int) QDir::DirsLast, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(LocaleAware), (int) QDir::LocaleAware, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(Type), (int) QDir::Type, STATIC_SCRIPT_VALUE);
-	qdirObject.setProperty(
-		QSTRKEY(NoSort), (int) QDir::NoSort, STATIC_SCRIPT_VALUE);
-
-	auto qfontObject = engine->newFunction(Font::Constructor);
-	globalObject.setProperty(QSTRKEY(QFont), qfontObject);
-	qfontObject.setProperty(
-		QSTRKEY(StyleNormal), (int) QFont::StyleNormal, STATIC_SCRIPT_VALUE);
-	qfontObject.setProperty(
-		QSTRKEY(StyleItalic), (int) QFont::StyleItalic, STATIC_SCRIPT_VALUE);
-	qfontObject.setProperty(
-		QSTRKEY(StyleOblique), (int) QFont::StyleOblique, STATIC_SCRIPT_VALUE);
 
 	auto systemObject = engine->newQObject(this);
 	globalObject.setProperty(
@@ -711,12 +676,14 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	auto stringFormatFunc = engine->newFunction(stringFormat, globalObject);
 	systemObject.setProperty(QSTRKEY(stringFormat), stringFormatFunc);
 	globalObject.setProperty(QSTRKEY(strf), stringFormatFunc);
+	globalObject.setProperty(
+		QSTRKEY(assert), engine->newFunction(assert, globalObject));
 
 	globalObject.setProperty(
 		QSTRKEY(macro), engine->newFunction(macro, globalObject));
 
-	globalObject.setProperty(
-		QSTRKEY(importScript), engine->newFunction(importScript, systemObject));
+	globalObject.setProperty(QSTRKEY(importScript),
+		engine->newFunction(internalImportScript, systemObject));
 
 	AbstractScriptRunner::initializeEngine(engine);
 

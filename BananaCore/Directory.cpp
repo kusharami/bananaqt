@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Const.h"
 #include "UniqueFileNameScope.h"
 #include "AbstractProjectDirectory.h"
-#include "ScriptManager.h"
 
 #include <set>
 
@@ -254,7 +253,6 @@ void Directory::registerFileType(const char *extension,
 	}
 
 	registeredFileTypes.push_back(reg);
-	ScriptManager::registerMetaObject(fileMetaObject);
 }
 
 const QMetaObject *Directory::getFileTypeByExtension(
