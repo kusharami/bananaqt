@@ -41,8 +41,10 @@ SOFTWARE.
 #include "ScriptQDir.h"
 #include "ScriptQSaveFile.h"
 #include "ScriptQTemporaryFile.h"
-#include "NetworkManager.h"
-
+#include "ScriptQUrl.h"
+#include "ScriptQNetworkRequest.h"
+#include "ScriptQNetworkAccessManager.h"
+#include "ScriptQNetworkReply.h"
 #include <QScriptEngine>
 #include <QScriptContextInfo>
 #include <QCoreApplication>
@@ -649,9 +651,9 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	ScriptQTemporaryFile::Register(engine);
 
 	ScriptQUrl::Register(engine);
-	ScriptQNetworkAccessManager::Register(engine);
 	ScriptQNetworkRequest::Register(engine);
 	ScriptQNetworkReply::Register(engine);
+	ScriptQNetworkAccessManager::Register(engine);
 
 	auto globalObject = engine->globalObject();
 

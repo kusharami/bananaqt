@@ -107,7 +107,7 @@ QScriptClass::QueryFlags ScriptQByteArray::queryProperty(
 	const QScriptValue &object, const QScriptString &name, QueryFlags flags,
 	uint *id)
 {
-	QByteArray *ba = thisByteArray(object);
+	QByteArray *ba = fromScriptValue(object);
 	if (!ba)
 		return 0;
 
@@ -130,7 +130,7 @@ QScriptClass::QueryFlags ScriptQByteArray::queryProperty(
 QScriptValue ScriptQByteArray::property(
 	const QScriptValue &object, const QScriptString &name, uint id)
 {
-	QByteArray *ba = thisByteArray(object);
+	QByteArray *ba = fromScriptValue(object);
 	if (!ba)
 		return QScriptValue();
 
@@ -149,7 +149,7 @@ QScriptValue ScriptQByteArray::property(
 void ScriptQByteArray::setProperty(QScriptValue &object,
 	const QScriptString &name, uint id, const QScriptValue &value)
 {
-	QByteArray *ba = thisByteArray(object);
+	QByteArray *ba = fromScriptValue(object);
 	if (!ba)
 		return;
 
@@ -204,12 +204,7 @@ QScriptValue ScriptQByteArray::prototype() const
 QByteArray *ScriptQByteArray::thisByteArray(QScriptContext *context)
 {
 	Q_ASSERT(nullptr != context);
-	return thisByteArray(context->thisObject());
-}
-
-QByteArray *ScriptQByteArray::thisByteArray(const QScriptValue &value)
-{
-	return qscriptvalue_cast<QByteArray *>(value.data());
+	return fromScriptValue(context->thisObject());
 }
 
 QTextCodec *ScriptQByteArray::scriptValueToTextCodec(const QScriptValue &value)
@@ -445,7 +440,7 @@ void ScriptQByteArray::fromScriptValue(
 	} else
 	{
 		QByteArray tempBa;
-		auto ba = thisByteArray(value);
+		auto ba = fromScriptValue(value);
 		if (nullptr != ba)
 			tempBa = *ba;
 
@@ -459,6 +454,11 @@ void ScriptQByteArray::fromScriptValue(
 		else
 			out = tempBa;
 	}
+}
+
+QByteArray *ScriptQByteArray::fromScriptValue(const QScriptValue &value)
+{
+	return qscriptvalue_cast<QByteArray *>(value.data());
 }
 
 void ScriptQByteArray::resize(QByteArray &ba, int newSize)
@@ -477,8 +477,8 @@ ScriptQByteArray::PropertyIterator::PropertyIterator(const QScriptValue &object)
 
 bool ScriptQByteArray::PropertyIterator::hasNext() const
 {
-	QByteArray *ba = thisByteArray(object());
-	return m_index < ba->size();
+	QByteArray *ba = fromScriptValue(object());
+	return ba && m_index < ba->size();
 }
 
 void ScriptQByteArray::PropertyIterator::next()
@@ -506,8 +506,8 @@ void ScriptQByteArray::PropertyIterator::toFront()
 
 void ScriptQByteArray::PropertyIterator::toBack()
 {
-	QByteArray *ba = thisByteArray(object());
-	m_index = ba->size();
+	QByteArray *ba = fromScriptValue(object());
+	m_index = ba ? ba->size() : 0;
 	m_last = -1;
 }
 
@@ -895,7 +895,7 @@ int ScriptQByteArray::indexOf(const QScriptValue &search, int fromIndex) const
 		return -1;
 
 	fromIndex = convertIndex(*ba, fromIndex);
-	auto searchBa = thisByteArray(search);
+	auto searchBa = fromScriptValue(search);
 	if (searchBa)
 		return ba->indexOf(*searchBa, fromIndex);
 
@@ -916,7 +916,7 @@ int ScriptQByteArray::lastIndexOf(
 		return -1;
 
 	fromIndex = convertIndex(*ba, fromIndex);
-	auto searchBa = thisByteArray(search);
+	auto searchBa = fromScriptValue(search);
 	if (searchBa)
 		return ba->lastIndexOf(*searchBa, fromIndex);
 
@@ -1204,7 +1204,7 @@ QScriptValue ScriptQByteArray::reduceRight(
 
 QByteArray ScriptQByteArray::scriptValueToByteArray(const QScriptValue &value)
 {
-	auto pb = thisByteArray(value);
+	auto pb = fromScriptValue(value);
 
 	return (pb ? QByteArray::fromRawData(pb->data(), pb->size())
 			   : value.isNumber() || value.isNull() || value.isUndefined() ||
@@ -1225,6 +1225,6 @@ int ScriptQByteArray::convertIndex(const QByteArray &ba, int index)
 
 QByteArray *ScriptQByteArray::thisByteArray() const
 {
-	return thisByteArray(thisObject());
+	return fromScriptValue(thisObject());
 }
 }

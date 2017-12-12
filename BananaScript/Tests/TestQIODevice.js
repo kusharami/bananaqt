@@ -82,7 +82,7 @@ function testWritableDevice(device)
 	assert(shouldThrow(function() { return device.pos = -1; }));
 }
 
-function testReadableDevice(device, size)
+function testReadableDevice(device)
 {
 	assert(device instanceof QIODevice);
 
@@ -103,7 +103,8 @@ function testReadableDevice(device, size)
 		assert(shouldThrow(function() { return device.pos = 0; }));
 	else
 		device.pos = 0;
-	assert(device.readAll().length === device.size);
+	var bytesAvailable = device.bytesAvailable;
+	assert(device.readAll().length === bytesAvailable);
 	assert(device.sequential || device.pos === device.size);
 	device.rollbackTransaction();
 	assert(!device.isTransactionStarted);

@@ -24,49 +24,58 @@ SOFTWARE.
 
 #pragma once
 
-#include "ScriptQFileDevice.h"
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QScriptValue>
+#include <QScriptable>
 
-#include <QFile>
-
-Q_DECLARE_METATYPE(QFile *)
+Q_DECLARE_METATYPE(QNetworkAccessManager *)
+Q_DECLARE_METATYPE(QNetworkAccessManager::Operation)
+Q_DECLARE_METATYPE(QNetworkAccessManager::NetworkAccessibility)
 
 namespace Banana
 {
-class ScriptQFile : public ScriptQFileDevice
+class ScriptQNetworkAccessManager
+	: public QObject
+	, public QScriptable
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath)
-	Q_PROPERTY(QString symLinkTarget READ symLinkTarget)
+	Q_PROPERTY(QNetworkAccessManager::NetworkAccessibility networkAccessible
+			READ networkAccessible WRITE setNetworkAccessible)
 
 public:
 	static void Register(QScriptEngine *engine);
-	explicit ScriptQFile(QObject *parent);
 
-	void setFilePath(const QString &value);
+	explicit ScriptQNetworkAccessManager(QObject *parent);
 
-	QString symLinkTarget() const;
-
-	virtual QString toString() const override;
+	void setNetworkAccessible(
+		QNetworkAccessManager::NetworkAccessibility accessible);
+	QNetworkAccessManager::NetworkAccessibility networkAccessible() const;
 
 public slots:
-	bool exists();
-	bool remove();
-	bool rename(const QString &newFilePath);
-	bool copy(const QString &newFilePath);
-	bool link(const QString &linkPath);
+	QScriptValue head(const QNetworkRequest &request);
+	QScriptValue get(const QNetworkRequest &request);
+	QScriptValue post(const QNetworkRequest &request, const QScriptValue &data);
+	QScriptValue put(const QNetworkRequest &request, const QScriptValue &data);
+	QScriptValue deleteResource(const QNetworkRequest &request);
+	void connectToHostEncrypted(const QString &hostName, quint16 port = 443);
+	void connectToHost(const QString &hostName, quint16 port = 80);
+	inline QString toString() const;
 
 private:
 	static QString className();
+	QNetworkAccessManager *thisManager() const;
 
-	static QScriptValue exists(QScriptContext *context, QScriptEngine *engine);
-	static QScriptValue remove(QScriptContext *context, QScriptEngine *engine);
-	static QScriptValue rename(QScriptContext *context, QScriptEngine *engine);
-	static QScriptValue copy(QScriptContext *context, QScriptEngine *engine);
+	QScriptValue wrappedReply(QNetworkReply *reply);
 
 	static QScriptValue Construct(
 		QScriptContext *context, QScriptEngine *engine);
-
-	QFile *thisFile() const;
 };
+
+QString ScriptQNetworkAccessManager::toString() const
+{
+	return className();
+}
 }

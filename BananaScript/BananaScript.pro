@@ -21,7 +21,6 @@ HEADERS += \
     Config.h \
     ScriptQFileInfo.h \
     IScriptRunner.h \
-    NetworkManager.h \
     ScriptCommand.h \
     ScriptManager.h \
     ScriptRunner.h \
@@ -39,12 +38,15 @@ HEADERS += \
     ScriptQSize.h \
     ScriptQUrl.h \
     ScriptQSaveFile.h \
-    ScriptQTemporaryFile.h
+    ScriptQTemporaryFile.h \
+    ScriptQNetworkRequest.h \
+    ScriptQNetworkAccessManager.h \
+    ScriptQNetworkReply.h
+
 
 SOURCES += \
     AbstractScriptRunner.cpp \
     Config.cpp \
-    NetworkManager.cpp \
     ScriptCommand.cpp \
     ScriptManager.cpp \
     ScriptRunner.cpp \
@@ -63,7 +65,10 @@ SOURCES += \
     ScriptQPoint.cpp \
     ScriptQRect.cpp \
     ScriptQSaveFile.cpp \
-    ScriptQTemporaryFile.cpp
+    ScriptQTemporaryFile.cpp \
+    ScriptQNetworkRequest.cpp \
+    ScriptQNetworkAccessManager.cpp \
+    ScriptQNetworkReply.cpp
 
 OTHER_FILES += \
     Tests/Tests.js \
@@ -79,4 +84,7 @@ OTHER_FILES += \
     Tests/TestQTemporaryFile.js \
     Tests/TestQFileInfo.js \
     Tests/TestQDir.js \
-    Tests/TestQUrl.js
+    Tests/TestQUrl.js \
+    Tests/TestQNetworkRequest.js \
+    Tests/TestQNetworkAccessManager.js \
+    Tests/TestQNetworkReply.js

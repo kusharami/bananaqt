@@ -11,6 +11,9 @@ importScript("TestQFile.js");
 importScript("TestQSaveFile.js");
 importScript("TestQTemporaryFile.js");
 importScript("TestQUrl.js");
+importScript("TestQNetworkRequest.js")
+importScript("TestQNetworkReply.js")
+importScript("TestQNetworkAccessManager.js")
 
 testQPoint();
 testQSize();
@@ -25,3 +28,6 @@ testQFile();
 testQSaveFile();
 testQTemporaryFile();
 testQUrl();
+testQNetworkRequest();
+testQNetworkReply();
+testQNetworkAccessManager();

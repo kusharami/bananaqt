@@ -24,49 +24,55 @@ SOFTWARE.
 
 #pragma once
 
+#include "ScriptQNetworkAccessManager.h"
 #include "ScriptQIODevice.h"
 
-#include <QFileDevice>
-
-Q_DECLARE_METATYPE(QFileDevice *)
-Q_DECLARE_METATYPE(QFileDevice::Permissions)
-Q_DECLARE_METATYPE(QFileDevice::FileError)
+Q_DECLARE_METATYPE(QNetworkReply *)
 
 namespace Banana
 {
-class ScriptQFileDevice : public ScriptQIODevice
+class ScriptQNetworkReply : public ScriptQIODevice
 {
 	Q_OBJECT
 
-	Q_PROPERTY(QFileDevice::FileError error READ error)
-	Q_PROPERTY(QFileDevice::Permissions permissions READ permissions WRITE
-			setPermissions)
-
-	Q_PROPERTY(qint64 size READ size WRITE setSize)
+	Q_PROPERTY(
+		qint64 readBufferSize READ readBufferSize WRITE setReadBufferSize)
+	Q_PROPERTY(QScriptValue manager READ manager)
+	Q_PROPERTY(QNetworkAccessManager::Operation operation READ operation)
+	Q_PROPERTY(QNetworkRequest request READ request)
+	Q_PROPERTY(QNetworkReply::NetworkError resultCode READ resultCode)
+	Q_PROPERTY(bool isFinished READ isFinished) // DO NOT RENAME !
+	Q_PROPERTY(bool running READ isRunning)
+	Q_PROPERTY(QUrl url READ url)
 
 public:
 	static void Register(QScriptEngine *engine);
 
-	explicit ScriptQFileDevice(QObject *parent);
+	explicit ScriptQNetworkReply(QObject *parent);
 
-	QFileDevice::FileError error() const;
+	qint64 readBufferSize() const;
+	void setReadBufferSize(qint64 size);
 
-	QFileDevice::Permissions permissions() const;
-	void setPermissions(QFileDevice::Permissions value);
-
-	void setSize(qint64 size);
-
-	QString filePath() const;
+	QScriptValue manager() const;
+	QNetworkAccessManager::Operation operation() const;
+	QNetworkRequest request() const;
+	QNetworkReply::NetworkError resultCode() const;
+	bool isFinished() const;
+	bool isRunning() const;
+	QUrl url() const;
 
 	virtual QString toString() const override;
 
 public slots:
-	bool resize(qint64 newSize);
-	bool flush();
-	void unsetError();
+	QVariant attribute(QNetworkRequest::Attribute code) const;
+	QVariant header(QNetworkRequest::KnownHeaders header) const;
+
+	bool hasRawHeader(const QByteArray &headerName) const;
+	QScriptValue rawHeaderList() const;
+	QByteArray rawHeader(const QByteArray &headerName) const;
 
 private:
 	static QString className();
-	QFileDevice *thisDevice() const;
+	QNetworkReply *thisReply() const;
 };
 }

@@ -31,7 +31,7 @@ namespace Banana
 {
 using namespace Script;
 
-QScriptValue ScriptQFile::Register(QScriptEngine *engine)
+void ScriptQFile::Register(QScriptEngine *engine)
 {
 	auto proto = NewQObjectPrototype<ScriptQFile>(engine);
 	proto.setPrototype(engine->defaultPrototype(qMetaTypeId<QFileDevice *>()));
@@ -50,8 +50,6 @@ QScriptValue ScriptQFile::Register(QScriptEngine *engine)
 
 	engine->globalObject().setProperty(
 		className(), qFileObject, STATIC_SCRIPT_VALUE);
-
-	return proto;
 }
 
 ScriptQFile::ScriptQFile(QObject *parent)
@@ -194,7 +192,7 @@ QScriptValue ScriptQFile::Construct(
 	if (argumentCount == 1)
 		newFile->setFileName(context->argument(0).toString());
 
-	return ConstructQObject(newFile, context, engine);
+	return WrapQObject(newFile, engine, context);
 }
 
 QFile *ScriptQFile::thisFile() const

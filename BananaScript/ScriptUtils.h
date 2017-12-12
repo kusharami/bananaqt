@@ -61,8 +61,8 @@ QScriptValue ThrowUnknownError(QScriptContext *context);
 
 void RegisterQMetaObject(QScriptEngine *engine, const QMetaObject *metaObject,
 	QScriptValue (*constructor)(QScriptContext *, QScriptEngine *));
-QScriptValue ConstructQObject(QObject *object, QScriptContext *context,
-	QScriptEngine *engine,
+QScriptValue WrapQObject(QObject *object, QScriptEngine *engine,
+	QScriptContext *context = nullptr,
 	QScriptEngine::ValueOwnership ownership = QScriptEngine::AutoOwnership,
 	QScriptEngine::QObjectWrapOptions options =
 		QScriptEngine::ExcludeChildObjects | QScriptEngine::ExcludeDeleteLater |

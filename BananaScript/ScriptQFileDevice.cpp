@@ -86,7 +86,7 @@ struct FileDevice : public QFileDevice
 };
 }
 
-QScriptValue ScriptQFileDevice::Register(QScriptEngine *engine)
+void ScriptQFileDevice::Register(QScriptEngine *engine)
 {
 	auto proto = Script::NewQObjectPrototype<ScriptQFileDevice>(engine);
 	proto.setPrototype(engine->defaultPrototype(qMetaTypeId<QIODevice *>()));
@@ -99,9 +99,7 @@ QScriptValue ScriptQFileDevice::Register(QScriptEngine *engine)
 	Script::FileDevice::RegisterEnums(engine, qFileDeviceObject);
 
 	engine->globalObject().setProperty(
-		QSTRKEY(QFileDevice), qFileDeviceObject, STATIC_SCRIPT_VALUE);
-
-	return qFileDeviceObject;
+		className(), qFileDeviceObject, STATIC_SCRIPT_VALUE);
 }
 
 ScriptQFileDevice::ScriptQFileDevice(QObject *parent)
@@ -178,11 +176,16 @@ void ScriptQFileDevice::unsetError()
 		device->unsetError();
 }
 
+QString ScriptQFileDevice::className()
+{
+	return QSTRKEY(QFileDevice);
+}
+
 QString ScriptQFileDevice::toString() const
 {
 	auto device = thisDevice();
 	if (nullptr == device)
-		return QSTRKEY(QFileDevice);
+		return className();
 
 	return device->fileName();
 }

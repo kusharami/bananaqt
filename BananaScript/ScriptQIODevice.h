@@ -55,8 +55,9 @@ class ScriptQIODevice
 	Q_PROPERTY(QIODevice::OpenMode openMode READ openMode)
 
 public:
+	static void Register(QScriptEngine *engine);
+
 	explicit ScriptQIODevice(QObject *parent);
-	static QScriptValue Register(QScriptEngine *engine);
 
 	QString errorString() const;
 
@@ -80,7 +81,7 @@ public:
 	QIODevice::OpenMode openMode() const;
 
 public slots:
-	bool open(QIODevice::OpenMode mode);
+	virtual bool open(QIODevice::OpenMode mode);
 	virtual void close();
 	bool seek(qint64 offset);
 	bool reset();
@@ -100,6 +101,7 @@ public slots:
 	virtual QString toString() const;
 
 private:
+	static QString className();
 	QIODevice *thisDevice() const;
 };
 }

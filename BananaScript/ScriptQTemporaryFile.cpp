@@ -132,7 +132,7 @@ QScriptValue ScriptQTemporaryFile::Construct(
 	if (argumentCount == 1)
 		newFile->setFileTemplate(context->argument(0).toString());
 
-	return ConstructQObject(newFile, context, engine);
+	return WrapQObject(newFile, engine, context);
 }
 
 QTemporaryFile *ScriptQTemporaryFile::thisFile() const

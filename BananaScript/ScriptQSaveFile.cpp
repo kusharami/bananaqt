@@ -120,7 +120,7 @@ QScriptValue ScriptQSaveFile::Construct(
 	if (argumentCount == 1)
 		newFile->setFileName(context->argument(0).toString());
 
-	return ConstructQObject(newFile, context, engine);
+	return WrapQObject(newFile, engine, context);
 }
 
 QSaveFile *ScriptQSaveFile::thisFile() const

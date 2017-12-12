@@ -61,7 +61,7 @@ struct IODevice : public QIODevice
 };
 }
 
-QScriptValue ScriptQIODevice::Register(QScriptEngine *engine)
+void ScriptQIODevice::Register(QScriptEngine *engine)
 {
 	auto proto = Script::NewQObjectPrototype<ScriptQIODevice>(engine);
 	engine->setDefaultPrototype(qMetaTypeId<QIODevice *>(), proto);
@@ -72,9 +72,7 @@ QScriptValue ScriptQIODevice::Register(QScriptEngine *engine)
 	Script::IODevice::RegisterEnums(engine, qIODeviceObject);
 
 	engine->globalObject().setProperty(
-		QSTRKEY(QIODevice), qIODeviceObject, STATIC_SCRIPT_VALUE);
-
-	return qIODeviceObject;
+		className(), qIODeviceObject, STATIC_SCRIPT_VALUE);
 }
 
 ScriptQIODevice::ScriptQIODevice(QObject *parent)
@@ -330,6 +328,11 @@ QString ScriptQIODevice::toString() const
 	if (device)
 		return QString::fromLatin1(device->metaObject()->className());
 
+	return className();
+}
+
+QString ScriptQIODevice::className()
+{
 	return QSTRKEY(QIODevice);
 }
 

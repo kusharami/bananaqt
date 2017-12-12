@@ -312,11 +312,11 @@ void CopyScriptProperties(const QScriptValue &from, QScriptValue &to)
 	}
 }
 
-QScriptValue ConstructQObject(QObject *object, QScriptContext *context,
-	QScriptEngine *engine, QScriptEngine::ValueOwnership ownership,
+QScriptValue WrapQObject(QObject *object, QScriptEngine *engine,
+	QScriptContext *context, QScriptEngine::ValueOwnership ownership,
 	QScriptEngine::QObjectWrapOptions options)
 {
-	if (not context->isCalledAsConstructor())
+	if (context && not context->isCalledAsConstructor())
 	{
 		return engine->newQObject(
 			context->thisObject(), object, ownership, options);

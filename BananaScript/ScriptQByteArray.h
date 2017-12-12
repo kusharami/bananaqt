@@ -47,6 +47,8 @@ public:
 	static void Register(QScriptEngine *engine);
 
 	static void fromScriptValue(const QScriptValue &value, QByteArray &out);
+	static QByteArray *fromScriptValue(const QScriptValue &value);
+	static QScriptValue toScriptValue(QScriptEngine *eng, const QByteArray &ba);
 
 protected:
 	explicit ScriptQByteArray(QScriptEngine *engine);
@@ -138,7 +140,6 @@ private:
 	QByteArray *thisByteArray() const;
 
 	static QByteArray *thisByteArray(QScriptContext *context);
-	static QByteArray *thisByteArray(const QScriptValue &value);
 
 	static QTextCodec *scriptValueToTextCodec(const QScriptValue &value);
 
@@ -162,8 +163,6 @@ private:
 		const QScriptValue &value, bool *okPtr = nullptr);
 
 	static QScriptValue construct(QScriptContext *ctx, QScriptEngine *eng);
-
-	static QScriptValue toScriptValue(QScriptEngine *eng, const QByteArray &ba);
 
 	void resize(QByteArray &ba, int newSize);
 

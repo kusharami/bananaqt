@@ -48,6 +48,7 @@ ScriptableProjectFile::ScriptableProjectFile(
 	QObject::connect(
 		mScriptManager, &ScriptManager::changed, this, &Object::modify);
 
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::ScriptableProjectFile");
 	(void) QT_TRANSLATE_NOOP("Banana::ScriptableProjectFile", "mScriptManager");
 }
 
