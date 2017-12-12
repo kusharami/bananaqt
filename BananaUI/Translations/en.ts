@@ -354,7 +354,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="388"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="394"/>
         <source>Select Script File</source>
         <translation>Select Script File</translation>
     </message>
@@ -363,7 +363,7 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Script file is not selected.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="404"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="410"/>
         <source>File &apos;%1&apos; is not found.</source>
         <translation>File &quot;%1&quot; is not found.</translation>
     </message>
@@ -372,32 +372,42 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Execute Script Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="272"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="282"/>
         <source>Do you want to abort script execution?</source>
         <translation>Do you want to abort script execution?</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="567"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="586"/>
         <source>Script Runtime Error</source>
         <translation>Script Runtime Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="457"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="639"/>
+        <source>Run</source>
+        <translation>Run</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="644"/>
+        <source>Abort</source>
+        <translation>Abort</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="463"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="368"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="530"/>
         <source>Not responding more than 5 seconds.</source>
         <translation>Not responding more than 5 seconds.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="471"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="477"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="500"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="506"/>
         <source>There is no active project directory.</source>
         <translation>There is no active project directory.</translation>
     </message>

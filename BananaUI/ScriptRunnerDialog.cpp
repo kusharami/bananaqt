@@ -145,8 +145,8 @@ static QScriptValue requestExistingFilePath(
 	if (dir.isEmpty())
 		dir = dialogHandler.defaultDir();
 	return QScriptValue(engine,
-		QFileDialog::getOpenFileName(nullptr, title, dir, filters, nullptr,
-			FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks));
+		QFileDialog::getOpenFileName(
+			nullptr, title, dir, filters, nullptr, FILE_DIALOG_FLAGS));
 }
 
 static QScriptValue requestExistingFilePaths(
@@ -164,8 +164,8 @@ static QScriptValue requestExistingFilePaths(
 	if (dir.isEmpty())
 		dir = dialogHandler.defaultDir();
 
-	auto fileNames = QFileDialog::getOpenFileNames(nullptr, title, dir, filters,
-		nullptr, FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
+	auto fileNames = QFileDialog::getOpenFileNames(
+		nullptr, title, dir, filters, nullptr, FILE_DIALOG_FLAGS);
 
 	auto count = quint32(fileNames.length());
 	result = engine->newArray(count);
@@ -192,8 +192,8 @@ static QScriptValue requestNewFilePath(
 	if (dir.isEmpty())
 		dir = dialogHandler.defaultDir();
 	return QScriptValue(engine,
-		QFileDialog::getSaveFileName(nullptr, title, dir, filters, nullptr,
-			FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks));
+		QFileDialog::getSaveFileName(
+			nullptr, title, dir, filters, nullptr, FILE_DIALOG_FLAGS));
 }
 
 static QScriptValue requestDirectoryPath(
@@ -212,8 +212,7 @@ static QScriptValue requestDirectoryPath(
 		dir = dialogHandler.defaultDir();
 	return QScriptValue(engine,
 		QFileDialog::getExistingDirectory(nullptr, title, dir,
-			QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
-				QFileDialog::DontResolveSymlinks));
+			QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS));
 }
 
 ScriptRunnerDialog::ScriptRunnerDialog(QWidget *parent)
@@ -461,8 +460,7 @@ void ScriptRunnerDialog::on_btnInsertFilePath_clicked()
 {
 	QString filter;
 	auto filePaths = QFileDialog::getOpenFileNames(this, tr("Select Files"),
-		lastFilePath, filter, &filter,
-		FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
+		lastFilePath, filter, &filter, FILE_DIALOG_FLAGS);
 
 	if (!filePaths.isEmpty())
 	{
@@ -475,9 +473,7 @@ void ScriptRunnerDialog::on_btnInsertFilePath_clicked()
 void ScriptRunnerDialog::on_btnInsertDirectoryPath_clicked()
 {
 	auto path = QFileDialog::getExistingDirectory(this, tr("Select Directory"),
-		lastFilePath,
-		QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
-			QFileDialog::DontResolveSymlinks);
+		lastFilePath, QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS);
 
 	if (!path.isEmpty())
 	{
