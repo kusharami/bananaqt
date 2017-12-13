@@ -1,7 +1,8 @@
-﻿importScript("TestQPoint.js");
+importScript("TestQPoint.js");
 importScript("TestQSize.js");
 importScript("TestQRect.js");
 importScript("TestQColor.js");
+importScript("TestQFont.js")
 importScript("TestQByteArray.js");
 importScript("TestQDir.js");
 importScript("TestQIODevice.js");
@@ -19,6 +20,7 @@ testQPoint();
 testQSize();
 testQRect();
 testQColor();
+testQFont();
 testQByteArray();
 testQDir();
 testQIODevice();

@@ -87,4 +87,5 @@ OTHER_FILES += \
     Tests/TestQUrl.js \
     Tests/TestQNetworkRequest.js \
     Tests/TestQNetworkAccessManager.js \
-    Tests/TestQNetworkReply.js
+    Tests/TestQNetworkReply.js \
+    Tests/TestQFont.js
