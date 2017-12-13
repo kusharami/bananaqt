@@ -1,4 +1,4 @@
-importScript("TestQPoint.js");
+﻿importScript("TestQPoint.js");
 importScript("TestQSize.js");
 importScript("TestQRect.js");
 importScript("TestQColor.js");

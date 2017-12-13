@@ -1,4 +1,4 @@
-function testQFont()
+﻿function testQFont()
 {
 	assert(QFont.prototype.key === "QFont");
 	assert(QFont.prototype.defaultFamily === "");
