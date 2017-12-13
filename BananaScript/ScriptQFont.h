@@ -153,10 +153,11 @@ public slots:
 	QString toString() const;
 	bool fromString(const QString &);
 
+protected:
+	virtual QFont *thisFont() const;
+
 private:
 	static QString className();
-
-	QFont *thisFont() const;
 
 	static QScriptValue Constructor(
 		QScriptContext *context, QScriptEngine *engine);
