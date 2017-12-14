@@ -63,6 +63,11 @@ class ScriptRunnerDialog
 	bool stopShow;
 
 public:
+	enum
+	{
+		CHECK_RESPOND_SECONDS = 25
+	};
+
 	explicit ScriptRunnerDialog(QWidget *parent = nullptr);
 	virtual ~ScriptRunnerDialog();
 

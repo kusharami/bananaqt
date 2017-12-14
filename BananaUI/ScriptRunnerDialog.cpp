@@ -521,9 +521,10 @@ void ScriptRunnerDialog::timerEvent(QTimerEvent *event)
 	if (running && checkRespond && waiting)
 	{
 		auto newTime = QDateTime::currentMSecsSinceEpoch();
-		if (newTime - lastRespondTime >= 5000)
+		if (newTime - lastRespondTime >= CHECK_RESPOND_SECONDS * 1000)
 		{
-			log(tr("Not responding more than 5 seconds."));
+			log(tr("Not responding more than %1 seconds.")
+					.arg(CHECK_RESPOND_SECONDS));
 			checkRespond = false;
 		}
 	}
