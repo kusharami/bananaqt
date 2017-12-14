@@ -56,6 +56,8 @@ public slots:
 	bool open();
 
 private:
+	using ScriptQFile::open;
+
 	static QScriptValue Construct(
 		QScriptContext *context, QScriptEngine *engine);
 

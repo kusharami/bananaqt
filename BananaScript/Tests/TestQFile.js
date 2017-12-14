@@ -51,7 +51,6 @@ function testQFile()
 	var bytes = new QByteArray([0, 1, 2, 3, 4, 5, 6]);
 	assert(file.write(bytes) === bytes.length);
 	assert(file.exists());
-	assert(!QFile.remove(file.filePath));
 	assert(file.copy(filePathRen));
 	assert(!file.rename(filePathRen));
 	assert(file.error === QFileDevice.RenameError);
