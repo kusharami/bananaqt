@@ -19,14 +19,33 @@ TestNetworkSignals.prototype.wait = function()
 	this.finished = false;
 }
 
+function onNetworkState(state)
+{
+	switch (state)
+	{
+		case QNetworkAccessManager.Accessible:
+			print("Network accessible.");
+			break;
+
+		case QNetworkAccessManager.NotAccessible:
+			print("Network not accessible.");
+			break;
+
+		default:
+			print("Unknown network state.");
+			break;
+	}
+}
+
 TestNetworkSignals.prototype.connect = function()
 {
-	assert(this.manager.networkAccessible === QNetworkAccessManager.Accessible);
+	this.manager.networkAccessibleChanged.connect(onNetworkState);
 	this.manager.finished.connect(this, this.onFinished);
 }
 
 TestNetworkSignals.prototype.disconnect = function()
 {
+	this.manager.networkAccessibleChanged.disconnect(onNetworkState);
 	this.manager.finished.disconnect(this, this.onFinished);
 }
 
