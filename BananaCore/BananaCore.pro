@@ -32,8 +32,6 @@ SOURCES += \
     Core.cpp \
     AbstractProjectDirectory.cpp \
     AbstractProjectFile.cpp \
-    ScriptRunner.cpp \
-    ScriptTemplates.cpp \
     MetaObjectChildFilter.cpp \
     ChildFilter.cpp \
     NameChildFilter.cpp \
@@ -46,12 +44,11 @@ SOURCES += \
     DirectoryLinker.cpp \
     AbstractNameUnifier.cpp \
     FileNameCollection.cpp \
-    NameEnumerator.cpp \
-    ScriptManager.cpp \
-    AbstractScriptRunner.cpp
+    NameEnumerator.cpp
 
 HEADERS += \
     Const.h \
+    Define.h\
     UniqueNameScope.h \
     PropertyDef.h \
     Utils.h \
@@ -70,9 +67,7 @@ HEADERS += \
     Core.h \
     AbstractProjectDirectory.h \
     AbstractProjectFile.h \
-    ScriptRunner.h \
     IProjectGroupDelegate.h \
-    ScriptTemplates.h \
     IChildFilter.h \
     MetaObjectChildFilter.h \
     ChildFilter.h \
@@ -83,16 +78,12 @@ HEADERS += \
     BaseFileManager.h \
     SearchPaths.h \
     Config.h \
-    ScriptUtils.h \
     DirectoryLinker.h \
     ContainerTypes.h \
     AbstractNameUnifier.h \
     FileNameCollection.h \
     NameEnumerator.h \
     AbstractNameCollection.h \
-    ScriptManager.h \
-    IScriptRunner.h \
-    AbstractScriptRunner.h \
     IAbortDelegate.h \
     IUndoStack.h \
     IUndoCommand.h

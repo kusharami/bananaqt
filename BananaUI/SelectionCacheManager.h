@@ -50,7 +50,7 @@ public:
 	void retainSelection(Object *keyObject);
 	void restoreSelection(Object *keyObject);
 
-	const QObjectSet &getSelectedItems() const;
+	QObjectSet getSelectedItems() const;
 	void setSelectedItems(const QObjectSet &items);
 
 	void clear();

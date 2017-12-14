@@ -146,9 +146,9 @@ void NewFileDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void NewFileDialog::on_buttonBrowse_clicked()
 {
-	auto path = QFileDialog::getExistingDirectory(this,
-		tr("Select New File Directory"), ui->editCreateIn->text(),
-		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	auto path =
+		QFileDialog::getExistingDirectory(this, tr("Select New File Directory"),
+			ui->editCreateIn->text(), QFileDialog::ShowDirsOnly);
 	if (!path.isEmpty())
 		ui->editCreateIn->setText(path);
 }

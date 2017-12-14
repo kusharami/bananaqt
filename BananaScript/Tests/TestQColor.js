@@ -1,0 +1,104 @@
+﻿function testQColor()
+{
+	assert(QColor.prototype.red === -1);
+	assert(QColor.prototype.green === -1);
+	assert(QColor.prototype.blue === -1);
+	assert(QColor.prototype.alpha === -1);
+	assert(isNaN(QColor.prototype.redF));
+	assert(isNaN(QColor.prototype.greenF));
+	assert(isNaN(QColor.prototype.blueF));
+	assert(isNaN(QColor.prototype.alphaF));
+	assert(QColor.prototype.rgb === 0);
+	assert(QColor.prototype.rgba === 0);
+	assert(QColor.prototype.toString() === "QColor");
+	assert(QColor.prototype.toStringWithAlpha() === "");
+	assert(QColor.prototype.clone().equals("black"));
+	assert(!QColor.prototype.equals(0));
+	assert(!QColor.prototype.equals(0, 0, 0, 0));
+	QColor.prototype.assign("white");
+	QColor.prototype.setNamedColor("blablabla");
+
+	assert(QColor.isValidColor("white"));
+	assert(QColor.isValidColor("blue"));
+	assert(QColor.isValidColor("#FFFFFF"));
+	assert(!QColor.isValidColor("oi3ou8*"));
+	assert(!QColor.isValidColor(""));
+	var white = new QColor("white");
+	print(white.valueOf());
+	assert(white instanceof QColor);
+	assert(white.equals("#FFFFFF"));
+	assert(white.equals(new QColor("#FFFFFF")));
+	assert(white.equals(new QColor(255, 255, 255)));
+	assert(white.equals(255, 255, 255, 255));
+	assert(white.equals({r:255,g:255,b:255,a:255}));
+	assert(white.equals({red:255,green:255,blue:255,alpha:255}));
+	assert(white.red === 255);
+	assert(white.green === 255);
+	assert(white.blue === 255);
+	assert(white.alpha === 255);
+	assert(white.redF === 1.0);
+	assert(white.greenF === 1.0);
+	assert(white.blueF === 1.0);
+	assert(white.alphaF === 1.0);
+	assert(white.toString() === "#ffffff");
+	assert(white.toStringWithAlpha() === "#ffffffff");
+	assert(white.rgba === 0xFFFFFFFF);
+	assert(white.rgb === 0xFFFFFFFF);
+	print("white: %1", white);
+
+	var black = white.clone();
+	black.redF = 0;
+	black.greenF = 0;
+	black.blueF = 0;
+	assert(black.alpha === 255);
+	assert(!black.equals(white));
+	assert(black.toString() === "#000000");
+	assert(black.rgba === 0xFF000000);
+	assert(black.rgb === 0xFF000000);
+	print("black: %1", black);
+
+	var blue = new QColor("blue");
+	assert(blue.red === 0);
+	assert(blue.green === 0);
+	assert(blue.blue === 255);
+	assert(blue.alpha === 255);
+	assert(blue.redF === 0);
+	assert(blue.greenF === 0);
+	assert(blue.blueF === 1.0);
+	assert(blue.alphaF === 1.0);
+	assert(blue.toString() === "#0000ff");
+	assert(blue.rgba === 0xFF0000FF);
+	assert(blue.rgb === blue.rgba);
+	print("blue: %1", blue);
+
+	var transBlue = blue.clone();
+	assert(transBlue.equals(blue));
+	transBlue.alphaF = 0.5;
+	assert(!transBlue.equals(blue));
+	assert(transBlue.alpha === Math.round(255 * 0.5));
+	var aMsk = transBlue.alpha * 0x1000000;
+	assert(transBlue.rgba === ((blue.rgb & 0xFFFFFF) + aMsk));
+	assert(transBlue.rgb === blue.rgb);
+
+	assert(!white.equals(transBlue));
+	var yellow = new QColor();
+	assert(yellow.equals(black));
+	yellow.setNamedColor("yellow");
+	assert(yellow.red === 255);
+	assert(yellow.green === 255);
+	assert(yellow.blue === 0);
+	assert(yellow.alpha === 255);
+	assert(yellow.redF === 1.0);
+	assert(yellow.greenF === 1.0);
+	assert(yellow.blueF === 0);
+	assert(yellow.alphaF === 1.0);
+	print("yellow: %1", yellow);
+
+	var test = new QColor();
+	test.assign(yellow);
+	assert(test.equals(yellow));
+	test.assign(black);
+	assert(test.equals(black));
+	assert(!test.equals(yellow));
+	print("QColor OK");
+}

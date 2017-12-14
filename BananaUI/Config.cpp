@@ -74,7 +74,14 @@ void InstallTranslations(const QLocale &locale)
 {
 	static QTranslator translator;
 	if (translator.load(locale, "BananaUI.qm", "", ":/Translations"))
-		QCoreApplication::installTranslator(&translator);
+	{
+		static bool installOnce = false;
+		if (not installOnce)
+		{
+			installOnce = true;
+			QCoreApplication::installTranslator(&translator);
+		}
+	}
 }
 }
 

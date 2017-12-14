@@ -27,7 +27,11 @@ SOFTWARE.
 #include "QtnProperty/PropertyWidgetEx.h"
 #include "QtnProperty/Enum.h"
 
-#include "BananaCore/ScriptManager.h"
+#include "BananaScript/ScriptManager.h"
+
+#include <QKeySequence>
+
+#include <vector>
 
 class ScriptEntriesWidget : public QtnPropertyWidgetEx
 {
@@ -36,16 +40,24 @@ class ScriptEntriesWidget : public QtnPropertyWidgetEx
 	enum
 	{
 		ENTRY_PROPERTY_ID = 1,
-		TYPE_PROPERTY_ID,
+		TYPES_PROPERTY_ID,
 		FILE_PATH_PROPERTY_ID,
-		CAPTION_PROPERTY_ID
+		CAPTION_PROPERTY_ID,
+		KEYSEQ_PROPERTY_ID
 	};
 
-	QtnEnumInfo mObjectTypeEnumInfo;
 	QtnPropertyDelegateInfo mFileDelegateInfo;
 	QtnPropertyDelegateInfo mCaptionDelegateInfo;
 
-	using EnumItems = QVector<QtnEnumValueInfo>;
+	struct EnumItem
+	{
+		QtnEnumValueInfo valueInfo;
+		const QMetaObject *metaObject;
+	};
+
+	using EnumItems = std::vector<EnumItem>;
+	EnumItems mEnumItems;
+	QtnEnumInfo mObjectTypeEnumInfo;
 
 public:
 	using Entry = Banana::ScriptManager::Entry;
@@ -75,19 +87,11 @@ protected:
 private:
 	static QString entryDisplayCaption(const QString &caption);
 	static EnumItems objectTypeEnumItems();
-	static bool objectTypeLessThan(
-		const QtnEnumValueInfo &a, const QtnEnumValueInfo &b);
+	static bool enumItemLessThan(const EnumItem &a, const EnumItem &b);
+	qint32 metaObjectsToFlags(
+		const Banana::ScriptCommand::MetaObjects &metaObjects) const;
+	Banana::ScriptCommand::MetaObjects metaObjectsFromFlags(qint32 flags) const;
 	QtnPropertySet *newPropertySetForEntry(const Entry &entry) const;
 
-	struct InternalEntry
-	{
-		int objectType;
-		QString filePath;
-		QString caption;
-
-		Entry toEntry() const;
-	};
-
-	InternalEntry internalEntryFrom(QtnPropertySet *set) const;
 	Entry entryFrom(QtnPropertySet *set) const;
 };

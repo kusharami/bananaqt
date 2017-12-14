@@ -24,6 +24,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "BananaUI/ISelectionDelegate.h"
+
 #include <QTreeView>
 
 class QFileInfo;
@@ -37,7 +39,9 @@ class AbstractFileSystemObject;
 class ProjectDirectoryModel;
 class ProjectDirectoryFilterModel;
 
-class ProjectTreeView : public QTreeView
+class ProjectTreeView
+	: public QTreeView
+	, public ISelectionDelegate
 {
 	Q_OBJECT
 
@@ -46,6 +50,9 @@ public:
 
 	void select(AbstractFileSystemObject *file, bool expand = false);
 	void select(const QString &filepath, bool expand = false);
+
+	virtual QObjectList getSelectedItems() const override;
+	virtual void setSelectedItems(const QObjectList &items) override;
 
 	QModelIndexList getSelectedFilesIndexList() const;
 	QStringList getSelectedFilesList(bool relative) const;

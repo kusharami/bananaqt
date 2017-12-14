@@ -29,7 +29,6 @@ SOFTWARE.
 #include "OpenedFiles.h"
 #include "Directory.h"
 #include "SearchPaths.h"
-#include "ScriptManager.h"
 #include "Config.h"
 #include "ProjectGroup.h"
 #include "IProjectGroupDelegate.h"
@@ -56,11 +55,6 @@ const QString AbstractProjectFile::TYPE_FILE_LINK = QStringLiteral("FileLink");
 const QString AbstractProjectFile::USER_SPECIFIC_KEY =
 	QStringLiteral("UserSpecific");
 const QString AbstractProjectFile::USER_PATHS_KEY = QStringLiteral("UserPaths");
-const QString AbstractProjectFile::SCRIPTS_KEY =
-	QStringLiteral("RegisterScripts");
-const QString AbstractProjectFile::CAPTION_KEY = QStringLiteral("Caption");
-const QString AbstractProjectFile::OBJECT_TYPE_KEY =
-	QStringLiteral("ObjectType");
 
 struct AbstractProjectFile::FileInfo
 {
@@ -131,7 +125,6 @@ AbstractProjectFile::AbstractProjectFile(
 	: VariantMapFile(extension)
 	, openedFiles(nullptr)
 	, searchPaths(nullptr)
-	, scriptManager(nullptr)
 {
 	setObjectName(name);
 
@@ -141,14 +134,12 @@ AbstractProjectFile::AbstractProjectFile(
 	(void) QT_TRANSLATE_NOOP(
 		"Banana::AbstractProjectFile", "mIgnoredFilesPattern");
 	(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mSearchPaths");
-	(void) QT_TRANSLATE_NOOP("Banana::AbstractProjectFile", "mScriptManager");
 }
 
 AbstractProjectFile::~AbstractProjectFile()
 {
 	watch(false);
 	delete searchPaths;
-	delete scriptManager;
 }
 
 bool AbstractProjectFile::isWatched() const
@@ -208,21 +199,6 @@ void AbstractProjectFile::resetSearchPaths()
 	getSearchPaths()->clear();
 }
 
-ScriptManager *AbstractProjectFile::getScriptManager()
-{
-	if (scriptManager == nullptr)
-	{
-		scriptManager = new ScriptManager(this);
-	}
-
-	return scriptManager;
-}
-
-void AbstractProjectFile::resetScriptManager()
-{
-	getScriptManager()->clear();
-}
-
 QString AbstractProjectFile::getAbsoluteFilePathFor(
 	const QString &filepath) const
 {
@@ -254,6 +230,17 @@ void AbstractProjectFile::setUserSpecificPathFor(
 	file->setUserSpecific(user);
 
 	setModified(true);
+}
+
+bool AbstractProjectFile::doLoad(QIODevice *device)
+{
+	if (VariantMapFile::doLoad(device))
+	{
+		saveUserSettings();
+		return true;
+	}
+
+	return false;
 }
 
 void AbstractProjectFile::loadUserSettings()
@@ -426,104 +413,6 @@ void AbstractProjectFile::saveSearchPathEntries(QVariantMap &output)
 	}
 }
 
-bool AbstractProjectFile::loadScriptEntries(const QVariantMap &input)
-{
-	auto value = Utils::ValueFrom(input, SCRIPTS_KEY, QVariantList());
-
-	if (value.type() != QVariant::List)
-		return false;
-
-	auto list = value.toList();
-	value.clear();
-
-	if (list.isEmpty() && nullptr == scriptManager)
-		return true;
-
-	auto scriptManager = getScriptManager();
-	auto rootDir = getParentDirectory();
-
-	for (const auto &value : list)
-	{
-		if (value.type() != QVariant::Map)
-		{
-			LOG_WARNING(QStringLiteral("Bad script entry"));
-			return false;
-		}
-
-		auto vmap = value.toMap();
-
-		auto vCaption = Utils::ValueFrom(vmap, CAPTION_KEY, QString());
-
-		if (vCaption.type() != QVariant::String)
-		{
-			LOG_WARNING(QStringLiteral("Bad script caption entry"));
-			return false;
-		}
-
-		auto vPath = Utils::ValueFrom(vmap, PATH_KEY);
-
-		QString pathStr;
-
-		if (vPath.type() == QVariant::String)
-			pathStr = vPath.toString();
-
-		if (pathStr.isEmpty())
-		{
-			LOG_WARNING(QStringLiteral("Bad script path entry"));
-			return false;
-		}
-
-		auto vType = Utils::ValueFrom(vmap, OBJECT_TYPE_KEY);
-
-		QString typeStr;
-
-		if (vType.type() == QVariant::String)
-			typeStr = vType.toString();
-
-		auto metaObject = Utils::GetMetaObjectForClass(typeStr);
-
-		if (nullptr == metaObject)
-		{
-			LOG_WARNING(QStringLiteral("Bad script object type entry"));
-			return false;
-		}
-
-		auto filePath = rootDir->getAbsoluteFilePathFor(pathStr);
-
-		scriptManager->registerScriptFor(
-			metaObject, filePath, vCaption.toString());
-	}
-
-	return true;
-}
-
-void AbstractProjectFile::saveScriptEntries(QVariantMap &output)
-{
-	if (scriptManager == nullptr)
-		return;
-
-	QVariantList entries;
-
-	auto &scriptEntries = getScriptManager()->scriptEntries();
-	auto rootDir = getParentDirectory();
-
-	for (auto &entry : scriptEntries)
-	{
-		QVariantMap vmap;
-
-		vmap.insert(OBJECT_TYPE_KEY, entry.metaObject->className());
-		vmap.insert(PATH_KEY, rootDir->getRelativeFilePathFor(entry.filePath));
-		vmap.insert(CAPTION_KEY, entry.caption);
-
-		entries.append(vmap);
-	}
-
-	if (not entries.isEmpty())
-	{
-		output.insert(SCRIPTS_KEY, entries);
-	}
-}
-
 void AbstractProjectFile::saveData(QVariantMap &output)
 {
 	VariantMapFile::saveData(output);
@@ -531,7 +420,6 @@ void AbstractProjectFile::saveData(QVariantMap &output)
 	saveFileEntries(output);
 	saveIgnoredFileEntries(output);
 	saveSearchPathEntries(output);
-	saveScriptEntries(output);
 	saveUserSettings();
 }
 
@@ -718,27 +606,17 @@ bool AbstractProjectFile::loadData(const QVariantMap &input)
 		}
 		siblings.clear();
 
-		delete scriptManager;
-		scriptManager = nullptr;
-
 		if (VariantMapFile::loadData(input))
 		{
 			loadUserSettings();
 
 			ok = loadIgnoredFileEntries(input) && //
 				loadFileEntries(projectDir, input) && //
-				loadSearchPathEntries(input) && //
-				loadScriptEntries(input);
+				loadSearchPathEntries(input);
 		}
 	}
 
 	endLoad();
-
-	if (ok)
-	{
-		saveUserSettings();
-	}
-
 	return ok;
 }
 

@@ -46,6 +46,7 @@ AbstractFile::AbstractFile(const QString &extension)
 	, oldParent(nullptr)
 	, connectedData(nullptr)
 {
+	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::AbstractFile");
 }
 
 AbstractFile::~AbstractFile()
@@ -308,6 +309,12 @@ Directory *AbstractFile::getSearchedDirectory(Directory *topDirectory) const
 	return topDirectory;
 }
 
+void AbstractFile::tryClose()
+{
+	if (not isBound())
+		close();
+}
+
 bool AbstractFile::rename(const QString &newName)
 {
 	if (open())
@@ -335,7 +342,7 @@ void AbstractFile::setUserSpecific(bool yes)
 bool AbstractFile::saveTo(QIODevice *device)
 {
 	QString filepath(getCanonicalFilePath());
-	bool exists = QFile::exists(filepath);
+	bool exists = QFileInfo(filepath).isFile();
 	if (isOpen())
 	{
 		if (!exists || isModified())
@@ -422,12 +429,6 @@ void AbstractFile::onDataDestroyed()
 	modified = false;
 	emit modifiedFlagChanged(false);
 	emit flagsChanged();
-}
-
-void AbstractFile::tryCloseAndDelete()
-{
-	if (not isBound() && close() && not isUserSpecific())
-		delete this;
 }
 
 QObject *AbstractFile::doGetData()
@@ -579,8 +580,12 @@ bool AbstractFile::tryChangeFilePath(const QString &newPath)
 	if (loadError)
 		return true;
 
-	if (!QFile::exists(savedPath))
+	QFileInfo fileInfo(savedPath);
+	if (not fileInfo.exists())
 		return true;
+
+	if (not fileInfo.isFile())
+		return false;
 
 	if (QDir().mkpath(QFileInfo(newPath).path()) &&
 		QFile::rename(savedPath, newPath))

@@ -24,10 +24,11 @@ SOFTWARE.
 
 #include "ScriptRunnerDialog.h"
 
+#include "BananaScript/ScriptRunner.h"
+#include "BananaScript/ScriptUtils.h"
+
 #include "BananaCore/ProjectGroup.h"
 #include "BananaCore/Config.h"
-#include "BananaCore/ScriptRunner.h"
-#include "BananaCore/ScriptTemplates.h"
 #include "BananaCore/AbstractProjectDirectory.h"
 #include "BananaCore/IProjectGroupDelegate.h"
 #include "BananaCore/Utils.h"
@@ -47,23 +48,27 @@ SOFTWARE.
 #include <QTimer>
 #include <QScriptEngine>
 #include <QStandardPaths>
+#include <QDateTime>
 
 using namespace Banana;
 #include "ui_ScriptRunnerDialog.h"
 
-using namespace Scripting;
+using namespace Script;
 
 namespace Banana
 {
 struct ScriptSubDialogHandler
 {
 	ScriptRunnerDialog *mDialog;
-	bool mShouldResumeTimer;
 
 	ScriptSubDialogHandler(QScriptContext *context);
+	ScriptSubDialogHandler(ScriptRunnerDialog *dialog);
 	~ScriptSubDialogHandler();
 
 	QString defaultDir() const;
+
+private:
+	void init();
 };
 
 static const QString sScriptRunnerGroup = QStringLiteral("ScriptRunner");
@@ -81,7 +86,7 @@ static bool resolveTitleDir(
 	auto arg = context->argument(0);
 	if (not arg.isString())
 	{
-		error = IncompatibleArgumentType(context, 0);
+		error = ThrowIncompatibleArgumentType(context, 1);
 		return false;
 	}
 
@@ -94,7 +99,7 @@ static bool resolveTitleDir(
 		arg = context->argument(1);
 		if (not arg.isString())
 		{
-			error = IncompatibleArgumentType(context, 1);
+			error = ThrowIncompatibleArgumentType(context, 2);
 			return false;
 		}
 
@@ -110,12 +115,12 @@ static bool resolveTitleDirFilters(QScriptContext *context, QScriptValue &error,
 	if (not resolveTitleDir(context, error, title, dir))
 		return false;
 
-	if (context->argumentCount() >= 2)
+	if (context->argumentCount() >= 3)
 	{
 		auto arg = context->argument(2);
 		if (not arg.isString())
 		{
-			error = IncompatibleArgumentType(context, 2);
+			error = ThrowIncompatibleArgumentType(context, 3);
 			return false;
 		}
 
@@ -140,8 +145,37 @@ static QScriptValue requestExistingFilePath(
 	if (dir.isEmpty())
 		dir = dialogHandler.defaultDir();
 	return QScriptValue(engine,
-		QFileDialog::getOpenFileName(nullptr, title, dir, filters, nullptr,
-			FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks));
+		QFileDialog::getOpenFileName(
+			nullptr, title, dir, filters, nullptr, FILE_DIALOG_FLAGS));
+}
+
+static QScriptValue requestExistingFilePaths(
+	QScriptContext *context, QScriptEngine *engine)
+{
+	QScriptValue result;
+	QString title;
+	QString dir;
+	QString filters;
+	if (not resolveTitleDirFilters(context, result, title, dir, filters))
+		return result;
+
+	ScriptSubDialogHandler dialogHandler(context);
+
+	if (dir.isEmpty())
+		dir = dialogHandler.defaultDir();
+
+	auto fileNames = QFileDialog::getOpenFileNames(
+		nullptr, title, dir, filters, nullptr, FILE_DIALOG_FLAGS);
+
+	auto count = quint32(fileNames.length());
+	result = engine->newArray(count);
+
+	for (quint32 i = 0; i < count; i++)
+	{
+		result.setProperty(i, QScriptValue(engine, fileNames.at(i)));
+	}
+
+	return result;
 }
 
 static QScriptValue requestNewFilePath(
@@ -158,8 +192,8 @@ static QScriptValue requestNewFilePath(
 	if (dir.isEmpty())
 		dir = dialogHandler.defaultDir();
 	return QScriptValue(engine,
-		QFileDialog::getSaveFileName(nullptr, title, dir, filters, nullptr,
-			FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks));
+		QFileDialog::getSaveFileName(
+			nullptr, title, dir, filters, nullptr, FILE_DIALOG_FLAGS));
 }
 
 static QScriptValue requestDirectoryPath(
@@ -178,18 +212,20 @@ static QScriptValue requestDirectoryPath(
 		dir = dialogHandler.defaultDir();
 	return QScriptValue(engine,
 		QFileDialog::getExistingDirectory(nullptr, title, dir,
-			QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
-				QFileDialog::DontResolveSymlinks));
+			QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS));
 }
 
 ScriptRunnerDialog::ScriptRunnerDialog(QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::ScriptRunnerDialog)
 	, group(nullptr)
-	, timer(nullptr)
 	, runner(nullptr)
 	, abortDelegate(nullptr)
-	, execCount(0)
+	, lastRespondTime(0)
+	, timerId(0)
+	, running(false)
+	, checkRespond(false)
+	, waiting(false)
 	, stopShow(false)
 {
 	ui->setupUi(this);
@@ -203,7 +239,6 @@ ScriptRunnerDialog::ScriptRunnerDialog(QWidget *parent)
 
 ScriptRunnerDialog::~ScriptRunnerDialog()
 {
-	delete timer;
 	delete ui;
 }
 
@@ -215,6 +250,7 @@ void ScriptRunnerDialog::showModal(
 
 	ui->widgetArguments->show();
 	ui->buttonBrowse->show();
+	ui->runButton->setText(getRunText());
 	ui->runButton->show();
 	ui->editScriptFile->setReadOnly(false);
 
@@ -222,6 +258,7 @@ void ScriptRunnerDialog::showModal(
 
 	this->group = group;
 
+	setAbortDelegate(runner);
 	setScriptFilePath(scriptFilePath);
 	stopShow = false;
 
@@ -234,8 +271,10 @@ void ScriptRunnerDialog::showModal(
 
 bool ScriptRunnerDialog::abort()
 {
-	if (execCount > 0)
+	if (running)
 	{
+		ScriptSubDialogHandler handler(this);
+
 		stopShow = true;
 		if (QMessageBox::Yes !=
 			QMessageBox::question(nullptr, QApplication::applicationName(),
@@ -243,10 +282,6 @@ bool ScriptRunnerDialog::abort()
 				QMessageBox::Yes | QMessageBox::No))
 		{
 			stopShow = false;
-			if (nullptr == runner && timer == nullptr && not isVisible())
-			{
-				showMe();
-			}
 			return false;
 		}
 	}
@@ -267,6 +302,8 @@ void ScriptRunnerDialog::initializeEngine(QScriptEngine *engine)
 
 	system.setProperty(QSTRKEY(requestExistingFilePath),
 		engine->newFunction(requestExistingFilePath, thiz));
+	system.setProperty(QSTRKEY(requestExistingFilePaths),
+		engine->newFunction(requestExistingFilePaths, thiz));
 	system.setProperty(QSTRKEY(requestNewFilePath),
 		engine->newFunction(requestNewFilePath, thiz));
 	system.setProperty(QSTRKEY(requestDirectoryPath),
@@ -275,26 +312,31 @@ void ScriptRunnerDialog::initializeEngine(QScriptEngine *engine)
 
 void ScriptRunnerDialog::beforeScriptExecution(const QString &filePath)
 {
-	execCount++;
+	timerId = startTimer(1000);
+	Q_ASSERT(not running);
+	running = true;
 	beginWait();
+
+	checkRespond = true;
+	lastRespondTime = QDateTime::currentMSecsSinceEpoch();
+
+	ui->runButton->setText(getAbortText());
+	ui->runButton->show();
 
 	ui->textAreaLog->clear();
 	if (runner)
 	{
 		ui->widgetScriptFile->setEnabled(false);
 		ui->argButtonGroup->setEnabled(false);
-		ui->runButton->setEnabled(false);
 	} else
 	{
 		ui->widgetArguments->hide();
 		ui->buttonBrowse->hide();
-		ui->runButton->hide();
 		ui->editScriptFile->setReadOnly(true);
 		setScriptFilePath(filePath, false);
 		emit shouldDisableParentWindow();
 	}
 
-	startTimer();
 	stopShow = false;
 
 	showProgressBar();
@@ -302,25 +344,26 @@ void ScriptRunnerDialog::beforeScriptExecution(const QString &filePath)
 
 void ScriptRunnerDialog::afterScriptExecution(bool ok, const QString &message)
 {
-	endTimer();
-
+	killTimer(timerId);
+	checkRespond = false;
 	endWait();
+
+	Q_ASSERT(running);
+	running = false;
 
 	if (not ok)
 		scriptRuntimeError(message);
 
 	hideProgressBar();
 
-	Q_ASSERT(execCount > 0);
-	execCount--;
-
 	if (runner)
 	{
-		ui->runButton->setEnabled(true);
+		ui->runButton->setText(getRunText());
 		ui->argButtonGroup->setEnabled(true);
 		ui->widgetScriptFile->setEnabled(true);
 	} else
 	{
+		ui->runButton->hide();
 		emit shouldEnableParentWindow();
 
 		if (isVisible())
@@ -328,17 +371,11 @@ void ScriptRunnerDialog::afterScriptExecution(bool ok, const QString &message)
 	}
 }
 
-void ScriptRunnerDialog::timeout()
-{
-	endTimer();
-	if (execCount > 0)
-	{
-		log(tr("Not responding more than 5 seconds."));
-	}
-}
-
 void ScriptRunnerDialog::log(const QString &text)
 {
+	lastRespondTime = QDateTime::currentMSecsSinceEpoch();
+	checkRespond = true;
+
 	if (nullptr == runner && not stopShow && not isVisible())
 	{
 		showMe();
@@ -346,13 +383,12 @@ void ScriptRunnerDialog::log(const QString &text)
 
 	auto view = ui->textAreaLog;
 	view->moveCursor(QTextCursor::End);
-	view->insertPlainText(text + "\n");
+	view->insertPlainText(text + QLatin1Char('\n'));
 }
 
 void ScriptRunnerDialog::on_buttonBrowse_clicked()
 {
-	QString filter(
-		Directory::getFilterForExtension(Scripting::szScriptExtension));
+	QString filter(Directory::getFilterForExtension(szScriptExtension));
 
 	auto filepath = QFileDialog::getOpenFileName(this, tr("Select Script File"),
 		ui->editScriptFile->text(), filter, &filter, FILE_DIALOG_FLAGS);
@@ -401,7 +437,7 @@ void ScriptRunnerDialog::registerScript()
 {
 	auto filepath = ui->editScriptFile->text();
 
-	if (QFile::exists(filepath))
+	if (QFileInfo(filepath).isFile())
 	{
 		emit registerFilePath(filepath);
 
@@ -424,8 +460,7 @@ void ScriptRunnerDialog::on_btnInsertFilePath_clicked()
 {
 	QString filter;
 	auto filePaths = QFileDialog::getOpenFileNames(this, tr("Select Files"),
-		lastFilePath, filter, &filter,
-		FILE_DIALOG_FLAGS | QFileDialog::DontResolveSymlinks);
+		lastFilePath, filter, &filter, FILE_DIALOG_FLAGS);
 
 	if (!filePaths.isEmpty())
 	{
@@ -438,9 +473,7 @@ void ScriptRunnerDialog::on_btnInsertFilePath_clicked()
 void ScriptRunnerDialog::on_btnInsertDirectoryPath_clicked()
 {
 	auto path = QFileDialog::getExistingDirectory(this, tr("Select Directory"),
-		lastFilePath,
-		QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS |
-			QFileDialog::DontResolveSymlinks);
+		lastFilePath, QFileDialog::ShowDirsOnly | FILE_DIALOG_FLAGS);
 
 	if (!path.isEmpty())
 	{
@@ -481,13 +514,19 @@ void ScriptRunnerDialog::closeEvent(QCloseEvent *event)
 	}
 }
 
-void ScriptRunnerDialog::endTimer()
+void ScriptRunnerDialog::timerEvent(QTimerEvent *event)
 {
-	if (timer)
+	QDialog::timerEvent(event);
+
+	if (running && checkRespond && waiting)
 	{
-		timer->stop();
-		delete timer;
-		timer = nullptr;
+		auto newTime = QDateTime::currentMSecsSinceEpoch();
+		if (newTime - lastRespondTime >= CHECK_RESPOND_SECONDS * 1000)
+		{
+			log(tr("Not responding more than %1 seconds.")
+					.arg(CHECK_RESPOND_SECONDS));
+			checkRespond = false;
+		}
 	}
 }
 
@@ -498,21 +537,29 @@ void ScriptRunnerDialog::showMe()
 	show();
 	raise();
 
-	if (execCount > 0)
+	if (running)
 	{
-		beginWait();
+		setWaitCursor();
 	}
 }
 
-void ScriptRunnerDialog::beginWait()
+void ScriptRunnerDialog::setWaitCursor()
 {
 	QApplication::restoreOverrideCursor();
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 }
 
+void ScriptRunnerDialog::beginWait()
+{
+	Q_ASSERT(not waiting);
+	setWaitCursor();
+	waiting = true;
+}
+
 void ScriptRunnerDialog::endWait()
 {
 	QApplication::restoreOverrideCursor();
+	waiting = false;
 }
 
 void ScriptRunnerDialog::showProgressBar()
@@ -575,41 +622,43 @@ void ScriptRunnerDialog::on_closeButton_clicked()
 
 void ScriptRunnerDialog::on_runButton_clicked()
 {
-	runScript();
+	if (running)
+	{
+		abort();
+	} else
+	{
+		runScript();
+	}
 }
 
-void ScriptRunnerDialog::startTimer()
+QString ScriptRunnerDialog::getRunText()
 {
-	delete timer;
-	timer = new QTimer;
-	timer->setInterval(5000);
-	timer->start();
-	QObject::connect(
-		timer, &QTimer::timeout, this, &ScriptRunnerDialog::timeout);
+	return tr("Run");
+}
+
+QString ScriptRunnerDialog::getAbortText()
+{
+	return tr("Abort");
 }
 
 ScriptSubDialogHandler::ScriptSubDialogHandler(QScriptContext *context)
-	: mShouldResumeTimer(false)
 {
 	auto callee = context->callee();
 
 	auto prototype = callee.property(QSTRKEY(prototype));
 	mDialog = static_cast<ScriptRunnerDialog *>(prototype.toQObject());
-	Q_ASSERT(nullptr != mDialog);
-	if (mDialog->timer != nullptr)
-	{
-		mDialog->endTimer();
-		mShouldResumeTimer = true;
-	}
-	mDialog->endWait();
+	init();
+}
+
+ScriptSubDialogHandler::ScriptSubDialogHandler(ScriptRunnerDialog *dialog)
+	: mDialog(dialog)
+{
+	init();
 }
 
 ScriptSubDialogHandler::~ScriptSubDialogHandler()
 {
-	if (mShouldResumeTimer)
-	{
-		mDialog->startTimer();
-	}
+	Q_ASSERT(nullptr != mDialog);
 	mDialog->beginWait();
 }
 
@@ -623,5 +672,11 @@ QString ScriptSubDialogHandler::defaultDir() const
 	}
 
 	return QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+}
+
+void ScriptSubDialogHandler::init()
+{
+	Q_ASSERT(nullptr != mDialog);
+	mDialog->endWait();
 }
 }

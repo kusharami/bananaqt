@@ -48,8 +48,8 @@ void addShortcutForAction(
 	}
 
 	Q_ASSERT(nullptr != parent);
-	auto shortcut = new QShortcut(
-		sequence, parent, nullptr, nullptr, Qt::ApplicationShortcut);
+	auto shortcut =
+		new QShortcut(sequence, parent, nullptr, nullptr, Qt::WindowShortcut);
 
 	QObject::connect(
 		shortcut, &QShortcut::activated, action, &QAction::trigger);

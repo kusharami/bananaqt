@@ -51,17 +51,17 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="320"/>
+        <location filename="../ChangeValueCommand.cpp" line="312"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
         <translation>Reset value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="325"/>
+        <location filename="../ChangeValueCommand.cpp" line="317"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
         <translation>Change value of &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="330"/>
+        <location filename="../ChangeValueCommand.cpp" line="322"/>
         <source>Multiple objects</source>
         <translation>Multiple objects</translation>
     </message>
@@ -69,22 +69,22 @@
 <context>
     <name>Banana::ChildActionCommand</name>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="94"/>
+        <location filename="../ChildActionCommand.cpp" line="97"/>
         <source>Add object [%1]</source>
         <translation>Add object [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="99"/>
+        <location filename="../ChildActionCommand.cpp" line="102"/>
         <source>Add multiple objects</source>
         <translation>Add multiple objects</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="105"/>
+        <location filename="../ChildActionCommand.cpp" line="108"/>
         <source>Delete object [%1]</source>
         <translation>Delete object [%1]</translation>
     </message>
     <message>
-        <location filename="../ChildActionCommand.cpp" line="110"/>
+        <location filename="../ChildActionCommand.cpp" line="113"/>
         <source>Delete multiple objects</source>
         <translation>Delete multiple objects</translation>
     </message>
@@ -354,7 +354,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="357"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="393"/>
         <source>Select Script File</source>
         <translation>Select Script File</translation>
     </message>
@@ -363,7 +363,7 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Script file is not selected.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="373"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="409"/>
         <source>File &apos;%1&apos; is not found.</source>
         <translation>File &quot;%1&quot; is not found.</translation>
     </message>
@@ -372,32 +372,46 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Execute Script Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="242"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="281"/>
         <source>Do you want to abort script execution?</source>
         <translation>Do you want to abort script execution?</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="536"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="526"/>
+        <source>Not responding more than %1 seconds.</source>
+        <translation>Not responding more than %1 seconds.</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="583"/>
         <source>Script Runtime Error</source>
         <translation>Script Runtime Error</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="426"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="636"/>
+        <source>Run</source>
+        <translation>Run</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="641"/>
+        <source>Abort</source>
+        <translation>Abort</translation>
+    </message>
+    <message>
+        <location filename="../ScriptRunnerDialog.cpp" line="462"/>
         <source>Select Files</source>
         <translation>Select Files</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="336"/>
         <source>Not responding more than 5 seconds.</source>
-        <translation>Not responding more than 5 seconds.</translation>
+        <translation type="vanished">Not responding more than 5 seconds.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="440"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="475"/>
         <source>Select Directory</source>
         <translation>Select Directory</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="469"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="502"/>
         <source>There is no active project directory.</source>
         <translation>There is no active project directory.</translation>
     </message>
@@ -433,17 +447,17 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="199"/>
+        <location filename="../UndoStack.cpp" line="200"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Drag &amp;&amp; Drop: Copy</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="202"/>
+        <location filename="../UndoStack.cpp" line="203"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Drag &amp;&amp; Drop: Move</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="205"/>
+        <location filename="../UndoStack.cpp" line="206"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Drag &amp;&amp; Drop: Link</translation>
     </message>
@@ -2455,24 +2469,33 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="341"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
         <source>(Untitled Action)</source>
         <translation>(Untitled Action)</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="381"/>
         <source>Object Type</source>
-        <translation>Object Type</translation>
+        <translation type="vanished">Object Type</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="390"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
+        <source>Object Types</source>
+        <translation>Object Types</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
         <source>Script File Path</source>
         <translation>Script File Path</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="398"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
         <source>Caption</source>
         <translation>Caption</translation>
+    </message>
+    <message>
+        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
+        <source>Shortcut</source>
+        <translation>Shortcut</translation>
     </message>
 </context>
 <context>
@@ -2537,27 +2560,27 @@ If no, the enumerated name will be given.</translation>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="135"/>
+        <location filename="../ScriptRunnerDialog.ui" line="138"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="194"/>
+        <location filename="../ScriptRunnerDialog.ui" line="197"/>
         <source>Script File:</source>
         <translation>Script File:</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="204"/>
+        <location filename="../ScriptRunnerDialog.ui" line="207"/>
         <source>Browse...</source>
         <translation>Browse...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="287"/>
+        <location filename="../ScriptRunnerDialog.ui" line="290"/>
         <source>Insert File Paths...</source>
         <translation>Insert File Paths...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="320"/>
+        <location filename="../ScriptRunnerDialog.ui" line="323"/>
         <source>Insert Project Entries...</source>
         <translation>Insert Project Entries...</translation>
     </message>
@@ -2566,12 +2589,12 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Insert File Path...</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="300"/>
+        <location filename="../ScriptRunnerDialog.ui" line="303"/>
         <source>Arguments</source>
         <translation>Arguments</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.ui" line="313"/>
+        <location filename="../ScriptRunnerDialog.ui" line="316"/>
         <source>Insert Directory Path...</source>
         <translation>Insert Directory Path...</translation>
     </message>

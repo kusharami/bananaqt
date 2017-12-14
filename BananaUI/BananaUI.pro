@@ -6,17 +6,14 @@ include(../Banana.pri)
 
 QT += core gui widgets script
 
-LIBS += -lBananaCore
+LIBS += -lBananaCore -lBananaScript
 
 TARGET = BananaUI
 TEMPLATE = lib
 CONFIG += staticlib
 
 INCLUDEPATH += $$_PRO_FILE_PWD_/..
-DEPENDPATH += $$_PRO_FILE_PWD_/../BananaCore
-
 INCLUDEPATH += $$_PRO_FILE_PWD_/../QtnProperty
-DEPENDPATH += $$_PRO_FILE_PWD_/../QtnProperty/QtnProperty
 
 RESOURCES = BananaUI.qrc
 
@@ -62,18 +59,14 @@ HEADERS += \
     QtnPropertyScriptManager.h \
     ScriptManagerDialog.h \
     ScriptEntriesWidget.h \
-    FileScriptMenuBuilder.h \
-    AbstractScriptMenuBuilder.h \
-    TreeItemsScriptMenuBuilder.h \
-    ProjectTreeScriptMenuBuilder.h \
     AbstractObjectUndoCommand.h \
     ChangeValueCommand.h \
     ChangeContentsCommand.h \
     ChildActionCommand.h \
     UndoStack.h \
-    IScriptRunnerDialogInitializer.h \
     SelectionCacheManager.h \
-    ISelectionDelegate.h
+    ISelectionDelegate.h \
+    ScriptedActionManager.h
 
 SOURCES += \
     AbstractObjectTreeModel.cpp \
@@ -104,13 +97,10 @@ SOURCES += \
     QtnPropertyScriptManager.cpp \
     ScriptManagerDialog.cpp \
     ScriptEntriesWidget.cpp \
-    FileScriptMenuBuilder.cpp \
-    AbstractScriptMenuBuilder.cpp \
-    TreeItemsScriptMenuBuilder.cpp \
-    ProjectTreeScriptMenuBuilder.cpp \
     AbstractObjectUndoCommand.cpp \
     ChangeValueCommand.cpp \
     ChangeContentsCommand.cpp \
     ChildActionCommand.cpp \
     UndoStack.cpp \
-    SelectionCacheManager.cpp
+    SelectionCacheManager.cpp \
+    ScriptedActionManager.cpp

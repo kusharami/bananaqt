@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include "Core.h"
 #include "SearchPaths.h"
-#include "ScriptManager.h"
 #include "BinaryFile.h"
 #include "Const.h"
 #include "Directory.h"
@@ -53,13 +52,10 @@ void Register()
 
 	qRegisterMetaType<QVariantMap>();
 	qRegisterMetaType<Object *>();
+	qRegisterMetaType<AbstractFile *>();
 	qRegisterMetaType<Directory *>();
 	qRegisterMetaType<BinaryFile *>();
 	qRegisterMetaType<SearchPaths *>();
-	qRegisterMetaType<ScriptManager *>();
-
-	ScriptManager::registerMetaObject(&Object::staticMetaObject);
-	ScriptManager::registerMetaObject(&Directory::staticMetaObject);
 
 	Directory::registerFileType(pNoExtension, &BinaryFile::staticMetaObject,
 		&BinaryData::staticMetaObject);
@@ -70,7 +66,12 @@ void InstallTranslations(const QLocale &locale)
 	static QTranslator translator;
 	if (translator.load(locale, "BananaCore.qm", "", ":/Translations"))
 	{
-		QCoreApplication::installTranslator(&translator);
+		static bool installOnce = false;
+		if (not installOnce)
+		{
+			installOnce = true;
+			QCoreApplication::installTranslator(&translator);
+		}
 	}
 }
 }

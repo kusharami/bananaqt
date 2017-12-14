@@ -26,7 +26,6 @@ SOFTWARE.
 
 #include "Core.h"
 #include "NamingPolicy.h"
-#include "ScriptUtils.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -46,7 +45,6 @@ SOFTWARE.
 #include <QSize>
 #include <QSizeF>
 #include <QTextStream>
-#include <QScriptEngine>
 #include <QMetaEnum>
 #include <QProcess>
 #include <QMimeData>
@@ -559,88 +557,6 @@ bool CheckFilePath(const QString &path)
 	return true;
 }
 
-QScriptValue VariantToScriptValue(
-	const QVariant &variant, QScriptEngine *engine)
-{
-	QScriptValue result;
-
-	switch (variant.type())
-	{
-		case QVariant::Map:
-		{
-			auto vmap = variant.toMap();
-
-			result = engine->newObject();
-
-			for (auto it = vmap.begin(); it != vmap.end(); ++it)
-			{
-				auto &key = it.key();
-				auto &value = it.value();
-
-				result.setProperty(key, VariantToScriptValue(value, engine));
-			}
-			break;
-		}
-
-		case QVariant::List:
-		case QVariant::StringList:
-		{
-			auto vlist = variant.toList();
-
-			int len = vlist.length();
-			result = engine->newArray(len);
-
-			for (int i = 0; i < len; i++)
-			{
-				auto &value = vlist.at(i);
-
-				result.setProperty(i, VariantToScriptValue(value, engine));
-			}
-			break;
-		}
-
-		default:
-		{
-			if (variant.isNull() || !variant.isValid())
-				result = QScriptValue(engine, QScriptValue::NullValue);
-			else
-				switch (variant.type())
-				{
-					case QVariant::Bool:
-						result = QScriptValue(engine, variant.toBool());
-						break;
-
-					case QVariant::Int:
-						result = QScriptValue(engine, variant.toInt());
-						break;
-
-					case QVariant::UInt:
-						result = QScriptValue(engine, variant.toUInt());
-						break;
-
-					case QVariant::LongLong:
-					case QVariant::ULongLong:
-					case QVariant::Double:
-						result = QScriptValue(engine, variant.toDouble());
-						break;
-
-					case QVariant::Char:
-					case QVariant::String:
-						result = QScriptValue(engine, variant.toString());
-						break;
-
-					default:
-						result = engine->newVariant(variant);
-						break;
-				}
-
-			break;
-		}
-	}
-
-	return result;
-}
-
 bool LoadBinaryFromIODevice(QByteArray &output, QIODevice *device)
 {
 	Q_ASSERT(nullptr != device);
@@ -806,7 +722,66 @@ bool VariantsEqual(const QVariant &a, const QVariant &b)
 	if (emptyB)
 		return emptyA;
 
-	return (a.type() == b.type() && a.userType() == b.userType() && a == b);
+	if (a.type() != b.type())
+		return false;
+
+	if (a.userType() != b.userType())
+		return false;
+
+	switch (a.type())
+	{
+		case QVariant::Map:
+		{
+			auto aMap = a.toMap();
+			auto bMap = b.toMap();
+
+			if (aMap.size() != bMap.size())
+				return false;
+
+			auto aIt = aMap.constBegin();
+			auto bIt = bMap.constBegin();
+
+			for (; aIt != aMap.constEnd(); ++aIt, ++bIt)
+			{
+				if (aIt.key() != bIt.key())
+					return false;
+			}
+
+			aIt = aMap.constBegin();
+			bIt = bMap.constBegin();
+
+			for (; aIt != aMap.constEnd(); ++aIt, ++bIt)
+			{
+				if (not VariantsEqual(aIt.value(), bIt.value()))
+					return false;
+			}
+
+			return true;
+		}
+
+		case QVariant::List:
+		{
+			auto aList = a.toList();
+			auto bList = b.toList();
+
+			int count = aList.size();
+			if (count != bList.size())
+				return false;
+
+			for (int i = 0; i < count; i++)
+			{
+				if (not VariantsEqual(aList.at(i), bList.at(i)))
+					return false;
+			}
+
+			return true;
+		}
+
+		default:
+			break;
+	}
+
+	return a == b;
 }
 
 bool VariantIsEmpty(const QVariant &value)

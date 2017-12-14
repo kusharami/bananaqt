@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "BananaCore/ContainerTypes.h"
+#include <QObject>
 
 namespace Banana
 {
@@ -32,7 +32,7 @@ struct ISelectionDelegate
 {
 	virtual ~ISelectionDelegate() {}
 
-	virtual const QObjectSet &getSelectedItems() const = 0;
-	virtual void setSelectedItems(const QObjectSet &items) = 0;
+	virtual QObjectList getSelectedItems() const = 0;
+	virtual void setSelectedItems(const QObjectList &items) = 0;
 };
 }
