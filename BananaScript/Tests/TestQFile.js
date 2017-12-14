@@ -69,7 +69,9 @@ function testQFile()
 	assert(file.filePath === filePathRen);
 	assert(file.link(filePathLink));
 	var file2 = new QFile(filePathLink);
-	assert(file2.symLinkTarget === filePathRen);
+	var symLinkTarget = String(file2.symLinkTarget);
+	assert(symLinkTarget.indexOf(
+			   filePathRen) === symLinkTarget.length - filePathRen.length);
 	assert(file2.exists());
 	assert(QFile.exists(filePathLink));
 	assert(QFile.remove(filePathLink));
