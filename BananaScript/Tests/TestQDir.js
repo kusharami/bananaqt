@@ -56,13 +56,20 @@
 	assert(dir.readable);
 	assert(dir.relative);
 	assert(!dir.absolute);
+	assert(dir.path === '.');
+	assert(dir.absolutePath.indexOf(currentPath) === 0);
+	assert(dir.canonicalPath !== '.');
+	var temp = false;
+	if (new QFileInfo(dir.absolutePath).isRoot)
+	{
+		dir = QDir.temp();
+		currentPath = dir.path;
+		temp = true;
+	}
 	print("Absolute current path: %1", QDir.toNativeSeparators(dir.absolutePath));
 	print("Canonical current path: %1", QDir.toNativeSeparators(dir.canonicalPath));
 	print("Home path: %1", QDir.toNativeSeparators(QDir.homePath));
 	print("Temp path: %1", QDir.toNativeSeparators(QDir.tempPath));
-	assert(dir.path === '.');
-	assert(dir.absolutePath.indexOf(currentPath) === 0);
-	assert(dir.canonicalPath !== '.');
 	assert(dir.toString() === dir.path);
 	assert(!dir.isRoot);
 	assert(dir.cdUp());
@@ -73,11 +80,11 @@
 	assert(dir.dirName !== dir.path);
 	var dir2 = new QDir();
 	assert(dir2.makeAbsolute());
-	assert(dir2.path.indexOf(dir.path) === 0);
+	assert(dir2.isRoot || dir2.path.indexOf(dir.path) === 0);
 	dir2.path = [dir2.path, "..", dir2.dirName].join(QDir.separator);
 	assert(dir2.absolute);
 	assert(dir2.path !== dir2.absolutePath);
-	assert(QDir.cleanPath(dir2.path) === currentPath);
+	assert(temp || QDir.cleanPath(dir2.path) === currentPath);
 
 	var tempDirName = "ScriptTempDir";
 	var tempFileName = "ScriptTempFile";

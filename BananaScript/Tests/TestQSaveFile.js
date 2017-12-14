@@ -10,7 +10,10 @@ function testQSaveFile()
 	assert(QSaveFile.prototype.toString() === "QSaveFile");
 	QSaveFile.prototype.cancelWriting();
 
-	var filePath = "QSaveFile.test";
+	var workDir = QDir.current();
+	if (workDir.isRoot)
+		workDir = QDir.temp();
+	var filePath = workDir.filePath("QSaveFile.test");
 	QFile.remove(filePath);
 	var file = testFile(QSaveFile, QIODevice.WriteOnly,	filePath);
 	assert(file instanceof QSaveFile);

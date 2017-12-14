@@ -13,7 +13,11 @@ function testQFile()
 	assert(!QFile.prototype.link(""));
 	assert(QFile.prototype.toString() === "QFile");
 
-	var filePath = "QFile.test";
+
+	var workDir = QDir.current();
+	if (workDir.isRoot)
+		workDir = QDir.temp();
+	var filePath = workDir.filePath("QFile.test");
 	QFile.remove(filePath);
 	var file = testFile(QFile, QIODevice.WriteOnly | QIODevice.Truncate,
 						filePath);
@@ -106,7 +110,7 @@ function testQFile()
 	assert(!file.exists());
 	assert(!QFile.exists(filePathRen));
 
-	var textFilePath = "QFile.txt";
+	var textFilePath = workDir.filePath("QFile.txt");
 
 	file.filePath = textFilePath;
 	var text = "Text to write\n";

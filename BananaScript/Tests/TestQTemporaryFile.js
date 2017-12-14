@@ -18,12 +18,13 @@ function testQTemporaryFile()
 
 	assert(!file.exists());
 
-	file = new QTemporaryFile("ScriptTemp");
-	assert(file.fileTemplate === "ScriptTemp");
+	var baseName = "ScriptTemp";
+	file = new QTemporaryFile(QDir.temp().filePath(baseName));
+	assert(file.fileTemplate.indexOf(baseName) >= 0);
 	file.autoRemove = false;
 	assert(file.open());
 	print(file.filePath);
-	assert(file.filePath.indexOf("ScriptTemp") >= 0);
+	assert(file.filePath.indexOf(baseName) >= 0);
 	assert(!file.autoRemove);
 	file.close();
 	testFileError(file);

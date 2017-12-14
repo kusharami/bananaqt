@@ -44,8 +44,8 @@
 	QFileInfo.prototype.refresh();
 
 	var baseName = "TestQFileInfo";
-	var tempFile = new QTemporaryFile(baseName);
-	tempFile.open();
+	var tempFile = new QTemporaryFile(QDir.temp().filePath(baseName));
+	assert(tempFile.open());
 	tempFile.write("444");
 	tempFile.flush();
 	var filePath = tempFile.filePath;
@@ -75,7 +75,8 @@
 	info = new QFileInfo(filePath);
 	assert(info.filePath === filePath);
 	assert(info.absoluteFilePath === info.absoluteDir.filePath(filePath));
-	assert(info.canonicalFilePath === info.absoluteFilePath);
+	print(info.absoluteFilePath);
+	assert(QFile.exists(info.canonicalFilePath));
 	assert(info.fileName.indexOf(baseName) === 0);
 	assert(info.baseName === baseName);
 	var compareName = strf("%1.%2", info.completeBaseName, info.suffix);
@@ -83,7 +84,7 @@
 	assert(compareName === info.fileName);
 	assert(info.path === info.dir.path);
 	assert(info.absolutePath === info.absoluteDir.path);
-	assert(info.canonicalPath === info.absolutePath);
+	assert(QDir.exists(info.canonicalPath));
 	assert(info.exists());
 	assert(info.isFile);
 	assert(!info.isDir);
