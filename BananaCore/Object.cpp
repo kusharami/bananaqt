@@ -100,6 +100,7 @@ bool Object::shouldSwapModifiedFieldsFor(QObject *source) const
 
 void Object::beginReload()
 {
+	Q_ASSERT(not deleted);
 	if (reloadCounter++ == 0)
 	{
 		if (nullptr != undoStack)
@@ -113,6 +114,7 @@ void Object::beginReload()
 
 void Object::endReload()
 {
+	Q_ASSERT(not deleted);
 	Q_ASSERT(reloadCounter > 0);
 
 	if (--reloadCounter == 0)
@@ -696,7 +698,7 @@ void Object::onPrototypeChildRemoved(QObject *protoChild)
 	auto child = findChild<Object *>(
 		protoChild->objectName(), Qt::FindDirectChildrenOnly);
 	if (nullptr != child)
-		child->onPrototypeDestroyed(protoChild);
+		child->onPrototypeDestroyed(qobject_cast<Object *>(protoChild));
 }
 
 void Object::removeAllChildrenInternal()
@@ -734,8 +736,17 @@ bool Object::canBeUsedAsPrototype(Object *object) const
 		!isAncestorOf(object) && !object->checkPrototypeCycling(this));
 }
 
-void Object::onPrototypeDestroyed(QObject *object)
+void Object::onPrototypeDestroyed(Object *object)
 {
+	QObject::disconnect(object, &Object::reloadStarted, this,
+		&Object::onPrototypeReloadStarted);
+	QObject::disconnect(object, &Object::reloadFinished, this,
+		&Object::onPrototypeReloadFinished);
+	QObject::disconnect(
+		object, &Object::childAdded, this, &Object::onPrototypeChildAdded);
+	QObject::disconnect(
+		object, &Object::childRemoved, this, &Object::onPrototypeChildRemoved);
+
 	if (undoStack)
 	{
 		undoStack->clear();
@@ -787,6 +798,9 @@ void Object::onPrototypeReloadStarted()
 
 void Object::onPrototypeReloadFinished()
 {
+	if (deleted)
+		return;
+
 	if (protoReloadCounter == 0)
 		return;
 
@@ -932,7 +946,7 @@ void Object::connectChildPrototypeDestroy()
 {
 	if (nullptr != childPrototype && childPrototype != prototype)
 	{
-		QObject::connect(childPrototype, &QObject::destroyed, this,
+		QObject::connect(childPrototype, &Object::beforeDestroy, this,
 			&Object::onPrototypeDestroyed);
 	}
 }
@@ -941,7 +955,7 @@ void Object::disconnectChildPrototypeDestroy()
 {
 	if (nullptr != childPrototype && childPrototype != prototype)
 	{
-		QObject::disconnect(childPrototype, &QObject::destroyed, this,
+		QObject::disconnect(childPrototype, &Object::beforeDestroy, this,
 			&Object::onPrototypeDestroyed);
 	}
 }
@@ -1106,7 +1120,7 @@ bool Object::canAssignPropertyFrom(QObject *source, int propertyId) const
 void Object::doConnectPrototype()
 {
 	QObject::connect(
-		prototype, &QObject::destroyed, this, &Object::onPrototypeDestroyed);
+		prototype, &Object::beforeDestroy, this, &Object::onPrototypeDestroyed);
 	if (nullptr == childPrototype || prototype == childPrototype)
 	{
 		QObject::connect(prototype, &Object::reloadStarted, this,
@@ -1119,7 +1133,7 @@ void Object::doConnectPrototype()
 void Object::doDisconnectPrototype()
 {
 	QObject::disconnect(
-		prototype, &QObject::destroyed, this, &Object::onPrototypeDestroyed);
+		prototype, &Object::beforeDestroy, this, &Object::onPrototypeDestroyed);
 	if (nullptr == childPrototype || prototype == childPrototype)
 	{
 		QObject::disconnect(prototype, &Object::reloadStarted, this,

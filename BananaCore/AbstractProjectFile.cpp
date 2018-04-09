@@ -138,6 +138,7 @@ AbstractProjectFile::AbstractProjectFile(
 
 AbstractProjectFile::~AbstractProjectFile()
 {
+	emit fileDestroyed();
 	watch(false);
 	delete searchPaths;
 }

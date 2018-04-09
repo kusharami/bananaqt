@@ -40,6 +40,11 @@ BinaryFile::BinaryFile()
 	(void) QT_TRANSLATE_NOOP("ClassName", "Banana::BinaryFile");
 }
 
+BinaryFile::~BinaryFile()
+{
+	emit fileDestroyed();
+}
+
 bool BinaryFile::isWritableFormat(const QString &extension) const
 {
 	return (extension.isEmpty());

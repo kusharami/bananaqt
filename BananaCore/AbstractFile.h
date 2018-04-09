@@ -116,6 +116,7 @@ public:
 	void tryClose();
 
 signals:
+	void fileDestroyed();
 	void flagsChanged();
 	void dataChanged();
 	void fileOpened();

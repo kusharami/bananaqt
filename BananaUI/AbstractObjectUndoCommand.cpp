@@ -33,7 +33,7 @@ AbstractObjectUndoCommand::AbstractObjectUndoCommand(QObject *object)
 {
 	while (nullptr != object)
 	{
-		objectPath.push_back(object->objectName());
+		objectPath.push_back({ object, object->objectName() });
 		object = object->parent();
 	}
 
@@ -84,10 +84,22 @@ void AbstractObjectUndoCommand::onObjectDestroyed()
 		}
 	};
 
-	while (nullptr != object && static_cast<ObjectHack *>(object)->wasDeleted())
+	Q_ASSERT(not objectPath.empty());
+	auto it = objectPath.begin();
+	Q_ASSERT(fetchIndex < int(objectPath.size()));
+
+	while (nullptr != object && it != objectPath.end() &&
+		static_cast<ObjectHack *>(object)->wasDeleted())
 	{
-		fetchIndex++;
+		++fetchIndex;
+		++it;
 		object = object->parent();
+		if (it != objectPath.end() && object != it->object)
+		{
+			fetchIndex = int(objectPath.size()) - 2;
+			object = objectPath.at(fetchIndex + 1).object;
+			break;
+		}
 	}
 
 	if (nullptr != object)
@@ -102,8 +114,10 @@ void AbstractObjectUndoCommand::fetchObject()
 
 		for (int i = fetchIndex; i >= 0; i--)
 		{
+			auto &entry = objectPath.at(i);
 			object = object->findChild<QObject *>(
-				objectPath.at(i), Qt::FindDirectChildrenOnly);
+				entry.objectName, Qt::FindDirectChildrenOnly);
+			entry.object = object;
 			Q_ASSERT(nullptr != object);
 		}
 

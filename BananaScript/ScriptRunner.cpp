@@ -548,7 +548,8 @@ bool ScriptRunner::executeForTargets(
 
 			auto execPtr = &exec;
 
-			for (auto target : targets)
+			auto targetsCopy = targets;
+			for (auto target : targetsCopy)
 			{
 				if (activeEngine == nullptr ||
 					activeEngine->hasUncaughtException() ||

@@ -47,7 +47,7 @@ public:
 	ChildActionCommand(Object *object, Action action);
 	ChildActionCommand(
 		Object *object, Object *oldParent, const QString &oldName = QString());
-	virtual ~ChildActionCommand();
+	virtual ~ChildActionCommand() override;
 
 	virtual int id() const override;
 
