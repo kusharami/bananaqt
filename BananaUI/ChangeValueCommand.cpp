@@ -37,7 +37,7 @@ ChangeValueCommand::ChangeValueCommand(
 	Object *object, const QString &oldName, const QString &newName)
 	: AbstractObjectUndoCommand(object)
 {
-	objectPath[0] = oldName;
+	objectPath[0].objectName = oldName;
 
 	newStateBits = object->getPropertyModifiedBits();
 	oldStateBits = newStateBits;

@@ -29,6 +29,7 @@ SOFTWARE.
 
 #include <QMetaObject>
 #include <QDir>
+#include <QDebug>
 
 #include <map>
 #include <vector>
@@ -109,8 +110,8 @@ private:
 	void connectObject(QObject *object);
 	void disconnectObject(QObject *object);
 	void objectDestroyed(QObject *object);
+	void fileDestroyed(AbstractFile *object);
 	void connectProjectGroup();
-	void disconnectProjectGroup();
 	void updateDirectories(
 		AbstractProjectDirectory *topDirectory, Directory *directory);
 };
@@ -122,6 +123,7 @@ class DirectoryLinker
 {
 protected:
 	typedef DirectoryLinker Inherited;
+	virtual ~DirectoryLinker() override;
 	virtual bool assignBegin(QObject *source, bool top) override;
 };
 
@@ -153,8 +155,9 @@ void BaseDirectoryLinker::updateFileByRef(FILE_T *&file, QString &pathRef,
 template <typename FILE_T>
 void BaseDirectoryLinker::disconnectFileByRef(FILE_T *&file)
 {
-	disconnectFile(file);
+	auto toDisconnect = file;
 	file = nullptr;
+	disconnectFile(toDisconnect);
 }
 
 template <typename FILE_T, typename ObjectType>
@@ -189,13 +192,15 @@ void BaseDirectoryLinker::connectFile(
 	{
 		file->bind();
 		file->open();
+		if (file == nullptr)
+			return;
 
 		auto thiz = dynamic_cast<ObjectType *>(this);
 		Q_ASSERT(nullptr != thiz);
 
 		addConnectionFor(file,
-			QObject::connect(file, &QObject::destroyed,
-				std::bind(&BaseDirectoryLinker::objectDestroyed, this, file)));
+			QObject::connect(file, &AbstractFile::fileDestroyed,
+				std::bind(&BaseDirectoryLinker::fileDestroyed, this, file)));
 
 		addConnectionFor(file,
 			QObject::connect(
@@ -256,6 +261,12 @@ bool BaseDirectoryLinker::updateFileWithObject(FILE_T *&file, QObject *object,
 	}
 
 	return false;
+}
+
+template <typename OBJECT>
+DirectoryLinker<OBJECT>::~DirectoryLinker()
+{
+	this->disconnectAll();
 }
 
 template <typename OBJECT>

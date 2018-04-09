@@ -56,38 +56,48 @@ void BaseDirectoryLinker::setDirectory(Directory *directory)
 		{
 			topDirectory = dynamic_cast<AbstractProjectDirectory *>(
 				directory->getTopDirectory());
-			projectGroup = dynamic_cast<ProjectGroup *>(topDirectory->parent());
-			Q_ASSERT(nullptr != projectGroup);
-
-			auto project_dir = projectGroup->getActiveProjectDirectory();
-			if (nullptr != project_dir && project_dir != topDirectory)
+			if (topDirectory == nullptr)
 			{
-				if (topDirectory == directory)
+				projectGroup = nullptr;
+			} else
+			{
+				projectGroup =
+					dynamic_cast<ProjectGroup *>(topDirectory->parent());
+				Q_ASSERT(nullptr != projectGroup);
+
+				auto project_dir = projectGroup->getActiveProjectDirectory();
+				if (nullptr != project_dir && project_dir != topDirectory)
 				{
-					topDirectory = project_dir;
-					directory = project_dir;
-				} else
-				{
-					auto found = project_dir->findFileT<Directory>(
-						directory->getFilePath(), false);
-					if (nullptr != found)
+					if (topDirectory == directory)
 					{
 						topDirectory = project_dir;
-						directory = found;
+						directory = project_dir;
+					} else
+					{
+						auto found = project_dir->findFileT<Directory>(
+							directory->getFilePath(), false);
+						if (nullptr != found)
+						{
+							topDirectory = project_dir;
+							directory = found;
+						}
 					}
 				}
+
+				Q_ASSERT(nullptr != topDirectory);
+
+				connectProjectGroup();
 			}
-
-			Q_ASSERT(nullptr != topDirectory);
-
-			connectProjectGroup();
 		} else
 		{
 			topDirectory = nullptr;
 			projectGroup = nullptr;
 		}
 		this->directory = directory;
-		doConnectObject(topDirectory);
+		if (topDirectory != nullptr)
+		{
+			doConnectObject(topDirectory);
+		}
 		updateFileLinks(true);
 		updateChildrenDirectory(dynamic_cast<QObject *>(this), directory);
 	}
@@ -104,11 +114,13 @@ void BaseDirectoryLinker::addConnectionFor(
 	auto it = connections.find(object);
 
 	if (connections.end() == it)
+	{
 		it = connections
 				 .insert(
 					 std::pair<QObject *, std::vector<QMetaObject::Connection>>(
 						 object, {}))
 				 .first;
+	}
 
 	auto &vec = it->second;
 	vec.push_back(connection);
@@ -191,11 +203,20 @@ void BaseDirectoryLinker::disconnectObject(QObject *object)
 	updateFileLinks(old_dir != directory);
 }
 
+void BaseDirectoryLinker::fileDestroyed(AbstractFile *file)
+{
+	objectDestroyed(file);
+}
+
 void BaseDirectoryLinker::objectDestroyed(QObject *object)
 {
-	auto old_dir = directory;
+	auto oldDir = directory;
+	auto oldTopDir = topDirectory;
 	afterObjectDestroyed(object);
-	updateFileLinks(old_dir != directory);
+	if (object != oldTopDir)
+	{
+		updateFileLinks(oldDir != directory);
+	}
 }
 
 void BaseDirectoryLinker::connectProjectGroup()
@@ -203,7 +224,7 @@ void BaseDirectoryLinker::connectProjectGroup()
 	if (nullptr != projectGroup)
 	{
 		addConnectionFor(projectGroup,
-			QObject::connect(projectGroup, &QObject::destroyed,
+			QObject::connect(projectGroup, &Object::beforeDestroy,
 				std::bind(&BaseDirectoryLinker::onObjectDestroyed, this, _1)));
 		addConnectionFor(projectGroup,
 			QObject::connect(projectGroup,
@@ -211,26 +232,6 @@ void BaseDirectoryLinker::connectProjectGroup()
 				std::bind(&BaseDirectoryLinker::onActiveProjectDirectoryChanged,
 					this)));
 	}
-}
-
-void BaseDirectoryLinker::disconnectProjectGroup()
-{
-	auto it = connections.find(projectGroup);
-
-	if (connections.end() != it)
-	{
-		for (auto &connection : it->second)
-		{
-			QObject::disconnect(connection);
-		}
-
-		connections.erase(it);
-	}
-
-	connections.clear();
-
-	topDirectory = nullptr;
-	directory = nullptr;
 }
 
 void BaseDirectoryLinker::updateDirectories(
@@ -243,7 +244,10 @@ void BaseDirectoryLinker::updateDirectories(
 	this->topDirectory = top_directory;
 	this->directory = directory;
 	connectProjectGroup();
-	doConnectObject(top_directory);
+	if (top_directory)
+	{
+		doConnectObject(top_directory);
+	}
 	updateFileLinks(dir_changed);
 }
 
@@ -254,22 +258,10 @@ void BaseDirectoryLinker::doConnectObject(QObject *object)
 	if (object == topDirectory)
 	{
 		addConnectionFor(topDirectory,
-			QObject::connect(topDirectory, &QObject::destroyed,
-				std::bind(&BaseDirectoryLinker::onObjectDestroyed, this, _1)));
+			QObject::connect(topDirectory, &Directory::dirDestroyed,
+				std::bind(&BaseDirectoryLinker::onObjectDestroyed, this,
+					static_cast<QObject *>(topDirectory))));
 	}
-
-	auto directory = dynamic_cast<Directory *>(object);
-	if (nullptr != directory)
-	{
-		addConnectionFor(directory,
-			QObject::connect(directory,
-				&ObjectGroup::childObjectConnectionChanged,
-				std::bind(&BaseDirectoryLinker::onChildObjectConnectionChanged,
-					this, _1, _2)));
-	}
-
-	foreach (QObject *child, object->children())
-		doConnectObject(child);
 }
 
 void BaseDirectoryLinker::doDisconnectObject(QObject *object)
@@ -319,7 +311,9 @@ void BaseDirectoryLinker::afterObjectDestroyed(QObject *object)
 		directory = nullptr;
 	} else if (object == topDirectory)
 	{
-		disconnectProjectGroup();
+		disconnectAll();
+		topDirectory = nullptr;
+		directory = nullptr;
 		connectProjectGroup();
 	} else
 	{

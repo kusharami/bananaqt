@@ -49,7 +49,7 @@ class Object : public QObject
 
 public:
 	explicit Object();
-	virtual ~Object();
+	virtual ~Object() override;
 
 	template <typename T, typename... ARG_T>
 	static T *create(QObject *parent, ARG_T... args);
@@ -140,6 +140,7 @@ public:
 		const QMetaProperty &metaProperty) const;
 
 	void deprototype();
+	static bool isDescendantOf(const QObject *ancestor, const QObject *object);
 
 signals:
 	void modifiedSetChanged();
@@ -155,7 +156,7 @@ signals:
 private slots:
 	void onPrototypeChildAdded(QObject *protoChild);
 	void onPrototypeChildRemoved(QObject *protoChild);
-	void onPrototypeDestroyed(QObject *object);
+	void onPrototypeDestroyed(Object *object);
 	void onPrototypeReloadStarted();
 	void onPrototypeReloadFinished();
 	void onLinkedObjectNameChanged(const QString &name);
@@ -177,7 +178,6 @@ private:
 	void connectChildPrototype();
 	void disconnectChildPrototype();
 	bool checkPrototypeCycling(const Object *object) const;
-	static bool isDescendantOf(const QObject *ancestor, const QObject *object);
 	bool assignChild(QObject *sourceChild, bool is_prototype = true);
 	void beforePrototypeReloadStarted();
 	void beforeChildPrototypeReloadStarted();

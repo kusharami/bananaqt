@@ -44,6 +44,7 @@ class BinaryFile : public Banana::BaseFileRegistrator<Banana::AbstractFile>
 
 public:
 	Q_INVOKABLE explicit BinaryFile();
+	virtual ~BinaryFile() override;
 
 	virtual bool isWritableFormat(const QString &extension) const override;
 

@@ -98,6 +98,11 @@ Directory::Directory(const QString &name)
 	setObjectName(name);
 }
 
+Directory::~Directory()
+{
+	emit dirDestroyed();
+}
+
 Directory *Directory::getTopDirectory() const
 {
 	return dynamic_cast<Directory *>(AbstractDirectory::getTopDirectory());
@@ -764,6 +769,11 @@ void Directory::descendantChanged(QObject *descendant, DescendantState state)
 RootDirectory::RootDirectory(const QString &path)
 	: Directory(path)
 {
+}
+
+RootDirectory::~RootDirectory()
+{
+	emit dirDestroyed();
 }
 
 void RootDirectory::setPath(const QString &path)

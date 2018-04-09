@@ -51,6 +51,7 @@ AbstractFile::AbstractFile(const QString &extension)
 
 AbstractFile::~AbstractFile()
 {
+	emit fileDestroyed();
 	disconnectData(connectedData);
 }
 

@@ -74,6 +74,7 @@ public:
 	};
 
 	explicit Directory(const QString &name = QString());
+	virtual ~Directory() override;
 
 	Directory *getTopDirectory() const;
 	Directory *getParentDirectory() const;
@@ -141,6 +142,7 @@ public:
 	void setSearchOrderForAncestor(Directory *ancestor, int order);
 
 signals:
+	void dirDestroyed();
 	void updatePathError(const QString &path, const QString &failed_path);
 
 protected:
@@ -192,6 +194,7 @@ class RootDirectory : public Directory
 {
 public:
 	explicit RootDirectory(const QString &path = QString());
+	virtual ~RootDirectory() override;
 
 	void setPath(const QString &path);
 	virtual bool rename(const QString &new_name) override;

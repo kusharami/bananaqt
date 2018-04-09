@@ -59,7 +59,14 @@ protected:
 	void disconnectObject();
 
 	QObject *object;
-	QStringList objectPath;
+
+	struct PathEntry
+	{
+		QObject *object;
+		QString objectName;
+	};
+
+	std::vector<PathEntry> objectPath;
 
 	int fetchIndex;
 	bool skipRedoOnPush;
