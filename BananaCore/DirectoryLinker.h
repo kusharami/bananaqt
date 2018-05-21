@@ -95,7 +95,9 @@ protected:
 	AbstractProjectDirectory *topDirectory;
 	Directory *directory;
 
-	std::map<QObject *, std::vector<QMetaObject::Connection>> connections;
+	using ConnectionMap =
+		std::map<QObject *, std::vector<QMetaObject::Connection>>;
+	ConnectionMap connections;
 
 private:
 	template <typename FILE_T>

@@ -304,14 +304,36 @@ void BaseDirectoryLinker::afterObjectDestroyed(QObject *object)
 {
 	if (object == projectGroup)
 	{
-		connections.clear();
+		ConnectionMap tempConnections;
+		tempConnections.swap(connections);
+		for (auto &it : tempConnections)
+		{
+			if (it.first != object && it.first != topDirectory)
+			{
+				afterObjectDestroyed(it.first);
+			}
+		}
 
 		projectGroup = nullptr;
 		topDirectory = nullptr;
 		directory = nullptr;
 	} else if (object == topDirectory)
 	{
-		disconnectAll();
+		ConnectionMap tempConnections;
+		tempConnections.swap(connections);
+		for (auto &it : tempConnections)
+		{
+			for (auto &connection : it.second)
+			{
+				QObject::disconnect(connection);
+			}
+
+			if (it.first != object && it.first != projectGroup)
+			{
+				afterObjectDestroyed(it.first);
+			}
+		}
+
 		topDirectory = nullptr;
 		directory = nullptr;
 		connectProjectGroup();
