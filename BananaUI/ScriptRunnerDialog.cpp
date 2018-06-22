@@ -34,6 +34,8 @@ SOFTWARE.
 #include "BananaCore/Utils.h"
 #include "BananaCore/IAbortDelegate.h"
 
+#include "QtnProperty/CustomPropertyEditorDialog.h"
+
 #include "Config.h"
 #include "FileSelectDialog.h"
 
@@ -49,9 +51,13 @@ SOFTWARE.
 #include <QScriptEngine>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <QInputDialog>
 
 using namespace Banana;
 #include "ui_ScriptRunnerDialog.h"
+
+#define DialogFlags \
+	(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 
 using namespace Script;
 
@@ -72,6 +78,522 @@ private:
 };
 
 static const QString sScriptRunnerGroup = QStringLiteral("ScriptRunner");
+
+static QScriptValue inputString(QScriptContext *context, QScriptEngine *engine)
+{
+	QString title = QApplication::applicationDisplayName();
+	int argShift = -1;
+	switch (context->argumentCount())
+	{
+		case 4:
+			title = context->argument(0).toString();
+			argShift = 0;
+			Q_FALLTHROUGH();
+		case 3:
+		case 2:
+		case 1:
+		{
+			auto autoComplete = context->argument(3 + argShift);
+			if (not autoComplete.isUndefined() && not autoComplete.isArray())
+			{
+				return ThrowIncompatibleArgumentType(context, 4 + argShift);
+			}
+
+			auto label = context->argument(1 + argShift).toString();
+			auto textV = context->argument(2 + argShift);
+			auto text = textV.isUndefined() ? QString() : textV.toString();
+
+			unsigned length = autoComplete.isArray()
+				? autoComplete.property(QSTRKEY(length)).toUInt32()
+				: 0;
+
+			bool ok = false;
+			if (length == 0)
+			{
+				text = QInputDialog::getText(nullptr, title, label,
+					QLineEdit::Normal, text, &ok, DialogFlags);
+			} else
+			{
+				QInputDialog dlg;
+
+				dlg.setWindowFlags(DialogFlags);
+
+				QStringList itemNames;
+				for (unsigned i = 0; i < length; i++)
+				{
+					itemNames.append(autoComplete.property(i).toString());
+				}
+
+				dlg.setWindowTitle(title);
+				dlg.setLabelText(label);
+
+				dlg.setComboBoxItems(itemNames);
+				dlg.setComboBoxEditable(true);
+				dlg.setTextValue(text);
+
+				ok = (dlg.exec() != 0);
+
+				if (ok)
+				{
+					text = dlg.textValue();
+				}
+			}
+
+			if (ok)
+			{
+				return QScriptValue(engine, text);
+			}
+
+			return QScriptValue(engine, QScriptValue::UndefinedValue);
+		}
+
+		default:
+			break;
+	}
+
+	return ThrowBadNumberOfArguments(context);
+}
+
+static QScriptValue chooseItem(QScriptContext *context, QScriptEngine *engine)
+{
+	QString title = QApplication::applicationDisplayName();
+	int argShift = -1;
+	switch (context->argumentCount())
+	{
+		case 4:
+			title = context->argument(0).toString();
+			argShift = 0;
+			Q_FALLTHROUGH();
+		case 3:
+		case 2:
+		{
+			auto items = context->argument(2 + argShift);
+			if (not items.isArray())
+			{
+				return ThrowIncompatibleArgumentType(context, 3 + argShift);
+			}
+
+			int currentIndex = context->argument(3 + argShift).toInt32();
+
+			int length =
+				items.isArray() ? items.property(QSTRKEY(length)).toInt32() : 0;
+
+			if (currentIndex < 0 || currentIndex >= length)
+			{
+				return ThrowIncompatibleArgumentType(context, 4 + argShift);
+			}
+
+			auto label = context->argument(1 + argShift).toString();
+
+			QStringList itemNames;
+			itemNames.reserve(length);
+
+			for (int i = 0; i < length; i++)
+			{
+				auto originalStr = items.property(i).toString();
+				QString indexedStr = originalStr;
+				int j = 0;
+
+				while (itemNames.indexOf(indexedStr) >= 0)
+				{
+					indexedStr =
+						originalStr + QChar(' ') + QString::number(++j);
+				}
+
+				itemNames.append(indexedStr);
+			}
+
+			QInputDialog dlg;
+
+			dlg.setWindowFlags(DialogFlags);
+			dlg.setWindowTitle(title);
+			dlg.setLabelText(label);
+
+			dlg.setComboBoxItems(itemNames);
+			dlg.setComboBoxEditable(false);
+			dlg.setTextValue(itemNames.at(currentIndex));
+
+			bool ok = (dlg.exec() != 0);
+
+			if (ok)
+			{
+				int index = itemNames.indexOf(dlg.textValue());
+
+				return items.property(index);
+			}
+
+			return QScriptValue(engine, QScriptValue::UndefinedValue);
+		}
+		default:
+			break;
+	}
+
+	return ThrowBadNumberOfArguments(context);
+}
+
+static QScriptValue inputNumber(QScriptContext *context, QScriptEngine *engine)
+{
+	QString title = QApplication::applicationDisplayName();
+	int argShift = -1;
+	switch (context->argumentCount())
+	{
+		case 6:
+			title = context->argument(0).toString();
+			argShift = 0;
+			Q_FALLTHROUGH();
+		case 5:
+		case 4:
+		case 3:
+		case 2:
+		case 1:
+		{
+			auto label = context->argument(1 + argShift).toString();
+
+			double value = context->argument(2 + argShift).toNumber();
+			int precision = context->argument(3 + argShift).toInt32();
+
+			bool ok = false;
+
+			auto minV = context->argument(4 + argShift);
+			auto maxV = context->argument(5 + argShift);
+			double min = minV.isUndefined()
+				? -std::numeric_limits<double>::infinity()
+				: minV.toNumber();
+
+			double max = maxV.isUndefined()
+				? std::numeric_limits<double>::infinity()
+				: maxV.toNumber();
+
+			if (precision > 0)
+			{
+				double result = QInputDialog::getDouble(nullptr, title, label,
+					value, min, max, precision, &ok, DialogFlags);
+
+				if (ok)
+				{
+					return QScriptValue(engine, result);
+				}
+			} else
+			{
+				Q_CONSTEXPR int minInt = std::numeric_limits<int>::min();
+				Q_CONSTEXPR int maxInt = std::numeric_limits<int>::max();
+				Q_CONSTEXPR auto minIntF = double(minInt);
+				Q_CONSTEXPR auto maxIntF = double(maxInt);
+
+				int intValue;
+
+				if (value < minIntF)
+					intValue = minInt;
+				else if (value > maxIntF)
+					intValue = maxInt;
+				else
+					intValue = int(value);
+
+				int result = QInputDialog::getInt(nullptr, title, label,
+					intValue, int(std::max(minIntF, min)),
+					int(std::min(maxIntF, max)), 1, &ok, DialogFlags);
+
+				if (ok)
+				{
+					return QScriptValue(engine, result);
+				}
+			}
+
+			return QScriptValue(engine, QScriptValue::UndefinedValue);
+		}
+
+		default:
+			break;
+	}
+
+	return ThrowBadNumberOfArguments(context);
+}
+
+static QScriptValue propertyEditor(
+	QScriptContext *context, QScriptEngine *engine)
+{
+	QString title = QApplication::applicationDisplayName();
+	int argShift = -1;
+	switch (context->argumentCount())
+	{
+		case 3:
+			title = context->argument(0).toString();
+			argShift = 0;
+			Q_FALLTHROUGH();
+		case 2:
+		{
+			auto label = context->argument(1 + argShift).toString();
+
+			CustomPropertyEditorDialog dlg;
+			dlg.setWindowModality(Qt::ApplicationModal);
+			dlg.setWindowTitle(title);
+
+			auto v = ScriptValueToVariant(context->argument(2 + argShift));
+
+			if (dlg.execute(label, v))
+			{
+				return VariantToScriptValue(v, engine);
+			}
+
+			return QScriptValue(engine, QScriptValue::UndefinedValue);
+		}
+
+		default:
+			break;
+	}
+
+	return ThrowBadNumberOfArguments(context);
+}
+
+static QScriptValue messageBox(QScriptContext *context, QScriptEngine *engine)
+{
+	QString title = QApplication::applicationDisplayName();
+	int argShift = -1;
+	switch (context->argumentCount())
+	{
+		case 4:
+			title = context->argument(0).toString();
+			argShift = 0;
+			Q_FALLTHROUGH();
+		case 3:
+		{
+			auto text = context->argument(1 + argShift).toString();
+			int icon = context->argument(2 + argShift).toInt32();
+			auto buttons = context->argument(3 + argShift);
+
+			QMessageBox::StandardButtons btns(
+				buttons.isNumber() ? buttons.toInt32() : 0);
+
+			struct PushButton
+			{
+				QScriptValue thisObject;
+				QScriptValue action;
+				QPushButton *button;
+				QMessageBox::ButtonRole role;
+				bool isDefaultButton;
+				bool isEscapeButton;
+
+				void callToAction()
+				{
+					if (action.isFunction())
+					{
+						action.call(thisObject);
+					}
+				}
+			};
+
+			std::vector<PushButton> pushButtons;
+
+			if (buttons.isArray())
+			{
+				auto length = buttons.property(QSTRKEY(length)).toInt32();
+
+				for (int i = 0; i < length; i++)
+				{
+					auto arg = buttons.property(i);
+
+					if (arg.isNumber())
+					{
+						btns |= QMessageBox::StandardButton(arg.toInt32());
+					} else if (arg.isObject())
+					{
+						QScriptValue name = arg.property(QSTRKEY(name));
+
+						if (name.isString())
+						{
+							auto pushButton = new QPushButton(name.toString());
+
+							int role = QMessageBox::AcceptRole;
+
+							QScriptValue roleValue =
+								arg.property(QSTRKEY(role));
+
+							if (roleValue.isNumber())
+							{
+								role = roleValue.toInt32();
+
+								if (role < QMessageBox::InvalidRole ||
+									role > QMessageBox::NRoles)
+								{
+									role = QMessageBox::InvalidRole;
+								}
+							}
+
+							auto isDefault = arg.property(QSTRKEY(isDefault));
+							auto isEscape = arg.property(QSTRKEY(isEscape));
+
+							auto action = arg.property(QSTRKEY(action));
+
+							pushButtons.emplace_back();
+							PushButton &pb = pushButtons.back();
+							pb.thisObject = arg;
+							pb.action = action;
+							pb.button = pushButton;
+							pb.isDefaultButton = isDefault.isUndefined()
+								? false
+								: isDefault.toBool();
+							pb.isEscapeButton = isEscape.isUndefined()
+								? false
+								: isEscape.toBool();
+							pb.role = QMessageBox::ButtonRole(role);
+						}
+					}
+				}
+			}
+
+			QMessageBox::Icon icn = QMessageBox::NoIcon;
+
+			switch (icon)
+			{
+				case QMessageBox::NoIcon:
+				case QMessageBox::Information:
+				case QMessageBox::Warning:
+				case QMessageBox::Critical:
+				case QMessageBox::Question:
+					icn = QMessageBox::Icon(icon);
+					break;
+			}
+
+			QMessageBox dialog(icn, title, text, btns);
+			dialog.QDialog::setWindowTitle(title);
+
+			for (PushButton &entry : pushButtons)
+			{
+				QPushButton *button = entry.button;
+				button->setParent(&dialog);
+
+				dialog.addButton(button, entry.role);
+
+				switch (entry.role)
+				{
+					case QMessageBox::InvalidRole:
+					case QMessageBox::ActionRole:
+					case QMessageBox::ResetRole:
+					case QMessageBox::ApplyRole:
+					case QMessageBox::HelpRole:
+					case QMessageBox::NRoles:
+						button->disconnect();
+						QObject::connect(button, &QAbstractButton::clicked,
+							[&entry]() { entry.callToAction(); });
+						break;
+
+					case QMessageBox::AcceptRole:
+					case QMessageBox::RejectRole:
+					case QMessageBox::YesRole:
+					case QMessageBox::NoRole:
+					case QMessageBox::DestructiveRole:
+						if (entry.isDefaultButton)
+						{
+							dialog.setDefaultButton(button);
+						}
+						if (entry.isEscapeButton)
+						{
+							dialog.setEscapeButton(button);
+						}
+						break;
+				}
+			}
+
+			/*
+var button = {};
+button.name = "Black";
+button.role = QButton.ActionRole;
+button.action = function() { print(this); };
+button.toString = function() { return this.name; }
+print(system.messageBox("Hello World!", QIcon.Warning, [button, QButton.Ok]));
+*/
+
+			auto escapeButton = dialog.escapeButton();
+			if (!escapeButton)
+			{
+				auto buttons = dialog.buttons();
+				for (auto button : buttons)
+				{
+					if (dialog.buttonRole(button) == QMessageBox::RejectRole)
+					{
+						if (escapeButton)
+						{
+							escapeButton = nullptr;
+							break;
+						}
+						escapeButton = button;
+					}
+				}
+
+				int closeButtonCount = 0;
+
+				for (auto button : buttons)
+				{
+					switch (dialog.buttonRole(button))
+					{
+						case QMessageBox::InvalidRole:
+						case QMessageBox::ActionRole:
+						case QMessageBox::ResetRole:
+						case QMessageBox::ApplyRole:
+						case QMessageBox::HelpRole:
+						case QMessageBox::NRoles:
+							if (dialog.standardButton(button) ==
+								QMessageBox::NoButton)
+							{
+								break;
+							}
+							Q_FALLTHROUGH();
+						case QMessageBox::AcceptRole:
+						case QMessageBox::RejectRole:
+						case QMessageBox::YesRole:
+						case QMessageBox::NoRole:
+						case QMessageBox::DestructiveRole:
+							closeButtonCount++;
+							if (!escapeButton && buttons.count() == 1)
+							{
+								escapeButton = button;
+							}
+							break;
+					}
+				}
+
+				if (!escapeButton && closeButtonCount == 0)
+				{
+					escapeButton = dialog.addButton(QMessageBox::Close);
+					dialog.setDefaultButton(QMessageBox::Close);
+				}
+			}
+
+			if (escapeButton)
+			{
+				dialog.setEscapeButton(escapeButton);
+			} else
+			{
+				dialog.setWindowFlags(
+					Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+			}
+
+			if (dialog.exec() == -1)
+			{
+				return QScriptValue(engine, int(QMessageBox::Cancel));
+			}
+
+			auto clickedButton = dialog.clickedButton();
+
+			for (PushButton &entry : pushButtons)
+			{
+				if (clickedButton == entry.button)
+				{
+					entry.callToAction();
+					return entry.thisObject;
+				}
+			}
+
+			return QScriptValue(
+				engine, int(dialog.standardButton(clickedButton)));
+		}
+
+		default:
+			break;
+	}
+
+	return ThrowBadNumberOfArguments(context);
+}
 
 static bool resolveTitleDir(
 	QScriptContext *context, QScriptValue &error, QString &title, QString &dir)
@@ -308,6 +830,95 @@ void ScriptRunnerDialog::initializeEngine(QScriptEngine *engine)
 		engine->newFunction(requestNewFilePath, thiz));
 	system.setProperty(QSTRKEY(requestDirectoryPath),
 		engine->newFunction(requestDirectoryPath, thiz));
+
+	system.setProperty(QSTRKEY(inputString), engine->newFunction(inputString));
+	system.setProperty(QSTRKEY(chooseItem), engine->newFunction(chooseItem));
+	system.setProperty(QSTRKEY(inputNumber), engine->newFunction(inputNumber));
+	system.setProperty(
+		QSTRKEY(propertyEditor), engine->newFunction(propertyEditor));
+	system.setProperty(QSTRKEY(messageBox), engine->newFunction(messageBox));
+
+	auto qIconObject = engine->newObject();
+	auto qButtonObject = engine->newObject();
+
+	enum
+	{
+		Information = QMessageBox::Information,
+		Warning = QMessageBox::Warning,
+		Critical = QMessageBox::Critical,
+		Question = QMessageBox::Question,
+		NoButton = QMessageBox::NoButton,
+		Ok = QMessageBox::Ok,
+		Save = QMessageBox::Save,
+		SaveAll = QMessageBox::SaveAll,
+		Open = QMessageBox::Open,
+		Yes = QMessageBox::Yes,
+		YesToAll = QMessageBox::YesToAll,
+		No = QMessageBox::No,
+		NoToAll = QMessageBox::NoToAll,
+		Abort = QMessageBox::Abort,
+		Retry = QMessageBox::Retry,
+		Ignore = QMessageBox::Ignore,
+		Close = QMessageBox::Close,
+		Cancel = QMessageBox::Cancel,
+		Discard = QMessageBox::Discard,
+		Help = QMessageBox::Help,
+		Apply = QMessageBox::Apply,
+		Reset = QMessageBox::Reset,
+		RestoreDefaults = QMessageBox::RestoreDefaults,
+		InvalidRole = QMessageBox::InvalidRole,
+		AcceptRole = QMessageBox::AcceptRole,
+		RejectRole = QMessageBox::RejectRole,
+		DestructiveRole = QMessageBox::DestructiveRole,
+		ActionRole = QMessageBox::ActionRole,
+		HelpRole = QMessageBox::HelpRole,
+		YesRole = QMessageBox::YesRole,
+		NoRole = QMessageBox::NoRole,
+		ResetRole = QMessageBox::ResetRole,
+		ApplyRole = QMessageBox::ApplyRole,
+		NRoles = QMessageBox::NRoles,
+	};
+
+	SCRIPT_REG_ENUM(qIconObject, Information);
+	SCRIPT_REG_ENUM(qIconObject, Warning);
+	SCRIPT_REG_ENUM(qIconObject, Critical);
+	SCRIPT_REG_ENUM(qIconObject, Question);
+
+	SCRIPT_REG_ENUM(qButtonObject, NoButton);
+	SCRIPT_REG_ENUM(qButtonObject, Ok);
+	SCRIPT_REG_ENUM(qButtonObject, Save);
+	SCRIPT_REG_ENUM(qButtonObject, SaveAll);
+	SCRIPT_REG_ENUM(qButtonObject, Open);
+	SCRIPT_REG_ENUM(qButtonObject, Yes);
+	SCRIPT_REG_ENUM(qButtonObject, YesToAll);
+	SCRIPT_REG_ENUM(qButtonObject, No);
+	SCRIPT_REG_ENUM(qButtonObject, NoToAll);
+	SCRIPT_REG_ENUM(qButtonObject, Abort);
+	SCRIPT_REG_ENUM(qButtonObject, Retry);
+	SCRIPT_REG_ENUM(qButtonObject, Ignore);
+	SCRIPT_REG_ENUM(qButtonObject, Close);
+	SCRIPT_REG_ENUM(qButtonObject, Cancel);
+	SCRIPT_REG_ENUM(qButtonObject, Discard);
+	SCRIPT_REG_ENUM(qButtonObject, Help);
+	SCRIPT_REG_ENUM(qButtonObject, Apply);
+	SCRIPT_REG_ENUM(qButtonObject, Reset);
+	SCRIPT_REG_ENUM(qButtonObject, RestoreDefaults);
+
+	SCRIPT_REG_ENUM(qButtonObject, InvalidRole);
+	SCRIPT_REG_ENUM(qButtonObject, AcceptRole);
+	SCRIPT_REG_ENUM(qButtonObject, RejectRole);
+	SCRIPT_REG_ENUM(qButtonObject, DestructiveRole);
+	SCRIPT_REG_ENUM(qButtonObject, ActionRole);
+	SCRIPT_REG_ENUM(qButtonObject, HelpRole);
+	SCRIPT_REG_ENUM(qButtonObject, YesRole);
+	SCRIPT_REG_ENUM(qButtonObject, NoRole);
+	SCRIPT_REG_ENUM(qButtonObject, ResetRole);
+	SCRIPT_REG_ENUM(qButtonObject, ApplyRole);
+	SCRIPT_REG_ENUM(qButtonObject, NRoles);
+
+	globalObject.setProperty(QSTRKEY(QIcon), qIconObject, STATIC_SCRIPT_VALUE);
+	globalObject.setProperty(
+		QSTRKEY(QButton), qButtonObject, STATIC_SCRIPT_VALUE);
 }
 
 void ScriptRunnerDialog::beforeScriptExecution(const QString &filePath)
@@ -373,7 +984,9 @@ void ScriptRunnerDialog::afterScriptExecution(bool ok, const QString &message)
 
 void ScriptRunnerDialog::log(const QString &text)
 {
-	lastRespondTime = QDateTime::currentMSecsSinceEpoch();
+	qint64 newRespondTime = QDateTime::currentMSecsSinceEpoch();
+	bool shouldProcess = newRespondTime - lastRespondTime >= 200;
+	lastRespondTime = newRespondTime;
 	checkRespond = true;
 
 	if (nullptr == runner && not stopShow && not isVisible())
@@ -384,6 +997,10 @@ void ScriptRunnerDialog::log(const QString &text)
 	auto view = ui->textAreaLog;
 	view->moveCursor(QTextCursor::End);
 	view->insertPlainText(text + QLatin1Char('\n'));
+	if (shouldProcess)
+	{
+		QApplication::processEvents();
+	}
 }
 
 void ScriptRunnerDialog::on_buttonBrowse_clicked()

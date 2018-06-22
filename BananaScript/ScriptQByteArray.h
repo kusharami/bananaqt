@@ -100,6 +100,8 @@ public slots:
 	QString toString(const QByteArray &codecName) const;
 	QByteArray toBase64() const;
 	QByteArray toHex() const;
+	QString toBase64Str() const;
+	QString toHexStr() const;
 
 	QString join(const QString &separator = QString(',')) const;
 	QScriptValue pop();

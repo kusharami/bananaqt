@@ -45,9 +45,12 @@ SOFTWARE.
 #include "ScriptQNetworkRequest.h"
 #include "ScriptQNetworkAccessManager.h"
 #include "ScriptQNetworkReply.h"
+#include "ScriptQCryptographicHash.h"
+
 #include <QScriptEngine>
 #include <QScriptContextInfo>
 #include <QCoreApplication>
+#include <QStandardPaths>
 
 namespace Banana
 {
@@ -79,6 +82,20 @@ static QScriptValue assert(QScriptContext *context, QScriptEngine *)
 			QCoreApplication::translate("Script", szScriptAssert));
 	}
 	return QScriptValue();
+}
+
+static QScriptValue copyProperties(
+	QScriptContext *context, QScriptEngine *engine)
+{
+	if (context->argumentCount() != 2)
+	{
+		return ThrowBadNumberOfArguments(context);
+	}
+
+	auto to = context->argument(1);
+	CopyScriptProperties(context->argument(0), to);
+
+	return QScriptValue(engine, QScriptValue::UndefinedValue);
 }
 
 static QScriptValue evaluateFileContent(
@@ -655,6 +672,7 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	ScriptQNetworkRequest::Register(engine);
 	ScriptQNetworkReply::Register(engine);
 	ScriptQNetworkAccessManager::Register(engine);
+	ScriptQCryptographicHash::Register(engine);
 
 	auto globalObject = engine->globalObject();
 
@@ -675,6 +693,8 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 	systemObject.setProperty(
 		QSTRKEY(loadFileTree), engine->newFunction(loadFileTree, systemObject));
 	auto stringFormatFunc = engine->newFunction(stringFormat, globalObject);
+	systemObject.setProperty(
+		QSTRKEY(copyProperties), engine->newFunction(copyProperties));
 	systemObject.setProperty(QSTRKEY(stringFormat), stringFormatFunc);
 	globalObject.setProperty(QSTRKEY(strf), stringFormatFunc);
 	globalObject.setProperty(
@@ -685,9 +705,93 @@ void ScriptRunner::initializeEngine(QScriptEngine *engine)
 
 	globalObject.setProperty(QSTRKEY(importScript),
 		engine->newFunction(internalImportScript, systemObject));
+	{
+		auto qStandardPaths = engine->newObject();
+		enum
+		{
+			DesktopLocation = QStandardPaths::DesktopLocation,
+			DocumentsLocation = QStandardPaths::DocumentsLocation,
+			FontsLocation = QStandardPaths::FontsLocation,
+			ApplicationsLocation = QStandardPaths::ApplicationsLocation,
+			MusicLocation = QStandardPaths::MusicLocation,
+			MoviesLocation = QStandardPaths::MoviesLocation,
+			PicturesLocation = QStandardPaths::PicturesLocation,
+			TempLocation = QStandardPaths::TempLocation,
+			HomeLocation = QStandardPaths::HomeLocation,
+			DataLocation = QStandardPaths::DataLocation,
+			CacheLocation = QStandardPaths::CacheLocation,
+			GenericDataLocation = QStandardPaths::GenericDataLocation,
+			RuntimeLocation = QStandardPaths::RuntimeLocation,
+			ConfigLocation = QStandardPaths::ConfigLocation,
+			DownloadLocation = QStandardPaths::DownloadLocation,
+			GenericCacheLocation = QStandardPaths::GenericCacheLocation,
+			GenericConfigLocation = QStandardPaths::GenericConfigLocation,
+			AppDataLocation = QStandardPaths::AppDataLocation,
+			AppConfigLocation = QStandardPaths::AppConfigLocation,
+			AppLocalDataLocation = QStandardPaths::AppLocalDataLocation,
+		};
+		SCRIPT_REG_ENUM(qStandardPaths, DesktopLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, DocumentsLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, FontsLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, ApplicationsLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, MusicLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, MoviesLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, PicturesLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, TempLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, HomeLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, DataLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, CacheLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, GenericDataLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, RuntimeLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, ConfigLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, DownloadLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, GenericCacheLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, GenericConfigLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, AppDataLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, AppConfigLocation);
+		SCRIPT_REG_ENUM(qStandardPaths, AppLocalDataLocation);
+
+		qStandardPaths.setProperty(
+			QSTRKEY(writableLocation), engine->newFunction(writableLocation));
+		qStandardPaths.setProperty(
+			QSTRKEY(standardLocations), engine->newFunction(standardLocations));
+		globalObject.setProperty(
+			QSTRKEY(QStandardPaths), qStandardPaths, STATIC_SCRIPT_VALUE);
+	}
 
 	AbstractScriptRunner::initializeEngine(engine);
 
 	engine->setProcessEventsInterval(mProcessEventsInterval);
+}
+
+QScriptValue ScriptRunner::writableLocation(
+	QScriptContext *context, QScriptEngine *engine)
+{
+	if (context->argumentCount() != 1)
+		return ThrowBadNumberOfArguments(context);
+
+	return QScriptValue(engine,
+		QStandardPaths::writableLocation(
+			(QStandardPaths::StandardLocation) context->argument(0).toInt32()));
+}
+
+QScriptValue ScriptRunner::standardLocations(
+	QScriptContext *context, QScriptEngine *engine)
+{
+	if (context->argumentCount() != 1)
+		return ThrowBadNumberOfArguments(context);
+
+	auto locations = QStandardPaths::standardLocations(
+		(QStandardPaths::StandardLocation) context->argument(0).toInt32());
+
+	int count = locations.count();
+	QScriptValue result = engine->newArray(count);
+
+	for (int i = 0; i < count; i++)
+	{
+		result.setProperty(i, locations.at(i));
+	}
+
+	return result;
 }
 }

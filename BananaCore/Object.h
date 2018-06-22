@@ -114,7 +114,7 @@ public:
 	Q_INVOKABLE inline bool isPrototyped() const;
 	virtual bool canBeUsedAsPrototype(Object *object) const;
 
-	inline bool isModified() const;
+	Q_INVOKABLE inline bool isModified() const;
 	void setModified(bool value);
 	void modify();
 	static void modifyObject(

@@ -69,7 +69,7 @@ public:
 	};
 
 	explicit ScriptRunnerDialog(QWidget *parent = nullptr);
-	virtual ~ScriptRunnerDialog();
+	virtual ~ScriptRunnerDialog() override;
 
 	inline void setProjectGroup(ProjectGroup *group);
 	void showModal(ScriptRunner *runner, ProjectGroup *group,
