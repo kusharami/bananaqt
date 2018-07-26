@@ -52,7 +52,7 @@ ScriptEntriesWidget::ScriptEntriesWidget(QWidget *parent)
 		enumItems.append(item.valueInfo);
 	}
 	mObjectTypeEnumInfo = QtnEnumInfo(QStringLiteral("ObjectType"), enumItems);
-	mFileDelegateInfo.name = qtnSelectEditDelegate();
+	mFileDelegateInfo.name = qtnSelectFileDelegate();
 	mFileDelegateInfo.attributes[qtnShowRelativePathAttr()] = true;
 	mFileDelegateInfo.attributes[qtnFileModeAttr()] = QFileDialog::ExistingFile;
 	mFileDelegateInfo.attributes[qtnInvalidColorAttr()] = QColor(Qt::red);
