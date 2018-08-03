@@ -38,6 +38,7 @@ SOFTWARE.
 
 class QWidget;
 class QScriptEngine;
+class QScriptContext;
 
 namespace Banana
 {
@@ -78,6 +79,11 @@ protected:
 	virtual void initializeEngine(QScriptEngine *engine) override;
 
 private:
+	static QScriptValue writableLocation(
+		QScriptContext *context, QScriptEngine *engine);
+	static QScriptValue standardLocations(
+		QScriptContext *context, QScriptEngine *engine);
+
 	bool loadScriptFile(const QString &filePath, QString &dest);
 	void importScript(const QString &filePath);
 

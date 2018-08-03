@@ -12,9 +12,10 @@ importScript("TestQFile.js");
 importScript("TestQSaveFile.js");
 importScript("TestQTemporaryFile.js");
 importScript("TestQUrl.js");
-importScript("TestQNetworkRequest.js")
-importScript("TestQNetworkReply.js")
-importScript("TestQNetworkAccessManager.js")
+importScript("TestQNetworkRequest.js");
+importScript("TestQNetworkReply.js");
+importScript("TestQNetworkAccessManager.js");
+importScript("TestQCryptographicHash.js");
 
 testQPoint();
 testQSize();
@@ -33,3 +34,4 @@ testQUrl();
 testQNetworkRequest();
 testQNetworkReply();
 testQNetworkAccessManager();
+testQCryptographicHash();

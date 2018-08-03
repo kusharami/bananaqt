@@ -41,7 +41,8 @@ HEADERS += \
     ScriptQTemporaryFile.h \
     ScriptQNetworkRequest.h \
     ScriptQNetworkAccessManager.h \
-    ScriptQNetworkReply.h
+    ScriptQNetworkReply.h \
+    ScriptQCryptographicHash.h
 
 
 SOURCES += \
@@ -68,7 +69,8 @@ SOURCES += \
     ScriptQTemporaryFile.cpp \
     ScriptQNetworkRequest.cpp \
     ScriptQNetworkAccessManager.cpp \
-    ScriptQNetworkReply.cpp
+    ScriptQNetworkReply.cpp \
+    ScriptQCryptographicHash.cpp
 
 OTHER_FILES += \
     Tests/Tests.js \
@@ -88,4 +90,5 @@ OTHER_FILES += \
     Tests/TestQNetworkRequest.js \
     Tests/TestQNetworkAccessManager.js \
     Tests/TestQNetworkReply.js \
+    Tests/TestQCryptographicHash.js \
     Tests/TestQFont.js

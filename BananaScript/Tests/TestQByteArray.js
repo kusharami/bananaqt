@@ -133,8 +133,10 @@ function testQByteArray()
 	assert(ba.unshift(0x02, 0x01) === 7);
 	assert(ba[0] === 0x01);
 	assert(ba[1] === 0x02);
-	assert(ba.toHex().equals("0102aabbcc0201"));
-	assert(ba.equals(QByteArray.fromHex("0102aabbcc0201")));
+	var HEX_STR = "0102aabbcc0201";
+	assert(ba.toHex().equals(HEX_STR));
+	assert(ba.toHexStr() === HEX_STR);
+	assert(ba.equals(QByteArray.fromHex(HEX_STR)));
 	assert(ba.slice(2, 4).toHex().equals("aabb"));
 	assert(ba.pop() === 0x01);
 	assert(ba.pop() === 0x02);
@@ -165,6 +167,7 @@ function testQByteArray()
 	ba = new QByteArray(ZHIZN, UTF8);
 	var ZHIZN_B64 = "0JbQuNC30L3RjA==";
 	assert(ba.toBase64().equals(ZHIZN_B64));
+	assert(ba.toBase64Str() === ZHIZN_B64);
 	assert(ba.equals(QByteArray.fromBase64(ZHIZN_B64)));
 	var ba2 = new QByteArray(ZHIZN);
 	assert(ba.toString(UTF8) === ba2.toStringLocal());
@@ -172,7 +175,7 @@ function testQByteArray()
 	assert(ba.toString(UTF8_CODEC) === ZHIZN);
 	print(ba.toString());
 	print(ba.valueOf());
-	print(ba.toHex().toStringLatin());
+	print(ba.toHexStr());
 
 	assert(ba.repeated(2).toString(UTF8_CODEC) === ZHIZN + ZHIZN);
 

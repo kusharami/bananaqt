@@ -62,7 +62,7 @@ class AbstractFile
 
 public:
 	explicit AbstractFile(const QString &extension);
-	virtual ~AbstractFile();
+	virtual ~AbstractFile() override;
 
 	virtual const QString &getFileExtension() const override;
 

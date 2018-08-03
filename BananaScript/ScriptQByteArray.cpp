@@ -684,6 +684,16 @@ QByteArray ScriptQByteArray::toHex() const
 	return QByteArray();
 }
 
+QString ScriptQByteArray::toBase64Str() const
+{
+	return QString::fromLatin1(toBase64());
+}
+
+QString ScriptQByteArray::toHexStr() const
+{
+	return QString::fromLatin1(toHex());
+}
+
 QByteArray ScriptQByteArray::toLower() const
 {
 	auto ba = thisByteArray();
