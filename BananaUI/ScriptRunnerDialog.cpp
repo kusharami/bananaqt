@@ -81,7 +81,7 @@ static const QString sScriptRunnerGroup = QStringLiteral("ScriptRunner");
 
 static QScriptValue inputString(QScriptContext *context, QScriptEngine *engine)
 {
-	QString title = QApplication::applicationDisplayName();
+	QString title;
 	int argShift = -1;
 	switch (context->argumentCount())
 	{
@@ -312,7 +312,7 @@ static QScriptValue inputNumber(QScriptContext *context, QScriptEngine *engine)
 static QScriptValue propertyEditor(
 	QScriptContext *context, QScriptEngine *engine)
 {
-	QString title = QApplication::applicationDisplayName();
+	QString title;
 	int argShift = -1;
 	switch (context->argumentCount())
 	{
@@ -347,7 +347,7 @@ static QScriptValue propertyEditor(
 
 static QScriptValue messageBox(QScriptContext *context, QScriptEngine *engine)
 {
-	QString title = QApplication::applicationDisplayName();
+	QString title;
 	int argShift = -1;
 	switch (context->argumentCount())
 	{
@@ -799,7 +799,7 @@ bool ScriptRunnerDialog::abort()
 
 		stopShow = true;
 		if (QMessageBox::Yes !=
-			QMessageBox::question(nullptr, QApplication::applicationName(),
+			QMessageBox::question(nullptr, QString(),
 				tr("Do you want to abort script execution?"),
 				QMessageBox::Yes | QMessageBox::No))
 		{

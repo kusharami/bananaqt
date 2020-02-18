@@ -43,8 +43,6 @@ DetailedMessageDialog::DetailedMessageDialog(QWidget *parent)
 	ui->iconLabel->hide();
 	ui->detailsText->setReadOnly(true);
 
-	setWindowTitle(QCoreApplication::applicationName());
-
 	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
 		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 

@@ -40,8 +40,6 @@ ListMessageDialog::ListMessageDialog(QWidget *parent)
 
 	ui->iconLabel->hide();
 
-	setWindowTitle(QCoreApplication::applicationName());
-
 	setWindowFlags((windowFlags() & ~(Qt::WindowContextHelpButtonHint)) |
 		Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint);
 }
