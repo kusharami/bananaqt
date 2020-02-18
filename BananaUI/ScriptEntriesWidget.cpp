@@ -452,7 +452,7 @@ QtnPropertySet *ScriptEntriesWidget::newPropertySetForEntry(
 	filePath->setId(FILE_PATH_PROPERTY_ID);
 	filePath->setName(tr("Script File Path"));
 	filePath->setValue(entry.filePath);
-	filePath->setDelegate(mFileDelegateInfo);
+	filePath->setDelegateInfo(mFileDelegateInfo);
 
 	newSet->addChildProperty(filePath);
 
@@ -460,7 +460,7 @@ QtnPropertySet *ScriptEntriesWidget::newPropertySetForEntry(
 	caption->setId(CAPTION_PROPERTY_ID);
 	caption->setName(tr("Caption"));
 	caption->setValue(entry.caption);
-	caption->setDelegate(mCaptionDelegateInfo);
+	caption->setDelegateInfo(mCaptionDelegateInfo);
 
 	newSet->addChildProperty(caption);
 
