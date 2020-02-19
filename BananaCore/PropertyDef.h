@@ -319,11 +319,17 @@ protected: \
 #define GET_PROPERTY_INDEX(Class, Name) \
 	Class::staticMetaObject.indexOfProperty(MPROP(Name))
 
+#define GET_PROPERTY_INDEX_FULLNAME(Class, Name) \
+	Class::staticMetaObject.indexOfProperty(PROP(Name))
+
 #define INIT_PROPERTY_INDEX_CL(Class, Name) \
 	const int Class::PROPERTY_INDEX(Name) = GET_PROPERTY_INDEX(Class, Name)
 
 #define INIT_PROPERTY_INDEX(Class, Name) \
 	DECLARE_PROPERTY_INDEX(Name) = GET_PROPERTY_INDEX(Class, Name)
+
+#define INIT_PROPERTY_INDEX_FULLNAME(Class, Name) \
+	DECLARE_PROPERTY_INDEX(Name) = GET_PROPERTY_INDEX_FULLNAME(Class, Name)
 
 #define INIT_DEFAULT_VALUE_CL(Class, Name, Type, ...) \
 	const Type Class::DEFAULT_VALUE(Name)(__VA_ARGS__)
@@ -346,18 +352,18 @@ protected: \
 #define MOD_FLAG(Class, Name) (1ULL << Class::New##Name)
 
 #define IMPL_CHECK_MODIFIED_FLAGS(metaProperty) \
-	if (metaProperty.isResettable()) \
-	{ \
-		auto flags = \
-			Banana::findPropertyFlags(metaProperty, sPropertyFlagsMap); \
-		if (0 != flags) \
-		{ \
-			if (0 != (Banana::Object::getPropertyModifiedBits() & flags)) \
-				result |= QtnPropertyStateModifiedValue; \
-		} \
-	} \
 	do \
 	{ \
+		if (metaProperty.isResettable()) \
+		{ \
+			auto flags = \
+				Banana::findPropertyFlags(metaProperty, sPropertyFlagsMap); \
+			if (0 != flags) \
+			{ \
+				if (0 != (Banana::Object::getPropertyModifiedBits() & flags)) \
+					result |= QtnPropertyStateModifiedValue; \
+			} \
+		} \
 	} while (false)
 
 #include <QVariant>
