@@ -57,12 +57,12 @@
 <context>
     <name>Banana::ScriptRunner</name>
     <message>
-        <location filename="../ScriptRunner.cpp" line="375"/>
+        <location filename="../ScriptRunner.cpp" line="392"/>
         <source>Unable to load script file &apos;%1&apos;.</source>
         <translation>Unable to load script file &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunner.cpp" line="544"/>
+        <location filename="../ScriptRunner.cpp" line="561"/>
         <source>Global property &apos;exec&apos; is not a function.</source>
         <translation>Global property &quot;exec&quot; is not a function.</translation>
     </message>
@@ -90,7 +90,7 @@
 <context>
     <name>FileFormatName</name>
     <message>
-        <location filename="../ScriptRunner.cpp" line="66"/>
+        <location filename="../ScriptRunner.cpp" line="69"/>
         <source>.js</source>
         <translation>JavaScript File</translation>
     </message>
@@ -98,7 +98,7 @@
 <context>
     <name>FileFormatNamePlural</name>
     <message>
-        <location filename="../ScriptRunner.cpp" line="60"/>
+        <location filename="../ScriptRunner.cpp" line="63"/>
         <source>.js</source>
         <translation>JavaScript Files</translation>
     </message>
@@ -121,7 +121,7 @@
         <translation>Unknown error.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunner.cpp" line="65"/>
+        <location filename="../ScriptRunner.cpp" line="68"/>
         <source>Assertion failed.</source>
         <translation>Assertion failed.</translation>
     </message>
