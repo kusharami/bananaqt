@@ -47,8 +47,8 @@ protected:
 		const QString &fileTypeName, const QString &fileExtension,
 		qint32 appIconIndex = 0);
 	void registerCommand(const QString &command, const QString &documentId,
-		const QString cmdLineArg = QString::null,
-		const QString ddeCommand = QString::null);
+		const QString &cmdLineArg = QString(),
+		const QString &ddeCommand = QString());
 	void enableOpenOutside();
 	virtual bool nativeEvent(
 		const QByteArray &eventType, void *message, long *result) override;

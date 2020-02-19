@@ -55,7 +55,7 @@ struct MainWindowPrivate
 
 	// Sets specified value in the registry under HKCU\Software\Classes, which is mapped to HKCR then.
 	bool SetHkcrUserRegKey(QString key, const QString &value,
-		const QString &valueName = QString::null);
+		const QString &valueName = QString());
 
 	// ----- members -------------------------------------------------------------------------------
 	QString
@@ -135,8 +135,8 @@ void MainWindow::registerFileType(const QString &documentId,
 }
 
 void MainWindow::registerCommand(const QString &command,
-	const QString &documentId, const QString cmdLineArg,
-	const QString ddeCommand)
+	const QString &documentId, const QString &cmdLineArg,
+	const QString &ddeCommand)
 {
 #ifdef Q_OS_WIN
 	QString commandLine =
