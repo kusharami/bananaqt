@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include <QIODevice>
 
+#include <memory>
+
 namespace Banana
 {
 using namespace Script;
