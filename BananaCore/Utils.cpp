@@ -201,7 +201,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 {
 	switch (variant.type())
 	{
-		case QMetaType::QVariantMap:
+		case QVariant::Map:
 		{
 			auto map = variant.toMap();
 
@@ -215,7 +215,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QVariantList:
+		case QVariant::List:
 		{
 			auto list = variant.toList();
 
@@ -229,7 +229,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(array);
 		}
 
-		case QMetaType::QUrl:
+		case QVariant::Url:
 		{
 			QJsonObject object;
 
@@ -240,13 +240,13 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QFont:
+		case QVariant::Font:
 		{
 			return QJsonValue(QJsonObject::fromVariantMap(
 				ConvertQFontToVariantMap(variant.value<QFont>())));
 		}
 
-		case QMetaType::QRect:
+		case QVariant::Rect:
 		{
 			auto rect = variant.toRect();
 
@@ -261,7 +261,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QRectF:
+		case QVariant::RectF:
 		{
 			auto rect = variant.toRectF();
 
@@ -275,7 +275,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QSize:
+		case QVariant::Size:
 		{
 			auto size = variant.toSize();
 
@@ -288,7 +288,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QSizeF:
+		case QVariant::SizeF:
 		{
 			auto size = variant.toSizeF();
 
@@ -300,7 +300,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QPoint:
+		case QVariant::Point:
 		{
 			auto point = variant.toPoint();
 
@@ -313,7 +313,7 @@ QJsonValue ConvertVariantToJsonValue(const QVariant &variant)
 			return QJsonValue(object);
 		}
 
-		case QMetaType::QPointF:
+		case QVariant::PointF:
 		{
 			auto point = variant.toPointF();
 
