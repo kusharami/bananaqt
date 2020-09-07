@@ -13,7 +13,6 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 INCLUDEPATH += $$_PRO_FILE_PWD_/..
-INCLUDEPATH += $$_PRO_FILE_PWD_/../QtnProperty
 
 RESOURCES = BananaUI.qrc
 

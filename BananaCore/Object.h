@@ -24,6 +24,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "QtnProperty/IQtnPropertyStateProvider.h"
+
 #include <QObject>
 #include <QVariantMap>
 
@@ -43,13 +45,18 @@ extern const char szCHILDREN_KEY[];
 typedef std::vector<const char *> PropertyNames;
 typedef std::vector<QMetaProperty> QMetaPropertyVec;
 
-class Object : public QObject
+class Object
+	: public QObject
+	, public IQtnPropertyStateProvider
 {
 	Q_OBJECT
 
 public:
 	explicit Object();
 	virtual ~Object() override;
+
+	virtual QtnPropertyState getPropertyState(
+		const QMetaProperty &metaProperty) const override;
 
 	template <typename T, typename... ARG_T>
 	static T *create(QObject *parent, ARG_T... args);

@@ -77,6 +77,18 @@ Object::~Object()
 	emit beforeDestroy(this);
 }
 
+QtnPropertyState Object::getPropertyState(
+	const QMetaProperty &metaProperty) const
+{
+	QtnPropertyState result = QtnPropertyStateNone;
+	if (isInheritedChild() &&
+		0 == strcmp(metaProperty.name(), PROP(objectName)))
+	{
+		result |= QtnPropertyStateImmutable;
+	}
+	return result;
+}
+
 void Object::beforePrototypeChange()
 {
 	if (!isLoading())
