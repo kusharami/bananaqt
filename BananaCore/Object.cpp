@@ -80,13 +80,46 @@ Object::~Object()
 QtnPropertyState Object::getPropertyState(
 	const QMetaProperty &metaProperty) const
 {
-	QtnPropertyState result = QtnPropertyStateNone;
-	if (isInheritedChild() &&
-		0 == strcmp(metaProperty.name(), PROP(objectName)))
+	QtnPropertyState result;
+	auto it = propertyStates.constFind(metaProperty.propertyIndex());
+	if (it != propertyStates.constEnd())
+	{
+		result = it.value();
+	}
+	if (metaProperty.isConstant() ||
+		(!metaProperty.isWritable() && !metaProperty.isResettable()))
 	{
 		result |= QtnPropertyStateImmutable;
+		result &= ~QtnPropertyStateUnlockable;
+	} else
+	{
+		if (isInheritedChild())
+		{
+			if (0 == strcmp(metaProperty.name(), PROP(objectName)))
+			{
+				result |= QtnPropertyStateImmutable;
+				result &= ~QtnPropertyStateUnlockable;
+			} else
+			{
+				if (it == propertyStates.constEnd())
+				{
+					result |= QtnPropertyStateImmutable;
+				}
+				result |= QtnPropertyStateUnlockable;
+			}
+		} else
+		{
+			result &= ~(QtnPropertyStateUnlockable | QtnPropertyStateImmutable);
+		}
 	}
+
 	return result;
+}
+
+void Object::setPropertyState(
+	const QMetaProperty &metaProperty, QtnPropertyState state)
+{
+	propertyStates[metaProperty.propertyIndex()] = state;
 }
 
 void Object::beforePrototypeChange()

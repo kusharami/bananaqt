@@ -38,6 +38,7 @@ namespace Banana
 ObjectPropertyWidget::ObjectPropertyWidget(QWidget *parent)
 	: QObjectPropertyWidget(parent)
 {
+	mListInheritanceBackwards = false;
 	QObject::connect(propertyView(), &QtnPropertyView::beforePropertyEdited,
 		this, &ObjectPropertyWidget::onBeforePropertyEdited);
 	QObject::connect(propertyView(), &QtnPropertyView::propertyEdited, this,

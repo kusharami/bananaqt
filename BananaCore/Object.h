@@ -57,6 +57,8 @@ public:
 
 	virtual QtnPropertyState getPropertyState(
 		const QMetaProperty &metaProperty) const override;
+	virtual void setPropertyState(
+		const QMetaProperty &metaProperty, QtnPropertyState state) override;
 
 	template <typename T, typename... ARG_T>
 	static T *create(QObject *parent, ARG_T... args);
@@ -215,6 +217,7 @@ protected:
 	void disconnectUndoStack();
 	static void getDescendants(QObject *obj, QObjectList &out);
 
+	QHash<int, QtnPropertyState> propertyStates;
 	QString oldName;
 	Object *prototype;
 	Object *childPrototype;
