@@ -31,6 +31,7 @@ SOFTWARE.
 
 #include "QtnProperty/PropertyConnector.h"
 #include "QtnProperty/MultiProperty.h"
+#include "QtnProperty/PropertyView.h"
 
 namespace Banana
 {
@@ -44,7 +45,7 @@ ObjectPropertyWidget::ObjectPropertyWidget(QWidget *parent)
 }
 
 void ObjectPropertyWidget::onBeforePropertyEdited(
-	QtnProperty *property, QtnPropertyValuePtr newValue)
+	QtnPropertyBase *property, QtnPropertyValuePtr newValue)
 {
 	auto rootProperty = property->getRootProperty();
 	Q_ASSERT(nullptr != rootProperty);
@@ -91,7 +92,7 @@ void ObjectPropertyWidget::onBeforePropertyEdited(
 	}
 }
 
-void ObjectPropertyWidget::onPropertyEdited(QtnProperty *property)
+void ObjectPropertyWidget::onPropertyEdited(QtnPropertyBase *property)
 {
 	auto rootProperty = property->getRootProperty();
 	Q_ASSERT(nullptr != rootProperty);

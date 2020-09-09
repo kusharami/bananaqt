@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include "QtnProperty/PropertyWidgetEx.h"
+#include "QtnProperty/PropertyBase.h"
 #include "QtnProperty/Enum.h"
 
 #include "BananaScript/ScriptManager.h"

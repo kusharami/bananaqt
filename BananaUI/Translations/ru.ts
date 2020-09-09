@@ -2461,7 +2461,7 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="374"/>
         <source>(Untitled Action)</source>
         <translation>(Безымянная команда)</translation>
     </message>
@@ -2470,22 +2470,22 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Тип объекта</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="447"/>
         <source>Object Types</source>
         <translation>Типы объектов</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="455"/>
         <source>Script File Path</source>
         <translation>Скрипт-файл</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="463"/>
         <source>Caption</source>
         <translation>Имя команды</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="471"/>
         <source>Shortcut</source>
         <translation>Сочетание клавиш</translation>
     </message>

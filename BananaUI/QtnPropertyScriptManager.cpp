@@ -24,8 +24,8 @@ SOFTWARE.
 
 #include "QtnPropertyScriptManager.h"
 
-#include "QtnProperty/Delegates/PropertyEditorHandler.h"
-#include "QtnProperty/Delegates/PropertyEditorAux.h"
+#include "QtnProperty/Delegates/Utils/PropertyEditorHandler.h"
+#include "QtnProperty/Delegates/Utils/PropertyEditorAux.h"
 #include "QtnProperty/Delegates/PropertyDelegateFactory.h"
 #include "QtnProperty/QObjectPropertySet.h"
 
@@ -43,7 +43,7 @@ class QtnPropertyScriptManagerButtonHandler
 
 public:
 	QtnPropertyScriptManagerButtonHandler(
-		QtnPropertyScriptManager &property, QtnLineEditBttn &editor);
+		QtnPropertyDelegate *, QtnLineEditBttn &editor);
 
 protected:
 	virtual void onToolButtonClick() override;
@@ -98,14 +98,14 @@ QtnPropertyDelegateScriptManager::QtnPropertyDelegateScriptManager(
 {
 }
 
-void QtnPropertyDelegateScriptManager::drawValueImpl(QStylePainter &painter,
-	const QRect &rect, const QStyle::State &state, bool *needTooltip) const
+void QtnPropertyDelegateScriptManager::drawValueImpl(
+	QStylePainter &painter, const QRect &rect) const
 {
 	QPen oldPen = painter.pen();
-	painter.setPen(Qt::darkGray);
+	painter.setPen(disabledTextColor(painter));
 
 	QtnPropertyDelegateTyped<QtnPropertyScriptManager>::drawValueImpl(
-		painter, rect, state, needTooltip);
+		painter, rect);
 	painter.setPen(oldPen);
 }
 
@@ -115,15 +115,14 @@ QWidget *QtnPropertyDelegateScriptManager::createValueEditorImpl(
 	auto editor = new QtnLineEditBttn(parent);
 	editor->setGeometry(rect);
 
-	new QtnPropertyScriptManagerButtonHandler(
-		*static_cast<QtnPropertyScriptManager *>(&owner()), *editor);
+	new QtnPropertyScriptManagerButtonHandler(this, *editor);
 
 	qtnInitLineEdit(editor->lineEdit, inplaceInfo);
 
 	return editor;
 }
 
-bool QtnPropertyDelegateScriptManager::propertyValueToStr(
+bool QtnPropertyDelegateScriptManager::propertyValueToStrImpl(
 	QString &strValue) const
 {
 	strValue = QtnPropertyScriptManager::getPlaceholderStr();
@@ -131,9 +130,9 @@ bool QtnPropertyDelegateScriptManager::propertyValueToStr(
 }
 
 QtnPropertyScriptManagerButtonHandler::QtnPropertyScriptManagerButtonHandler(
-	QtnPropertyScriptManager &property, QtnLineEditBttn &editor)
-	: QtnPropertyEditorHandlerType(property, editor)
-	, m_prop(property)
+	QtnPropertyDelegate *delegate, QtnLineEditBttn &editor)
+	: QtnPropertyEditorHandlerType(delegate, editor)
+	, m_prop(*static_cast<QtnPropertyScriptManager *>(delegate->property()))
 {
 	editor.lineEdit->setReadOnly(true);
 	editor.toolButton->setEnabled(true);

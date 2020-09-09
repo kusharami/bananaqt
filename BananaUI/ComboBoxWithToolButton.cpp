@@ -25,7 +25,8 @@ SOFTWARE.
 #include "ComboBoxWithToolButton.h"
 
 #include "QtnProperty/Delegates/PropertyDelegate.h"
-#include "QtnProperty/Delegates/PropertyEditorAux.h"
+#include "QtnProperty/Delegates/Utils/PropertyEditorAux.h"
+#include "QtnProperty/Delegates/Utils/PropertyDelegateMisc.h"
 
 #include <QComboBox>
 #include <QToolButton>

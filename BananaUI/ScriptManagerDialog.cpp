@@ -28,6 +28,8 @@ SOFTWARE.
 #include "BananaCore/Directory.h"
 #include "BananaCore/AbstractProjectFile.h"
 
+#include "QtnProperty/PropertyView.h"
+
 #include "Utils.h"
 
 #include <QMenu>

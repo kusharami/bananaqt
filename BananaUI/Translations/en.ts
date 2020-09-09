@@ -2469,7 +2469,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="374"/>
         <source>(Untitled Action)</source>
         <translation>(Untitled Action)</translation>
     </message>
@@ -2478,22 +2478,22 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Object Type</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="447"/>
         <source>Object Types</source>
         <translation>Object Types</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="455"/>
         <source>Script File Path</source>
         <translation>Script File Path</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="463"/>
         <source>Caption</source>
         <translation>Caption</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="471"/>
         <source>Shortcut</source>
         <translation>Shortcut</translation>
     </message>
