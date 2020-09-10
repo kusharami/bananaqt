@@ -45,6 +45,9 @@ private slots:
 		QtnPropertyBase *property, QtnPropertyValuePtr newValue);
 	void onPropertyEdited(QtnPropertyBase *property);
 
+	void onBeforePropertyLockToggled(QtnPropertyBase *property);
+	void onPropertyLockToggled(QtnPropertyBase *property);
+
 private:
 	static Banana::Object *getObjectForProperty(QtnPropertyBase *property);
 	static QtnPropertyConnector *getConnectorForProperty(

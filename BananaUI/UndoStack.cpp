@@ -27,6 +27,7 @@ SOFTWARE.
 #include "ChangeValueCommand.h"
 #include "ChangeContentsCommand.h"
 #include "ChildActionCommand.h"
+#include "SwitchLockCommand.h"
 
 #include "BananaCore/Object.h"
 
@@ -190,6 +191,12 @@ void UndoStack::pushContentsChange(
 	Object *object, const QVariantMap &oldContents)
 {
 	push(new ChangeContentsCommand(object, oldContents));
+}
+
+void UndoStack::pushSwitchLock(
+	Object *object, const QMetaProperty &property, bool locked)
+{
+	push(new SwitchLockCommand(object, property, locked));
 }
 
 QString UndoStack::getDragAndDropCommandText(Qt::DropAction action)

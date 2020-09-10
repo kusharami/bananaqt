@@ -445,19 +445,32 @@ If no, the enumerated name will be given.</translation>
     </message>
 </context>
 <context>
+    <name>Banana::SwitchLockCommand</name>
+    <message>
+        <location filename="../SwitchLockCommand.cpp" line="103"/>
+        <source>Lock &lt;%2&gt; [%1]</source>
+        <translation>Lock &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../SwitchLockCommand.cpp" line="105"/>
+        <source>Unlock &lt;%2&gt; [%1]</source>
+        <translation>Unlock &lt;%2&gt; [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="200"/>
+        <location filename="../UndoStack.cpp" line="207"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Drag &amp;&amp; Drop: Copy</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="203"/>
+        <location filename="../UndoStack.cpp" line="210"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Drag &amp;&amp; Drop: Move</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="206"/>
+        <location filename="../UndoStack.cpp" line="213"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Drag &amp;&amp; Drop: Link</translation>
     </message>

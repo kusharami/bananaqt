@@ -57,8 +57,9 @@ public:
 
 	virtual QtnPropertyState getPropertyState(
 		const QMetaProperty &metaProperty) const override;
-	virtual void setPropertyState(
-		const QMetaProperty &metaProperty, QtnPropertyState state) override;
+
+	bool isPropertyLocked(const QMetaProperty &metaProperty) const;
+	void setPropertyLocked(const QMetaProperty &metaProperty, bool locked);
 
 	template <typename T, typename... ARG_T>
 	static T *create(QObject *parent, ARG_T... args);
@@ -69,10 +70,13 @@ public:
 	Q_INVOKABLE inline QObject *getPrototype() const;
 	void setPrototype(Object *prototype);
 
-	static bool loadContents(
-		const QVariantMap &source, QObject *destination, bool skipObjectName);
+	using PropertyStateMap = QHash<int, QtnPropertyState>;
+
+	static bool loadContents(const QVariantMap &source, QObject *destination,
+		bool skipObjectName, QStringList *unlocked = nullptr);
 	static void saveContents(const QObject *source, QVariantMap &destination,
-		QObject *prototype = nullptr);
+		QObject *prototype = nullptr,
+		const PropertyStateMap &propertyStates = PropertyStateMap());
 
 	enum SaveMode
 	{
@@ -81,9 +85,17 @@ public:
 		SaveStandalone,
 	};
 
+	using StringsByKey = QHash<QString, QStringList>;
+
 	virtual bool loadContents(const QVariantMap &source, bool skipObjectName);
+	virtual bool loadContents(const QVariantMap &source, bool skipObjectName,
+		StringsByKey &unlockedMap, const QStringList &path = QStringList());
 	virtual void saveContents(
 		QVariantMap &destination, SaveMode saveMode = SavePrototyped) const;
+
+	// dot separated
+	Object *findDescendant(const QString &path);
+	Object *findDescendant(const QStringList &path);
 
 	Q_INVOKABLE QVariantMap backupContents() const;
 	Q_INVOKABLE void applyContents(const QVariantMap &source);
@@ -152,6 +164,7 @@ public:
 	static bool isDescendantOf(const QObject *ancestor, const QObject *object);
 
 signals:
+	void propertyStateChanged(const QMetaProperty &metaProperty);
 	void modifiedSetChanged();
 	void modifiedFlagChanged(bool modified);
 	void parentChanged();
@@ -187,13 +200,16 @@ private:
 	void connectChildPrototype();
 	void disconnectChildPrototype();
 	bool checkPrototypeCycling(const Object *object) const;
-	bool assignChild(QObject *sourceChild, bool is_prototype = true);
+	Object *assignChild(QObject *sourceChild, bool is_prototype = true);
 	void beforePrototypeReloadStarted();
 	void beforeChildPrototypeReloadStarted();
 	void beforePrototypeChange();
 	void afterPrototypeChange();
 
 protected:
+	virtual void setPropertyState(
+		const QMetaProperty &metaProperty, QtnPropertyState state) override;
+
 	void removeAllChildrenInternal();
 	bool shouldSwapModifiedFieldsFor(QObject *source) const;
 	virtual bool canAssignPropertyFrom(QObject *source, int propertyId) const;
@@ -217,7 +233,7 @@ protected:
 	void disconnectUndoStack();
 	static void getDescendants(QObject *obj, QObjectList &out);
 
-	QHash<int, QtnPropertyState> propertyStates;
+	PropertyStateMap propertyStates;
 	QString oldName;
 	Object *prototype;
 	Object *childPrototype;

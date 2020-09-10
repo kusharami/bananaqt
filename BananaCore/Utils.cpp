@@ -818,7 +818,7 @@ const QMetaObject *GetMetaObjectForProperty(const QMetaProperty &property)
 {
 	auto result = property.enclosingMetaObject();
 
-	int index = result->indexOfProperty(property.name());
+	int index = property.propertyIndex();
 	Q_ASSERT(index >= 0);
 
 	while (nullptr != result && result->propertyOffset() > index)

@@ -25,6 +25,7 @@ SOFTWARE.
 #include "ObjectPropertyWidget.h"
 
 #include "ChangeValueCommand.h"
+#include "SwitchLockCommand.h"
 
 #include "BananaCore/Object.h"
 #include "BananaCore/Utils.h"
@@ -43,6 +44,12 @@ ObjectPropertyWidget::ObjectPropertyWidget(QWidget *parent)
 		this, &ObjectPropertyWidget::onBeforePropertyEdited);
 	QObject::connect(propertyView(), &QtnPropertyView::propertyEdited, this,
 		&ObjectPropertyWidget::onPropertyEdited);
+
+	QObject::connect(propertyView(),
+		&QtnPropertyView::beforePropertyLockToggled, this,
+		&ObjectPropertyWidget::onBeforePropertyLockToggled);
+	QObject::connect(propertyView(), &QtnPropertyView::propertyLockToggled,
+		this, &ObjectPropertyWidget::onPropertyLockToggled);
 }
 
 void ObjectPropertyWidget::onBeforePropertyEdited(
@@ -65,7 +72,7 @@ void ObjectPropertyWidget::onBeforePropertyEdited(
 				object, connector->getMetaProperty()));
 	} else
 	{
-		auto multiProperty = dynamic_cast<QtnMultiProperty *>(rootProperty);
+		auto multiProperty = qobject_cast<QtnMultiProperty *>(rootProperty);
 		Q_ASSERT(nullptr != multiProperty);
 
 		auto metaProperty = multiProperty->getMetaProperty();
@@ -104,7 +111,7 @@ void ObjectPropertyWidget::onPropertyEdited(QtnPropertyBase *property)
 		object->endMacro();
 	} else
 	{
-		auto multiProperty = dynamic_cast<QtnMultiProperty *>(rootProperty);
+		auto multiProperty = qobject_cast<QtnMultiProperty *>(rootProperty);
 		Q_ASSERT(nullptr != multiProperty);
 
 		for (auto property : multiProperty->getProperties())
@@ -115,6 +122,46 @@ void ObjectPropertyWidget::onPropertyEdited(QtnPropertyBase *property)
 			object->endMacro();
 		}
 	}
+}
+
+void ObjectPropertyWidget::onBeforePropertyLockToggled(
+	QtnPropertyBase *property)
+{
+	auto rootProperty = property->getRootProperty();
+	Q_ASSERT(nullptr != rootProperty);
+
+	auto object = getObjectForProperty(rootProperty);
+	if (nullptr != object)
+	{
+		auto connector = getConnectorForProperty(rootProperty);
+		Q_ASSERT(nullptr != connector);
+
+		object->beginMacro(SwitchLockCommand::getCommandTextFor(
+			object, connector->getMetaProperty(), !property->isLocked()));
+	} else
+	{
+		auto multiProperty = qobject_cast<QtnMultiProperty *>(rootProperty);
+		Q_ASSERT(nullptr != multiProperty);
+
+		auto metaProperty = multiProperty->getMetaProperty();
+		auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
+
+		auto commandText = SwitchLockCommand::getMultipleCommandTextFor(
+			metaObject, metaProperty.name(), !multiProperty->isLocked());
+
+		for (auto property : multiProperty->getProperties())
+		{
+			auto object = getObjectForProperty(property);
+			Q_ASSERT(nullptr != object);
+
+			object->beginMacro(commandText);
+		}
+	}
+}
+
+void ObjectPropertyWidget::onPropertyLockToggled(QtnPropertyBase *property)
+{
+	onPropertyEdited(property);
 }
 
 Object *ObjectPropertyWidget::getObjectForProperty(QtnPropertyBase *property)

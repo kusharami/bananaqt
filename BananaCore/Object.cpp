@@ -38,6 +38,7 @@ namespace Banana
 const char szOBJECT_NAME_KEY[] = PROP(objectName);
 const char szCLASS_NAME_KEY[] = "__CLASS_NAME";
 const char szCHILDREN_KEY[] = "__CHILDREN";
+const char szUNLOCKED_PROPERTIES_KEY[] = "__UNLOCKED_PROPERTIES";
 
 Object::Object()
 	: prototype(nullptr)
@@ -93,7 +94,7 @@ QtnPropertyState Object::getPropertyState(
 		result &= ~QtnPropertyStateUnlockable;
 	} else
 	{
-		if (isInheritedChild())
+		if (prototype)
 		{
 			if (0 == strcmp(metaProperty.name(), PROP(objectName)))
 			{
@@ -119,7 +120,53 @@ QtnPropertyState Object::getPropertyState(
 void Object::setPropertyState(
 	const QMetaProperty &metaProperty, QtnPropertyState state)
 {
+	auto oldState = getPropertyState(metaProperty);
+	bool isUnlockable = oldState.testFlag(QtnPropertyStateUnlockable);
+	state.setFlag(QtnPropertyStateUnlockable, isUnlockable);
+
+	if (state == oldState)
+		return;
+
 	propertyStates[metaProperty.propertyIndex()] = state;
+
+	emit propertyStateChanged(metaProperty);
+
+	if (!isUnlockable)
+	{
+		return;
+	}
+
+	bool wasLocked = oldState.testFlag(QtnPropertyStateImmutable);
+	bool isLocked = state.testFlag(QtnPropertyStateImmutable);
+
+	if (wasLocked == isLocked)
+	{
+		return;
+	}
+
+	if (canPushUndoCommand())
+	{
+		undoStack->pushSwitchLock(this, metaProperty, isLocked);
+	}
+
+	modify();
+}
+
+bool Object::isPropertyLocked(const QMetaProperty &metaProperty) const
+{
+	return getPropertyState(metaProperty).testFlag(QtnPropertyStateImmutable);
+}
+
+void Object::setPropertyLocked(const QMetaProperty &metaProperty, bool locked)
+{
+	auto state = getPropertyState(metaProperty);
+	if (!state.testFlag(QtnPropertyStateUnlockable))
+	{
+		return;
+	}
+
+	state.setFlag(QtnPropertyStateImmutable, locked);
+	setPropertyState(metaProperty, state);
 }
 
 void Object::beforePrototypeChange()
@@ -270,9 +317,15 @@ void Object::setPrototype(Object *prototype)
 	}
 }
 
-bool Object::loadContents(
-	const QVariantMap &source, QObject *destination, bool skipObjectName)
+bool Object::loadContents(const QVariantMap &source, QObject *destination,
+	bool skipObjectName, QStringList *unlocked)
 {
+	if (unlocked)
+	{
+		*unlocked =
+			source.value(szUNLOCKED_PROPERTIES_KEY, QVariant()).toStringList();
+	}
+
 	if (nullptr != destination)
 	{
 		auto metaObject = destination->metaObject();
@@ -342,8 +395,8 @@ bool Object::loadContents(
 	return false;
 }
 
-void Object::saveContents(
-	const QObject *source, QVariantMap &destination, QObject *prototype)
+void Object::saveContents(const QObject *source, QVariantMap &destination,
+	QObject *prototype, const PropertyStateMap &propertyStates)
 {
 	if (nullptr != source)
 	{
@@ -352,6 +405,8 @@ void Object::saveContents(
 		destination.insert(szCLASS_NAME_KEY, metaObject->className());
 
 		int count = metaObject->propertyCount();
+
+		QVariantList unlocked;
 
 		for (int i = 0; i < count; i++)
 		{
@@ -365,6 +420,18 @@ void Object::saveContents(
 				if (nullptr != prototype &&
 					0 != strcmp(property.name(), szOBJECT_NAME_KEY))
 				{
+					if (prototype)
+					{
+						auto state = propertyStates.value(
+							property.propertyIndex(), QtnPropertyStateNone);
+
+						if (0 != (state & QtnPropertyStateUnlockable) &&
+							0 == (state & QtnPropertyStateImmutable))
+						{
+							unlocked.append(QString::fromUtf8(property.name()));
+						}
+					}
+
 					if (value ==
 						Banana::ConvertFromUserVariant(
 							property.read(prototype)))
@@ -373,10 +440,50 @@ void Object::saveContents(
 				destination.insert(property.name(), value);
 			}
 		}
+
+		if (!unlocked.isEmpty())
+		{
+			destination.insert(szUNLOCKED_PROPERTIES_KEY, unlocked);
+		}
 	}
 }
 
 bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
+{
+	beginReload();
+	StringsByKey unlockedMap;
+	bool ok = loadContents(source, skipObjectName, unlockedMap);
+	if (ok)
+	{
+		for (auto it = unlockedMap.cbegin(); it != unlockedMap.cend(); ++it)
+		{
+			auto object = findDescendant(it.key());
+			if (!object)
+				continue;
+
+			auto metaObject = object->metaObject();
+			for (auto &propertyName : it.value())
+			{
+				auto propertyIndex = metaObject->indexOfProperty(
+					propertyName.toUtf8().constData());
+				auto metaProperty = metaObject->property(propertyIndex);
+				if (!metaProperty.isValid())
+				{
+					qDebug() << QStringLiteral("Unknown property '%1'")
+									.arg(propertyName);
+					continue;
+				}
+
+				object->setPropertyLocked(metaProperty, false);
+			}
+		}
+	}
+	endReload();
+	return ok;
+}
+
+bool Object::loadContents(const QVariantMap &source, bool skipObjectName,
+	StringsByKey &unlockedMap, const QStringList &path)
 {
 	beginReload();
 	assign(nullptr);
@@ -394,9 +501,11 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 
 		ok = true;
 
-		std::vector<QObject *> childObjects;
+		QObjectList childObjects;
+		childObjects.reserve(childrenSource.size());
 
-		for (auto it = childrenSource.begin(); it != childrenSource.end(); ++it)
+		for (auto it = childrenSource.cbegin(); it != childrenSource.cend();
+			 ++it)
 		{
 			ok = false;
 
@@ -417,61 +526,67 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 
 						childObjects.push_back(newObject);
 
-						auto newChild = dynamic_cast<Object *>(newObject);
+						auto newChild = qobject_cast<Object *>(newObject);
+
+						auto objectName =
+							childSource.value(szOBJECT_NAME_KEY).toString();
 
 						if ((nullptr != newChild &&
-								newChild->loadContents(childSource, false)) ||
+								newChild->loadContents(childSource, false,
+									unlockedMap,
+									path + QStringList(objectName))) ||
 							(nullptr == newChild &&
-								loadContents(childSource, newChild, false)))
+								loadContents(
+									childSource, newObject, false, nullptr)))
 						{
 							ok = true;
 						} else
+						{
 							qDebug() << "Object::loadContents - Child object "
 										"load failed";
+						}
 
 					} else
+					{
 						qDebug() << QString(
 							"Object::loadContents - Unknown class name '%1'")
 										.arg(className);
+					}
 				} else
+				{
 					qDebug()
 						<< "Object::loadContents - Bad child object format";
+				}
 			} else
+			{
 				qDebug() << "Object::loadContents - Bad child object type";
+			}
 
 			if (!ok)
 				break;
 		}
 
-		if (ok && loadContents(source, this, skipObjectName))
+		QStringList unlockedList;
+		if (ok && loadContents(source, this, skipObjectName, &unlockedList))
 		{
-			if (nullptr != prototype)
+			if (!unlockedList.isEmpty())
 			{
-				for (auto sourceChild : childObjects)
-				{
-					auto object = dynamic_cast<Object *>(sourceChild);
-					if (nullptr != object)
-						object->beginLoad();
+				unlockedMap[path.join('.')] = unlockedList;
+			}
 
-					if (assignChild(sourceChild, false))
-						delete sourceChild;
-					else
-					{
-						sourceChild->setParent(this);
-
-						if (nullptr != object)
-							object->endLoad();
-					}
-				}
-			} else
+			for (auto childObject : qAsConst(childObjects))
 			{
-				for (auto child : childObjects)
-				{
-					auto object = dynamic_cast<Object *>(child);
-					if (nullptr != object)
-						object->beginLoad();
+				auto object = qobject_cast<Object *>(childObject);
+				if (nullptr != object)
+					object->beginLoad();
 
-					child->setParent(this);
+				Object *foundChild =
+					prototype ? assignChild(childObject, false) : nullptr;
+				if (foundChild)
+					delete childObject;
+				else
+				{
+					childObject->setParent(this);
 
 					if (nullptr != object)
 						object->endLoad();
@@ -479,9 +594,9 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 			}
 		} else
 		{
-			for (auto child : childObjects)
+			for (auto childObject : qAsConst(childObjects))
 			{
-				delete child;
+				delete childObject;
 			}
 		}
 	}
@@ -529,7 +644,27 @@ void Object::saveContents(QVariantMap &destination, SaveMode saveMode) const
 	if (!childList.isEmpty())
 		destination.insert(szCHILDREN_KEY, childList);
 
-	saveContents(this, destination, ignorePrototype ? nullptr : prototype);
+	saveContents(this, destination, ignorePrototype ? nullptr : prototype,
+		propertyStates);
+}
+
+Object *Object::findDescendant(const QString &path)
+{
+	return findDescendant(path.split('.'));
+}
+
+Object *Object::findDescendant(const QStringList &path)
+{
+	auto object = this;
+
+	for (auto &name : path)
+	{
+		if (!object)
+			break;
+		object = object->findChild<Object *>(name, Qt::FindDirectChildrenOnly);
+	}
+
+	return object;
 }
 
 QVariantMap Object::backupContents() const
@@ -954,11 +1089,17 @@ void Object::internalAssign(QObject *source, bool fresh, bool top)
 	assignChildren(source);
 	assignEnd(source, top);
 
-	if (swap)
+	auto object = qobject_cast<Object *>(source);
+	if (object)
 	{
-		auto object = dynamic_cast<Object *>(source);
-		if (nullptr != object)
+		if (object->metaObject() == source->metaObject())
+		{
+			propertyStates = object->propertyStates;
+		}
+		if (swap)
+		{
 			modifiedSet = object->modifiedSet;
+		}
 	}
 
 	if (fresh)
@@ -1111,7 +1252,7 @@ bool Object::isDescendantOf(const QObject *ancestor, const QObject *object)
 	return false;
 }
 
-bool Object::assignChild(QObject *sourceChild, bool isPrototype)
+Object *Object::assignChild(QObject *sourceChild, bool isPrototype)
 {
 	auto child = findChild<Object *>(
 		sourceChild->objectName(), Qt::FindDirectChildrenOnly);
@@ -1127,10 +1268,10 @@ bool Object::assignChild(QObject *sourceChild, bool isPrototype)
 			child->internalAssign(sourceChild, isLoading(), false);
 		}
 
-		return true;
+		return child;
 	}
 
-	return false;
+	return nullptr;
 }
 
 void Object::beforePrototypeReloadStarted()

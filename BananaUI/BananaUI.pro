@@ -48,6 +48,7 @@ HEADERS += \
     QtnPropertySearchPaths.h \
     ScriptRunnerDialog.h \
     SearchPathsDialog.h \
+    SwitchLockCommand.h \
     Utils.h \
     ProjectTreeWidget.h \
     NewFileDialog.h \
@@ -87,6 +88,7 @@ SOURCES += \
     QtnPropertySearchPaths.cpp \
     ScriptRunnerDialog.cpp \
     SearchPathsDialog.cpp \
+    SwitchLockCommand.cpp \
     Utils.cpp \
     ProjectTreeWidget.cpp \
     NewFileDialog.cpp \

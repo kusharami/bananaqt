@@ -445,19 +445,32 @@ If no, the enumerated name will be given.</source>
     </message>
 </context>
 <context>
+    <name>Banana::SwitchLockCommand</name>
+    <message>
+        <location filename="../SwitchLockCommand.cpp" line="103"/>
+        <source>Lock &lt;%2&gt; [%1]</source>
+        <translation>Заблокировать &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../SwitchLockCommand.cpp" line="105"/>
+        <source>Unlock &lt;%2&gt; [%1]</source>
+        <translation>Разблокировать &lt;%2&gt; [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="200"/>
+        <location filename="../UndoStack.cpp" line="207"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Копирование с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="203"/>
+        <location filename="../UndoStack.cpp" line="210"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Перемещение с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="206"/>
+        <location filename="../UndoStack.cpp" line="213"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Создание ссылки с помощью &quot;Drag &amp;&amp; Drop&quot;</translation>
     </message>
