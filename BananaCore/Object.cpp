@@ -87,6 +87,12 @@ QtnPropertyState Object::getPropertyState(
 	{
 		result = it.value();
 	}
+
+	if (!metaProperty.isDesignable())
+	{
+		result |= QtnPropertyStateInvisible;
+	}
+
 	if (metaProperty.isConstant() ||
 		(!metaProperty.isWritable() && !metaProperty.isResettable()))
 	{
@@ -94,6 +100,12 @@ QtnPropertyState Object::getPropertyState(
 		result &= ~QtnPropertyStateUnlockable;
 	} else
 	{
+		if (metaProperty.isResettable())
+		{
+			result |= QtnPropertyStateResettable;
+			result &= ~QtnPropertyStateImmutable;
+		}
+
 		if (prototype)
 		{
 			if (0 == strcmp(metaProperty.name(), PROP(objectName)))
