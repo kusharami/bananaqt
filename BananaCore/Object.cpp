@@ -451,6 +451,25 @@ void Object::saveContents(
 		for (int i = 0; i < count; i++)
 		{
 			QMetaProperty property = metaObject->property(i);
+			if (osource)
+			{
+				auto &propertyStates = osource->propertyStates;
+				auto it = propertyStates.constFind(property.propertyIndex());
+				if (it != propertyStates.constEnd() &&
+					it.value().testFlag(QtnPropertyStateUnlockable))
+				{
+					QVariant vname(QString::fromUtf8(property.name()));
+					bool isLocked =
+						it.value().testFlag(QtnPropertyStateImmutable);
+					if (isLocked)
+					{
+						locked.append(vname);
+					} else
+					{
+						unlocked.append(vname);
+					}
+				}
+			}
 
 			if (property.isStored(source) && property.isReadable() &&
 				property.isWritable() && !property.isConstant())
@@ -459,27 +478,6 @@ void Object::saveContents(
 					Banana::ConvertFromUserVariant(property.read(source));
 				if (0 != strcmp(property.name(), szOBJECT_NAME_KEY))
 				{
-					if (osource)
-					{
-						auto &propertyStates = osource->propertyStates;
-						auto it =
-							propertyStates.constFind(property.propertyIndex());
-						if (it != propertyStates.constEnd() &&
-							it.value().testFlag(QtnPropertyStateUnlockable))
-						{
-							QVariant vname(QString::fromUtf8(property.name()));
-							bool isLocked =
-								it.value().testFlag(QtnPropertyStateImmutable);
-							if (isLocked)
-							{
-								locked.append(vname);
-							} else
-							{
-								unlocked.append(vname);
-							}
-						}
-					}
-
 					if (value ==
 						Banana::ConvertFromUserVariant(
 							property.read(prototype)))
