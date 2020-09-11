@@ -64,6 +64,9 @@ public:
 	explicit AbstractFile(const QString &extension);
 	virtual ~AbstractFile() override;
 
+	virtual QtnPropertyState getPropertyState(
+		const QMetaProperty &metaProperty) const override;
+
 	virtual const QString &getFileExtension() const override;
 
 	Directory *getTopDirectory() const;
