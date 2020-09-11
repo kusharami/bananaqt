@@ -39,6 +39,7 @@ const char szOBJECT_NAME_KEY[] = PROP(objectName);
 const char szCLASS_NAME_KEY[] = "__CLASS_NAME";
 const char szCHILDREN_KEY[] = "__CHILDREN";
 const char szUNLOCKED_PROPERTIES_KEY[] = "__UNLOCKED_PROPERTIES";
+const char szLOCKED_PROPERTIES_KEY[] = "__LOCKED_PROPERTIES";
 
 Object::Object()
 	: prototype(nullptr)
@@ -86,6 +87,20 @@ QtnPropertyState Object::getPropertyState(
 	if (it != propertyStates.constEnd())
 	{
 		result = it.value();
+	} else
+	{
+		if (prototype)
+		{
+			auto protoState = prototype->getPropertyState(metaProperty);
+
+			result.setFlag(QtnPropertyStateUnlockable,
+				protoState.testFlag(QtnPropertyStateUnlockable));
+			if (result & QtnPropertyStateUnlockable)
+			{
+				result.setFlag(QtnPropertyStateImmutable,
+					protoState.testFlag(QtnPropertyStateImmutable));
+			}
+		}
 	}
 
 	if (!metaProperty.isDesignable())
@@ -103,26 +118,16 @@ QtnPropertyState Object::getPropertyState(
 		if (metaProperty.isResettable())
 		{
 			result |= QtnPropertyStateResettable;
-			result &= ~QtnPropertyStateImmutable;
 		}
 
-		if (prototype)
+		if (isInheritedChild() &&
+			0 == strcmp(metaProperty.name(), PROP(objectName)))
 		{
-			if (0 == strcmp(metaProperty.name(), PROP(objectName)))
-			{
-				result |= QtnPropertyStateImmutable;
-				result &= ~QtnPropertyStateUnlockable;
-			} else
-			{
-				if (it == propertyStates.constEnd())
-				{
-					result |= QtnPropertyStateImmutable;
-				}
-				result |= QtnPropertyStateUnlockable;
-			}
+			result |= QtnPropertyStateImmutable;
+			result &= ~QtnPropertyStateUnlockable;
 		} else
 		{
-			result &= ~(QtnPropertyStateUnlockable | QtnPropertyStateImmutable);
+			result |= QtnPropertyStateUnlockable;
 		}
 	}
 
@@ -139,9 +144,7 @@ void Object::setPropertyState(
 	if (state == oldState)
 		return;
 
-	propertyStates[metaProperty.propertyIndex()] = state;
-
-	emit propertyStateChanged(metaProperty);
+	setPropertyStateForce(metaProperty, state);
 
 	if (!isUnlockable)
 	{
@@ -171,6 +174,12 @@ bool Object::isPropertyLocked(const QMetaProperty &metaProperty) const
 
 void Object::setPropertyLocked(const QMetaProperty &metaProperty, bool locked)
 {
+	setPropertyLockedForce(metaProperty, locked, false);
+}
+
+void Object::setPropertyLockedForce(
+	const QMetaProperty &metaProperty, bool locked, bool force)
+{
 	auto state = getPropertyState(metaProperty);
 	if (!state.testFlag(QtnPropertyStateUnlockable))
 	{
@@ -178,7 +187,22 @@ void Object::setPropertyLocked(const QMetaProperty &metaProperty, bool locked)
 	}
 
 	state.setFlag(QtnPropertyStateImmutable, locked);
-	setPropertyState(metaProperty, state);
+
+	if (force)
+	{
+		setPropertyStateForce(metaProperty, state);
+	} else
+	{
+		setPropertyState(metaProperty, state);
+	}
+}
+
+void Object::setPropertyStateForce(
+	const QMetaProperty &metaProperty, QtnPropertyState state)
+{
+	propertyStates[metaProperty.propertyIndex()] = state;
+
+	emit propertyStateChanged(metaProperty);
 }
 
 void Object::beforePrototypeChange()
@@ -330,12 +354,14 @@ void Object::setPrototype(Object *prototype)
 }
 
 bool Object::loadContents(const QVariantMap &source, QObject *destination,
-	bool skipObjectName, QStringList *unlocked)
+	bool skipObjectName, LockUnlock *lockUnlock)
 {
-	if (unlocked)
+	if (lockUnlock)
 	{
-		*unlocked =
+		lockUnlock->unlocked =
 			source.value(szUNLOCKED_PROPERTIES_KEY, QVariant()).toStringList();
+		lockUnlock->locked =
+			source.value(szLOCKED_PROPERTIES_KEY, QVariant()).toStringList();
 	}
 
 	if (nullptr != destination)
@@ -407,17 +433,19 @@ bool Object::loadContents(const QVariantMap &source, QObject *destination,
 	return false;
 }
 
-void Object::saveContents(const QObject *source, QVariantMap &destination,
-	QObject *prototype, const PropertyStateMap &propertyStates)
+void Object::saveContents(
+	const QObject *source, QVariantMap &destination, QObject *prototype)
 {
 	if (nullptr != source)
 	{
 		auto metaObject = source->metaObject();
 
 		destination.insert(szCLASS_NAME_KEY, metaObject->className());
+		auto osource = qobject_cast<const Object *>(source);
 
 		int count = metaObject->propertyCount();
 
+		QVariantList locked;
 		QVariantList unlocked;
 
 		for (int i = 0; i < count; i++)
@@ -429,18 +457,26 @@ void Object::saveContents(const QObject *source, QVariantMap &destination,
 			{
 				auto value =
 					Banana::ConvertFromUserVariant(property.read(source));
-				if (nullptr != prototype &&
-					0 != strcmp(property.name(), szOBJECT_NAME_KEY))
+				if (0 != strcmp(property.name(), szOBJECT_NAME_KEY))
 				{
-					if (prototype)
+					if (osource)
 					{
-						auto state = propertyStates.value(
-							property.propertyIndex(), QtnPropertyStateNone);
-
-						if (0 != (state & QtnPropertyStateUnlockable) &&
-							0 == (state & QtnPropertyStateImmutable))
+						auto &propertyStates = osource->propertyStates;
+						auto it =
+							propertyStates.constFind(property.propertyIndex());
+						if (it != propertyStates.constEnd() &&
+							it.value().testFlag(QtnPropertyStateUnlockable))
 						{
-							unlocked.append(QString::fromUtf8(property.name()));
+							QVariant vname(QString::fromUtf8(property.name()));
+							bool isLocked =
+								it.value().testFlag(QtnPropertyStateImmutable);
+							if (isLocked)
+							{
+								locked.append(vname);
+							} else
+							{
+								unlocked.append(vname);
+							}
 						}
 					}
 
@@ -457,37 +493,48 @@ void Object::saveContents(const QObject *source, QVariantMap &destination,
 		{
 			destination.insert(szUNLOCKED_PROPERTIES_KEY, unlocked);
 		}
+		if (!locked.isEmpty())
+		{
+			destination.insert(szLOCKED_PROPERTIES_KEY, locked);
+		}
+	}
+}
+
+void Banana::Object::setPropertyLocksForce(
+	const QStringList &propertyNames, bool locked)
+{
+	auto metaObject = this->metaObject();
+	for (auto &propertyName : propertyNames)
+	{
+		auto propertyIndex =
+			metaObject->indexOfProperty(propertyName.toUtf8().constData());
+		auto metaProperty = metaObject->property(propertyIndex);
+		if (!metaProperty.isValid())
+		{
+			qDebug()
+				<< QStringLiteral("Unknown property '%1'").arg(propertyName);
+			continue;
+		}
+
+		setPropertyLockedForce(metaProperty, locked, true);
 	}
 }
 
 bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 {
 	beginReload();
-	StringsByKey unlockedMap;
-	bool ok = loadContents(source, skipObjectName, unlockedMap);
+	LockUnlockByKey lockUnlockMap;
+	bool ok = loadContents(source, skipObjectName, lockUnlockMap);
 	if (ok)
 	{
-		for (auto it = unlockedMap.cbegin(); it != unlockedMap.cend(); ++it)
+		for (auto it = lockUnlockMap.cbegin(); it != lockUnlockMap.cend(); ++it)
 		{
 			auto object = findDescendant(it.key());
 			if (!object)
 				continue;
 
-			auto metaObject = object->metaObject();
-			for (auto &propertyName : it.value())
-			{
-				auto propertyIndex = metaObject->indexOfProperty(
-					propertyName.toUtf8().constData());
-				auto metaProperty = metaObject->property(propertyIndex);
-				if (!metaProperty.isValid())
-				{
-					qDebug() << QStringLiteral("Unknown property '%1'")
-									.arg(propertyName);
-					continue;
-				}
-
-				object->setPropertyLocked(metaProperty, false);
-			}
+			object->setPropertyLocksForce(it.value().locked, true);
+			object->setPropertyLocksForce(it.value().unlocked, false);
 		}
 	}
 	endReload();
@@ -495,7 +542,7 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName)
 }
 
 bool Object::loadContents(const QVariantMap &source, bool skipObjectName,
-	StringsByKey &unlockedMap, const QStringList &path)
+	LockUnlockByKey &lockUnlockMap, const QStringList &path)
 {
 	beginReload();
 	assign(nullptr);
@@ -545,7 +592,7 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName,
 
 						if ((nullptr != newChild &&
 								newChild->loadContents(childSource, false,
-									unlockedMap,
+									lockUnlockMap,
 									path + QStringList(objectName))) ||
 							(nullptr == newChild &&
 								loadContents(
@@ -578,13 +625,10 @@ bool Object::loadContents(const QVariantMap &source, bool skipObjectName,
 				break;
 		}
 
-		QStringList unlockedList;
-		if (ok && loadContents(source, this, skipObjectName, &unlockedList))
+		LockUnlock lockUnlock;
+		if (ok && loadContents(source, this, skipObjectName, &lockUnlock))
 		{
-			if (!unlockedList.isEmpty())
-			{
-				unlockedMap[path.join('.')] = unlockedList;
-			}
+			lockUnlockMap[path.join('.')] = lockUnlock;
 
 			for (auto childObject : qAsConst(childObjects))
 			{
@@ -656,13 +700,12 @@ void Object::saveContents(QVariantMap &destination, SaveMode saveMode) const
 	if (!childList.isEmpty())
 		destination.insert(szCHILDREN_KEY, childList);
 
-	saveContents(this, destination, ignorePrototype ? nullptr : prototype,
-		propertyStates);
+	saveContents(this, destination, ignorePrototype ? nullptr : prototype);
 }
 
 Object *Object::findDescendant(const QString &path)
 {
-	return findDescendant(path.split('.'));
+	return findDescendant(path.isEmpty() ? QStringList() : path.split('.'));
 }
 
 Object *Object::findDescendant(const QStringList &path)
@@ -1104,10 +1147,6 @@ void Object::internalAssign(QObject *source, bool fresh, bool top)
 	auto object = qobject_cast<Object *>(source);
 	if (object)
 	{
-		if (object->metaObject() == source->metaObject())
-		{
-			propertyStates = object->propertyStates;
-		}
 		if (swap)
 		{
 			modifiedSet = object->modifiedSet;
@@ -1317,6 +1356,8 @@ bool Object::canAssignPropertyFrom(QObject *source, int propertyId) const
 
 void Object::doConnectPrototype()
 {
+	QObject::connect(prototype, &Object::propertyStateChanged, this,
+		&Object::propertyStateChanged);
 	QObject::connect(
 		prototype, &Object::beforeDestroy, this, &Object::onPrototypeDestroyed);
 	if (nullptr == childPrototype || prototype == childPrototype)
@@ -1330,6 +1371,8 @@ void Object::doConnectPrototype()
 
 void Object::doDisconnectPrototype()
 {
+	QObject::disconnect(prototype, &Object::propertyStateChanged, this,
+		&Object::propertyStateChanged);
 	QObject::disconnect(
 		prototype, &Object::beforeDestroy, this, &Object::onPrototypeDestroyed);
 	if (nullptr == childPrototype || prototype == childPrototype)

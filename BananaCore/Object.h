@@ -52,6 +52,20 @@ class Object
 	Q_OBJECT
 
 public:
+	enum SaveMode
+	{
+		SavePrototyped,
+		SaveStandaloneInheritedChild,
+		SaveStandalone,
+	};
+
+	struct LockUnlock
+	{
+		QStringList locked;
+		QStringList unlocked;
+	};
+	using LockUnlockByKey = QHash<QString, LockUnlock>;
+
 	explicit Object();
 	virtual ~Object() override;
 
@@ -70,26 +84,15 @@ public:
 	Q_INVOKABLE inline QObject *getPrototype() const;
 	void setPrototype(Object *prototype);
 
-	using PropertyStateMap = QHash<int, QtnPropertyState>;
-
 	static bool loadContents(const QVariantMap &source, QObject *destination,
-		bool skipObjectName, QStringList *unlocked = nullptr);
+		bool skipObjectName, LockUnlock *lockUnlock = nullptr);
 	static void saveContents(const QObject *source, QVariantMap &destination,
-		QObject *prototype = nullptr,
-		const PropertyStateMap &propertyStates = PropertyStateMap());
-
-	enum SaveMode
-	{
-		SavePrototyped,
-		SaveStandaloneInheritedChild,
-		SaveStandalone,
-	};
-
-	using StringsByKey = QHash<QString, QStringList>;
+		QObject *prototype = nullptr);
 
 	virtual bool loadContents(const QVariantMap &source, bool skipObjectName);
 	virtual bool loadContents(const QVariantMap &source, bool skipObjectName,
-		StringsByKey &unlockedMap, const QStringList &path = QStringList());
+		LockUnlockByKey &lockUnlockMap,
+		const QStringList &path = QStringList());
 	virtual void saveContents(
 		QVariantMap &destination, SaveMode saveMode = SavePrototyped) const;
 
@@ -206,6 +209,12 @@ private:
 	void beforePrototypeChange();
 	void afterPrototypeChange();
 
+	void setPropertyLocksForce(const QStringList &propertyNames, bool locked);
+	void setPropertyLockedForce(
+		const QMetaProperty &metaProperty, bool locked, bool force);
+	void setPropertyStateForce(
+		const QMetaProperty &metaProperty, QtnPropertyState state);
+
 protected:
 	virtual void setPropertyState(
 		const QMetaProperty &metaProperty, QtnPropertyState state) override;
@@ -233,7 +242,7 @@ protected:
 	void disconnectUndoStack();
 	static void getDescendants(QObject *obj, QObjectList &out);
 
-	PropertyStateMap propertyStates;
+	QHash<int, QtnPropertyState> propertyStates;
 	QString oldName;
 	Object *prototype;
 	Object *childPrototype;
