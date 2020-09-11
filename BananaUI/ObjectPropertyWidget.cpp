@@ -52,6 +52,12 @@ ObjectPropertyWidget::ObjectPropertyWidget(QWidget *parent)
 		this, &ObjectPropertyWidget::onPropertyLockToggled);
 }
 
+void ObjectPropertyWidget::refresh()
+{
+	disconnectObjects();
+	connectObjects();
+}
+
 void ObjectPropertyWidget::onBeforePropertyEdited(
 	QtnPropertyBase *property, QtnPropertyValuePtr newValue)
 {

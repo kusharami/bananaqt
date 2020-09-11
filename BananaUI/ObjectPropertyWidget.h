@@ -40,6 +40,8 @@ class ObjectPropertyWidget : public QObjectPropertyWidget
 public:
 	explicit ObjectPropertyWidget(QWidget *parent = nullptr);
 
+	void refresh();
+
 private slots:
 	void onBeforePropertyEdited(
 		QtnPropertyBase *property, QtnPropertyValuePtr newValue);

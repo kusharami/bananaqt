@@ -251,7 +251,7 @@
         <translation>Directory</translation>
     </message>
     <message>
-        <location filename="../Object.cpp" line="57"/>
+        <location filename="../Object.cpp" line="58"/>
         <source>Banana::Object</source>
         <translation>Object</translation>
     </message>

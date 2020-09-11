@@ -419,27 +419,27 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Banana::SearchPathsDialog</name>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="604"/>
+        <location filename="../SearchPathsDialog.cpp" line="615"/>
         <source>Copy Absolute Path</source>
         <translation>Скопировать полный путь</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="605"/>
+        <location filename="../SearchPathsDialog.cpp" line="616"/>
         <source>Copy Directory Name</source>
         <translation>Скопировать имя директории</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="609"/>
+        <location filename="../SearchPathsDialog.cpp" line="620"/>
         <source>Copy Selected Absolute Paths</source>
         <translation>Скопировать полные пути</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="611"/>
+        <location filename="../SearchPathsDialog.cpp" line="622"/>
         <source>Copy Names of Selected Directories</source>
         <translation>Скопировать имена выбранных директорий</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="694"/>
+        <location filename="../SearchPathsDialog.cpp" line="705"/>
         <source>Are you sure you want to unregister selected paths?</source>
         <translation>Вы действительно хотите убрать выбранные пути из списка?</translation>
     </message>

@@ -419,27 +419,27 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::SearchPathsDialog</name>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="604"/>
+        <location filename="../SearchPathsDialog.cpp" line="615"/>
         <source>Copy Absolute Path</source>
         <translation>Copy Absolute Path</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="605"/>
+        <location filename="../SearchPathsDialog.cpp" line="616"/>
         <source>Copy Directory Name</source>
         <translation>Copy Directory Name</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="609"/>
+        <location filename="../SearchPathsDialog.cpp" line="620"/>
         <source>Copy Selected Absolute Paths</source>
         <translation>Copy Selected Absolute Paths</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="611"/>
+        <location filename="../SearchPathsDialog.cpp" line="622"/>
         <source>Copy Names of Selected Directories</source>
         <translation>Copy Names of Selected Directories</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="694"/>
+        <location filename="../SearchPathsDialog.cpp" line="705"/>
         <source>Are you sure you want to unregister selected paths?</source>
         <translation>Are you sure you want to unregister selected paths?</translation>
     </message>
