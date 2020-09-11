@@ -161,7 +161,8 @@ void QtnPropertyScriptManagerButtonHandler::onToolButtonClicked(bool)
 	auto scriptManager = m_prop.getScriptManager();
 	Q_ASSERT(nullptr != scriptManager);
 
-	auto dialog = new ScriptManagerDialog(scriptManager, editorBase());
+	auto dialog = new ScriptManagerDialog(
+		scriptManager, !m_prop.isWritable(), editorBase());
 	auto dialogContainer = connectDialog(dialog);
 
 	dialog->show();

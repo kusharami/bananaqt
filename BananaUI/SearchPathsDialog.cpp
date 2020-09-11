@@ -53,12 +53,13 @@ static const QStringList kDragDropMimeTypes(
 	{ "text/plain", "text/uri-list", kDragDropSearchPaths });
 
 SearchPathsDialog::SearchPathsDialog(
-	ProjectDirectoryModel *project_dir_model, QWidget *parent)
+	ProjectDirectoryModel *project_dir_model, bool readOnly, QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::SearchPathsDialog)
 	, project_dir_model(project_dir_model)
 	, paths_model(new SearchPathsTableModel(project_dir_model, this))
 	, popup(false)
+	, read_only(readOnly)
 {
 	ui->setupUi(this);
 
@@ -75,6 +76,16 @@ SearchPathsDialog::SearchPathsDialog(
 	ui->tableView->horizontalHeader()->setSectionResizeMode(
 		QHeaderView::Stretch);
 	ui->tableView->setModel(paths_model);
+
+	if (read_only)
+	{
+		ui->tableView->setDragEnabled(false);
+		ui->tableView->setDragDropMode(QTableView::NoDragDrop);
+		ui->unregisterButton->setDisabled(true);
+		ui->registerButton->setDisabled(true);
+		ui->actionUnregisterSelected->setDisabled(true);
+		return;
+	}
 
 	QObject::connect(ui->tableView->selectionModel(),
 		&QItemSelectionModel::selectionChanged, this,

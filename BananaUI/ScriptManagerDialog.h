@@ -44,10 +44,11 @@ class ScriptManagerDialog : public QDialog
 	Banana::ScriptManager *mManager;
 
 	bool mPopup;
+	bool mReadOnly;
 
 public:
-	explicit ScriptManagerDialog(
-		Banana::ScriptManager *manager, QWidget *parent = nullptr);
+	explicit ScriptManagerDialog(Banana::ScriptManager *manager,
+		bool readOnly = false, QWidget *parent = nullptr);
 	virtual ~ScriptManagerDialog() override;
 
 	virtual void accept() override;

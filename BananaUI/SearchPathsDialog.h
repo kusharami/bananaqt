@@ -105,7 +105,7 @@ class SearchPathsDialog : public QDialog
 
 public:
 	explicit SearchPathsDialog(Banana::ProjectDirectoryModel *project_dir_model,
-		QWidget *parent = nullptr);
+		bool readOnly = false, QWidget *parent = nullptr);
 	virtual ~SearchPathsDialog() override;
 
 	virtual void accept() override;
@@ -137,5 +137,6 @@ private:
 	Banana::ProjectDirectoryModel *project_dir_model;
 	SearchPathsTableModel *paths_model;
 	bool popup;
+	bool read_only;
 };
 }

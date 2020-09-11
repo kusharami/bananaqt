@@ -126,8 +126,8 @@ private:
 		auto delegate = project_group->getDelegate();
 		Q_ASSERT(nullptr != delegate);
 
-		auto dialog = new SearchPathsDialog(
-			delegate->getProjectTreeModel(), editorBase());
+		auto dialog = new SearchPathsDialog(delegate->getProjectTreeModel(),
+			!m_prop.isWritable(), editorBase());
 		auto dialogContainer = connectDialog(dialog);
 
 		dialog->show();
