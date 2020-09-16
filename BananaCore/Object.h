@@ -218,6 +218,7 @@ private:
 protected:
 	virtual void setPropertyState(
 		const QMetaProperty &metaProperty, QtnPropertyState state) override;
+	virtual void emitPropertyStateChanged(const QMetaProperty &metaProperty);
 
 	void removeAllChildrenInternal();
 	bool shouldSwapModifiedFieldsFor(QObject *source) const;

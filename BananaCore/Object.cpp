@@ -167,6 +167,11 @@ void Object::setPropertyState(
 	modify();
 }
 
+void Object::emitPropertyStateChanged(const QMetaProperty &metaProperty)
+{
+	emit propertyStateChanged(metaProperty);
+}
+
 bool Object::isPropertyLocked(const QMetaProperty &metaProperty) const
 {
 	return getPropertyState(metaProperty).testFlag(QtnPropertyStateImmutable);
@@ -202,7 +207,7 @@ void Object::setPropertyStateForce(
 {
 	propertyStates[metaProperty.propertyIndex()] = state;
 
-	emit propertyStateChanged(metaProperty);
+	emitPropertyStateChanged(metaProperty);
 }
 
 void Object::beforePrototypeChange()
