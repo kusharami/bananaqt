@@ -27,6 +27,9 @@ SOFTWARE.
 #include "ProjectDirectoryModel.h"
 #include "BananaCore/AbstractProjectDirectory.h"
 
+#include <QApplication>
+#include <QStyle>
+
 namespace Banana
 {
 ProjectDirectoryFilterModel::ProjectDirectoryFilterModel(QObject *parent)
@@ -80,7 +83,13 @@ QVariant ProjectDirectoryFilterModel::data(
 							source_model->fileInfo(mapToSource(index))
 								.filePath())))
 					{
-						return QColor(Qt::gray);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+						return QApplication::style()->standardPalette().color(
+							QPalette::Active, QPalette::PlaceholderText);
+#else
+						return QApplication::style()->standardPalette().color(
+							QPalette::Disabled, QPalette::Text);
+#endif
 					}
 				}
 			}

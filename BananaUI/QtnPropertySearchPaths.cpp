@@ -24,8 +24,8 @@ SOFTWARE.
 
 #include "QtnPropertySearchPaths.h"
 
-#include "QtnProperty/Delegates/PropertyEditorHandler.h"
-#include "QtnProperty/Delegates/PropertyEditorAux.h"
+#include "QtnProperty/Delegates/Utils/PropertyEditorHandler.h"
+#include "QtnProperty/Delegates/Utils/PropertyEditorAux.h"
 #include "QtnProperty/Delegates/PropertyDelegateFactory.h"
 
 #include "QtnProperty/QObjectPropertySet.h"
@@ -84,9 +84,9 @@ class QtnPropertySearchPathsButtonHandler
 {
 public:
 	QtnPropertySearchPathsButtonHandler(
-		QtnPropertySearchPaths &property, QtnLineEditBttn &editor)
-		: QtnPropertyEditorHandlerType(property, editor)
-		, m_prop(property)
+		QtnPropertyDelegate *delegate, QtnLineEditBttn &editor)
+		: QtnPropertyEditorHandlerType(delegate, editor)
+		, m_prop(*static_cast<QtnPropertySearchPaths *>(delegate->property()))
 	{
 		editor.lineEdit->setReadOnly(true);
 		editor.toolButton->setEnabled(true);
@@ -126,8 +126,8 @@ private:
 		auto delegate = project_group->getDelegate();
 		Q_ASSERT(nullptr != delegate);
 
-		auto dialog = new SearchPathsDialog(
-			delegate->getProjectTreeModel(), editorBase());
+		auto dialog = new SearchPathsDialog(delegate->getProjectTreeModel(),
+			!m_prop.isWritable(), editorBase());
 		auto dialogContainer = connectDialog(dialog);
 
 		dialog->show();
@@ -146,14 +146,14 @@ QtnPropertyDelegateSearchPaths::QtnPropertyDelegateSearchPaths(
 {
 }
 
-void QtnPropertyDelegateSearchPaths::drawValueImpl(QStylePainter &painter,
-	const QRect &rect, const QStyle::State &state, bool *needTooltip) const
+void QtnPropertyDelegateSearchPaths::drawValueImpl(
+	QStylePainter &painter, const QRect &rect) const
 {
 	QPen oldPen = painter.pen();
-	painter.setPen(Qt::darkGray);
+	painter.setPen(disabledTextColor(painter));
 
 	QtnPropertyDelegateTyped<QtnPropertySearchPaths>::drawValueImpl(
-		painter, rect, state, needTooltip);
+		painter, rect);
 	painter.setPen(oldPen);
 }
 
@@ -163,15 +163,15 @@ QWidget *QtnPropertyDelegateSearchPaths::createValueEditorImpl(
 	auto editor = new QtnLineEditBttn(parent);
 	editor->setGeometry(rect);
 
-	new QtnPropertySearchPathsButtonHandler(
-		*static_cast<QtnPropertySearchPaths *>(&owner()), *editor);
+	new QtnPropertySearchPathsButtonHandler(this, *editor);
 
 	qtnInitLineEdit(editor->lineEdit, inplaceInfo);
 
 	return editor;
 }
 
-bool QtnPropertyDelegateSearchPaths::propertyValueToStr(QString &strValue) const
+bool QtnPropertyDelegateSearchPaths::propertyValueToStrImpl(
+	QString &strValue) const
 {
 	strValue = QtnPropertySearchPaths::getPlaceholderStr();
 	return true;

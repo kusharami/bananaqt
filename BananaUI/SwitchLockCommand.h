@@ -1,7 +1,7 @@
 /*******************************************************************************
 Banana Qt Libraries
 
-Copyright (c) 2016-2017 Alexandra Cherdantseva
+Copyright (c) 2020 Alexandra Cherdantseva
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,54 +24,39 @@ SOFTWARE.
 
 #pragma once
 
-#include <QDialog>
-
-namespace Ui
-{
-class ScriptManagerDialog;
-}
+#include "AbstractObjectUndoCommand.h"
+#include <QMetaProperty>
 
 namespace Banana
 {
-class ScriptManager;
-};
-
-class ScriptManagerDialog : public QDialog
+class Object;
+class SwitchLockCommand : public AbstractObjectUndoCommand
 {
 	Q_OBJECT
 
-	Ui::ScriptManagerDialog *ui;
-	Banana::ScriptManager *mManager;
-
-	bool mPopup;
-	bool mReadOnly;
-
 public:
-	explicit ScriptManagerDialog(Banana::ScriptManager *manager,
-		bool readOnly = false, QWidget *parent = nullptr);
-	virtual ~ScriptManagerDialog() override;
+	static QString getMultipleCommandTextFor(
+		const QMetaObject *metaObject, const char *propertyName, bool locked);
+	static QString getCommandTextFor(
+		Object *object, const QMetaProperty &metaProperty, bool locked);
 
-	virtual void accept() override;
-	virtual void reject() override;
+	SwitchLockCommand(
+		Object *object, const QMetaProperty &metaProperty, bool locked);
 
-private slots:
-	void updateActions();
+	virtual int id() const override;
+	virtual bool mergeWith(const QUndoCommand *other) override;
 
-	void on_actionNewAction_triggered();
+protected:
+	virtual void doUndo() override;
+	virtual void doRedo() override;
 
-	void on_actionDeleteAction_triggered();
+private:
+	void switchLock(bool locked);
 
-	void on_actionDeleteAll_triggered();
+	static QString commandPattern(bool locked);
 
-	void on_cancelButton_clicked();
-
-	void on_okButton_clicked();
-
-	void on_newActionButton_clicked();
-
-	void on_deleteActionButton_clicked();
-
-	void on_deleteAllButton_clicked();
-
-	void on_entriesWidget_customContextMenuRequested(const QPoint &pos);
+private:
+	QMetaProperty metaProperty;
+	bool locked;
 };
+}

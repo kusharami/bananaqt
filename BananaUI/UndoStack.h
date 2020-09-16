@@ -50,6 +50,9 @@ public:
 	virtual void pushContentsChange(
 		Object *object, const QVariantMap &oldContents) override;
 
+	virtual void pushSwitchLock(
+		Object *object, const QMetaProperty &property, bool locked) override;
+
 	static QString getDragAndDropCommandText(Qt::DropAction action);
 
 signals:

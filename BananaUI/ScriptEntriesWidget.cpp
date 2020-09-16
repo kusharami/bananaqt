@@ -28,6 +28,8 @@ SOFTWARE.
 #include "QtnProperty/Core/PropertyEnumFlags.h"
 #include "QtnProperty/PropertyDelegateAttrs.h"
 #include "QtnProperty/PropertyQKeySequence.h"
+#include "QtnProperty/PropertySet.h"
+#include "QtnProperty/PropertyView.h"
 
 #include "BananaScript/ScriptRunner.h"
 

@@ -28,6 +28,8 @@ SOFTWARE.
 #include "BananaCore/Directory.h"
 #include "BananaCore/AbstractProjectFile.h"
 
+#include "QtnProperty/PropertyView.h"
+
 #include "Utils.h"
 
 #include <QMenu>
@@ -35,11 +37,12 @@ SOFTWARE.
 using namespace Banana;
 
 ScriptManagerDialog::ScriptManagerDialog(
-	ScriptManager *manager, QWidget *parent)
+	ScriptManager *manager, bool readOnly, QWidget *parent)
 	: QDialog(parent)
 	, ui(new Ui::ScriptManagerDialog)
 	, mManager(manager)
 	, mPopup(false)
+	, mReadOnly(readOnly)
 {
 	Q_ASSERT(nullptr != mManager);
 	ui->setupUi(this);
@@ -58,12 +61,18 @@ ScriptManagerDialog::ScriptManagerDialog(
 	}
 
 	ui->entriesWidget->setEntries(manager->scriptEntries());
+	ui->entriesWidget->propertySet()->switchState(
+		QtnPropertyStateImmutable, mReadOnly);
 
 	updateActions();
 
 	QObject::connect(
 		mManager, &QObject::destroyed, this, &ScriptManagerDialog::reject);
 
+	if (readOnly)
+	{
+		return;
+	}
 #ifdef Q_OS_MAC
 	Utils::addShortcutForAction(
 		this, QKeySequence(Qt::Key_Backspace), ui->actionDeleteAction);
@@ -126,13 +135,18 @@ void ScriptManagerDialog::updateActions()
 {
 	auto set = ui->entriesWidget->propertySet();
 
-	bool canDeleteAll = set != nullptr && set->hasChildProperties();
-	bool canDelete = ui->entriesWidget->getActiveEntryProperty() != nullptr;
+	bool canDeleteAll =
+		!mReadOnly && set != nullptr && set->hasChildProperties();
+	bool canDelete =
+		!mReadOnly && ui->entriesWidget->getActiveEntryProperty() != nullptr;
 
 	ui->actionDeleteAll->setEnabled(canDeleteAll);
 	ui->deleteAllButton->setEnabled(canDeleteAll);
 	ui->actionDeleteAction->setEnabled(canDelete);
 	ui->deleteActionButton->setEnabled(canDelete);
+	ui->actionNewAction->setDisabled(mReadOnly);
+	ui->newActionButton->setDisabled(mReadOnly);
+	ui->okButton->setDisabled(mReadOnly);
 }
 
 void ScriptManagerDialog::on_cancelButton_clicked()

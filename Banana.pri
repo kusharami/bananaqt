@@ -25,5 +25,6 @@ CONFIG(debug, debug|release) {
 }
 
 LIBS += -L$$BIN_DIR
+INCLUDEPATH += $$PWD/QtnProperty
 
 for(tr, TRANSLATIONS):system($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_PWD_/$${tr})

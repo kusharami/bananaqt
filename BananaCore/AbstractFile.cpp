@@ -55,6 +55,20 @@ AbstractFile::~AbstractFile()
 	disconnectData(connectedData);
 }
 
+QtnPropertyState AbstractFile::getPropertyState(
+	const QMetaProperty &metaProperty) const
+{
+	QtnPropertyState result =
+		QtnPropertyStateNonSerialized | Object::getPropertyState(metaProperty);
+	if (0 == strcmp(metaProperty.name(), PROP(objectName)))
+	{
+		result |= QtnPropertyStateImmutable;
+		result &= ~QtnPropertyStateUnlockable;
+	}
+
+	return result;
+}
+
 const QString &AbstractFile::getFileExtension() const
 {
 	return extension;

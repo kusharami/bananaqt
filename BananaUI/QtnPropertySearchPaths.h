@@ -25,7 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include "QtnProperty/Property.h"
-#include "QtnProperty/Delegates/PropertyDelegate.h"
+#include "QtnProperty/Delegates/Utils/PropertyDelegateMisc.h"
 
 #include <QMetaProperty>
 
@@ -60,12 +60,12 @@ public:
 	QtnPropertyDelegateSearchPaths(QtnPropertySearchPaths &owner);
 
 protected:
-	virtual void drawValueImpl(QStylePainter &painter, const QRect &rect,
-		const QStyle::State &state, bool *needTooltip = nullptr) const override;
+	virtual void drawValueImpl(
+		QStylePainter &painter, const QRect &rect) const override;
 
 	virtual QWidget *createValueEditorImpl(QWidget *parent, const QRect &rect,
 		QtnInplaceInfo *inplaceInfo = nullptr) override;
 
-	virtual bool propertyValueToStr(QString &strValue) const override;
+	virtual bool propertyValueToStrImpl(QString &strValue) const override;
 };
 }

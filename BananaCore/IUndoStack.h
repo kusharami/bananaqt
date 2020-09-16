@@ -68,5 +68,8 @@ struct IUndoStack
 		Object *object, quint64 oldStateBits) = 0;
 	virtual void pushContentsChange(
 		Object *object, const QVariantMap &oldContents) = 0;
+
+	virtual void pushSwitchLock(
+		Object *object, const QMetaProperty &property, bool locked) = 0;
 };
 }

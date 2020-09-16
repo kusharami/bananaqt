@@ -419,45 +419,58 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>Banana::SearchPathsDialog</name>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="604"/>
+        <location filename="../SearchPathsDialog.cpp" line="615"/>
         <source>Copy Absolute Path</source>
         <translation>Copy Absolute Path</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="605"/>
+        <location filename="../SearchPathsDialog.cpp" line="616"/>
         <source>Copy Directory Name</source>
         <translation>Copy Directory Name</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="609"/>
+        <location filename="../SearchPathsDialog.cpp" line="620"/>
         <source>Copy Selected Absolute Paths</source>
         <translation>Copy Selected Absolute Paths</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="611"/>
+        <location filename="../SearchPathsDialog.cpp" line="622"/>
         <source>Copy Names of Selected Directories</source>
         <translation>Copy Names of Selected Directories</translation>
     </message>
     <message>
-        <location filename="../SearchPathsDialog.cpp" line="694"/>
+        <location filename="../SearchPathsDialog.cpp" line="705"/>
         <source>Are you sure you want to unregister selected paths?</source>
         <translation>Are you sure you want to unregister selected paths?</translation>
     </message>
 </context>
 <context>
+    <name>Banana::SwitchLockCommand</name>
+    <message>
+        <location filename="../SwitchLockCommand.cpp" line="103"/>
+        <source>Lock &lt;%2&gt; [%1]</source>
+        <translation>Lock &lt;%2&gt; [%1]</translation>
+    </message>
+    <message>
+        <location filename="../SwitchLockCommand.cpp" line="105"/>
+        <source>Unlock &lt;%2&gt; [%1]</source>
+        <translation>Unlock &lt;%2&gt; [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Banana::UndoStack</name>
     <message>
-        <location filename="../UndoStack.cpp" line="200"/>
+        <location filename="../UndoStack.cpp" line="207"/>
         <source>Drag &amp;&amp; Drop: Copy</source>
         <translation>Drag &amp;&amp; Drop: Copy</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="203"/>
+        <location filename="../UndoStack.cpp" line="210"/>
         <source>Drag &amp;&amp; Drop: Move</source>
         <translation>Drag &amp;&amp; Drop: Move</translation>
     </message>
     <message>
-        <location filename="../UndoStack.cpp" line="206"/>
+        <location filename="../UndoStack.cpp" line="213"/>
         <source>Drag &amp;&amp; Drop: Link</source>
         <translation>Drag &amp;&amp; Drop: Link</translation>
     </message>
@@ -2469,7 +2482,7 @@ If no, the enumerated name will be given.</translation>
 <context>
     <name>ScriptEntriesWidget</name>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="372"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="374"/>
         <source>(Untitled Action)</source>
         <translation>(Untitled Action)</translation>
     </message>
@@ -2478,22 +2491,22 @@ If no, the enumerated name will be given.</translation>
         <translation type="vanished">Object Type</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="445"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="447"/>
         <source>Object Types</source>
         <translation>Object Types</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="453"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="455"/>
         <source>Script File Path</source>
         <translation>Script File Path</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="461"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="463"/>
         <source>Caption</source>
         <translation>Caption</translation>
     </message>
     <message>
-        <location filename="../ScriptEntriesWidget.cpp" line="469"/>
+        <location filename="../ScriptEntriesWidget.cpp" line="471"/>
         <source>Shortcut</source>
         <translation>Shortcut</translation>
     </message>

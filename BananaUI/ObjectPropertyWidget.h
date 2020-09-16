@@ -25,6 +25,7 @@ SOFTWARE.
 #pragma once
 
 #include "QtnProperty/QObjectPropertyWidget.h"
+#include "QtnProperty/Auxiliary/PropertyAux.h"
 
 class QtnPropertyConnector;
 
@@ -39,10 +40,15 @@ class ObjectPropertyWidget : public QObjectPropertyWidget
 public:
 	explicit ObjectPropertyWidget(QWidget *parent = nullptr);
 
+	void refresh();
+
 private slots:
 	void onBeforePropertyEdited(
-		QtnProperty *property, QtnPropertyValuePtr newValue);
-	void onPropertyEdited(QtnProperty *property);
+		QtnPropertyBase *property, QtnPropertyValuePtr newValue);
+	void onPropertyEdited(QtnPropertyBase *property);
+
+	void onBeforePropertyLockToggled(QtnPropertyBase *property);
+	void onPropertyLockToggled(QtnPropertyBase *property);
 
 private:
 	static Banana::Object *getObjectForProperty(QtnPropertyBase *property);

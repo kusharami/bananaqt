@@ -251,7 +251,7 @@
         <translation>Директория</translation>
     </message>
     <message>
-        <location filename="../Object.cpp" line="56"/>
+        <location filename="../Object.cpp" line="58"/>
         <source>Banana::Object</source>
         <translation>Объект</translation>
     </message>

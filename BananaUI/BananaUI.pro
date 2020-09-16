@@ -13,7 +13,6 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 INCLUDEPATH += $$_PRO_FILE_PWD_/..
-INCLUDEPATH += $$_PRO_FILE_PWD_/../QtnProperty
 
 RESOURCES = BananaUI.qrc
 
@@ -49,6 +48,7 @@ HEADERS += \
     QtnPropertySearchPaths.h \
     ScriptRunnerDialog.h \
     SearchPathsDialog.h \
+    SwitchLockCommand.h \
     Utils.h \
     ProjectTreeWidget.h \
     NewFileDialog.h \
@@ -88,6 +88,7 @@ SOURCES += \
     QtnPropertySearchPaths.cpp \
     ScriptRunnerDialog.cpp \
     SearchPathsDialog.cpp \
+    SwitchLockCommand.cpp \
     Utils.cpp \
     ProjectTreeWidget.cpp \
     NewFileDialog.cpp \
