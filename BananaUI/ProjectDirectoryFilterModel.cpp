@@ -85,7 +85,7 @@ QVariant ProjectDirectoryFilterModel::data(
 					{
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
 						return QApplication::style()->standardPalette().color(
-							QPalette::PlaceholderText);
+							QPalette::Active, QPalette::PlaceholderText);
 #else
 						return QApplication::style()->standardPalette().color(
 							QPalette::Disabled, QPalette::Text);
