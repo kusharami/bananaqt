@@ -169,6 +169,11 @@ void ProjectTreeWidget::updateFilter(bool force)
 
 		model->setFilterRegExp(
 			QRegExp(text, Qt::CaseInsensitive, pattern_syntax));
+
+		if (!text.isEmpty())
+		{
+			ui->projectTreeView->expandAll();
+		}
 	}
 }
 

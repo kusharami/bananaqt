@@ -251,69 +251,57 @@ bool ProjectDirectoryFilterModel::filterAcceptsColumn(
 	return (0 == source_column);
 }
 
+static QList<QFileInfo> splitDirs(QFileInfo fileInfo)
+{
+	QList<QFileInfo> dirs;
+
+	fileInfo = QFileInfo(QDir::cleanPath(fileInfo.filePath()));
+	do
+	{
+		fileInfo = QFileInfo(fileInfo.path());
+		dirs.prepend(fileInfo);
+	} while (!QDir(fileInfo.filePath()).isRoot());
+
+	return dirs;
+}
+
 bool ProjectDirectoryFilterModel::filterAcceptsRow(
 	int source_row, const QModelIndex &source_parent) const
 {
-	if (project_tree_model != nullptr)
+	if (project_tree_model == nullptr)
 	{
-		auto project_dir = project_tree_model->getProjectDirectory();
-		if (nullptr == project_dir)
-			return false;
-
-		auto index = project_tree_model->index(source_row, 0, source_parent);
-
-		if (index.isValid())
-		{
-			auto fileinfo = project_tree_model->fileInfo(index);
-
-			if (fileinfo.isRoot())
-				return true;
-
-			auto filePath = QDir::cleanPath(fileinfo.filePath());
-
-			if (fileinfo.isDir() &&
-				!filePath.startsWith(
-					QDir::cleanPath(project_dir->getFilePath()) + "/",
-					Qt::CaseInsensitive))
-				return true;
-
-			filePath = project_dir->getRelativeFilePathFor(filePath);
-
-			if (hideIgnored && ignore.isValid() && !ignore.isEmpty())
-			{
-				if (ignore.exactMatch(filePath))
-					return false;
-			}
-
-			if (fileinfo.isDir())
-				return true;
-
-			auto re = filterRegExp();
-
-			if (!re.isEmpty() && re.isValid())
-			{
-				if (!re.exactMatch(filePath))
-					return false;
-			}
-
-			if (showDirsOnly)
-			{
-				if (!fileinfo.isDir())
-					return false;
-			}
-
-			if (show_extensions.empty())
-				return true;
-
-			for (auto extension : show_extensions)
-			{
-				if (filePath.endsWith(extension, Qt::CaseInsensitive))
-					return true;
-			}
-		}
+		return false;
+	}
+	auto re = filterRegExp();
+	if (re.isEmpty() || !re.isValid())
+	{
+		return QSortFilterProxyModel::filterAcceptsRow(
+			source_row, source_parent);
 	}
 
-	return false;
+	auto project_dir = project_tree_model->getProjectDirectory();
+	if (nullptr == project_dir)
+		return false;
+
+	auto index = project_tree_model->index(source_row, 0, source_parent);
+	if (!index.isValid())
+	{
+		return false;
+	}
+	auto fileinfo = project_tree_model->fileInfo(index);
+	if (fileinfo.isRoot())
+		return true;
+
+	if (fileinfo.isDir())
+	{
+		auto rootPath = QDir::cleanPath(project_dir->getFilePath()) + "/";
+		auto filePath = QDir::cleanPath(fileinfo.filePath());
+		if (!filePath.startsWith(rootPath, Qt::CaseInsensitive))
+			return true;
+	}
+
+	return filterAcceptsRowInternal(
+		source_row, source_parent, splitDirs(fileinfo));
 }
 
 bool ProjectDirectoryFilterModel::lessThan(
@@ -447,5 +435,75 @@ void ProjectDirectoryFilterModel::disconnectProjectFile()
 
 		project_file = nullptr;
 	}
+}
+
+bool ProjectDirectoryFilterModel::filterAcceptsRowInternal(int source_row,
+	const QModelIndex &source_parent, const QList<QFileInfo> &parentDirs) const
+{
+	auto index = project_tree_model->index(source_row, 0, source_parent);
+	Q_ASSERT(index.isValid());
+	auto fileInfo = project_tree_model->fileInfo(index);
+
+	auto project_dir = project_tree_model->getProjectDirectory();
+	Q_ASSERT(project_dir);
+
+	if (showDirsOnly)
+	{
+		if (!fileInfo.isDir())
+			return false;
+	}
+
+	if (fileInfo.isDir())
+	{
+		bool recurse = true;
+		for (auto &inf : parentDirs)
+		{
+			if (inf.canonicalFilePath().compare(fileInfo.canonicalFilePath(),
+					Qt::CaseInsensitive) == 0) // check cyclic symlink
+			{
+				recurse = false;
+				break;
+			}
+		}
+		if (recurse)
+		{
+			auto currentDirs = parentDirs;
+			currentDirs.append(fileInfo);
+			int rows = project_tree_model->rowCount(index);
+			if (project_tree_model->canFetchMore(index))
+			{
+				project_tree_model->fetchMore(index);
+				rows = project_tree_model->rowCount(index);
+			}
+			for (int i = 0; i < rows; i++)
+			{
+				if (filterAcceptsRowInternal(i, index, currentDirs))
+					return true;
+			}
+		}
+	}
+
+	auto filePath = QDir::cleanPath(fileInfo.filePath());
+	filePath = project_dir->getRelativeFilePathFor(filePath);
+
+	if (hideIgnored && ignore.isValid() && !ignore.isEmpty())
+	{
+		if (ignore.exactMatch(filePath))
+			return false;
+	}
+
+	if (!filterRegExp().exactMatch(filePath))
+		return false;
+
+	if (show_extensions.empty())
+		return true;
+
+	for (auto extension : show_extensions)
+	{
+		if (filePath.endsWith(extension, Qt::CaseInsensitive))
+			return true;
+	}
+
+	return false;
 }
 }

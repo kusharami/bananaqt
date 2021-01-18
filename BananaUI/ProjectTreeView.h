@@ -79,9 +79,10 @@ public:
 signals:
 	void modelSelectionChanged();
 
-private slots:
+private:
 	void onFilterModelAboutToBeReset();
 	void onFilterModelReset();
+	bool expandIfFilter();
 
 protected:
 	virtual void dragEnterEvent(QDragEnterEvent *event) override;

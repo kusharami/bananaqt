@@ -26,6 +26,8 @@ SOFTWARE.
 
 #include <QSortFilterProxyModel>
 
+#include <QDir>
+
 #include <vector>
 
 namespace Banana
@@ -77,6 +79,10 @@ private:
 	void disconnectSourceModel();
 	void connectProjectFile();
 	void disconnectProjectFile();
+
+	bool filterAcceptsRowInternal(int source_row,
+		const QModelIndex &source_parent,
+		const QList<QFileInfo> &parentDirs) const;
 
 	std::vector<const char *> show_extensions;
 	ProjectDirectoryModel *project_tree_model;

@@ -54,6 +54,10 @@ ProjectTreeView::ProjectTreeView(QWidget *parent)
 		this, &ProjectTreeView::onFilterModelAboutToBeReset);
 	QObject::connect(filterModel, &QAbstractItemModel::modelReset, this,
 		&ProjectTreeView::onFilterModelReset);
+	QObject::connect(filterModel, &QAbstractItemModel::layoutChanged, this,
+		&ProjectTreeView::expandIfFilter);
+	QObject::connect(filterModel, &QAbstractItemModel::rowsInserted, this,
+		&ProjectTreeView::expandIfFilter);
 }
 
 void ProjectTreeView::select(AbstractFileSystemObject *file, bool expand)
@@ -508,6 +512,11 @@ void ProjectTreeView::onFilterModelReset()
 
 	setProjectDirectory(project_dir);
 
+	if (expandIfFilter())
+	{
+		expanded.clear();
+		return;
+	}
 	if (nullptr != projectDirModel)
 	{
 		for (auto &path : expanded)
@@ -525,12 +534,23 @@ void ProjectTreeView::onFilterModelReset()
 	}
 
 	expanded.clear();
-
 	if (!savedCurrent.isEmpty())
 	{
 		select(savedCurrent, false);
 		savedCurrent.clear();
 	}
+}
+
+bool ProjectTreeView::expandIfFilter()
+{
+	auto re = filterModel->filterRegExp();
+	if (!re.isEmpty() && re.isValid())
+	{
+		expandAll();
+		return true;
+	}
+
+	return false;
 }
 
 void ProjectTreeView::saveExpandedDirs(const QModelIndex &parent_index)
