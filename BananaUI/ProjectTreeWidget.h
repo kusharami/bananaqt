@@ -80,8 +80,11 @@ protected:
 	virtual void populatePatternSyntax();
 	virtual void applyPatternSyntax();
 
+	virtual QString getPatternSyntaxCaption() const;
+
 	void updateFilter(bool force = false);
 	void setPatternSyntax(PatternSyntax syntax);
+	void setPatternSyntaxInternal(PatternSyntax syntax);
 
 	Ui::ProjectTreeWidget *ui;
 	QActionGroup *optionsActionGroup;

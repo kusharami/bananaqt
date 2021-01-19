@@ -157,8 +157,7 @@ void ProjectTreeWidget::setPatternSyntax(PatternSyntax syntax)
 {
 	if (pattern_syntax != syntax)
 	{
-		pattern_syntax = syntax;
-
+		setPatternSyntaxInternal(syntax);
 		QSettings settings;
 
 		settings.beginGroup(metaObject()->className());
@@ -167,6 +166,15 @@ void ProjectTreeWidget::setPatternSyntax(PatternSyntax syntax)
 
 		updateFilter(true);
 	}
+}
+
+void ProjectTreeWidget::setPatternSyntaxInternal(
+	ProjectTreeWidget::PatternSyntax syntax)
+{
+	pattern_syntax = syntax;
+
+	ui->filterEdit->setPlaceholderText(
+		tr("Search (%1)").arg(getPatternSyntaxCaption()));
 }
 
 void ProjectTreeWidget::on_actionOptionsRegExp_toggled(bool checked)
@@ -198,8 +206,8 @@ void ProjectTreeWidget::loadSettings()
 	QSettings settings;
 
 	settings.beginGroup(metaObject()->className());
-	pattern_syntax =
-		stringToPatternSyntax(settings.value(sPatternSyntaxKey).toString());
+	setPatternSyntaxInternal(
+		stringToPatternSyntax(settings.value(sPatternSyntaxKey).toString()));
 	settings.endGroup();
 
 	populatePatternSyntax();
@@ -243,5 +251,25 @@ void ProjectTreeWidget::applyPatternSyntax()
 
 	model->setFilterRegExp(QRegExp(
 		text, Qt::CaseInsensitive, QRegExp::PatternSyntax(pattern_syntax)));
+}
+
+QString ProjectTreeWidget::getPatternSyntaxCaption() const
+{
+	switch (pattern_syntax)
+	{
+		case ContainingString:
+			return ui->actionOptionsContainingString->text();
+
+		case RegExp:
+			return ui->actionOptionsRegExp->text();
+
+		case Wildcard:
+			return ui->actionOptionsWildcard->text();
+
+		default:
+			break;
+	}
+
+	return QString();
 }
 }

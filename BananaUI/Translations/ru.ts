@@ -336,6 +336,14 @@ If no, the enumerated name will be given.</source>
     </message>
 </context>
 <context>
+    <name>Banana::ProjectTreeWidget</name>
+    <message>
+        <location filename="../ProjectTreeWidget.cpp" line="163"/>
+        <source>Search (%1)</source>
+        <translation>Поиск (%1)</translation>
+    </message>
+</context>
+<context>
     <name>Banana::QtnPropertyScriptManager</name>
     <message>
         <location filename="../QtnPropertyScriptManager.cpp" line="78"/>
@@ -2401,15 +2409,23 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>ProjectTreeWidget</name>
     <message>
-        <location filename="../ProjectTreeWidget.ui" line="59"/>
         <source>Filter</source>
-        <translation>Фильтр</translation>
+        <translation type="vanished">Фильтр</translation>
+    </message>
+    <message>
+        <source>Filter Options</source>
+        <translation type="vanished">Настройки фильтра</translation>
+    </message>
+    <message>
+        <location filename="../ProjectTreeWidget.ui" line="59"/>
+        <source>Search</source>
+        <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../ProjectTreeWidget.ui" line="72"/>
         <location filename="../ProjectTreeWidget.ui" line="75"/>
-        <source>Filter Options</source>
-        <translation>Настройки фильтра</translation>
+        <source>Search Options</source>
+        <translation>Настройки поиска</translation>
     </message>
     <message>
         <location filename="../ProjectTreeWidget.ui" line="146"/>
