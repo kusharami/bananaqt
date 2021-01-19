@@ -174,6 +174,12 @@ void ProjectDirectoryFilterModel::setFilterRegExp(const QRegExp &re)
 	endResetModel();
 }
 
+bool ProjectDirectoryFilterModel::hasSearchFilter() const
+{
+	auto re = filterRegExp();
+	return !re.isEmpty() && re.isValid();
+}
+
 void ProjectDirectoryFilterModel::onSourceModelDestroyed()
 {
 	disconnectProjectFile();
@@ -272,12 +278,6 @@ bool ProjectDirectoryFilterModel::filterAcceptsRow(
 	{
 		return false;
 	}
-	auto re = filterRegExp();
-	if (re.isEmpty() || !re.isValid())
-	{
-		return QSortFilterProxyModel::filterAcceptsRow(
-			source_row, source_parent);
-	}
 
 	auto project_dir = project_tree_model->getProjectDirectory();
 	if (nullptr == project_dir)
@@ -352,6 +352,13 @@ bool ProjectDirectoryFilterModel::lessThan(
 	}
 
 	return false;
+}
+
+bool ProjectDirectoryFilterModel::matchFilePath(
+	const QString &filePath, const QFileInfo &) const
+{
+	auto re = filterRegExp();
+	return re.isEmpty() || !re.isValid() || re.exactMatch(filePath);
 }
 
 Qt::DropActions ProjectDirectoryFilterModel::supportedDropActions() const
@@ -453,7 +460,7 @@ bool ProjectDirectoryFilterModel::filterAcceptsRowInternal(int source_row,
 			return false;
 	}
 
-	if (fileInfo.isDir())
+	if (fileInfo.isDir() && hasSearchFilter())
 	{
 		bool recurse = true;
 		for (auto &inf : parentDirs)
@@ -492,7 +499,7 @@ bool ProjectDirectoryFilterModel::filterAcceptsRowInternal(int source_row,
 			return false;
 	}
 
-	if (!filterRegExp().exactMatch(filePath))
+	if (!matchFilePath(filePath, fileInfo))
 		return false;
 
 	if (show_extensions.empty())

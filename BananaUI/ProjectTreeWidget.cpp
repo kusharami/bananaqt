@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include <QSettings>
 #include <QMenu>
+#include <QActionGroup>
 
 #include <map>
 
@@ -38,26 +39,32 @@ namespace Banana
 {
 static const QString sPatternSyntaxKey = "PatternSyntax";
 
-typedef std::map<QRegExp::PatternSyntax, QString> PatternSyntaxMap;
-static const PatternSyntaxMap patternSyntaxMap = {
-	{ QRegExp::FixedString, "ContainingString" },
-	{ QRegExp::RegExp, "RegExp" },
-	{ QRegExp::WildcardUnix, "Wildcard" },
-};
-
-static QRegExp::PatternSyntax stringToPatternSyntax(const QString &str)
+const ProjectTreeWidget::PatternSyntaxMap &
+ProjectTreeWidget::getPatternSyntaxMap()
 {
-	for (auto &item : patternSyntaxMap)
+	static PatternSyntaxMap result = {
+		{ ContainingString, "ContainingString" },
+		{ RegExp, "RegExp" },
+		{ Wildcard, "Wildcard" },
+	};
+	return result;
+}
+
+ProjectTreeWidget::PatternSyntax ProjectTreeWidget::stringToPatternSyntax(
+	const QString &str) const
+{
+	for (auto &item : getPatternSyntaxMap())
 	{
 		if (item.second == str)
 			return item.first;
 	}
 
-	return QRegExp::FixedString;
+	return ContainingString;
 }
 
-static QString patternSyntaxToString(QRegExp::PatternSyntax syntax)
+QString ProjectTreeWidget::patternSyntaxToString(PatternSyntax syntax) const
 {
+	auto &patternSyntaxMap = getPatternSyntaxMap();
 	auto it = patternSyntaxMap.find(syntax);
 
 	if (it != patternSyntaxMap.end())
@@ -72,31 +79,6 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 {
 	ui->setupUi(this);
 
-	QSettings settings;
-
-	settings.beginGroup(metaObject()->className());
-	pattern_syntax =
-		stringToPatternSyntax(settings.value(sPatternSyntaxKey).toString());
-	settings.endGroup();
-
-	switch (pattern_syntax)
-	{
-		case QRegExp::RegExp:
-			ui->actionOptionsRegExp->setChecked(true);
-			break;
-
-		case QRegExp::WildcardUnix:
-			ui->actionOptionsWildcard->setChecked(true);
-			break;
-
-		case QRegExp::FixedString:
-			ui->actionOptionsContainingString->setChecked(true);
-			break;
-
-		default:
-			break;
-	}
-
 	QObject::connect(ui->filterEdit, &QLineEdit::textChanged, this,
 		&ProjectTreeWidget::onFilterTextChanged);
 
@@ -106,7 +88,14 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 	menu->addAction(ui->actionOptionsWildcard);
 	menu->addAction(ui->actionOptionsRegExp);
 
+	optionsActionGroup = new QActionGroup(menu);
+	optionsActionGroup->addAction(ui->actionOptionsContainingString);
+	optionsActionGroup->addAction(ui->actionOptionsWildcard);
+	optionsActionGroup->addAction(ui->actionOptionsRegExp);
+
 	ui->buttonOptions->setMenu(menu);
+
+	QMetaObject::invokeMethod(this, "loadSettings", Qt::QueuedConnection);
 }
 
 ProjectTreeWidget::~ProjectTreeWidget()
@@ -155,20 +144,7 @@ void ProjectTreeWidget::updateFilter(bool force)
 	{
 		currentFilter = text;
 
-		auto model = ui->projectTreeView->getFilterModel();
-		Q_ASSERT(nullptr != model);
-
-		auto pattern_syntax = this->pattern_syntax;
-
-		if (pattern_syntax == QRegExp::FixedString)
-		{
-			if (!text.isEmpty())
-				text = ".*" + QRegExp::escape(text) + ".*";
-			pattern_syntax = QRegExp::RegExp;
-		}
-
-		model->setFilterRegExp(
-			QRegExp(text, Qt::CaseInsensitive, pattern_syntax));
+		applyPatternSyntax();
 
 		if (!text.isEmpty())
 		{
@@ -177,7 +153,7 @@ void ProjectTreeWidget::updateFilter(bool force)
 	}
 }
 
-void ProjectTreeWidget::setPatternSyntax(QRegExp::PatternSyntax syntax)
+void ProjectTreeWidget::setPatternSyntax(PatternSyntax syntax)
 {
 	if (pattern_syntax != syntax)
 	{
@@ -197,10 +173,7 @@ void ProjectTreeWidget::on_actionOptionsRegExp_toggled(bool checked)
 {
 	if (checked)
 	{
-		setPatternSyntax(QRegExp::RegExp);
-
-		ui->actionOptionsWildcard->setChecked(false);
-		ui->actionOptionsContainingString->setChecked(false);
+		setPatternSyntax(RegExp);
 	}
 }
 
@@ -208,10 +181,7 @@ void ProjectTreeWidget::on_actionOptionsWildcard_toggled(bool checked)
 {
 	if (checked)
 	{
-		setPatternSyntax(QRegExp::WildcardUnix);
-
-		ui->actionOptionsRegExp->setChecked(false);
-		ui->actionOptionsContainingString->setChecked(false);
+		setPatternSyntax(Wildcard);
 	}
 }
 
@@ -219,10 +189,59 @@ void ProjectTreeWidget::on_actionOptionsContainingString_toggled(bool checked)
 {
 	if (checked)
 	{
-		setPatternSyntax(QRegExp::FixedString);
-
-		ui->actionOptionsRegExp->setChecked(false);
-		ui->actionOptionsWildcard->setChecked(false);
+		setPatternSyntax(ContainingString);
 	}
+}
+
+void ProjectTreeWidget::loadSettings()
+{
+	QSettings settings;
+
+	settings.beginGroup(metaObject()->className());
+	pattern_syntax =
+		stringToPatternSyntax(settings.value(sPatternSyntaxKey).toString());
+	settings.endGroup();
+
+	populatePatternSyntax();
+}
+
+void ProjectTreeWidget::populatePatternSyntax()
+{
+	switch (pattern_syntax)
+	{
+		case RegExp:
+			ui->actionOptionsRegExp->setChecked(true);
+			break;
+
+		case Wildcard:
+			ui->actionOptionsWildcard->setChecked(true);
+			break;
+
+		case ContainingString:
+			ui->actionOptionsContainingString->setChecked(true);
+			break;
+
+		default:
+			break;
+	}
+}
+
+void ProjectTreeWidget::applyPatternSyntax()
+{
+	auto model = ui->projectTreeView->getFilterModel();
+	Q_ASSERT(nullptr != model);
+
+	auto pattern_syntax = this->pattern_syntax;
+
+	auto text = currentFilter;
+	if (pattern_syntax == ContainingString)
+	{
+		if (!text.isEmpty())
+			text = ".*" + QRegExp::escape(text) + ".*";
+		pattern_syntax = RegExp;
+	}
+
+	model->setFilterRegExp(QRegExp(
+		text, Qt::CaseInsensitive, QRegExp::PatternSyntax(pattern_syntax)));
 }
 }

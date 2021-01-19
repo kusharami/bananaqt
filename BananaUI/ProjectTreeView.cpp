@@ -48,16 +48,9 @@ static const QString kCutSelFormat("application/x-kde-cutselection");
 ProjectTreeView::ProjectTreeView(QWidget *parent)
 	: QTreeView(parent)
 	, projectDirModel(nullptr)
-	, filterModel(new ProjectDirectoryFilterModel(this))
+	, filterModel(nullptr)
 {
-	QObject::connect(filterModel, &QAbstractItemModel::modelAboutToBeReset,
-		this, &ProjectTreeView::onFilterModelAboutToBeReset);
-	QObject::connect(filterModel, &QAbstractItemModel::modelReset, this,
-		&ProjectTreeView::onFilterModelReset);
-	QObject::connect(filterModel, &QAbstractItemModel::layoutChanged, this,
-		&ProjectTreeView::expandIfFilter);
-	QObject::connect(filterModel, &QAbstractItemModel::rowsInserted, this,
-		&ProjectTreeView::expandIfFilter);
+	setFilterModel(new ProjectDirectoryFilterModel(this));
 }
 
 void ProjectTreeView::select(AbstractFileSystemObject *file, bool expand)
@@ -434,7 +427,14 @@ void ProjectTreeView::setProjectDirectory(AbstractProjectDirectory *dir)
 		if (nullptr != dir)
 		{
 			QTreeView::setModel(filterModel);
-			setRootIndex(filterModel->mapFromSource(root_index));
+			if (filterModel)
+			{
+				root_index = filterModel->mapFromSource(root_index);
+			} else
+			{
+				root_index = QModelIndex();
+			}
+			setRootIndex(root_index);
 
 			QObject::connect(selectionModel(),
 				&QItemSelectionModel::selectionChanged, this,
@@ -485,6 +485,50 @@ ProjectDirectoryFilterModel *ProjectTreeView::getFilterModel() const
 	return filterModel;
 }
 
+void ProjectTreeView::setFilterModel(ProjectDirectoryFilterModel *model)
+{
+	if (filterModel == model)
+	{
+		return;
+	}
+
+	bool wasReadOnly = false;
+	QTreeView::setModel(nullptr);
+	if (filterModel)
+	{
+		QObject::disconnect(filterModel,
+			&QAbstractItemModel::modelAboutToBeReset, this,
+			&ProjectTreeView::onFilterModelAboutToBeReset);
+		QObject::disconnect(filterModel, &QAbstractItemModel::modelReset, this,
+			&ProjectTreeView::onFilterModelReset);
+		QObject::disconnect(filterModel, &QAbstractItemModel::layoutChanged,
+			this, &ProjectTreeView::expandIfFilter);
+		QObject::disconnect(filterModel, &QAbstractItemModel::rowsInserted,
+			this, &ProjectTreeView::expandIfFilter);
+
+		wasReadOnly = filterModel->isReadOnly();
+	}
+
+	filterModel = model;
+
+	if (filterModel)
+	{
+		QObject::connect(filterModel, &QAbstractItemModel::modelAboutToBeReset,
+			this, &ProjectTreeView::onFilterModelAboutToBeReset);
+		QObject::connect(filterModel, &QAbstractItemModel::modelReset, this,
+			&ProjectTreeView::onFilterModelReset);
+		QObject::connect(filterModel, &QAbstractItemModel::layoutChanged, this,
+			&ProjectTreeView::expandIfFilter);
+		QObject::connect(filterModel, &QAbstractItemModel::rowsInserted, this,
+			&ProjectTreeView::expandIfFilter);
+
+		filterModel->setReadOnly(wasReadOnly);
+		filterModel->setSourceModel(projectDirModel);
+
+		onFilterModelReset();
+	}
+}
+
 void ProjectTreeView::onFilterModelAboutToBeReset()
 {
 	savedCurrent.clear();
@@ -512,23 +556,21 @@ void ProjectTreeView::onFilterModelReset()
 
 	setProjectDirectory(project_dir);
 
-	if (expandIfFilter())
+	if (!expandIfFilter())
 	{
-		expanded.clear();
-		return;
-	}
-	if (nullptr != projectDirModel)
-	{
-		for (auto &path : expanded)
+		if (nullptr != projectDirModel)
 		{
-			auto index = projectDirModel->index(path);
-
-			if (index.isValid())
+			for (auto &path : expanded)
 			{
-				index = filterModel->mapFromSource(index);
+				auto index = projectDirModel->index(path);
 
 				if (index.isValid())
-					expand(index);
+				{
+					index = filterModel->mapFromSource(index);
+
+					if (index.isValid())
+						expand(index);
+				}
 			}
 		}
 	}
@@ -543,8 +585,7 @@ void ProjectTreeView::onFilterModelReset()
 
 bool ProjectTreeView::expandIfFilter()
 {
-	auto re = filterModel->filterRegExp();
-	if (!re.isEmpty() && re.isValid())
+	if (filterModel->hasSearchFilter())
 	{
 		expandAll();
 		return true;

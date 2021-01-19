@@ -33,6 +33,7 @@ class ProjectTreeWidget;
 
 class QMenu;
 class QLineEdit;
+class QActionGroup;
 
 namespace Banana
 {
@@ -50,6 +51,7 @@ public:
 
 	void showFilter(bool show);
 	QMenu *getButtonOptionsMenu() const;
+	QActionGroup *getOptionsActionGroup() const;
 
 private slots:
 	void onFilterTextChanged();
@@ -62,12 +64,32 @@ private slots:
 
 	void on_actionOptionsContainingString_toggled(bool checked);
 
-private:
+	void loadSettings();
+
+protected:
+	enum PatternSyntax
+	{
+		ContainingString = QRegExp::FixedString,
+		RegExp = QRegExp::RegExp,
+		Wildcard = QRegExp::WildcardUnix,
+		User = 1024,
+	};
+	virtual PatternSyntax stringToPatternSyntax(const QString &str) const;
+	virtual QString patternSyntaxToString(PatternSyntax syntax) const;
+
+	virtual void populatePatternSyntax();
+	virtual void applyPatternSyntax();
+
 	void updateFilter(bool force = false);
-	void setPatternSyntax(QRegExp::PatternSyntax syntax);
+	void setPatternSyntax(PatternSyntax syntax);
 
 	Ui::ProjectTreeWidget *ui;
+	QActionGroup *optionsActionGroup;
 	QString currentFilter;
-	QRegExp::PatternSyntax pattern_syntax;
+	int pattern_syntax;
+
+private:
+	typedef std::map<PatternSyntax, QString> PatternSyntaxMap;
+	static const PatternSyntaxMap &getPatternSyntaxMap();
 };
 }

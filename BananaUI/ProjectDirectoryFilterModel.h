@@ -57,6 +57,8 @@ public:
 	void setFileTypeFilter(const QMetaObject *meta_object);
 	void setFilterRegExp(const QRegExp &re);
 
+	virtual bool hasSearchFilter() const;
+
 private slots:
 	void onSourceModelDestroyed();
 	void onProjectFileDestroyed();
@@ -71,6 +73,9 @@ protected:
 	virtual bool lessThan(const QModelIndex &source_left,
 		const QModelIndex &source_right) const override;
 
+	virtual bool matchFilePath(
+		const QString &filePath, const QFileInfo &fileInfo) const;
+
 	virtual Qt::DropActions supportedDropActions() const override;
 	virtual Qt::DropActions supportedDragActions() const override;
 
@@ -80,6 +85,7 @@ private:
 	void connectProjectFile();
 	void disconnectProjectFile();
 
+protected:
 	bool filterAcceptsRowInternal(int source_row,
 		const QModelIndex &source_parent,
 		const QList<QFileInfo> &parentDirs) const;

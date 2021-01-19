@@ -74,7 +74,9 @@ public:
 	void setReadOnly(bool yes);
 	virtual void setModel(QAbstractItemModel *model) override;
 	ProjectDirectoryModel *getProjectTreeModel() const;
+
 	ProjectDirectoryFilterModel *getFilterModel() const;
+	void setFilterModel(ProjectDirectoryFilterModel *model);
 
 signals:
 	void modelSelectionChanged();
