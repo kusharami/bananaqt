@@ -85,9 +85,8 @@ public:
 	virtual bool canDeleteItem(QObject *item) const = 0;
 	bool canDeleteItems(const QModelIndexList &indexes) const;
 
-	QModelIndex findModelIndex(QObject *item) const;
+	virtual QModelIndex findModelIndex(QObject *item) const;
 	QObject *getItemAt(const QModelIndex &index) const;
-	QObjectList getGroupChildren(AbstractObjectGroup *group) const;
 
 	virtual void beginResetModel();
 	virtual void endResetModel();
@@ -95,6 +94,8 @@ public:
 	virtual IUndoStack *getUndoStack() const;
 
 protected:
+	QObjectList getGroupChildren(AbstractObjectGroup *group) const;
+
 	virtual void beforeChangeFilters() override;
 	virtual void afterChangeFilters() override;
 
@@ -111,6 +112,9 @@ protected:
 	virtual void doDisconnectObject(QObject *object);
 
 	void selectItems(const QObjectSet &items);
+	virtual void onObjectNameChanged();
+	virtual void onChildAdded(QObject *object);
+	virtual void onChildRemoved(QObject *object);
 
 signals:
 	void dropSuccess();
@@ -122,9 +126,6 @@ signals:
 private slots:
 	void onBeforeObjectDestroy(QObject *object);
 	void onObjectDestroyed(QObject *object);
-	void onChildAdded(QObject *object);
-	void onChildRemoved(QObject *object);
-	void onObjectNameChanged();
 
 private:
 	int getChildIndex(AbstractObjectGroup *group, QObject *child) const;
