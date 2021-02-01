@@ -61,6 +61,7 @@ class ScriptRunnerDialog
 	bool checkRespond;
 	bool waiting;
 	bool stopShow;
+	static bool cursorIsSet;
 
 public:
 	enum
@@ -80,6 +81,8 @@ public:
 	bool abort();
 
 	inline void setAbortDelegate(IAbortDelegate *d);
+
+	static void restoreCursor();
 
 protected:
 	virtual void initializeEngine(QScriptEngine *engine) override;

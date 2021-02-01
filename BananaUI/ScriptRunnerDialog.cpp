@@ -77,6 +77,8 @@ private:
 	void init();
 };
 
+bool ScriptRunnerDialog::cursorIsSet = false;
+
 static const QString sScriptRunnerGroup = QStringLiteral("ScriptRunner");
 
 static QScriptValue inputString(QScriptContext *context, QScriptEngine *engine)
@@ -814,6 +816,15 @@ bool ScriptRunnerDialog::abort()
 	return true;
 }
 
+void ScriptRunnerDialog::restoreCursor()
+{
+	if (cursorIsSet)
+	{
+		QApplication::restoreOverrideCursor();
+		cursorIsSet = false;
+	}
+}
+
 void ScriptRunnerDialog::initializeEngine(QScriptEngine *engine)
 {
 	auto globalObject = engine->globalObject();
@@ -1162,8 +1173,9 @@ void ScriptRunnerDialog::showMe()
 
 void ScriptRunnerDialog::setWaitCursor()
 {
-	QApplication::restoreOverrideCursor();
+	restoreCursor();
 	QApplication::setOverrideCursor(Qt::WaitCursor);
+	cursorIsSet = true;
 }
 
 void ScriptRunnerDialog::beginWait()
@@ -1175,7 +1187,7 @@ void ScriptRunnerDialog::beginWait()
 
 void ScriptRunnerDialog::endWait()
 {
-	QApplication::restoreOverrideCursor();
+	restoreCursor();
 	waiting = false;
 }
 
