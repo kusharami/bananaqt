@@ -55,6 +55,7 @@ QScriptValue VariantToScriptValue(
 	switch (variant.type())
 	{
 		case QVariant::Map:
+		case QVariant::Hash:
 		{
 			auto vmap = variant.toMap();
 
@@ -204,14 +205,13 @@ QVariant ScriptValueToVariant(const QScriptValue &value, bool links)
 	} else if (value.isArray())
 	{
 		QVariantList vlist;
-
-		int len = value.property("length").toInt32();
-
-		for (int i = 0; i < len; i++)
+		int length = value.property(CSTRKEY(length)).toInt32();
+		vlist.reserve(length);
+		for (int i = 0; i < length; i++)
 		{
 			auto v = value.property(i);
 
-			vlist.push_back(ScriptValueToVariant(v, true));
+			vlist.append(ScriptValueToVariant(v, true));
 		}
 
 		return vlist;
