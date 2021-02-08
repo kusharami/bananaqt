@@ -51,17 +51,17 @@
 <context>
     <name>Banana::ChangeValueCommand</name>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="312"/>
+        <location filename="../ChangeValueCommand.cpp" line="298"/>
         <source>Reset value of &lt;%2&gt; [%1]</source>
         <translation>Сброс значения в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="317"/>
+        <location filename="../ChangeValueCommand.cpp" line="303"/>
         <source>Change value of &lt;%2&gt; [%1]</source>
         <translation>Новое значение в поле &lt;%2&gt; [%1]</translation>
     </message>
     <message>
-        <location filename="../ChangeValueCommand.cpp" line="322"/>
+        <location filename="../ChangeValueCommand.cpp" line="308"/>
         <source>Multiple objects</source>
         <translation>Несколько объектов</translation>
     </message>
@@ -338,7 +338,7 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Banana::ProjectTreeWidget</name>
     <message>
-        <location filename="../ProjectTreeWidget.cpp" line="163"/>
+        <location filename="../ProjectTreeWidget.cpp" line="177"/>
         <source>Search (%1)</source>
         <translation>Поиск (%1)</translation>
     </message>
@@ -362,7 +362,7 @@ If no, the enumerated name will be given.</source>
 <context>
     <name>Banana::ScriptRunnerDialog</name>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1010"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1021"/>
         <source>Select Script File</source>
         <translation>Выберите скрипт-файл</translation>
     </message>
@@ -371,7 +371,7 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Не указан файл скрипта.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1026"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1037"/>
         <source>File &apos;%1&apos; is not found.</source>
         <translation>Файл &quot;%1&quot; не найден.</translation>
     </message>
@@ -380,32 +380,32 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Ошибка выполнения</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="803"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="805"/>
         <source>Do you want to abort script execution?</source>
         <translation>Хотите прервать выполнения скрипта?</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1143"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1154"/>
         <source>Not responding more than %1 seconds.</source>
         <translation>Не отвечает более %1 секунд.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1200"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1212"/>
         <source>Script Runtime Error</source>
         <translation>Ошибка выполнения скрипта</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1253"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1265"/>
         <source>Run</source>
         <translation>Выполнить</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1258"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1270"/>
         <source>Abort</source>
         <translation>Остановить</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1079"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1090"/>
         <source>Select Files</source>
         <translation>Выберите файлы</translation>
     </message>
@@ -414,12 +414,12 @@ If no, the enumerated name will be given.</source>
         <translation type="vanished">Не отвечает более 5 секунд.</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1092"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1103"/>
         <source>Select Directory</source>
         <translation>Выберите директорию</translation>
     </message>
     <message>
-        <location filename="../ScriptRunnerDialog.cpp" line="1119"/>
+        <location filename="../ScriptRunnerDialog.cpp" line="1130"/>
         <source>There is no active project directory.</source>
         <translation>Нет активного проекта.</translation>
     </message>

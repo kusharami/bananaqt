@@ -64,6 +64,12 @@ public:
 	static QString setValueCommandPattern();
 	static QString multipleObjectsStr();
 
+	static QString translatedObjectName(Object *object);
+	static QString translatedPropertyName(
+		Object *object, const char *propertyName);
+	static QString translatedPropertyName(
+		const QMetaObject *metaObject, const char *propertyName);
+
 public:
 	ChangeValueCommand(
 		Object *object, const QString &oldName, const QString &newName);

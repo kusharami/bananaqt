@@ -256,24 +256,24 @@ protected: \
 		} \
 	}
 
-#define PROTOTYPE_CONNECTION_BODY(ACTION, Class, FilePath) \
+#define PROTOTYPE_CONNECTION_BODY(ACTION, Class, PropertyName) \
 	{ \
 		auto proto = dynamic_cast<Class *>(prototype); \
 		if (nullptr != proto) \
 		{ \
-			ACTION##_PROTO_PROP(Class, proto, FilePath); \
+			ACTION##_PROTO_PROP(Class, proto, PropertyName); \
 		} \
 	}
 
-#define PROTOTYPE_CONNECTION_IMPL(Class, FilePath) \
+#define PROTOTYPE_CONNECTION_IMPL(Class, PropertyName) \
 	void Class::doConnectPrototype() \
 	{ \
 		Inherited::doConnectPrototype(); \
-		PROTOTYPE_CONNECTION_BODY(CONNECT, Class, FilePath) \
+		PROTOTYPE_CONNECTION_BODY(CONNECT, Class, PropertyName) \
 	} \
 	void Class::doDisconnectPrototype() \
 	{ \
-		PROTOTYPE_CONNECTION_BODY(DISCONNECT, Class, FilePath) \
+		PROTOTYPE_CONNECTION_BODY(DISCONNECT, Class, PropertyName) \
 		Inherited::doDisconnectPrototype(); \
 	}
 

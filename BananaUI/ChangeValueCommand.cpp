@@ -217,8 +217,8 @@ QString ChangeValueCommand::getMultipleResetCommandTextFor(
 	Q_ASSERT(nullptr != metaObject);
 	Q_ASSERT(nullptr != propertyName);
 
-	return resetCommandPattern().arg(multipleObjectsStr(),
-		QCoreApplication::translate(metaObject->className(), propertyName));
+	return resetCommandPattern().arg(
+		multipleObjectsStr(), translatedPropertyName(metaObject, propertyName));
 }
 
 QString ChangeValueCommand::getMultipleResetCommandTextFor(
@@ -227,8 +227,7 @@ QString ChangeValueCommand::getMultipleResetCommandTextFor(
 	Q_ASSERT(nullptr != metaObject);
 
 	return resetCommandPattern().arg(multipleObjectsStr(),
-		QCoreApplication::translate(
-			metaObject->className(), metaProperty.name()));
+		translatedPropertyName(metaObject, metaProperty.name()));
 }
 
 QString ChangeValueCommand::getResetCommandTextFor(
@@ -249,14 +248,10 @@ QString ChangeValueCommand::getResetCommandTextFor(
 	auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
 	Q_ASSERT(nullptr != metaObject);
 
-	auto objectName = object->objectName();
-	if (objectName.isEmpty())
-		objectName = QCoreApplication::translate(
-			"ClassName", object->metaObject()->className());
+	auto objectName = translatedObjectName(object);
 
-	return resetCommandPattern().arg(objectName,
-		QCoreApplication::translate(
-			metaObject->className(), metaProperty.name()));
+	return resetCommandPattern().arg(
+		objectName, translatedPropertyName(metaObject, metaProperty.name()));
 }
 
 QString ChangeValueCommand::getMultipleCommandTextFor(
@@ -264,11 +259,8 @@ QString ChangeValueCommand::getMultipleCommandTextFor(
 {
 	Q_ASSERT(nullptr != metaObject);
 
-	QString propertyNameTr(
-		QCoreApplication::translate(metaObject->className(), propertyName));
-
 	return changeValueCommandPattern().arg(
-		multipleObjectsStr(), propertyNameTr);
+		multipleObjectsStr(), translatedPropertyName(metaObject, propertyName));
 }
 
 QString ChangeValueCommand::getMultipleCommandTextFor(
@@ -295,16 +287,10 @@ QString ChangeValueCommand::getCommandTextFor(
 	auto metaObject = Utils::GetMetaObjectForProperty(metaProperty);
 	Q_ASSERT(nullptr != metaObject);
 
-	QString objectName(object->objectName());
+	auto objectName = translatedObjectName(object);
 
-	if (objectName.isEmpty())
-		objectName = QCoreApplication::translate(
-			"ClassName", object->metaObject()->className());
-
-	QString propertyName(QCoreApplication::translate(
-		metaObject->className(), metaProperty.name()));
-
-	return changeValueCommandPattern().arg(objectName, propertyName);
+	return changeValueCommandPattern().arg(
+		objectName, translatedPropertyName(metaObject, metaProperty.name()));
 }
 
 QString ChangeValueCommand::resetCommandPattern()
@@ -320,5 +306,31 @@ QString ChangeValueCommand::changeValueCommandPattern()
 QString ChangeValueCommand::multipleObjectsStr()
 {
 	return tr("Multiple objects");
+}
+
+QString ChangeValueCommand::translatedObjectName(Object *object)
+{
+	auto objectName = object->objectName();
+	if (objectName.isEmpty())
+	{
+		objectName = QCoreApplication::translate(
+			"ClassName", object->metaObject()->className());
+	}
+
+	return objectName;
+}
+
+QString ChangeValueCommand::translatedPropertyName(
+	Object *object, const char *propertyName)
+{
+	Q_ASSERT(object);
+	return translatedPropertyName(object->metaObject(), propertyName);
+}
+
+QString ChangeValueCommand::translatedPropertyName(
+	const QMetaObject *metaObject, const char *propertyName)
+{
+	Q_ASSERT(metaObject);
+	return QCoreApplication::translate(metaObject->className(), propertyName);
 }
 }
