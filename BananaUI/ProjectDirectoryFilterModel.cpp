@@ -292,13 +292,15 @@ bool ProjectDirectoryFilterModel::filterAcceptsRow(
 	if (fileinfo.isRoot())
 		return true;
 
-	if (fileinfo.isDir())
+	if (fileinfo.isDir() && !hasSearchFilter())
 	{
-		auto rootPath = QDir::cleanPath(project_dir->getFilePath()) + "/";
-		auto filePath = QDir::cleanPath(fileinfo.filePath());
-		if (!filePath.startsWith(rootPath, Qt::CaseInsensitive))
-			return true;
+		return true;
 	}
+
+	auto rootPath = QDir::cleanPath(project_dir->getFilePath()) + "/";
+	auto filePath = QDir::cleanPath(fileinfo.filePath());
+	if (!filePath.startsWith(rootPath, Qt::CaseInsensitive))
+		return fileinfo.isDir();
 
 	return filterAcceptsRowInternal(
 		source_row, source_parent, splitDirs(fileinfo));
