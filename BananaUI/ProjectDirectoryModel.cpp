@@ -40,7 +40,7 @@ ProjectDirectoryModel::ProjectDirectoryModel(QObject *parent)
 	, fileManager(nullptr)
 	, graphicsFileMetaObject(nullptr)
 {
-	QFileIconProvider::setOptions(DontUseCustomDirectoryIcons);
+	QFileIconProvider::setOptions(QFileIconProvider::DontUseCustomDirectoryIcons);
 	setIconProvider(this);
 	setReadOnly(false);
 	setNameFilterDisables(false);
