@@ -766,6 +766,37 @@ void Directory::descendantChanged(QObject *descendant, DescendantState state)
 	doFlagsChanged();
 }
 
+QList<AbstractFile *> Directory::findChildren_()
+{
+	QList<AbstractFile *> resultList;
+	auto nameFilter = "frame";
+	auto filter = QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden |
+			QDir::NoSymLinks;
+	QDir dir(getFilePath());
+	QList<QDir> list;
+	list.push_back(dir);
+	while (!list.isEmpty())
+	{
+		auto tmp_dir = list.takeFirst();
+		auto entryList = tmp_dir.entryInfoList(filter);
+		for (auto& entry: entryList)
+		{
+			if (entry.isDir())
+			{
+				list.push_back(entry.dir());
+			}
+			else if (entry.completeSuffix() == nameFilter)
+			{
+				auto object = findFileSystemObject(entry.absoluteFilePath(), false);
+				auto resultFile = dynamic_cast<AbstractFile *>(object);
+				resultList.push_back(object);
+			}
+		}
+	}
+
+	return resultList;
+}
+
 RootDirectory::RootDirectory(const QString &path)
 	: Directory(path)
 {

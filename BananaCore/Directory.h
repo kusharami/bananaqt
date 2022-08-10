@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include <memory>
 #include <set>
+#include <QDir>
 
 namespace Banana
 {
@@ -51,6 +52,9 @@ class Directory
 			SCRIPTABLE true STORED false)
 
 	Q_PROPERTY(bool userSpecific READ isUserSpecific WRITE setUserSpecific
+			SCRIPTABLE true STORED false DESIGNABLE false)
+
+	Q_PROPERTY(QList<AbstractFile *> children READ findChildren_
 			SCRIPTABLE true STORED false DESIGNABLE false)
 
 public:
@@ -140,6 +144,8 @@ public:
 	void setSearchOrder(int order);
 
 	void setSearchOrderForAncestor(Directory *ancestor, int order);
+
+	QList<AbstractFile *> findChildren_();
 
 signals:
 	void dirDestroyed();
