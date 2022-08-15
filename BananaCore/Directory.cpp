@@ -766,30 +766,57 @@ void Directory::descendantChanged(QObject *descendant, DescendantState state)
 	doFlagsChanged();
 }
 
-QList<AbstractFile *> Directory::findChildren_()
+QObjectList Directory::findAllFilesWithExtension()
 {
-	QList<AbstractFile *> resultList;
-	auto nameFilter = "frame";
+	for (auto &item : resultList)
+		delete item;
+	resultList.clear();
+
+	for (auto i = m_recDirChildren.begin(); i != m_recDirChildren.end(); ++i)
+		delete i.value();
+	m_recDirChildren.clear();
+
 	auto filter = QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Hidden |
-			QDir::NoSymLinks;
+		QDir::NoSymLinks | QDir::Files;
 	QDir dir(getFilePath());
 	QList<QDir> list;
 	list.push_back(dir);
+	auto currentDir = this;
 	while (!list.isEmpty())
 	{
 		auto tmp_dir = list.takeFirst();
 		auto entryList = tmp_dir.entryInfoList(filter);
-		for (auto& entry: entryList)
+		if (m_recDirChildren.contains(tmp_dir.absolutePath()))
+			currentDir = m_recDirChildren[tmp_dir.absolutePath()];
+
+		for (auto &entry : entryList)
 		{
 			if (entry.isDir())
 			{
-				list.push_back(entry.dir());
-			}
-			else if (entry.completeSuffix() == nameFilter)
+				list.push_back(entry.absoluteFilePath());
+				m_recDirChildren[entry.absoluteFilePath()] =
+					Object::create<Directory>(currentDir, entry.baseName());
+			} else if (entry.completeSuffix() == childrenExtension)
 			{
-				auto object = findFileSystemObject(entry.absoluteFilePath(), false);
-				auto resultFile = dynamic_cast<AbstractFile *>(object);
-				resultList.push_back(object);
+				auto fileType =
+					getFileTypeByExtension(entry.absoluteFilePath());
+				if (fileType)
+				{
+					auto resultFile =
+						dynamic_cast<AbstractFile *>(fileType->newInstance());
+					if (resultFile)
+					{
+						resultFile->setFileName(entry.fileName());
+						resultFile->setParent(currentDir);
+						resultList.push_back(resultFile);
+					} else
+					{
+						Q_ASSERT(false);
+					}
+				} else
+				{
+					Q_ASSERT(false);
+				}
 			}
 		}
 	}
