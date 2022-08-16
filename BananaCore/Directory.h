@@ -32,6 +32,7 @@ SOFTWARE.
 
 #include <memory>
 #include <set>
+#include <QDir>
 
 namespace Banana
 {
@@ -52,6 +53,12 @@ class Directory
 
 	Q_PROPERTY(bool userSpecific READ isUserSpecific WRITE setUserSpecific
 			SCRIPTABLE true STORED false DESIGNABLE false)
+
+	Q_PROPERTY(QObjectList children READ findAllFilesWithExtension
+			SCRIPTABLE true STORED false DESIGNABLE false)
+
+	Q_PROPERTY(QString childrenExtension READ getChildrenExtension WRITE
+			setChildrenExtension SCRIPTABLE true STORED false)
 
 public:
 	Q_INVOKABLE QString getAbsoluteFilePathFor(
@@ -141,6 +148,16 @@ public:
 
 	void setSearchOrderForAncestor(Directory *ancestor, int order);
 
+	QObjectList findAllFilesWithExtension();
+	const QString &getChildrenExtension()
+	{
+		return childrenExtension;
+	}
+	const void setChildrenExtension(const QString &extension)
+	{
+		childrenExtension = extension;
+	}
+
 signals:
 	void dirDestroyed();
 	void updatePathError(const QString &path, const QString &failed_path);
@@ -159,6 +176,9 @@ protected:
 private:
 	int searchOrder;
 	bool searched;
+	QString childrenExtension;
+	QObjectList resultList;
+	QMap<QString, Directory *> m_recDirChildren;
 
 	static RegisteredFileTypes registeredFileTypes;
 };
