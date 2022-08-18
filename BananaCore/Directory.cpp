@@ -82,6 +82,35 @@ QString Directory::getAbsoluteFilePathFor(
 	return QDir::cleanPath(path);
 }
 
+QObjectList Directory::findFiles(const QStringList &filters) const
+{
+	QObjectList result;
+	auto projDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
+	if (projDir)
+		findFilesRecursive(result, projDir, QDir(getFilePath()), filters);
+	return result;
+}
+
+void Directory::findFilesRecursive(QObjectList &result,
+	AbstractProjectDirectory *projectDirectory, QDir currentDir,
+	const QStringList &filters) const
+{
+	for (auto &entry : currentDir.entryInfoList(
+			 QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot))
+	{
+		if (entry.isDir())
+		{
+			findFilesRecursive(result, projectDirectory,
+				QDir(entry.absoluteFilePath()), filters);
+		} else
+		{
+			if (filters.contains(entry.suffix()))
+				result.append(projectDirectory->addExistingFile(
+					entry.absoluteFilePath(), false));
+		}
+	}
+}
+
 Directory::Directory(const QString &name)
 	: AbstractDirectory(this)
 	, searched(false)

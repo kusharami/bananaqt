@@ -32,10 +32,12 @@ SOFTWARE.
 
 #include <memory>
 #include <set>
+#include <QDir>
 
 namespace Banana
 {
 class AbstractFile;
+class AbstractProjectDirectory;
 class Directory
 	: public ObjectGroup
 	, public AbstractDirectory
@@ -58,6 +60,7 @@ public:
 		const QString &path, bool search = false) const;
 	Q_INVOKABLE inline QString getRelativeFilePathFor(
 		const QString &path) const;
+	Q_INVOKABLE QObjectList findFiles(const QStringList &filters) const;
 
 	enum class Error
 	{
@@ -155,6 +158,9 @@ protected:
 		Qt::CaseSensitivity sensitivity) const override;
 	virtual void sortChildren(QObjectList &children) override;
 	virtual void childEvent(QChildEvent *event) override;
+	void findFilesRecursive(QObjectList &result,
+		AbstractProjectDirectory *projectDirectory, QDir currentDir,
+		const QStringList &filters) const;
 
 private:
 	int searchOrder;
