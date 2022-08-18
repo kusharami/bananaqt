@@ -119,6 +119,11 @@ Directory::Directory(const QString &name)
 
 	registerChildType(&Directory::staticMetaObject);
 
+	for (auto &item : registeredFileTypes)
+	{
+		registerChildType(item.fileMetaObject);
+	}
+
 	setObjectName(name);
 }
 
