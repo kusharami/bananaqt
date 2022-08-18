@@ -60,7 +60,7 @@ public:
 		const QString &path, bool search = false) const;
 	Q_INVOKABLE inline QString getRelativeFilePathFor(
 		const QString &path) const;
-	Q_INVOKABLE QObjectList findFiles(const QStringList &filters);
+	Q_INVOKABLE QObjectList findFiles(const QStringList &filters) const;
 
 	enum class Error
 	{

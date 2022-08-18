@@ -82,7 +82,7 @@ QString Directory::getAbsoluteFilePathFor(
 	return QDir::cleanPath(path);
 }
 
-QObjectList Directory::findFiles(const QStringList &filters)
+QObjectList Directory::findFiles(const QStringList &filters) const
 {
 	QObjectList result;
 	auto projDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
