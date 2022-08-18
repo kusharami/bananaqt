@@ -37,6 +37,7 @@ SOFTWARE.
 namespace Banana
 {
 class AbstractFile;
+class AbstractProjectDirectory;
 class Directory
 	: public ObjectGroup
 	, public AbstractDirectory
@@ -54,17 +55,12 @@ class Directory
 	Q_PROPERTY(bool userSpecific READ isUserSpecific WRITE setUserSpecific
 			SCRIPTABLE true STORED false DESIGNABLE false)
 
-	Q_PROPERTY(QObjectList children READ findAllFilesWithExtension
-			SCRIPTABLE true STORED false DESIGNABLE false)
-
-	Q_PROPERTY(QString childrenExtension READ getChildrenExtension WRITE
-			setChildrenExtension SCRIPTABLE true STORED false)
-
 public:
 	Q_INVOKABLE QString getAbsoluteFilePathFor(
 		const QString &path, bool search = false) const;
 	Q_INVOKABLE inline QString getRelativeFilePathFor(
 		const QString &path) const;
+	Q_INVOKABLE QObjectList findFiles(const QStringList &filters);
 
 	enum class Error
 	{
@@ -148,16 +144,6 @@ public:
 
 	void setSearchOrderForAncestor(Directory *ancestor, int order);
 
-	QObjectList findAllFilesWithExtension();
-	const QString &getChildrenExtension()
-	{
-		return childrenExtension;
-	}
-	const void setChildrenExtension(const QString &extension)
-	{
-		childrenExtension = extension;
-	}
-
 signals:
 	void dirDestroyed();
 	void updatePathError(const QString &path, const QString &failed_path);
@@ -172,13 +158,16 @@ protected:
 		Qt::CaseSensitivity sensitivity) const override;
 	virtual void sortChildren(QObjectList &children) override;
 	virtual void childEvent(QChildEvent *event) override;
+	virtual void findFilesRecursive(QObjectList &result,
+		AbstractProjectDirectory *projectDirectory, QDir currentDir,
+		const QStringList &filters) const;
+
+protected:
+	static AbstractProjectDirectory *projectDirectoryPtr;
 
 private:
 	int searchOrder;
 	bool searched;
-	QString childrenExtension;
-	QObjectList resultList;
-	QMap<QString, Directory *> m_recDirChildren;
 
 	static RegisteredFileTypes registeredFileTypes;
 };
