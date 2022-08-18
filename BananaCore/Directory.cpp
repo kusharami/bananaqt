@@ -48,7 +48,6 @@ static const QString sFilterSeparator =
 
 static const char szFilterFmt[] =
 	QT_TRANSLATE_NOOP("FileTypeFilter", "%1 (%2)");
-AbstractProjectDirectory *Directory::projectDirectoryPtr = nullptr;
 
 QString Directory::getAbsoluteFilePathFor(
 	const QString &path, bool search) const
@@ -86,10 +85,9 @@ QString Directory::getAbsoluteFilePathFor(
 QObjectList Directory::findFiles(const QStringList &filters)
 {
 	QObjectList result;
-	auto tt = getFilePath();
-	if (projectDirectoryPtr)
-		findFilesRecursive(
-			result, projectDirectoryPtr, QDir(getFilePath()), filters);
+	auto projDir = dynamic_cast<AbstractProjectDirectory *>(getTopDirectory());
+	if (projDir)
+		findFilesRecursive(result, projDir, QDir(getFilePath()), filters);
 	return result;
 }
 

@@ -158,12 +158,9 @@ protected:
 		Qt::CaseSensitivity sensitivity) const override;
 	virtual void sortChildren(QObjectList &children) override;
 	virtual void childEvent(QChildEvent *event) override;
-	virtual void findFilesRecursive(QObjectList &result,
+	void findFilesRecursive(QObjectList &result,
 		AbstractProjectDirectory *projectDirectory, QDir currentDir,
 		const QStringList &filters) const;
-
-protected:
-	static AbstractProjectDirectory *projectDirectoryPtr;
 
 private:
 	int searchOrder;
