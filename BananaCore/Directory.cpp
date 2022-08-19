@@ -95,19 +95,16 @@ void Directory::findFilesRecursive(QObjectList &result,
 	AbstractProjectDirectory *projectDirectory, QDir currentDir,
 	const QStringList &filters) const
 {
-	for (auto &entry : currentDir.entryInfoList(
-			 QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot))
+	for (auto &entry :
+		currentDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot))
 	{
-		if (entry.isDir())
-		{
-			findFilesRecursive(result, projectDirectory,
-				QDir(entry.absoluteFilePath()), filters);
-		} else
-		{
-			if (filters.contains(entry.suffix()))
-				result.append(projectDirectory->addExistingFile(
-					entry.absoluteFilePath(), false));
-		}
+		findFilesRecursive(
+			result, projectDirectory, QDir(entry.absoluteFilePath()), filters);
+	}
+	for (auto &entry : currentDir.entryInfoList(filters, QDir::Files))
+	{
+		result.append(
+			projectDirectory->addExistingFile(entry.absoluteFilePath(), false));
 	}
 }
 
