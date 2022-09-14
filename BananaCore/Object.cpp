@@ -1142,19 +1142,10 @@ void Object::internalAssign(QObject *source, bool fresh, bool top)
 	if (fresh)
 		loadCounter++;
 
-	bool swap = assignBegin(source, top);
+	assignBegin(source, top);
 	assignProperties(source);
 	assignChildren(source);
 	assignEnd(source, top);
-
-	auto object = qobject_cast<Object *>(source);
-	if (object)
-	{
-		if (swap)
-		{
-			modifiedSet = object->modifiedSet;
-		}
-	}
 
 	if (fresh)
 		loadCounter--;
@@ -1394,7 +1385,7 @@ bool Object::assignBegin(QObject *source, bool)
 		auto srcObj = dynamic_cast<Object *>(source);
 		if (nullptr != srcObj)
 		{
-			modifiedSet = ~srcObj->modifiedSet;
+			modifiedSet |= ~srcObj->modifiedSet;
 			return true;
 		}
 	}
