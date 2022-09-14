@@ -677,6 +677,7 @@ void Object::saveContents(QVariantMap &destination, SaveMode saveMode) const
 
 		case SaveStandaloneInheritedChild:
 			ignorePrototype = isInheritedChild() && !isPrototypedRoot();
+			saveMode = SavePrototyped;
 			break;
 
 		case SaveStandalone:
@@ -1141,11 +1142,14 @@ void Object::internalAssign(QObject *source, bool fresh, bool top)
 {
 	if (fresh)
 		loadCounter++;
+	auto saveModifiedSet = modifiedSet;
 
-	assignBegin(source, top);
+	bool swap = assignBegin(source, top);
 	assignProperties(source);
 	assignChildren(source);
 	assignEnd(source, top);
+	if (swap)
+		modifiedSet = saveModifiedSet;
 
 	if (fresh)
 		loadCounter--;
@@ -1569,4 +1573,4 @@ void Object::getDescendants(QObject *obj, QObjectList &out)
 		getDescendants(child, out);
 	}
 }
-}
+} // namespace Banana
