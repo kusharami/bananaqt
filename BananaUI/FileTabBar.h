@@ -56,6 +56,9 @@ public:
 	AbstractFile *getCurrentFile() const;
 	UndoStack *getCurrentUndoStack() const;
 
+	typedef std::vector<AbstractFile *> FileVector;
+	const FileVector &getOpenedFiles() const;
+
 	bool fileOpen(AbstractFile *file);
 	void fileClose(AbstractFile *file, bool multiple = false);
 
@@ -89,8 +92,6 @@ private:
 	void connectFile(AbstractFile *file);
 	void disconnectFile(AbstractFile *file);
 
-	typedef std::vector<AbstractFile *> FileVector;
-
 	int getFileIndex(QObject *fileObject, bool valid = false) const;
 
 	int mUndoLimit;
@@ -109,4 +110,9 @@ void FileTabBar::setUndoGroup(QUndoGroup *undoGroup)
 {
 	mUndoGroup = undoGroup;
 }
+
+inline const FileTabBar::FileVector &FileTabBar::getOpenedFiles() const
+{
+	return openedFiles;
 }
+} // namespace Banana
